@@ -1,0 +1,1840 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#2563eb">
+<title>Controle de Validades | Skalee</title>
+<link rel="icon" type="image/png" sizes="64x64" href="skalee-icon-64.png">
+<link rel="apple-touch-icon" sizes="192x192" href="skalee-icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="auth.css">
+<script>
+(() => {
+ const preference = localStorage.getItem("skalee.theme") || "auto";
+ const dark = preference === "dark" || (preference === "auto" && matchMedia("(prefers-color-scheme: dark)").matches);
+ document.documentElement.dataset.theme = dark ? "dark" : "light";
+ document.documentElement.dataset.themePreference = preference;
+})();
+</script>
+<style>
+:root{
+ --bg:#f4f6fa;--card:#fff;--text:#172033;--muted:#7a8499;--line:#e4e8ef;
+ --blue:#2563eb;--blue2:#eff6ff;--red:#dc2626;--orange:#ea580c;--yellow:#ca8a04;--green:#16a34a;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,Arial,sans-serif;background:var(--bg);color:var(--text)}
+.app{max-width:1180px;margin:auto;padding:22px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+h1{margin:0;font-size:26px}.sub{color:var(--muted);font-size:13px;margin-top:4px}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+button{font:inherit}
+.tab,.btn{border:0;border-radius:11px;padding:11px 15px;font-weight:750;cursor:pointer}
+.tab{background:#e9edf4;color:#48546a}.tab.active{background:var(--blue);color:#fff}
+.page{display:none}.page.active{display:block}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px}
+.stat small{color:var(--muted)}.stat b{display:block;font-size:23px;margin-top:5px}
+.searchrow{display:grid;grid-template-columns:1fr 190px;gap:10px;margin-bottom:10px}.searchrow.with-layout{grid-template-columns:1fr 190px auto}
+input,select{width:100%;padding:12px;border:1px solid var(--line);border-radius:11px;background:#fff;color:var(--text);font-size:14px;outline:none}
+input:focus,select:focus{border-color:#9dbbf9;box-shadow:0 0 0 3px #e8f0ff}
+.filters{display:flex;gap:8px;overflow:auto;padding:2px 0 14px;scrollbar-width:none}
+.chip{white-space:nowrap;border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 11px;color:#59657a;cursor:pointer;font-weight:700;font-size:13px}
+.chip.active{background:#172033;color:#fff;border-color:#172033}
+.grid{display:grid;grid-template-columns:repeat(var(--product-columns,3),minmax(0,1fr));gap:14px}
+.card{background:#fff;border:1px solid var(--line);border-radius:17px;overflow:hidden;box-shadow:0 4px 16px rgba(20,30,50,.04)}
+.photo{height:160px;background:#edf0f5;display:flex;align-items:center;justify-content:center;color:var(--muted);overflow:hidden}
+.photo img{width:100%;height:100%;object-fit:cover}
+.content{padding:15px}.name{font-weight:850;min-height:40px}.code{font-size:13px;color:var(--blue);margin:5px 0 10px}
+.info{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid #f0f2f5;font-size:14px}.info span{color:var(--muted)}
+.badges{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
+.badge{font-size:12px;font-weight:800;padding:6px 9px;border-radius:999px}
+.card-actions{display:flex;justify-content:flex-end;margin-top:13px}.card-actions .btn2{padding:9px 13px}
+.card-details{display:none;margin-top:7px}.card.expanded .card-details{display:block}.card-summary{margin-top:7px}.toggle-details{color:var(--blue);background:var(--blue2)}
+.btn-success{border:0;border-radius:11px;background:#dcfce7;color:#166534;padding:11px 14px;font-weight:800;cursor:pointer}.btn-danger{border:0;border-radius:11px;background:#fee2e2;color:#b91c1c;padding:11px 14px;font-weight:800;cursor:pointer}.danger-actions{display:flex;gap:8px;margin-top:10px;padding-top:14px;border-top:1px solid var(--line)}button:disabled{opacity:.6;cursor:not-allowed}
+.update-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,.62);padding:16px;z-index:1900}.update-modal.show{display:flex}
+.update-panel{width:min(440px,100%);background:#fff;border-radius:18px;padding:20px;box-shadow:0 24px 70px rgba(15,23,42,.28)}.update-panel h2{margin:0}.update-product-name{margin:5px 0 16px;color:var(--muted);font-size:14px}.update-error{min-height:19px;margin-top:10px;color:var(--red);font-size:13px;font-weight:700}
+.red{background:#fee2e2;color:var(--red)}.orange{background:#ffedd5;color:var(--orange)}.yellow{background:#fef9c3;color:var(--yellow)}.green{background:#dcfce7;color:var(--green)}.offer{background:#dbeafe;color:#1d4ed8}.high{background:#f3e8ff;color:#7e22ce}
+.empty{grid-column:1/-1;background:#fff;border:1px dashed #cbd3df;border-radius:15px;padding:40px;text-align:center;color:var(--muted)}
+.form{max-width:680px;margin:auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px}
+.form h2{margin:0 0 4px}.label{display:block;margin:14px 0 6px;font-size:13px;font-weight:800}
+.scan{display:grid;grid-template-columns:1fr auto auto;gap:8px}.btn{background:var(--blue);color:#fff}.btn2{border:0;border-radius:11px;background:#e9edf4;color:#39465c;padding:11px 14px;font-weight:750;cursor:pointer}
+.found{display:none;margin-top:10px;padding:13px;border-radius:11px;background:var(--blue2);border:1px solid #d8e6ff}.found.show{display:block}
+.catalog-status{margin-top:7px;color:var(--muted);font-size:12px}.catalog-status[hidden]{display:none}.catalog-status.ready{color:var(--green)}.catalog-status.error{color:var(--red)}
+.preview{height:145px;margin-top:8px;border:1px dashed #cbd3df;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--muted);overflow:hidden}.preview img{width:100%;height:100%;object-fit:cover}
+.check{display:flex;gap:9px;align-items:center;margin-top:16px;font-size:14px;font-weight:700}.check input{width:auto}
+.actions{display:flex;gap:8px;margin-top:19px}
+.resultline{font-size:13px;color:var(--muted);margin-bottom:12px}
+.settings{max-width:760px;margin:auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px}
+.report{max-width:900px;margin:auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px}.report-head{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;margin-bottom:16px}.report-head h2{margin:0 0 5px}.report-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.report-controls select{min-width:150px}.report-date{display:grid;gap:3px;color:var(--muted);font-size:11px;font-weight:750}.report-date input{min-width:145px;padding:10px}.report-selection-actions{display:flex;gap:8px;margin:0 0 10px}.layout-picker{display:flex;gap:5px;padding:4px;border:1px solid var(--line);border-radius:11px;background:#f1f5f9}.layout-button{display:grid;place-items:center;width:38px;height:36px;padding:7px;border:0;border-radius:8px;background:transparent;color:#7a8499;cursor:pointer}.layout-button.active{background:var(--blue);color:#fff;box-shadow:0 3px 9px rgba(37,99,235,.25)}.layout-icon{display:grid;grid-template-columns:repeat(var(--icon-columns),1fr);grid-template-rows:repeat(3,4px);gap:2px;width:100%;height:16px}.layout-icon span{border-radius:1px;background:currentColor}.report-grid{display:grid;grid-template-columns:repeat(var(--report-columns,1),minmax(0,1fr));gap:10px;min-height:260px;padding:12px;border:1px solid var(--line);border-radius:13px;background:#f8fafc}.report-item{position:relative;min-width:0;padding:14px 14px 14px 44px;border:1px solid #dbe1ea;border-radius:10px;background:#fff;color:#111827;white-space:pre-wrap;overflow-wrap:anywhere;font:700 15px/1.45 "Courier New",monospace;cursor:pointer}.report-item.selected{border-color:#60a5fa;box-shadow:0 0 0 2px rgba(37,99,235,.12)}.report-item input{position:absolute;top:15px;left:14px;width:18px;height:18px;cursor:pointer}.report-grid[data-columns="2"] .report-item{font-size:13px;padding:12px 12px 12px 39px}.report-grid[data-columns="3"] .report-item{font-size:11px;padding:9px 9px 9px 34px}.report-grid[data-columns="4"] .report-item{font-size:9px;padding:7px 7px 7px 31px}.report-empty{grid-column:1/-1;align-self:start;padding:30px;text-align:center;color:var(--muted)}.report-status{margin-top:10px;color:var(--muted);font-size:13px}
+.settings h2{margin:0 0 5px}.settings-note{margin:0 0 18px;color:var(--muted);font-size:14px;line-height:1.5}
+.settings-section+.settings-section{margin-top:24px;padding-top:22px;border-top:1px solid var(--line)}.theme-options{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}.theme-button{display:flex;align-items:center;gap:10px;padding:13px;border:1px solid var(--line);border-radius:13px;background:#f8fafc;color:var(--text);font-weight:800;cursor:pointer;text-align:left}.theme-button.active{border-color:var(--blue);background:var(--blue2);color:#1d4ed8;box-shadow:0 0 0 2px rgba(37,99,235,.1)}.theme-icon{display:grid;place-items:center;width:31px;height:31px;border-radius:9px;background:#fff;font-size:18px;box-shadow:0 2px 7px rgba(15,23,42,.1)}.theme-status{margin-top:10px;color:var(--muted);font-size:13px}
+.settings-section[hidden]{display:none}.user-create{display:grid;grid-template-columns:1fr 1fr auto;gap:9px;align-items:end;margin-top:14px}.user-list{display:grid;gap:9px;margin-top:16px}.user-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px;border:1px solid var(--line);border-radius:12px;background:#f8fafc}.user-info{min-width:0}.user-info strong{display:block;overflow:hidden;text-overflow:ellipsis}.user-info small{display:block;margin-top:4px;color:var(--muted)}.user-state{display:inline-block;margin-top:6px;padding:4px 7px;border-radius:999px;font-size:11px;font-weight:850}.user-state.active{background:#dcfce7;color:#166534}.user-state.inactive{background:#fee2e2;color:#b91c1c}.user-message{min-height:19px;margin-top:10px;color:var(--muted);font-size:13px}.user-message.error{color:var(--red)}.user-message.success{color:var(--green)}
+.import-box{border:2px dashed #cbd3df;border-radius:15px;padding:24px;text-align:center;background:#fafbfc}
+.import-box input{margin:14px auto 0;max-width:440px}.catalog-info{margin-top:16px;padding:14px;border-radius:12px;background:var(--blue2);font-size:14px;line-height:1.55}
+.catalog-info b{display:block}.settings-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.scanner-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.6);padding:16px;z-index:1000}
+.scanner-modal.show{display:flex}
+.scanner-panel{position:relative;width:min(560px,100%);background:#fff;border-radius:16px;padding:16px;border:1px solid var(--line)}
+.scanner-video{width:100%;height:min(58vh,380px);background:#0f172a;border-radius:12px;object-fit:cover}
+.scanner-reader{width:100%;min-height:280px;border-radius:12px;overflow:hidden;background:#0f172a}
+.scanner-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.scanner-status{margin:10px 0 0;color:#5a6478;font-size:13px}
+.scanner-success{position:absolute;inset:0;border-radius:16px;background:rgba(22,163,74,.9);display:none;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:20px;letter-spacing:.02em}
+.scanner-success.show{display:flex}
+.save-toast{position:fixed;left:50%;top:24px;z-index:2100;display:flex;align-items:center;gap:10px;padding:14px 18px;border-radius:14px;background:#166534;color:#fff;font-weight:800;box-shadow:0 14px 35px rgba(22,101,52,.3);opacity:0;transform:translate(-50%,-20px) scale(.96);pointer-events:none;transition:opacity .25s ease,transform .3s ease}
+.save-toast.show{opacity:1;transform:translate(-50%,0) scale(1)}.save-toast-icon{font-size:21px}
+.saving-overlay{position:fixed;inset:0;z-index:3000;display:none;place-items:center;padding:20px;background:rgba(15,23,42,.68);backdrop-filter:blur(3px);cursor:wait}.saving-overlay.show{display:grid}.saving-box{display:flex;flex-direction:column;align-items:center;gap:14px;width:min(300px,100%);padding:25px;border-radius:18px;background:#fff;box-shadow:0 24px 70px rgba(15,23,42,.35);text-align:center}.saving-box strong{font-size:17px}.saving-box span{color:var(--muted);font-size:13px}.saving-spinner{width:46px;height:46px;border:5px solid #dbeafe;border-top-color:var(--blue);border-radius:50%;animation:saving-spin .75s linear infinite}@keyframes saving-spin{to{transform:rotate(360deg)}}
+.install-banner{position:fixed;left:50%;bottom:18px;z-index:2300;display:flex;align-items:center;gap:13px;width:min(620px,calc(100% - 28px));padding:14px;border:1px solid #bfdbfe;border-radius:17px;background:#fff;box-shadow:0 18px 48px rgba(15,23,42,.24);transform:translateX(-50%)}.install-banner[hidden]{display:none}.install-app-icon{width:48px;height:48px;flex:0 0 auto;border-radius:12px}.install-copy{min-width:0;flex:1}.install-copy strong{display:block;margin-bottom:3px}.install-copy span{display:block;color:var(--muted);font-size:13px;line-height:1.35}.install-actions{display:flex;gap:7px;flex:0 0 auto}
+.confetti-layer{position:fixed;inset:0;z-index:2000;overflow:hidden;pointer-events:none}
+.confetti-piece{position:absolute;left:50%;top:48%;width:10px;height:16px;border-radius:3px;background:var(--confetti-color);opacity:0;animation:confetti-burst 1.7s cubic-bezier(.15,.7,.25,1) forwards;animation-delay:var(--confetti-delay);transform:translate(-50%,-50%) rotate(0deg)}
+@keyframes confetti-burst{0%{opacity:1;transform:translate(-50%,-50%) rotate(0deg)}70%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--confetti-x)),calc(-50% + var(--confetti-y))) rotate(var(--confetti-rotation))}}
+@media(prefers-reduced-motion:reduce){.confetti-piece{display:none}.save-toast{transition:none}}
+@media(prefers-reduced-motion:reduce){.saving-spinner{animation-duration:1.5s}}
+.hidden{display:none !important}
+html[data-theme="dark"]{color-scheme:dark;--bg:#0b1220;--card:#111b2e;--text:#e5edf9;--muted:#94a3b8;--line:#29364b;--blue:#3b82f6;--blue2:#172a49}
+html[data-theme="dark"] body{background:var(--bg);color:var(--text)}
+html[data-theme="dark"] :is(.stat,.card,.form,.settings,.report,.update-panel,.scanner-panel,.saving-box){background:var(--card);border-color:var(--line)}
+html[data-theme="dark"] :is(input,select){background:#0f192a;border-color:var(--line);color:var(--text)}
+html[data-theme="dark"] :is(.tab,.btn2){background:#223047;color:#dbe7f7}
+html[data-theme="dark"] :is(.chip,.theme-button,.report-item){background:#121e31;border-color:var(--line);color:var(--text)}
+html[data-theme="dark"] .user-row{background:#121e31;border-color:var(--line)}
+html[data-theme="dark"] .install-banner{background:var(--card);border-color:#31558a}
+html[data-theme="dark"] .chip.active{background:#e5edf9;color:#111827;border-color:#e5edf9}
+html[data-theme="dark"] :is(.photo,.layout-picker,.report-grid,.import-box){background:#0d1727;border-color:var(--line)}
+html[data-theme="dark"] :is(.info,.settings-section+.settings-section){border-color:var(--line)}
+html[data-theme="dark"] .code{color:#7db1ff}
+html[data-theme="dark"] .theme-button.active{background:#17315a;color:#bfdbfe;border-color:#60a5fa}
+html[data-theme="dark"] .theme-icon{background:#27364e;box-shadow:none}
+html[data-theme="dark"] :is(.catalog-info,.found){background:#132b4b;border-color:#25466f}
+html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
+@media(max-width:620px){.scan{grid-template-columns:1fr}}
+@media(max-width:850px){.stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){.app{padding:14px}.searchrow,.searchrow.with-layout{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}header{align-items:flex-start;flex-direction:column;gap:5px}.photo{height:180px}.report-head{align-items:stretch;flex-direction:column}.report-controls{align-items:stretch;flex-direction:column}.product-layout-picker{justify-self:start}.theme-options,.user-create{grid-template-columns:1fr}.user-row{align-items:stretch;flex-direction:column}.user-row .btn2{width:100%}.install-banner{align-items:flex-start;flex-wrap:wrap}.install-copy{flex:1 1 calc(100% - 65px)}.install-actions{width:100%;justify-content:flex-end}.grid[data-columns="2"] .photo{height:120px}.grid[data-columns="3"] .photo{height:90px}.grid[data-columns="4"] .photo{height:70px}.grid[data-columns="3"] .content,.grid[data-columns="4"] .content{padding:7px}.grid[data-columns="3"] .name,.grid[data-columns="4"] .name{min-height:0;font-size:10px}.grid[data-columns="3"] .code,.grid[data-columns="4"] .code{font-size:8px}.grid[data-columns="3"] .info,.grid[data-columns="4"] .info{display:block;font-size:8px}.grid[data-columns="3"] .badge,.grid[data-columns="4"] .badge{font-size:7px;padding:4px}.grid[data-columns="3"] .card-actions .btn2,.grid[data-columns="4"] .card-actions .btn2{width:100%;padding:6px 3px;font-size:8px}}
+</style>
+</head>
+<body class="auth-loading">
+<section id="authScreen" class="auth-screen" aria-labelledby="authTitle">
+ <div class="auth-ring">
+  <span class="auth-orbit auth-orbit-one" style="--ring-color:#4f7cff" aria-hidden="true"></span>
+  <span class="auth-orbit auth-orbit-two" style="--ring-color:#6c5cff" aria-hidden="true"></span>
+  <span class="auth-orbit auth-orbit-three" style="--ring-color:#00d4ff" aria-hidden="true"></span>
+  <form id="authForm" class="auth-card">
+   <div class="auth-brand">
+    <img src="skalee-symbol-source.png" alt="Skalee">
+    <img class="auth-wordmark-image" src="https://raw.githubusercontent.com/Lucasskalee/razarth-fechamento-skalee/master/fechamentos/public/icons/skalee-wordmark-login.png" alt="Skalee — Criar, Evoluir, Impactar">
+   </div>
+   <h1 id="authTitle">Entrar</h1>
+   <p id="authSubtitle">Bem-vindo de volta. Acesse o controle de validades com sua conta operacional.</p>
+   <label for="authEmail">E-mail</label>
+   <input id="authEmail" name="email" type="email" autocomplete="email" required>
+   <label for="authPassword">Senha</label>
+   <input id="authPassword" name="password" type="password" autocomplete="current-password" minlength="6" required>
+   <p id="authMessage" class="auth-message" role="status" aria-live="polite">Informe e-mail e senha para continuar.</p>
+   <button id="authSubmit" class="auth-primary" type="submit">Entrar</button>
+   <button id="authMode" class="auth-link" type="button" hidden>Criar uma conta</button>
+   <span class="auth-platform-credit">Skalee Platform</span>
+  </form>
+ </div>
+</section>
+
+<main id="protectedApp" class="app" aria-hidden="true">
+<header>
+ <div><h1>Controle de Validades</h1><div class="sub">Acompanhe primeiro o que está mais perto de vencer.</div></div>
+ <div class="user-area"><div><span id="authUser" class="sub"></span><div class="sub" id="today"></div></div><button id="signOut" class="btn2" type="button">Sair</button></div>
+</header>
+
+<nav>
+ <button class="tab active" data-page="products">Produtos</button>
+ <button class="tab" data-page="register">+ Registrar produto</button>
+ <button class="tab" data-page="report">Relatório</button>
+ <button class="tab" data-page="settings">Configurações</button>
+</nav>
+
+<section class="page active" id="products">
+ <div class="stats">
+  <div class="stat"><small>Produtos ativos</small><b id="sProducts">0</b></div>
+  <div class="stat"><small>Unidades</small><b id="sUnits">0</b></div>
+  <div class="stat"><small>Vence hoje</small><b id="sToday">0</b></div>
+  <div class="stat"><small>Até 7 dias</small><b id="s7">0</b></div>
+  <div class="stat"><small>Em oferta</small><b id="sOffer">0</b></div>
+ </div>
+
+ <div class="searchrow with-layout">
+  <input id="search" placeholder="Buscar por nome ou código interno...">
+  <select id="storeFilter">
+   <option value="">Todas as lojas</option><option>Loja 01</option><option>Loja 02</option><option>Loja 03</option><option>Loja 04</option>
+  </select>
+  <div class="layout-picker product-layout-picker" aria-label="Colunas dos produtos">
+   <button class="layout-button product-layout-button" type="button" data-columns="1" aria-label="Uma coluna" title="Uma coluna"><span class="layout-icon" aria-hidden="true"></span></button>
+   <button class="layout-button product-layout-button" type="button" data-columns="2" aria-label="Duas colunas" title="Duas colunas"><span class="layout-icon" aria-hidden="true"></span></button>
+   <button class="layout-button product-layout-button" type="button" data-columns="3" aria-label="Três colunas" title="Três colunas"><span class="layout-icon" aria-hidden="true"></span></button>
+   <button class="layout-button product-layout-button" type="button" data-columns="4" aria-label="Quatro colunas" title="Quatro colunas"><span class="layout-icon" aria-hidden="true"></span></button>
+  </div>
+ </div>
+
+ <div class="filters" id="chips">
+  <button class="chip active" data-filter="all">Todos</button>
+  <button class="chip" data-filter="today">Vence hoje</button>
+  <button class="chip" data-filter="3">Até 3 dias</button>
+  <button class="chip" data-filter="7">Até 7 dias</button>
+  <button class="chip" data-filter="15">Até 15 dias</button>
+  <button class="chip" data-filter="offer">Em oferta</button>
+  <button class="chip" data-filter="high">Quantidade alta</button>
+ </div>
+
+ <div class="searchrow">
+  <div class="resultline" id="result"></div>
+  <select id="sort">
+   <option value="expiry">Mais próximos do vencimento</option>
+   <option value="qtyDesc">Maior quantidade</option>
+   <option value="qtyAsc">Menor quantidade</option>
+   <option value="name">Nome A-Z</option>
+  </select>
+ </div>
+
+ <div class="grid" id="grid"></div>
+</section>
+
+<section class="page" id="register">
+ <div class="form">
+  <h2>Registrar produto</h2>
+  <div class="sub">Localize pelo código de barras e registre somente as informações da validade.</div>
+
+  <label class="label">Código de barras</label>
+  <div class="scan"><input id="barcode" inputmode="numeric" placeholder="Escaneie ou digite"><button id="find" class="btn2">Buscar</button><button id="scanCamera" class="btn2">Ler câmera</button></div>
+  <input id="barcodePhoto" type="file" accept="image/*" capture="environment" class="hidden">
+  <div id="catalogStatus" class="catalog-status" hidden>Carregando produtos de consulta03.dbf...</div>
+  <div id="found" class="found"></div>
+
+  <label class="label">Loja</label>
+  <select id="store"><option>Loja 01</option><option>Loja 02</option><option selected>Loja 03</option><option>Loja 04</option></select>
+
+  <label class="label">Quantidade</label>
+  <input id="qty" type="number" min="1" placeholder="Ex.: 40">
+
+  <label class="label">Data de vencimento</label>
+  <input id="expiry" type="date">
+
+  <label class="label">Foto do produto</label>
+  <input id="photo" type="file" accept="image/*" capture="environment">
+  <div id="preview" class="preview">Sem foto</div>
+
+  <label class="check"><input id="offer" type="checkbox"> Produto está em oferta</label>
+
+  <div class="actions"><button id="save" class="btn" type="button">Salvar produto</button><button id="clear" class="btn2" type="button">Limpar</button></div>
+ </div>
+</section>
+
+<section class="page" id="report">
+ <div class="report">
+  <div class="report-head">
+   <div><h2>Relatório de produtos</h2><div class="sub">Texto pronto para copiar e compartilhar.</div></div>
+   <div class="report-controls">
+    <select id="reportStore" aria-label="Filtrar relatório por loja">
+     <option value="">Todas as lojas</option><option>Loja 01</option><option>Loja 02</option><option>Loja 03</option><option>Loja 04</option>
+    </select>
+    <label class="report-date">Atualizado de<input id="reportUpdatedFrom" type="date"></label>
+    <label class="report-date">Até<input id="reportUpdatedTo" type="date"></label>
+    <div id="layoutPicker" class="layout-picker" aria-label="Quantidade de colunas">
+     <button class="layout-button active" type="button" data-columns="1" aria-label="Uma coluna" title="Uma coluna"><span class="layout-icon" aria-hidden="true"></span></button>
+     <button class="layout-button" type="button" data-columns="2" aria-label="Duas colunas" title="Duas colunas"><span class="layout-icon" aria-hidden="true"></span></button>
+     <button class="layout-button" type="button" data-columns="3" aria-label="Três colunas" title="Três colunas"><span class="layout-icon" aria-hidden="true"></span></button>
+     <button class="layout-button" type="button" data-columns="4" aria-label="Quatro colunas" title="Quatro colunas"><span class="layout-icon" aria-hidden="true"></span></button>
+    </div>
+    <button id="copyReport" class="btn" type="button">Copiar selecionados</button>
+   </div>
+  </div>
+  <div class="report-selection-actions">
+   <button id="selectAllReport" class="btn2" type="button">Selecionar todos</button>
+   <button id="clearReportSelection" class="btn2" type="button">Limpar seleção</button>
+  </div>
+  <div id="reportText" class="report-grid" data-columns="1"></div>
+  <div id="reportStatus" class="report-status" aria-live="polite"></div>
+ </div>
+</section>
+
+<section class="page" id="settings">
+ <div class="settings">
+  <div class="settings-section">
+   <h2>Tema do aplicativo</h2>
+   <p class="settings-note">Escolha a aparência que fica mais confortável para você.</p>
+   <div class="theme-options" role="group" aria-label="Tema do aplicativo">
+    <button class="theme-button" type="button" data-theme-choice="light"><span class="theme-icon" aria-hidden="true">☀️</span><span>Claro</span></button>
+    <button class="theme-button" type="button" data-theme-choice="dark"><span class="theme-icon" aria-hidden="true">🌙</span><span>Escuro</span></button>
+    <button class="theme-button" type="button" data-theme-choice="auto"><span class="theme-icon" aria-hidden="true">◐</span><span>Automático</span></button>
+   </div>
+   <div id="themeStatus" class="theme-status" aria-live="polite"></div>
+  </div>
+  <div id="adminUsersSection" class="settings-section" hidden>
+   <h2>Usuários</h2>
+   <p class="settings-note">Crie contas e controle quem pode acessar o aplicativo.</p>
+   <div class="user-create">
+    <div><label class="label" for="newUserEmail">E-mail</label><input id="newUserEmail" type="email" autocomplete="off" placeholder="usuario@empresa.com"></div>
+    <div><label class="label" for="newUserPassword">Senha inicial</label><input id="newUserPassword" type="password" autocomplete="new-password" minlength="8" placeholder="Mínimo de 8 caracteres"></div>
+    <button id="createUser" class="btn" type="button">Adicionar</button>
+   </div>
+   <div id="userMessage" class="user-message" aria-live="polite"></div>
+   <div id="userList" class="user-list"></div>
+  </div>
+  <div id="catalogSettingsSection" class="settings-section" hidden>
+   <h2>Catálogo de produtos</h2>
+   <p class="settings-note">Importe uma nova versão do arquivo DBF para atualizar os produtos disponíveis na busca. O arquivo fica salvo somente neste navegador e dispositivo.</p>
+   <div class="import-box">
+    <strong>Selecionar arquivo DBF</strong>
+    <div class="sub">Formato esperado: campos CODBAR, CODPROD e DESCRICAO.</div>
+    <input id="dbfFile" type="file" accept=".dbf,application/vnd.dbf">
+   </div>
+   <div id="catalogInfo" class="catalog-info" aria-live="polite">
+    <b>Carregando informações do catálogo...</b>
+   </div>
+   <div class="settings-actions">
+    <button id="importDbf" class="btn" type="button">Importar arquivo</button>
+    <button id="restoreDbf" class="btn2" type="button">Usar arquivo padrão do sistema</button>
+   </div>
+  </div>
+ </div>
+</section>
+</main>
+
+<aside id="installBanner" class="install-banner" role="status" aria-live="polite" hidden>
+ <img class="install-app-icon" src="skalee-icon-192.png" alt="">
+ <div class="install-copy">
+  <strong id="installTitle">Instalar o app Skalee</strong>
+  <span id="installMessage">Tenha acesso rápido pela tela inicial do seu aparelho.</span>
+ </div>
+ <div class="install-actions">
+  <button id="dismissInstall" class="btn2" type="button">Agora não</button>
+  <button id="installApp" class="btn" type="button">Instalar</button>
+ </div>
+</aside>
+
+<div id="scannerModal" class="scanner-modal" aria-hidden="true">
+ <div class="scanner-panel">
+  <div class="scanner-head">
+   <strong>Leitura por câmera</strong>
+   <button id="scannerClose" class="btn2">Fechar</button>
+  </div>
+    <div id="scannerReader" class="scanner-reader hidden"></div>
+  <video id="scannerVideo" class="scanner-video" playsinline muted></video>
+  <p id="scannerStatus" class="scanner-status">Aponte a câmera para o código de barras em qualquer posição.</p>
+  <div id="scannerSuccess" class="scanner-success">Leitura concluida</div>
+ </div>
+</div>
+
+<div id="updateModal" class="update-modal" role="dialog" aria-modal="true" aria-labelledby="updateTitle">
+ <div class="update-panel">
+  <h2 id="updateTitle">Atualizar produto</h2>
+  <p id="updateProductName" class="update-product-name"></p>
+  <label class="label" for="updateQty">Quantidade atual</label>
+  <input id="updateQty" type="number" min="1" inputmode="numeric">
+  <label class="check"><input id="updateOffer" type="checkbox"> Produto está em oferta</label>
+  <div id="updateError" class="update-error" role="alert"></div>
+  <div class="actions">
+   <button id="confirmUpdate" class="btn" type="button">Salvar atualização</button>
+   <button id="cancelUpdate" class="btn2" type="button">Cancelar</button>
+  </div>
+  <div class="danger-actions">
+   <button id="completeProduct" class="btn-success" type="button">Concluir</button>
+   <button id="deleteProduct" class="btn-danger" type="button">Excluir</button>
+  </div>
+ </div>
+</div>
+
+<div id="saveToast" class="save-toast" role="status" aria-live="polite">
+ <span class="save-toast-icon" aria-hidden="true">✓</span>
+ <span>Produto salvo com sucesso!</span>
+</div>
+<div id="savingOverlay" class="saving-overlay" role="status" aria-live="assertive" aria-hidden="true">
+ <div class="saving-box">
+  <div class="saving-spinner" aria-hidden="true"></div>
+  <strong>Salvando produto...</strong>
+  <span>Aguarde, não feche esta tela.</span>
+ </div>
+</div>
+<div id="confettiLayer" class="confetti-layer" aria-hidden="true"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js" integrity="sha512-r6rDA7W6ZeQhvl8S7yRVQUKVHdexq+GAlNkNNqVC7YyIV+NwqCTJe2hDWCiffTyRNOeGEzRRJ9ifvRm/HCzGYg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+const sgDemo = {
+ "7896004400914": { barcode: "7896004400914", code: "29580", name: "PÃO DE ALHO SANTA MASSA 400G" },
+ "7894900010015": { barcode: "7894900010015", code: "111", name: "REFRESCO TANG 18G LARANJA/MAMÃO" },
+ "7891000100103": { barcode: "7891000100103", code: "28913", name: "NISSIN LÁMEN 75G" },
+ "7891234567897": { barcode: "7891234567897", code: "41753", name: "BISCOITO RECHEADO CHOCOLATE 120G" }
+};
+
+let sg = new Map();
+
+const NATIVE_BARCODE_FORMATS = [
+ "ean_13",
+ "ean_8",
+ "upc_a",
+ "upc_e",
+ "code_128",
+ "code_39",
+ "itf"
+];
+
+const els = {
+ today: document.getElementById('today'),
+ search: document.getElementById('search'),
+ storeFilter: document.getElementById('storeFilter'),
+ sort: document.getElementById('sort'),
+ grid: document.getElementById('grid'),
+ result: document.getElementById('result'),
+ chips: document.querySelectorAll('.chip'),
+ sProducts: document.getElementById('sProducts'),
+ sUnits: document.getElementById('sUnits'),
+ sToday: document.getElementById('sToday'),
+ s7: document.getElementById('s7'),
+ sOffer: document.getElementById('sOffer'),
+ barcode: document.getElementById('barcode'),
+ barcodePhoto: document.getElementById('barcodePhoto'),
+ find: document.getElementById('find'),
+ scanCamera: document.getElementById('scanCamera'),
+ found: document.getElementById('found'),
+ store: document.getElementById('store'),
+ qty: document.getElementById('qty'),
+ expiry: document.getElementById('expiry'),
+ photo: document.getElementById('photo'),
+ preview: document.getElementById('preview'),
+ offer: document.getElementById('offer'),
+ save: document.getElementById('save'),
+ clear: document.getElementById('clear'),
+ scannerModal: document.getElementById('scannerModal'),
+ scannerVideo: document.getElementById('scannerVideo'),
+ scannerReader: document.getElementById('scannerReader'),
+ scannerStatus: document.getElementById('scannerStatus'),
+ scannerClose: document.getElementById('scannerClose'),
+ scannerSuccess: document.getElementById('scannerSuccess'),
+ catalogStatus: document.getElementById('catalogStatus'),
+ dbfFile: document.getElementById('dbfFile'),
+ importDbf: document.getElementById('importDbf'),
+ restoreDbf: document.getElementById('restoreDbf'),
+ catalogInfo: document.getElementById('catalogInfo'),
+ catalogSettingsSection: document.getElementById('catalogSettingsSection'),
+ updateModal: document.getElementById('updateModal'),
+ updateProductName: document.getElementById('updateProductName'),
+ updateQty: document.getElementById('updateQty'),
+ updateOffer: document.getElementById('updateOffer'),
+ updateError: document.getElementById('updateError'),
+ confirmUpdate: document.getElementById('confirmUpdate'),
+ cancelUpdate: document.getElementById('cancelUpdate'),
+ completeProduct: document.getElementById('completeProduct'),
+ deleteProduct: document.getElementById('deleteProduct'),
+ savingOverlay: document.getElementById('savingOverlay'),
+ reportStore: document.getElementById('reportStore'),
+ reportUpdatedFrom: document.getElementById('reportUpdatedFrom'),
+ reportUpdatedTo: document.getElementById('reportUpdatedTo'),
+ reportText: document.getElementById('reportText'),
+ reportStatus: document.getElementById('reportStatus'),
+ copyReport: document.getElementById('copyReport'),
+ selectAllReport: document.getElementById('selectAllReport'),
+ clearReportSelection: document.getElementById('clearReportSelection'),
+ layoutButtons: document.querySelectorAll('#layoutPicker .layout-button'),
+ productLayoutButtons: document.querySelectorAll('.product-layout-button'),
+ themeButtons: document.querySelectorAll('.theme-button'),
+ themeStatus: document.getElementById('themeStatus'),
+ adminUsersSection: document.getElementById('adminUsersSection'),
+ newUserEmail: document.getElementById('newUserEmail'),
+ newUserPassword: document.getElementById('newUserPassword'),
+ createUser: document.getElementById('createUser'),
+ userMessage: document.getElementById('userMessage'),
+ userList: document.getElementById('userList'),
+ installBanner: document.getElementById('installBanner'),
+ installTitle: document.getElementById('installTitle'),
+ installMessage: document.getElementById('installMessage'),
+ installApp: document.getElementById('installApp'),
+ dismissInstall: document.getElementById('dismissInstall'),
+ saveToast: document.getElementById('saveToast'),
+ confettiLayer: document.getElementById('confettiLayer')
+};
+
+let selected = null;
+let updatingProductId = null;
+let photoData = "";
+let activeFilter = "all";
+let isViewer = false;
+const selectedReportProductIds = new Set();
+let reportSelectionInitialized = false;
+const REPORT_COLUMNS_KEY = "skalee.report.columns";
+let reportColumns = Number(localStorage.getItem(REPORT_COLUMNS_KEY)) || 1;
+if (![1, 2, 3, 4].includes(reportColumns)) reportColumns = 1;
+const PRODUCT_COLUMNS_KEY = "skalee.products.columns";
+let productColumns = Number(localStorage.getItem(PRODUCT_COLUMNS_KEY)) || (window.matchMedia("(max-width: 620px)").matches ? 1 : 3);
+if (![1, 2, 3, 4].includes(productColumns)) productColumns = 1;
+const THEME_KEY = "skalee.theme";
+const themeMedia = window.matchMedia("(prefers-color-scheme: dark)");
+let themePreference = localStorage.getItem(THEME_KEY) || "auto";
+if (!["light", "dark", "auto"].includes(themePreference)) themePreference = "auto";
+
+function applyThemePreference(preference, announce = false) {
+ themePreference = preference;
+ const resolvedTheme = preference === "auto" ? (themeMedia.matches ? "dark" : "light") : preference;
+ document.documentElement.dataset.theme = resolvedTheme;
+ document.documentElement.dataset.themePreference = preference;
+ els.themeButtons.forEach((button) => button.classList.toggle("active", button.dataset.themeChoice === preference));
+ const labels = { light: "Claro", dark: "Escuro", auto: `Automático (${resolvedTheme === "dark" ? "escuro" : "claro"})` };
+ els.themeStatus.textContent = announce ? `Tema ${labels[preference]} ativado.` : `Tema atual: ${labels[preference]}.`;
+}
+
+els.themeButtons.forEach((button) => {
+ button.addEventListener("click", () => {
+  const preference = button.dataset.themeChoice;
+  localStorage.setItem(THEME_KEY, preference);
+  applyThemePreference(preference, true);
+ });
+});
+
+themeMedia.addEventListener("change", () => {
+ if (themePreference === "auto") applyThemePreference("auto");
+});
+
+applyThemePreference(themePreference);
+const INSTALL_DISMISSED_KEY = "skalee.install.dismissedAt";
+const INSTALL_REMINDER_DELAY = 7 * 24 * 60 * 60 * 1000;
+let deferredInstallPrompt = null;
+let appAuthenticated = false;
+
+function isAppInstalled() {
+ return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+}
+
+function isIosDevice() {
+ return /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+}
+
+function showInstallBannerWhenAvailable() {
+ if (!appAuthenticated || isAppInstalled()) {
+  els.installBanner.hidden = true;
+  return;
+ }
+ const dismissedAt = Number(localStorage.getItem(INSTALL_DISMISSED_KEY) || 0);
+ if (Date.now() - dismissedAt < INSTALL_REMINDER_DELAY) return;
+ if (isIosDevice()) {
+  els.installTitle.textContent = "Adicionar Skalee à tela inicial";
+  els.installMessage.textContent = "No iPhone, toque em Compartilhar e depois em Adicionar à Tela de Início.";
+  els.installApp.hidden = true;
+  els.installBanner.hidden = false;
+  return;
+ }
+ if (deferredInstallPrompt) {
+  els.installTitle.textContent = "Instalar o app Skalee";
+  els.installMessage.textContent = "Tenha acesso rápido pela tela inicial do seu aparelho.";
+  els.installApp.hidden = false;
+  els.installBanner.hidden = false;
+ }
+}
+
+window.addEventListener("beforeinstallprompt", (event) => {
+ event.preventDefault();
+ deferredInstallPrompt = event;
+ showInstallBannerWhenAvailable();
+});
+
+window.addEventListener("appinstalled", () => {
+ deferredInstallPrompt = null;
+ els.installBanner.hidden = true;
+});
+
+els.dismissInstall.addEventListener("click", () => {
+ localStorage.setItem(INSTALL_DISMISSED_KEY, String(Date.now()));
+ els.installBanner.hidden = true;
+});
+
+els.installApp.addEventListener("click", async () => {
+ if (!deferredInstallPrompt) return;
+ els.installApp.disabled = true;
+ await deferredInstallPrompt.prompt();
+ const choice = await deferredInstallPrompt.userChoice;
+ deferredInstallPrompt = null;
+ els.installApp.disabled = false;
+ els.installBanner.hidden = true;
+ if (choice.outcome !== "accepted") localStorage.setItem(INSTALL_DISMISSED_KEY, String(Date.now()));
+});
+
+if ("serviceWorker" in navigator) {
+ window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch((error) => console.error("Falha ao registrar PWA.", error)));
+}
+let scannerStream = null;
+let scannerTimer = null;
+let scannerIsActive = false;
+let barcodeReader = null;
+let quaggaDetectedHandler = null;
+let zxingReader = null;
+let zxingControls = null;
+let html5Scanner = null;
+let scannerMode = null;
+let scannerSuccessTimer = null;
+const demoProducts = [
+ {
+  id: 1,
+  barcode: "7896004400914",
+  code: "29580",
+  name: "PÃO DE ALHO SANTA MASSA 400G",
+  store: "Loja 03",
+  qty: 48,
+  expiry: "2026-08-05",
+  offer: false,
+  photo: ""
+ },
+ {
+  id: 2,
+  barcode: "7894900010015",
+  code: "111",
+  name: "REFRESCO TANG 18G LARANJA/MAMÃO",
+  store: "Loja 01",
+  qty: 130,
+  expiry: "2026-08-04",
+  offer: true,
+  photo: ""
+ },
+ {
+  id: 3,
+  barcode: "7891000100103",
+  code: "28913",
+  name: "NISSIN LÁMEN 75G",
+  store: "Loja 02",
+  qty: 22,
+  expiry: "2026-08-11",
+  offer: false,
+  photo: ""
+ }
+];
+let products = [];
+
+async function carregarProdutosOnline() {
+ if (!window.skaleeDb) return;
+ try {
+  products = await window.skaleeDb.loadProducts();
+  render();
+ } catch (error) {
+  console.error("Não foi possível carregar os produtos online.", error);
+  alert("Não foi possível carregar os produtos do Supabase.");
+ }
+}
+
+const ADMIN_EMAIL = "skalee.razarth@gmail.com";
+
+function setUserMessage(text = "", type = "") {
+ els.userMessage.textContent = text;
+ els.userMessage.className = `user-message ${type}`.trim();
+}
+
+function renderAdminUsers(users) {
+ els.userList.replaceChildren();
+ users.sort((a, b) => Number(b.isAdmin) - Number(a.isAdmin) || a.email.localeCompare(b.email));
+ users.forEach((user) => {
+  const row = document.createElement("div");
+  row.className = "user-row";
+  const info = document.createElement("div");
+  info.className = "user-info";
+  const email = document.createElement("strong");
+  email.textContent = user.email || "Usuário sem e-mail";
+  const dates = document.createElement("small");
+  dates.textContent = `Criado em ${formatDateTime(user.createdAt)}${user.lastSignInAt ? ` · Último acesso ${formatDateTime(user.lastSignInAt)}` : " · Ainda não acessou"}`;
+  const state = document.createElement("span");
+  state.className = `user-state ${user.active ? "active" : "inactive"}`;
+  state.textContent = user.active ? "ATIVO" : "INATIVO";
+  info.append(email, dates, state);
+  const action = document.createElement("button");
+  action.type = "button";
+  action.className = "btn2";
+  action.textContent = user.isAdmin ? "Administrador" : (user.active ? "Inativar" : "Ativar");
+  action.disabled = user.isAdmin;
+  if (!user.isAdmin) {
+   action.addEventListener("click", async () => {
+    const nextActive = !user.active;
+    if (!window.confirm(`${nextActive ? "Ativar" : "Inativar"} o acesso de ${user.email}?`)) return;
+    action.disabled = true;
+    setUserMessage(`${nextActive ? "Ativando" : "Inativando"} usuário...`);
+    try {
+     await window.skaleeDb.setUserActive(user.id, nextActive);
+     await loadAdminUsers();
+     setUserMessage(`Usuário ${nextActive ? "ativado" : "inativado"} com sucesso.`, "success");
+    } catch (error) {
+     console.error("Falha ao alterar usuário.", error);
+     setUserMessage(error.message || "Não foi possível alterar o usuário.", "error");
+     action.disabled = false;
+    }
+   });
+  }
+  row.append(info, action);
+  els.userList.appendChild(row);
+ });
+}
+
+async function loadAdminUsers() {
+ setUserMessage("Carregando usuários...");
+ try {
+  const users = await window.skaleeDb.listUsers();
+  renderAdminUsers(users);
+  setUserMessage(`${users.length} usuário(s) cadastrado(s).`);
+ } catch (error) {
+  console.error("Falha ao carregar usuários.", error);
+  setUserMessage(error.message || "Não foi possível carregar os usuários.", "error");
+ }
+}
+
+els.createUser.addEventListener("click", async () => {
+ const email = els.newUserEmail.value.trim().toLowerCase();
+ const password = els.newUserPassword.value;
+ if (!email || !email.includes("@")) return setUserMessage("Informe um e-mail válido.", "error");
+ if (password.length < 8) return setUserMessage("A senha inicial precisa ter pelo menos 8 caracteres.", "error");
+ els.createUser.disabled = true;
+ setUserMessage("Criando usuário...");
+ try {
+  await window.skaleeDb.createUser(email, password);
+  els.newUserEmail.value = "";
+  els.newUserPassword.value = "";
+  await loadAdminUsers();
+  setUserMessage("Usuário criado e liberado para acesso.", "success");
+ } catch (error) {
+  console.error("Falha ao criar usuário.", error);
+  setUserMessage(error.message || "Não foi possível criar o usuário.", "error");
+ } finally {
+  els.createUser.disabled = false;
+ }
+});
+
+window.addEventListener("skalee:authenticated", (event) => {
+ appAuthenticated = true;
+ isViewer = event.detail?.accessRole === "viewer";
+ showInstallBannerWhenAvailable();
+ void carregarProdutosOnline();
+ const isAdmin = String(event.detail?.email || "").toLowerCase() === ADMIN_EMAIL;
+ const registerTab = document.querySelector('[data-page="register"]');
+ const settingsTab = document.querySelector('[data-page="settings"]');
+ registerTab.hidden = isViewer;
+ settingsTab.hidden = isViewer;
+ if (isViewer) document.querySelector('[data-page="products"]').click();
+ els.adminUsersSection.hidden = !isAdmin;
+ els.catalogSettingsSection.hidden = !isAdmin;
+ if (isAdmin) void loadAdminUsers();
+});
+window.addEventListener("skalee:signed-out", () => {
+ appAuthenticated = false;
+ isViewer = false;
+ els.installBanner.hidden = true;
+ products = [];
+ els.adminUsersSection.hidden = true;
+ els.catalogSettingsSection.hidden = true;
+ els.userList.replaceChildren();
+ render();
+});
+
+if (window.BarcodeDetector) {
+ try {
+  barcodeReader = new BarcodeDetector({
+  formats: NATIVE_BARCODE_FORMATS
+  });
+ } catch (error) {
+  barcodeReader = null;
+ }
+}
+
+function getHtml5BarcodeFormats() {
+ if (!window.Html5QrcodeSupportedFormats) return [];
+ return [
+  Html5QrcodeSupportedFormats.EAN_13,
+  Html5QrcodeSupportedFormats.EAN_8,
+  Html5QrcodeSupportedFormats.UPC_A,
+  Html5QrcodeSupportedFormats.UPC_E,
+  Html5QrcodeSupportedFormats.CODE_128,
+  Html5QrcodeSupportedFormats.CODE_39,
+  Html5QrcodeSupportedFormats.ITF
+ ].filter((value) => value !== undefined);
+}
+
+function getZxingFormats(zxingApi) {
+ if (!zxingApi || !zxingApi.BarcodeFormat) return [];
+ const formats = zxingApi.BarcodeFormat;
+ return [
+  formats.EAN_13,
+  formats.EAN_8,
+  formats.UPC_A,
+  formats.UPC_E,
+  formats.CODE_128,
+  formats.CODE_39,
+  formats.ITF
+ ].filter((value) => value !== undefined);
+}
+
+els.today.textContent = new Date().toLocaleDateString("pt-BR");
+
+document.querySelectorAll(".tab").forEach((button) => {
+ button.addEventListener("click", () => {
+  document.querySelectorAll(".tab").forEach((item) => item.classList.remove("active"));
+  document.querySelectorAll(".page").forEach((item) => item.classList.remove("active"));
+  button.classList.add("active");
+  document.getElementById(button.dataset.page).classList.add("active");
+ });
+});
+
+function remaining(value) {
+ const today = new Date();
+ today.setHours(0, 0, 0, 0);
+ const target = new Date(value + "T00:00:00");
+ return Math.ceil((target - today) / 86400000);
+}
+
+function status(days) {
+ if (days <= 3) return ["Muito perto", "red"];
+ if (days <= 7) return ["Atenção", "orange"];
+ if (days <= 15) return ["Acompanhar", "yellow"];
+ return ["Controlado", "green"];
+}
+
+function activeProducts() {
+ return products.filter((product) => remaining(product.expiry) >= 0);
+}
+
+function formatDateTime(value) {
+ if (!value) return "--";
+ return new Date(value).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+}
+
+function displayUserName(email) {
+ const localPart = String(email || "Usuário").split("@")[0];
+ return localPart.replace(/[._-]+/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function localDateKey(value) {
+ const date = new Date(value);
+ if (Number.isNaN(date.getTime())) return "";
+ const year = date.getFullYear();
+ const month = String(date.getMonth() + 1).padStart(2, "0");
+ const day = String(date.getDate()).padStart(2, "0");
+ return `${year}-${month}-${day}`;
+}
+
+function getReportProducts() {
+ return activeProducts()
+  .filter((product) => !els.reportStore.value || product.store === els.reportStore.value)
+  .filter((product) => {
+   const updatedDate = localDateKey(product.updatedAt || product.createdAt);
+   if (els.reportUpdatedFrom.value && (!updatedDate || updatedDate < els.reportUpdatedFrom.value)) return false;
+   if (els.reportUpdatedTo.value && (!updatedDate || updatedDate > els.reportUpdatedTo.value)) return false;
+   return true;
+  })
+  .sort((a, b) => a.expiry.localeCompare(b.expiry) || a.name.localeCompare(b.name));
+}
+
+function formatReportProduct(product) {
+   const [, month, day] = product.expiry.split("-");
+   return `${product.name.trim().toUpperCase()}\nF7:${product.code}\nUND:${product.qty}\nvenc. ${day}/${month}`;
+}
+
+function buildReportText() {
+ return getReportProducts()
+  .filter((product) => selectedReportProductIds.has(String(product.id)))
+  .map(formatReportProduct)
+  .join("\n\n");
+}
+
+function renderReport() {
+ const reportProducts = getReportProducts();
+ if (!reportSelectionInitialized && reportProducts.length > 0) {
+  reportProducts.forEach((product) => selectedReportProductIds.add(String(product.id)));
+  reportSelectionInitialized = true;
+ }
+ els.reportText.dataset.columns = String(reportColumns);
+ els.reportText.style.setProperty("--report-columns", reportColumns);
+ els.layoutButtons.forEach((button) => button.classList.toggle("active", Number(button.dataset.columns) === reportColumns));
+ els.reportText.replaceChildren();
+ if (reportProducts.length === 0) {
+  const empty = document.createElement("div");
+  empty.className = "report-empty";
+  empty.textContent = "Nenhum produto ativo para este filtro.";
+  els.reportText.appendChild(empty);
+ } else {
+  reportProducts.forEach((product) => {
+   const productId = String(product.id);
+   const item = document.createElement("label");
+   const checkbox = document.createElement("input");
+   const text = document.createElement("span");
+   checkbox.type = "checkbox";
+   checkbox.checked = selectedReportProductIds.has(productId);
+   checkbox.setAttribute("aria-label", `Selecionar ${product.name}`);
+   text.textContent = formatReportProduct(product);
+   item.className = `report-item${checkbox.checked ? " selected" : ""}`;
+   checkbox.addEventListener("change", () => {
+    if (checkbox.checked) selectedReportProductIds.add(productId);
+    else selectedReportProductIds.delete(productId);
+    item.classList.toggle("selected", checkbox.checked);
+    updateReportSelectionStatus();
+   });
+   item.append(checkbox, text);
+   els.reportText.appendChild(item);
+  });
+ }
+ updateReportSelectionStatus();
+}
+
+function updateReportSelectionStatus() {
+ const reportProducts = getReportProducts();
+ const selectedCount = reportProducts.filter((product) => selectedReportProductIds.has(String(product.id))).length;
+ els.reportStatus.textContent = `${selectedCount} produto(s) selecionado(s) de ${reportProducts.length} encontrado(s).`;
+ els.copyReport.disabled = selectedCount === 0;
+ els.selectAllReport.disabled = reportProducts.length === 0 || selectedCount === reportProducts.length;
+ els.clearReportSelection.disabled = selectedCount === 0;
+}
+
+function render() {
+ const base = activeProducts();
+ renderReport();
+ els.grid.dataset.columns = String(productColumns);
+ els.grid.style.setProperty("--product-columns", productColumns);
+ els.productLayoutButtons.forEach((button) => button.classList.toggle("active", Number(button.dataset.columns) === productColumns));
+ els.sProducts.textContent = base.length;
+ els.sUnits.textContent = base.reduce((sum, product) => sum + product.qty, 0);
+ els.sToday.textContent = base.filter((product) => remaining(product.expiry) === 0).length;
+ els.s7.textContent = base.filter((product) => remaining(product.expiry) >= 0 && remaining(product.expiry) <= 7).length;
+ els.sOffer.textContent = base.filter((product) => product.offer).length;
+
+ const query = els.search.value.trim().toLowerCase();
+ let items = base.filter((product) => (
+  product.name.toLowerCase().includes(query) || product.code.includes(query) || product.barcode.includes(query)
+ ) && (!els.storeFilter.value || product.store === els.storeFilter.value));
+
+ items = items.filter((product) => {
+  const days = remaining(product.expiry);
+  if (activeFilter === "today") return days === 0;
+  if (activeFilter === "3") return days <= 3;
+  if (activeFilter === "7") return days <= 7;
+  if (activeFilter === "15") return days <= 15;
+  if (activeFilter === "offer") return product.offer;
+  if (activeFilter === "high") return product.qty >= 100;
+  return true;
+ });
+
+ if (els.sort.value === "expiry") items.sort((a, b) => remaining(a.expiry) - remaining(b.expiry));
+ if (els.sort.value === "qtyDesc") items.sort((a, b) => b.qty - a.qty);
+ if (els.sort.value === "qtyAsc") items.sort((a, b) => a.qty - b.qty);
+ if (els.sort.value === "name") items.sort((a, b) => a.name.localeCompare(b.name));
+
+ els.result.textContent = `${items.length} produto(s) encontrado(s)`;
+
+ els.grid.innerHTML = items.map((product) => {
+  const days = remaining(product.expiry);
+  const [label, tone] = status(days);
+  const expiryText = new Date(product.expiry + "T00:00:00").toLocaleDateString("pt-BR");
+  return `
+   <article class="card">
+    <div class="photo">${product.photo ? `<img src="${product.photo}" alt="">` : "Sem foto"}</div>
+    <div class="content">
+    <div class="name">${product.name}</div><div class="code">Cód. interno ${product.code} · Barras ${product.barcode}</div>
+     <div class="card-summary">
+      <div class="info"><span>Quantidade</span><b>${product.qty} un.</b></div>
+      <div class="info"><span>Validade</span><b>${expiryText}</b></div>
+     </div>
+     <div class="card-details">
+      <div class="info"><span>Loja</span><b>${product.store}</b></div>
+      <div class="info"><span>Faltam</span><b>${days === 0 ? "Vence hoje" : `${days} dias`}</b></div>
+      <div class="info"><span>Atualizado em</span><b>${formatDateTime(product.updatedAt || product.createdAt)}</b></div>
+      <div class="info"><span>Último usuário</span><b>${displayUserName(product.updatedByEmail)}</b></div>
+      <div class="badges">
+        <span class="badge ${tone}">${label}</span>
+        ${product.offer ? '<span class="badge offer">EM OFERTA</span>' : ''}
+        ${product.qty >= 100 ? '<span class="badge high">QUANTIDADE ALTA</span>' : ''}
+      </div>
+      ${isViewer ? "" : `<div class="card-actions"><button class="btn2 update-product" type="button" data-product-id="${product.id}">Atualizar</button></div>`}
+     </div>
+     <div class="card-actions"><button class="btn2 toggle-details" type="button" aria-expanded="false">Ver mais</button></div>
+    </div>
+   </article>`;
+ }).join("") || '<div class="empty">Nenhum produto encontrado com esses filtros.</div>';
+}
+
+els.reportStore.addEventListener("change", () => {
+ els.reportStatus.textContent = "";
+ renderReport();
+});
+
+[els.reportUpdatedFrom, els.reportUpdatedTo].forEach((input) => {
+ input.addEventListener("change", renderReport);
+});
+
+els.selectAllReport.addEventListener("click", () => {
+ getReportProducts().forEach((product) => selectedReportProductIds.add(String(product.id)));
+ reportSelectionInitialized = true;
+ renderReport();
+});
+
+els.clearReportSelection.addEventListener("click", () => {
+ getReportProducts().forEach((product) => selectedReportProductIds.delete(String(product.id)));
+ reportSelectionInitialized = true;
+ renderReport();
+});
+
+els.layoutButtons.forEach((button) => {
+ const columns = Number(button.dataset.columns);
+ const icon = button.querySelector(".layout-icon");
+ icon.style.setProperty("--icon-columns", columns);
+ for (let cell = 0; cell < columns * 3; cell += 1) icon.appendChild(document.createElement("span"));
+ button.addEventListener("click", () => {
+  reportColumns = columns;
+  localStorage.setItem(REPORT_COLUMNS_KEY, String(columns));
+  renderReport();
+ });
+});
+
+els.productLayoutButtons.forEach((button) => {
+ const columns = Number(button.dataset.columns);
+ const icon = button.querySelector(".layout-icon");
+ icon.style.setProperty("--icon-columns", columns);
+ for (let cell = 0; cell < columns * 3; cell += 1) icon.appendChild(document.createElement("span"));
+ button.addEventListener("click", () => {
+  productColumns = columns;
+  localStorage.setItem(PRODUCT_COLUMNS_KEY, String(columns));
+  render();
+ });
+});
+
+els.copyReport.addEventListener("click", async () => {
+ const text = buildReportText();
+ if (!text) return;
+ try {
+  await navigator.clipboard.writeText(text);
+  els.reportStatus.textContent = "Relatório copiado para a área de transferência.";
+ } catch (error) {
+  console.error("Falha ao copiar relatório.", error);
+  els.reportStatus.textContent = "Não foi possível copiar automaticamente. Selecione o texto manualmente.";
+ }
+});
+
+[els.search, els.storeFilter, els.sort].forEach((element) => element.addEventListener("input", render));
+
+els.chips.forEach((chip) => {
+ chip.addEventListener("click", () => {
+  els.chips.forEach((item) => item.classList.remove("active"));
+  chip.classList.add("active");
+  activeFilter = chip.dataset.filter;
+  render();
+ });
+});
+
+function findProduct() {
+ buscarProdutoPorCodigo(els.barcode.value.trim());
+}
+
+function buscarProdutoPorCodigo(codigoBarras) {
+ selected = sg.get(codigoBarras) || null;
+ els.found.classList.add("show");
+
+ if (!selected) {
+  els.found.innerHTML = `<b>Produto não encontrado</b><br>Código: ${codigoBarras}`;
+  return;
+ }
+
+ els.found.innerHTML = `<b>${selected.name}</b><br><span style="color:#2563eb">Cód. interno: ${selected.code}</span><br><span style="color:#39465c">Código de barras: ${selected.barcode}</span>`;
+ els.qty.focus();
+}
+
+function textoDbf(bytes) {
+ return new TextDecoder("windows-1252").decode(bytes).replace(/\0/g, "").trim();
+}
+
+function closeUpdateModal() {
+ updatingProductId = null;
+ els.updateModal.classList.remove("show");
+ els.updateError.textContent = "";
+}
+
+els.grid.addEventListener("click", (event) => {
+ const detailsButton = event.target.closest(".toggle-details");
+ if (detailsButton) {
+  const card = detailsButton.closest(".card");
+  const expanded = card.classList.toggle("expanded");
+  detailsButton.textContent = expanded ? "Ver menos" : "Ver mais";
+  detailsButton.setAttribute("aria-expanded", String(expanded));
+  return;
+ }
+ const button = event.target.closest(".update-product");
+ if (!button) return;
+ const product = products.find((item) => String(item.id) === button.dataset.productId);
+ if (!product) return;
+ updatingProductId = product.id;
+ els.updateProductName.textContent = `${product.name} · ${product.store} · validade ${new Date(product.expiry + "T00:00:00").toLocaleDateString("pt-BR")}`;
+ els.updateQty.value = product.qty;
+ els.updateOffer.checked = product.offer;
+ els.deleteProduct.hidden = !product.canDelete;
+ els.updateModal.classList.add("show");
+ els.updateQty.focus();
+});
+
+els.cancelUpdate.addEventListener("click", closeUpdateModal);
+els.updateModal.addEventListener("click", (event) => {
+ if (event.target === els.updateModal) closeUpdateModal();
+});
+
+els.confirmUpdate.addEventListener("click", async () => {
+ const quantity = Number(els.updateQty.value);
+ if (!Number.isInteger(quantity) || quantity < 1) {
+  els.updateError.textContent = "Informe uma quantidade inteira maior que zero.";
+  return;
+ }
+ const productId = updatingProductId;
+ if (!productId) return;
+ els.confirmUpdate.disabled = true;
+ els.updateError.textContent = "";
+ try {
+  const updatedProduct = await window.skaleeDb.updateProduct(productId, { qty: quantity, offer: els.updateOffer.checked });
+  products = products.map((product) => product.id === productId ? updatedProduct : product);
+  closeUpdateModal();
+  render();
+ } catch (error) {
+  console.error("Falha ao atualizar produto.", error);
+  els.updateError.textContent = "Não foi possível atualizar. Verifique sua conexão e tente novamente.";
+ } finally {
+  els.confirmUpdate.disabled = false;
+ }
+});
+
+function setUpdateActionsDisabled(disabled) {
+ els.confirmUpdate.disabled = disabled;
+ els.completeProduct.disabled = disabled;
+ els.deleteProduct.disabled = disabled;
+ els.cancelUpdate.disabled = disabled;
+}
+
+els.completeProduct.addEventListener("click", async () => {
+ const product = products.find((item) => item.id === updatingProductId);
+ if (!product || !window.confirm(`Concluir ${product.name}? Ele sairá da lista ativa, mas continuará salvo no histórico.`)) return;
+ setUpdateActionsDisabled(true);
+ els.updateError.textContent = "";
+ try {
+  await window.skaleeDb.completeProduct(product.id);
+  products = products.filter((item) => item.id !== product.id);
+  closeUpdateModal();
+  render();
+ } catch (error) {
+  console.error("Falha ao concluir produto.", error);
+  els.updateError.textContent = "Não foi possível concluir. Verifique sua conexão e tente novamente.";
+ } finally {
+  setUpdateActionsDisabled(false);
+ }
+});
+
+els.deleteProduct.addEventListener("click", async () => {
+ const product = products.find((item) => item.id === updatingProductId);
+ if (!product || !window.confirm(`Excluir definitivamente ${product.name}? Esta ação não poderá ser desfeita.`)) return;
+ setUpdateActionsDisabled(true);
+ els.updateError.textContent = "";
+ try {
+  await window.skaleeDb.deleteProduct(product.id);
+  products = products.filter((item) => item.id !== product.id);
+  closeUpdateModal();
+  render();
+ } catch (error) {
+  console.error("Falha ao excluir produto.", error);
+  els.updateError.textContent = "Não foi possível excluir. Verifique sua conexão e tente novamente.";
+ } finally {
+  setUpdateActionsDisabled(false);
+ }
+});
+
+function carregarCatalogoDbf(buffer) {
+ if (!(buffer instanceof ArrayBuffer) || buffer.byteLength < 33) {
+  throw new Error("Arquivo DBF inválido ou vazio.");
+ }
+ const view = new DataView(buffer);
+ const bytes = new Uint8Array(buffer);
+ const totalRegistros = view.getUint32(4, true);
+ const tamanhoCabecalho = view.getUint16(8, true);
+ const tamanhoRegistro = view.getUint16(10, true);
+ const campos = [];
+
+ if (tamanhoCabecalho < 33 || tamanhoCabecalho > buffer.byteLength || tamanhoRegistro < 2) {
+  throw new Error("Cabeçalho DBF inválido.");
+ }
+
+ for (let offset = 32; offset < tamanhoCabecalho && bytes[offset] !== 0x0d; offset += 32) {
+  campos.push({
+   nome: textoDbf(bytes.subarray(offset, offset + 11)),
+   tipo: String.fromCharCode(bytes[offset + 11]),
+   tamanho: bytes[offset + 16]
+  });
+ }
+
+ const nomesCampos = new Set(campos.map((campo) => campo.nome));
+ if (!["CODBAR", "CODPROD", "DESCRICAO"].every((nome) => nomesCampos.has(nome))) {
+  throw new Error("O DBF precisa conter os campos CODBAR, CODPROD e DESCRICAO.");
+ }
+
+ const catalogo = new Map();
+ for (let indice = 0; indice < totalRegistros; indice += 1) {
+  const inicio = tamanhoCabecalho + indice * tamanhoRegistro;
+  if (inicio + tamanhoRegistro > bytes.length || bytes[inicio] === 0x2a) continue;
+
+  let posicao = inicio + 1;
+  const registro = {};
+  campos.forEach((campo) => {
+   const valor = textoDbf(bytes.subarray(posicao, posicao + campo.tamanho));
+   registro[campo.nome] = campo.tipo === "N" && valor !== "" ? Number(valor) : valor;
+   posicao += campo.tamanho;
+  });
+
+  const codigoBarras = String(registro.CODBAR || "").trim();
+  if (!codigoBarras) continue;
+  catalogo.set(codigoBarras, {
+   barcode: codigoBarras,
+   code: String(registro.CODPROD || ""),
+   name: String(registro.DESCRICAO || "Produto sem descricao").trim()
+  });
+ }
+ if (catalogo.size === 0) throw new Error("Nenhum produto com código de barras foi encontrado.");
+ return catalogo;
+}
+
+const CATALOG_DB_NAME = "skalee-validade";
+const CATALOG_STORE = "catalogo";
+const CATALOG_KEY = "dbf-importado";
+
+function abrirBancoCatalogo() {
+ return new Promise((resolve, reject) => {
+  const request = indexedDB.open(CATALOG_DB_NAME, 1);
+  request.onupgradeneeded = () => {
+   if (!request.result.objectStoreNames.contains(CATALOG_STORE)) {
+    request.result.createObjectStore(CATALOG_STORE);
+   }
+  };
+  request.onsuccess = () => resolve(request.result);
+  request.onerror = () => reject(request.error);
+ });
+}
+
+async function lerCatalogoImportado() {
+ const db = await abrirBancoCatalogo();
+ return new Promise((resolve, reject) => {
+  const request = db.transaction(CATALOG_STORE, "readonly").objectStore(CATALOG_STORE).get(CATALOG_KEY);
+  request.onsuccess = () => { db.close(); resolve(request.result || null); };
+  request.onerror = () => { db.close(); reject(request.error); };
+ });
+}
+
+async function salvarCatalogoImportado(valor) {
+ const db = await abrirBancoCatalogo();
+ return new Promise((resolve, reject) => {
+  const transaction = db.transaction(CATALOG_STORE, "readwrite");
+  transaction.objectStore(CATALOG_STORE).put(valor, CATALOG_KEY);
+  transaction.oncomplete = () => { db.close(); resolve(); };
+  transaction.onerror = () => { db.close(); reject(transaction.error); };
+ });
+}
+
+async function removerCatalogoImportado() {
+ const db = await abrirBancoCatalogo();
+ return new Promise((resolve, reject) => {
+  const transaction = db.transaction(CATALOG_STORE, "readwrite");
+  transaction.objectStore(CATALOG_STORE).delete(CATALOG_KEY);
+  transaction.oncomplete = () => { db.close(); resolve(); };
+  transaction.onerror = () => { db.close(); reject(transaction.error); };
+ });
+}
+
+function atualizarStatusCatalogo(nome, tamanho) {
+ const quantidade = sg.size.toLocaleString("pt-BR");
+ const tamanhoTexto = tamanho ? ` • ${(tamanho / 1024 / 1024).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} MB` : "";
+ els.catalogStatus.textContent = `${quantidade} produtos carregados de ${nome}`;
+ els.catalogStatus.className = "catalog-status ready";
+ definirInfoCatalogo(`Catálogo ativo: ${nome}`, `${quantidade} produtos${tamanhoTexto}`);
+}
+
+function definirInfoCatalogo(titulo, detalhe = "") {
+ els.catalogInfo.replaceChildren();
+ const destaque = document.createElement("b");
+ destaque.textContent = titulo;
+ els.catalogInfo.append(destaque, document.createTextNode(detalhe));
+}
+
+async function carregarDbfPadrao() {
+ const resposta = await fetch("consulta03.dbf", { cache: "no-store" });
+ if (!resposta.ok) throw new Error(`HTTP ${resposta.status}`);
+ const buffer = await resposta.arrayBuffer();
+ sg = carregarCatalogoDbf(buffer);
+ atualizarStatusCatalogo("consulta03.dbf (padrão)", buffer.byteLength);
+}
+
+async function iniciarCatalogo() {
+ els.find.disabled = true;
+ els.scanCamera.disabled = true;
+ try {
+  const importado = await lerCatalogoImportado();
+  if (importado && importado.buffer) {
+   sg = carregarCatalogoDbf(importado.buffer);
+   atualizarStatusCatalogo(`${importado.name} (importado)`, importado.buffer.byteLength);
+  } else {
+   await carregarDbfPadrao();
+  }
+  els.find.disabled = false;
+  els.scanCamera.disabled = false;
+ } catch (error) {
+  els.catalogStatus.textContent = "Não foi possível carregar o catálogo de produtos.";
+  els.catalogStatus.classList.add("error");
+  definirInfoCatalogo("Erro ao carregar catálogo", error.message);
+  console.error("Falha ao carregar catalogo DBF:", error);
+ }
+}
+
+els.importDbf.addEventListener("click", async () => {
+ const file = els.dbfFile.files && els.dbfFile.files[0];
+ if (!file) return alert("Selecione um arquivo DBF para importar.");
+ if (!file.name.toLowerCase().endsWith(".dbf")) return alert("Selecione um arquivo com extensão .dbf.");
+
+ els.importDbf.disabled = true;
+ definirInfoCatalogo("Importando catálogo...", "Aguarde a leitura e validação do arquivo.");
+ try {
+  const buffer = await file.arrayBuffer();
+  const novoCatalogo = carregarCatalogoDbf(buffer);
+  await salvarCatalogoImportado({ name: file.name, importedAt: new Date().toISOString(), buffer });
+  sg = novoCatalogo;
+  atualizarStatusCatalogo(`${file.name} (importado)`, buffer.byteLength);
+  els.dbfFile.value = "";
+  alert("Catálogo atualizado com sucesso.");
+ } catch (error) {
+  definirInfoCatalogo("Não foi possível importar o arquivo", error.message);
+  alert(error.message);
+ } finally {
+  els.importDbf.disabled = false;
+ }
+});
+
+els.restoreDbf.addEventListener("click", async () => {
+ els.restoreDbf.disabled = true;
+ try {
+  await carregarDbfPadrao();
+  await removerCatalogoImportado();
+  els.dbfFile.value = "";
+  alert("O catálogo padrão foi restaurado.");
+ } catch (error) {
+  definirInfoCatalogo("Não foi possível restaurar o catálogo padrão", error.message);
+  alert(error.message);
+ } finally {
+  els.restoreDbf.disabled = false;
+ }
+});
+
+async function stopScanner() {
+ scannerIsActive = false;
+ if (scannerSuccessTimer) {
+  clearTimeout(scannerSuccessTimer);
+  scannerSuccessTimer = null;
+ }
+ if (scannerTimer) {
+  clearInterval(scannerTimer);
+  scannerTimer = null;
+ }
+
+ if (scannerMode === "html5" && html5Scanner) {
+  try {
+   await html5Scanner.stop();
+  } catch (error) {
+  }
+  try {
+   await html5Scanner.clear();
+  } catch (error) {
+  }
+  html5Scanner = null;
+ }
+
+ if (scannerMode === "zxing") {
+  try {
+   if (zxingControls && typeof zxingControls.stop === "function") {
+    zxingControls.stop();
+   }
+  } catch (error) {
+  }
+  try {
+   if (zxingReader && typeof zxingReader.reset === "function") {
+    zxingReader.reset();
+   }
+  } catch (error) {
+  }
+  zxingControls = null;
+  zxingReader = null;
+ }
+
+ if (scannerMode === "quagga" && window.Quagga) {
+  try {
+   if (quaggaDetectedHandler) {
+    Quagga.offDetected(quaggaDetectedHandler);
+    quaggaDetectedHandler = null;
+   }
+   Quagga.stop();
+  } catch (error) {
+  }
+ }
+
+ if (scannerStream) {
+  scannerStream.getTracks().forEach((track) => track.stop());
+  scannerStream = null;
+ }
+ scannerMode = null;
+ els.scannerVideo.srcObject = null;
+ els.scannerVideo.classList.remove("hidden");
+ els.scannerReader.classList.add("hidden");
+ els.scannerReader.innerHTML = "";
+ els.scannerSuccess.classList.remove("show");
+ els.scannerStatus.textContent = "Aponte a câmera para o código de barras.";
+ els.scannerModal.classList.remove("show");
+ els.scannerModal.setAttribute("aria-hidden", "true");
+}
+
+function onBarcodeDetected(value) {
+ const codigo = (value || "").trim();
+ if (!codigo || !scannerIsActive) return;
+
+ scannerIsActive = false;
+ els.scannerStatus.textContent = `Lido: ${codigo}`;
+ els.scannerSuccess.classList.add("show");
+ els.barcode.value = codigo;
+ buscarProdutoPorCodigo(codigo);
+
+ scannerSuccessTimer = setTimeout(() => {
+  void stopScanner();
+ }, 550);
+}
+
+async function startNativeScanner() {
+ scannerMode = "native";
+ scannerIsActive = true;
+ els.scannerStatus.textContent = "Abrindo câmera...";
+ els.scannerReader.classList.add("hidden");
+ els.scannerVideo.classList.remove("hidden");
+ els.scannerModal.classList.add("show");
+ els.scannerModal.setAttribute("aria-hidden", "false");
+ try {
+  scannerStream = await navigator.mediaDevices.getUserMedia({
+   video: { facingMode: { ideal: "environment" } },
+   audio: false
+  });
+
+  els.scannerVideo.srcObject = scannerStream;
+  await els.scannerVideo.play();
+  els.scannerStatus.textContent = "Aponte para o código; a imagem inteira está sendo analisada.";
+
+  scannerTimer = setInterval(async () => {
+   if (!scannerIsActive) return;
+   try {
+    const detected = await barcodeReader.detect(els.scannerVideo);
+    if (!detected || detected.length === 0) return;
+    const value = (detected[0].rawValue || "").trim();
+    if (!value) return;
+    onBarcodeDetected(value);
+   } catch (error) {
+    els.scannerStatus.textContent = "Tentando ler... mantenha o código centralizado.";
+   }
+  }, 250);
+ } catch (error) {
+  await stopScanner();
+  if (error && error.name === "NotAllowedError") {
+   alert("Permissão da câmera negada. Autorize a câmera no navegador.");
+   return;
+  }
+  alert("Não foi possível abrir a câmera.");
+ }
+}
+
+  async function startQuaggaScanner() {
+   scannerMode = "quagga";
+   scannerIsActive = true;
+   els.scannerStatus.textContent = "Abrindo câmera...";
+   els.scannerVideo.classList.add("hidden");
+   els.scannerReader.classList.remove("hidden");
+   els.scannerReader.innerHTML = "";
+   els.scannerModal.classList.add("show");
+   els.scannerModal.setAttribute("aria-hidden", "false");
+
+   if (!window.Quagga) {
+    await stopScanner();
+    alert("QuaggaJS não carregou no navegador.");
+    return;
+   }
+
+   const config = {
+    inputStream: {
+     type: "LiveStream",
+     target: els.scannerReader,
+     constraints: {
+      facingMode: "environment",
+      width: { ideal: 1280 },
+      height: { ideal: 720 }
+     },
+     area: {
+      top: "22%",
+      right: "5%",
+      left: "5%",
+      bottom: "22%"
+     }
+    },
+    locator: {
+     patchSize: "medium",
+     halfSample: true
+    },
+    numOfWorkers: 2,
+    frequency: 10,
+    decoder: {
+     readers: [
+      "ean_reader",
+      "ean_8_reader",
+      "upc_reader",
+      "upc_e_reader",
+      "code_128_reader",
+      "code_39_reader",
+      "i2of5_reader"
+     ]
+    },
+    locate: true
+   };
+
+   await new Promise((resolve, reject) => {
+    Quagga.init(config, (err) => {
+     if (err) {
+      reject(err);
+      return;
+     }
+     resolve();
+    });
+   }).catch(async (error) => {
+    await stopScanner();
+    if (error && error.name === "NotAllowedError") {
+     alert("Permissão da câmera negada. Autorize a câmera no navegador.");
+     return;
+    }
+    alert("Não foi possível iniciar leitura ao vivo com QuaggaJS.");
+   });
+
+   if (!scannerIsActive) return;
+
+   quaggaDetectedHandler = (result) => {
+    if (!scannerIsActive || !result || !result.codeResult) return;
+    const value = (result.codeResult.code || "").trim();
+    if (!value) return;
+    onBarcodeDetected(value);
+   };
+
+   Quagga.onDetected(quaggaDetectedHandler);
+   Quagga.start();
+   els.scannerStatus.textContent = "Aponte para o código de barras.";
+  }
+
+async function startZxingScanner() {
+ scannerMode = "zxing";
+ scannerIsActive = true;
+ els.scannerStatus.textContent = "Abrindo câmera...";
+ els.scannerReader.classList.add("hidden");
+ els.scannerVideo.classList.remove("hidden");
+ els.scannerModal.classList.add("show");
+ els.scannerModal.setAttribute("aria-hidden", "false");
+
+ const zxingApi = window.ZXingBrowser;
+ if (!zxingApi || !zxingApi.BrowserMultiFormatReader) {
+  await stopScanner();
+  alert("ZXing-JS não carregou no navegador.");
+  return;
+ }
+
+ try {
+  const hints = new Map();
+  const formats = getZxingFormats(zxingApi);
+  if (zxingApi.DecodeHintType && formats.length > 0) {
+   hints.set(zxingApi.DecodeHintType.POSSIBLE_FORMATS, formats);
+  }
+
+  zxingReader = new zxingApi.BrowserMultiFormatReader(hints, 300);
+
+  zxingControls = await zxingReader.decodeFromConstraints(
+   {
+    video: {
+     facingMode: { ideal: "environment" },
+     width: { ideal: 1280 },
+     height: { ideal: 720 }
+    }
+   },
+   els.scannerVideo,
+   (result) => {
+    if (!scannerIsActive || !result) return;
+    const value = typeof result.getText === "function" ? result.getText() : "";
+    if (!value) return;
+    onBarcodeDetected(value);
+   }
+  );
+
+  els.scannerStatus.textContent = "Aponte para o código de barras.";
+ } catch (error) {
+  await stopScanner();
+  if (error && error.name === "NotAllowedError") {
+   alert("Permissão da câmera negada. Autorize a câmera no navegador.");
+   return;
+  }
+  alert("Não foi possível iniciar leitura ao vivo com ZXing-JS.");
+ }
+}
+
+async function startHtml5Scanner() {
+ scannerMode = "html5";
+ scannerIsActive = true;
+ els.scannerStatus.textContent = "Abrindo câmera...";
+ els.scannerVideo.classList.add("hidden");
+ els.scannerReader.classList.remove("hidden");
+ els.scannerModal.classList.add("show");
+ els.scannerModal.setAttribute("aria-hidden", "false");
+
+ try {
+  const html5Formats = getHtml5BarcodeFormats();
+  html5Scanner = new Html5Qrcode("scannerReader", {
+   formatsToSupport: html5Formats,
+   verbose: false
+  });
+  const scannerConfig = {
+   fps: 12,
+   aspectRatio: 1.7778,
+   disableFlip: false
+  };
+
+  const onSuccess = (decodedText) => {
+   onBarcodeDetected(decodedText);
+  };
+  const onError = () => {
+   if (scannerIsActive) {
+    els.scannerStatus.textContent = "Tentando ler... mantenha o código centralizado.";
+   }
+  };
+
+  try {
+   await html5Scanner.start(
+    { facingMode: { exact: "environment" } },
+    scannerConfig,
+    onSuccess,
+    onError
+   );
+  } catch (firstError) {
+   await html5Scanner.start(
+    { facingMode: "environment" },
+    scannerConfig,
+    onSuccess,
+    onError
+   );
+  }
+  els.scannerStatus.textContent = "Aponte para o código; a imagem inteira está sendo analisada.";
+  return true;
+ } catch (error) {
+  await stopScanner();
+  if (error && error.name === "NotAllowedError") {
+   alert("Permissão da câmera negada. Autorize a câmera no navegador.");
+   return null;
+  }
+  console.warn("Falha no leitor principal; tentando leitor nativo.", error);
+  return false;
+ }
+}
+
+async function startScanner() {
+ if (scannerIsActive) return;
+
+ if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+  alert("Este dispositivo não permite acesso à câmera ao vivo.");
+  return;
+ }
+
+ const isLocalHost = location.hostname === "localhost" || location.hostname === "127.0.0.1";
+ if (!window.isSecureContext && !isLocalHost) {
+  alert("No iPhone, leitura ao vivo exige HTTPS. Abra por link seguro (https).");
+  return;
+ }
+
+ if (window.Html5Qrcode) {
+  const iniciou = await startHtml5Scanner();
+  if (iniciou !== false) return;
+ }
+
+ if (barcodeReader) {
+  await startNativeScanner();
+  return;
+ }
+
+ if (window.ZXingBrowser) {
+  await startZxingScanner();
+  return;
+ }
+
+ if (window.Quagga) {
+  await startQuaggaScanner();
+  return;
+ }
+
+  alert("Leitura por câmera não suportada neste navegador. Use busca manual por enquanto.");
+}
+
+async function scanFromPhoto(file) {
+ if (!file) return;
+ if (!window.Html5Qrcode) {
+  alert("Leitura por foto não está disponível neste navegador.");
+  return;
+ }
+
+ try {
+  const photoScanner = new Html5Qrcode("scannerReader");
+  const decodedText = await photoScanner.scanFile(file, true);
+  await photoScanner.clear();
+  const value = (decodedText || "").trim();
+  if (!value) {
+   alert("Não foi possível identificar o código na imagem.");
+   return;
+  }
+  els.barcode.value = value;
+  buscarProdutoPorCodigo(value);
+ } catch (error) {
+  alert("Não foi possível ler o código pela foto. Tente uma imagem mais nítida.");
+ }
+}
+
+els.find.addEventListener("click", () => {
+ const codigo = els.barcode.value.trim();
+ buscarProdutoPorCodigo(codigo);
+});
+els.scanCamera.addEventListener("click", () => { void startScanner(); });
+els.scannerClose.addEventListener("click", () => { void stopScanner(); });
+els.barcodePhoto.addEventListener("change", (event) => {
+ const file = event.target.files && event.target.files[0] ? event.target.files[0] : null;
+ void scanFromPhoto(file);
+ event.target.value = "";
+});
+els.barcode.addEventListener("keydown", (event) => {
+ if (event.key === "Enter") {
+  const codigo = els.barcode.value.trim();
+  buscarProdutoPorCodigo(codigo);
+ }
+});
+
+document.addEventListener("keydown", (event) => {
+ if (event.key === "Escape" && scannerIsActive) {
+  void stopScanner();
+ }
+});
+
+function prepararFoto(file) {
+ return new Promise((resolve, reject) => {
+  const reader = new FileReader();
+  reader.onerror = () => reject(new Error("Não foi possível abrir a foto."));
+  reader.onload = () => {
+   const image = new Image();
+   image.onerror = () => reject(new Error("O arquivo selecionado não é uma imagem válida."));
+   image.onload = () => {
+    const limite = 1000;
+    const escala = Math.min(1, limite / Math.max(image.width, image.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(image.width * escala));
+    canvas.height = Math.max(1, Math.round(image.height * escala));
+    canvas.getContext("2d").drawImage(image, 0, 0, canvas.width, canvas.height);
+    resolve(canvas.toDataURL("image/jpeg", 0.72));
+   };
+   image.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+ });
+}
+
+els.photo.addEventListener("change", async (event) => {
+ const file = event.target.files[0];
+ if (!file) return;
+ els.preview.textContent = "Preparando foto...";
+ try {
+  photoData = await prepararFoto(file);
+  els.preview.innerHTML = `<img src="${photoData}" alt="">`;
+ } catch (error) {
+  photoData = "";
+  els.photo.value = "";
+  els.preview.textContent = "Sem foto";
+  alert(error.message);
+ }
+});
+
+let saveToastTimer = null;
+
+function celebrarProdutoSalvo() {
+ if (saveToastTimer) clearTimeout(saveToastTimer);
+ els.saveToast.classList.remove("show");
+ void els.saveToast.offsetWidth;
+ els.saveToast.classList.add("show");
+ saveToastTimer = setTimeout(() => els.saveToast.classList.remove("show"), 2600);
+
+ if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+ const cores = ["#2563eb", "#16a34a", "#facc15", "#f97316", "#ec4899", "#8b5cf6"];
+ const fragmento = document.createDocumentFragment();
+ for (let indice = 0; indice < 54; indice += 1) {
+  const confete = document.createElement("span");
+  confete.className = "confetti-piece";
+  confete.style.setProperty("--confetti-color", cores[indice % cores.length]);
+  confete.style.setProperty("--confetti-x", `${Math.round((Math.random() - 0.5) * 760)}px`);
+  confete.style.setProperty("--confetti-y", `${Math.round(Math.random() * 600 - 230)}px`);
+  confete.style.setProperty("--confetti-rotation", `${Math.round(Math.random() * 1080 - 540)}deg`);
+  confete.style.setProperty("--confetti-delay", `${(Math.random() * 0.18).toFixed(2)}s`);
+  fragmento.appendChild(confete);
+ }
+ els.confettiLayer.replaceChildren(fragmento);
+ setTimeout(() => els.confettiLayer.replaceChildren(), 2100);
+}
+
+function setSavingProduct(saving) {
+ els.save.disabled = saving;
+ els.savingOverlay.classList.toggle("show", saving);
+ els.savingOverlay.setAttribute("aria-hidden", String(!saving));
+ document.body.setAttribute("aria-busy", String(saving));
+}
+
+els.save.addEventListener("click", async () => {
+ if (!selected) return alert("Primeiro localize o produto pelo código de barras.");
+ if (!els.qty.value || !els.expiry.value) return alert("Informe quantidade e data de vencimento.");
+ if (Number(els.qty.value) < 1) return alert("A quantidade precisa ser maior que zero.");
+
+ const novoProduto = {
+  barcode: selected.barcode,
+  code: selected.code,
+  name: selected.name,
+  store: els.store.value,
+  qty: Number(els.qty.value),
+  expiry: els.expiry.value,
+  offer: els.offer.checked,
+  photo: photoData
+ };
+
+ setSavingProduct(true);
+ try {
+  const produtoSalvo = await window.skaleeDb.saveProduct(novoProduto);
+  products = [produtoSalvo, ...products];
+ } catch (error) {
+  console.error("Falha ao salvar produto online.", error);
+  setSavingProduct(false);
+  alert("O produto não foi salvo. Verifique sua conexão e tente novamente.");
+  return;
+ }
+ setSavingProduct(false);
+ resetForm();
+ render();
+ document.querySelector('[data-page="products"]').click();
+ celebrarProdutoSalvo();
+});
+
+function resetForm() {
+ selected = null;
+ photoData = "";
+ els.barcode.value = "";
+ els.qty.value = "";
+ els.expiry.value = "";
+ els.offer.checked = false;
+ els.photo.value = "";
+ els.preview.textContent = "Sem foto";
+ els.found.classList.remove("show");
+ els.found.innerHTML = "";
+}
+
+els.clear.addEventListener("click", resetForm);
+
+render();
+void iniciarCatalogo();
+</script>
+<script type="module" src="auth.js"></script>
+</body>
+</html>

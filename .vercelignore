@@ -1,0 +1,5 @@
+.venv
+deploy-*.log
+.git
+.agents
+.codex
