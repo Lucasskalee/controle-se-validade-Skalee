@@ -15,3 +15,7 @@ Inicie um servidor HTTP na pasta do projeto:
 Depois, abra `http://localhost:8000` no navegador.
 
 O DBF é usado somente como catálogo de consulta e seu arquivo original não é modificado. Autenticação, produtos e permissões são gerenciados pelo Supabase.
+
+## Documentação
+
+- [Arquitetura do módulo de promotores](docs/arquitetura-promotores.md)
