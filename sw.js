@@ -1,9 +1,11 @@
-const CACHE_NAME = "skalee-pwa-v1";
+const CACHE_NAME = "skalee-pwa-v3";
 const APP_SHELL = [
  "/",
  "/index.html",
  "/auth.css",
  "/auth.js",
+ "/admin-cadastros.css",
+ "/admin-cadastros.js",
  "/manifest.webmanifest",
  "/skalee-icon-64.png",
  "/skalee-icon-192.png",

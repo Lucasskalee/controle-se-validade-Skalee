@@ -9,6 +9,7 @@
 <link rel="apple-touch-icon" sizes="192x192" href="skalee-icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="auth.css">
+<link rel="stylesheet" href="admin-cadastros.css">
 <script>
 (() => {
  const preference = localStorage.getItem("skalee.theme") || "auto";
@@ -207,8 +208,8 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
   <div id="catalogStatus" class="catalog-status" hidden>Carregando produtos de consulta03.dbf...</div>
   <div id="found" class="found"></div>
 
-  <label class="label">Loja</label>
-  <select id="store"><option>Loja 01</option><option>Loja 02</option><option selected>Loja 03</option><option>Loja 04</option></select>
+  <label class="label">Local / loja</label>
+  <select id="store" required><option value="">Carregando locais permitidos...</option></select>
 
   <label class="label">Quantidade</label>
   <input id="qty" type="number" min="1" placeholder="Ex.: 40">
@@ -276,6 +277,85 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
    </div>
    <div id="userMessage" class="user-message" aria-live="polite"></div>
    <div id="userList" class="user-list"></div>
+  </div>
+  <div id="multiCompanySection" class="settings-section" hidden>
+   <div class="registry-heading">
+    <div><h2>Estrutura multiempresa</h2><p class="settings-note">Cadastre empresas, marcas, produtos e locais que serão vinculados aos promotores.</p></div>
+    <button id="refreshRegistries" class="btn2" type="button">Atualizar dados</button>
+   </div>
+   <div class="registry-tabs" role="tablist" aria-label="Cadastros multiempresa">
+    <button class="registry-tab active" type="button" data-registry="organizations">Empresas</button>
+    <button class="registry-tab" type="button" data-registry="brands">Marcas</button>
+    <button class="registry-tab" type="button" data-registry="catalog_products">Produtos</button>
+    <button class="registry-tab" type="button" data-registry="retail_locations">Locais</button>
+    <button class="registry-tab" type="button" data-registry="registered_products">Produtos registrados</button>
+    <button class="registry-tab" type="button" data-registry="promoters">Promotores</button>
+   </div>
+   <div id="registryMessage" class="user-message" aria-live="polite"></div>
+
+   <section class="registry-panel active" data-registry-panel="organizations">
+    <form id="organizationForm" class="registry-form">
+     <div><label class="label" for="organizationName">Nome *</label><input id="organizationName" required maxlength="120" placeholder="Nome comercial"></div>
+     <div><label class="label" for="organizationType">Tipo *</label><select id="organizationType" required><option value="industry">Indústria</option><option value="agency">Agência</option><option value="retailer">Rede varejista</option></select></div>
+     <div><label class="label" for="organizationLegalName">Razão social</label><input id="organizationLegalName" maxlength="160"></div>
+     <div><label class="label" for="organizationTaxId">CNPJ / documento</label><input id="organizationTaxId" maxlength="30"></div>
+     <div><label class="label" for="organizationEmail">E-mail</label><input id="organizationEmail" type="email" maxlength="160"></div>
+     <div><label class="label" for="organizationPhone">Telefone</label><input id="organizationPhone" maxlength="30"></div>
+     <button class="btn registry-submit" type="submit">Cadastrar empresa</button>
+    </form>
+    <div id="organizationList" class="registry-list"></div>
+   </section>
+
+   <section class="registry-panel" data-registry-panel="brands">
+    <form id="brandForm" class="registry-form compact">
+     <div><label class="label" for="brandOrganization">Empresa proprietária *</label><select id="brandOrganization" required></select></div>
+     <div><label class="label" for="brandName">Nome da marca *</label><input id="brandName" required maxlength="120"></div>
+     <button class="btn registry-submit" type="submit">Cadastrar marca</button>
+    </form>
+    <div id="brandList" class="registry-list"></div>
+   </section>
+
+   <section class="registry-panel" data-registry-panel="catalog_products">
+    <form id="catalogProductForm" class="registry-form">
+     <div><label class="label" for="productOrganization">Empresa proprietária *</label><select id="productOrganization" required></select></div>
+     <div><label class="label" for="productBrand">Marca</label><select id="productBrand"><option value="">Sem marca</option></select></div>
+     <div><label class="label" for="productName">Produto *</label><input id="productName" required maxlength="180"></div>
+     <div><label class="label" for="productCategory">Categoria</label><input id="productCategory" maxlength="100"></div>
+     <div><label class="label" for="productBarcode">Código de barras</label><input id="productBarcode" inputmode="numeric" maxlength="40"></div>
+     <div><label class="label" for="productInternalCode">Código interno</label><input id="productInternalCode" maxlength="60"></div>
+     <button class="btn registry-submit" type="submit">Cadastrar produto</button>
+    </form>
+    <div id="catalogProductList" class="registry-list"></div>
+   </section>
+
+   <section class="registry-panel" data-registry-panel="retail_locations">
+    <form id="retailLocationForm" class="registry-form">
+     <div><label class="label" for="locationRetailer">Rede varejista *</label><select id="locationRetailer" required></select></div>
+     <div><label class="label" for="locationName">Nome do local *</label><input id="locationName" required maxlength="140"></div>
+     <div><label class="label" for="locationCode">Código da loja</label><input id="locationCode" maxlength="60"></div>
+     <div><label class="label" for="locationAddress">Endereço</label><input id="locationAddress" maxlength="200"></div>
+     <div><label class="label" for="locationCity">Cidade</label><input id="locationCity" maxlength="100"></div>
+     <div><label class="label" for="locationState">UF</label><input id="locationState" maxlength="2"></div>
+     <button class="btn registry-submit" type="submit">Cadastrar local</button>
+    </form>
+    <div id="retailLocationList" class="registry-list"></div>
+   </section>
+
+   <section class="registry-panel" data-registry-panel="registered_products">
+    <p class="settings-note">Escolha a marca, o produto de catálogo e o local dos produtos que já foram registrados.</p>
+    <div id="registeredProductList" class="registry-list"></div>
+   </section>
+
+   <section class="registry-panel" data-registry-panel="promoters">
+    <form id="promoterForm" class="registry-form">
+     <div><label class="label" for="promoterUser">Usuário *</label><select id="promoterUser" required></select></div>
+     <div><label class="label" for="promoterName">Nome do promotor *</label><input id="promoterName" required maxlength="140"></div>
+     <div><label class="label" for="promoterAgency">Agência</label><select id="promoterAgency"></select></div>
+     <fieldset class="registry-fieldset"><legend>Marcas atendidas</legend><div id="promoterBrands" class="registry-checks"></div></fieldset>
+     <button class="btn registry-submit" type="submit">Salvar promotor</button>
+    </form>
+    <div id="promoterList" class="registry-list"></div>
+   </section>
   </div>
   <div id="catalogSettingsSection" class="settings-section" hidden>
    <h2>Catálogo de produtos</h2>
@@ -1027,7 +1107,12 @@ function buscarProdutoPorCodigo(codigoBarras) {
   return;
  }
 
- els.found.innerHTML = `<b>${selected.name}</b><br><span style="color:#2563eb">Cód. interno: ${selected.code}</span><br><span style="color:#39465c">Código de barras: ${selected.barcode}</span>`;
+ const catalogMatch = window.skaleeCatalogMatch?.(selected.barcode, selected.code);
+ if (catalogMatch) {
+  selected = { ...selected, catalogProductId: catalogMatch.id, brandId: catalogMatch.brand_id, brandName: catalogMatch.brands?.name || "" };
+ }
+
+ els.found.innerHTML = `<b>${selected.name}</b><br><span style="color:#2563eb">Cód. interno: ${selected.code}</span><br><span style="color:#39465c">Código de barras: ${selected.barcode}</span>${selected.brandName ? `<br><span style="color:#16a34a">Marca: ${selected.brandName}</span>` : ""}`;
  els.qty.focus();
 }
 
@@ -1787,17 +1872,23 @@ function setSavingProduct(saving) {
 els.save.addEventListener("click", async () => {
  if (!selected) return alert("Primeiro localize o produto pelo código de barras.");
  if (!els.qty.value || !els.expiry.value) return alert("Informe quantidade e data de vencimento.");
+ if (!els.store.value) return alert("Selecione o local ou loja.");
  if (Number(els.qty.value) < 1) return alert("A quantidade precisa ser maior que zero.");
+
+ const selectedLocation = els.store.selectedOptions[0];
 
  const novoProduto = {
   barcode: selected.barcode,
   code: selected.code,
   name: selected.name,
-  store: els.store.value,
+  store: selectedLocation?.dataset.name || selectedLocation?.textContent || "",
   qty: Number(els.qty.value),
   expiry: els.expiry.value,
   offer: els.offer.checked,
-  photo: photoData
+  photo: photoData,
+  catalogProductId: selected.catalogProductId || null,
+  brandId: selected.brandId || null,
+  retailLocationId: els.store.value
  };
 
  setSavingProduct(true);
@@ -1836,5 +1927,6 @@ render();
 void iniciarCatalogo();
 </script>
 <script type="module" src="auth.js"></script>
+<script src="admin-cadastros.js" defer></script>
 </body>
 </html>

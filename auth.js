@@ -15,6 +15,7 @@ const modeButton = document.querySelector("#authMode");
 const userLabel = document.querySelector("#authUser");
 const signOutButton = document.querySelector("#signOut");
 const authRing = document.querySelector(".auth-ring");
+const VALIDITY_PRODUCT_SELECT = "id,user_id,barcode,product_code,name,store,quantity,expiry_date,offer,photo,created_at,updated_at,completed_at,updated_by_email,catalog_product_id,brand_id,retail_location_id,brands(name),catalog_products(name),retail_locations(name)";
 let mode = "sign-in";
 let activeUserId;
 let manualAuthInProgress = false;
@@ -35,6 +36,12 @@ function fromDatabase(row) {
   completedAt: row.completed_at,
   ownerId: row.user_id,
   updatedByEmail: row.updated_by_email || "",
+  catalogProductId: row.catalog_product_id,
+  brandId: row.brand_id,
+  retailLocationId: row.retail_location_id,
+  brandName: row.brands?.name || "",
+  catalogProductName: row.catalog_products?.name || "",
+  retailLocationName: row.retail_locations?.name || row.store,
   canEdit: true,
   canDelete: row.user_id === activeUserId
  };
@@ -49,7 +56,10 @@ function toDatabase(product) {
   quantity: Number(product.qty),
   expiry_date: product.expiry,
   offer: Boolean(product.offer),
-  photo: product.photo || ""
+  photo: product.photo || "",
+  catalog_product_id: product.catalogProductId || null,
+  brand_id: product.brandId || null,
+  retail_location_id: product.retailLocationId || null
  };
 }
 
@@ -72,7 +82,7 @@ window.skaleeDb = {
   await migrateLegacyProducts();
   const { data, error } = await supabase
    .from("validity_products")
-   .select("id,user_id,barcode,product_code,name,store,quantity,expiry_date,offer,photo,created_at,updated_at,completed_at,updated_by_email")
+   .select(VALIDITY_PRODUCT_SELECT)
    .is("completed_at", null)
    .order("created_at", { ascending: false });
   if (error) throw error;
@@ -82,7 +92,7 @@ window.skaleeDb = {
   const { data, error } = await supabase
    .from("validity_products")
    .insert(toDatabase(product))
-   .select("id,user_id,barcode,product_code,name,store,quantity,expiry_date,offer,photo,created_at,updated_at,completed_at,updated_by_email")
+   .select(VALIDITY_PRODUCT_SELECT)
    .single();
   if (error) throw error;
   return fromDatabase(data);
@@ -92,7 +102,7 @@ window.skaleeDb = {
    .from("validity_products")
    .update({ quantity: Number(changes.qty), offer: Boolean(changes.offer) })
    .eq("id", id)
-   .select("id,user_id,barcode,product_code,name,store,quantity,expiry_date,offer,photo,created_at,updated_at,completed_at,updated_by_email")
+   .select(VALIDITY_PRODUCT_SELECT)
    .single();
   if (error) throw error;
   return fromDatabase(data);
@@ -134,6 +144,78 @@ window.skaleeDb = {
   if (error) throw error;
   if (data?.error) throw new Error(data.error);
   return data.success;
+ },
+ async listOrganizations() {
+  const { data, error } = await supabase.from("organizations").select("id,name,legal_name,tax_id,organization_type,contact_email,contact_phone,active,created_at").order("name");
+  if (error) throw error;
+  return data;
+ },
+ async createOrganization(values) {
+  const { data, error } = await supabase.from("organizations").insert(values).select("id,name,legal_name,tax_id,organization_type,contact_email,contact_phone,active,created_at").single();
+  if (error) throw error;
+  return data;
+ },
+ async listBrands() {
+  const { data, error } = await supabase.from("brands").select("id,owner_organization_id,name,active,created_at,organizations(name)").order("name");
+  if (error) throw error;
+  return data;
+ },
+ async createBrand(values) {
+  const { data, error } = await supabase.from("brands").insert(values).select("id,owner_organization_id,name,active,created_at").single();
+  if (error) throw error;
+  return data;
+ },
+ async listCatalogProducts() {
+  const { data, error } = await supabase.from("catalog_products").select("id,owner_organization_id,brand_id,barcode,internal_code,name,category,active,created_at,organizations(name),brands(name)").order("name");
+  if (error) throw error;
+  return data;
+ },
+ async createCatalogProduct(values) {
+  const { data, error } = await supabase.from("catalog_products").insert(values).select("id,owner_organization_id,brand_id,barcode,internal_code,name,category,active,created_at").single();
+  if (error) throw error;
+  return data;
+ },
+ async listRetailLocations() {
+  const { data, error } = await supabase.from("retail_locations").select("id,retailer_organization_id,code,name,address_line,city,state,postal_code,active,created_at,organizations(name)").order("name");
+  if (error) throw error;
+  return data;
+ },
+ async createRetailLocation(values) {
+  const { data, error } = await supabase.from("retail_locations").insert(values).select("id,retailer_organization_id,code,name,address_line,city,state,postal_code,active,created_at").single();
+  if (error) throw error;
+  return data;
+ },
+ async setRegistryActive(table, id, active) {
+  const allowedTables = new Set(["organizations", "brands", "catalog_products", "retail_locations"]);
+  if (!allowedTables.has(table)) throw new Error("Cadastro não permitido.");
+  const { data, error } = await supabase.from(table).update({ active }).eq("id", id).select("id,active").single();
+  if (error) throw error;
+  return data;
+ },
+ async listRegisteredProductsForAdmin() {
+  const { data, error } = await supabase.from("validity_products").select(VALIDITY_PRODUCT_SELECT).is("completed_at", null).order("created_at", { ascending: false });
+  if (error) throw error;
+  return data.map(fromDatabase);
+ },
+ async updateRegisteredProductLinks(id, values) {
+  const { data, error } = await supabase.from("validity_products").update({ catalog_product_id: values.catalogProductId || null, brand_id: values.brandId || null, retail_location_id: values.retailLocationId || null }).eq("id", id).select(VALIDITY_PRODUCT_SELECT).single();
+  if (error) throw error;
+  return fromDatabase(data);
+ },
+ async listPromoterProfiles() {
+  const [profilesResult, usersResult] = await Promise.all([
+   supabase.from("promoter_profiles").select("user_id,agency_organization_id,active,promoter_brand_assignments(brand_id,active)").order("created_at", { ascending: false }),
+   supabase.from("user_profiles").select("user_id,full_name")
+  ]);
+  if (profilesResult.error) throw profilesResult.error;
+  if (usersResult.error) throw usersResult.error;
+  const userProfiles = new Map(usersResult.data.map((profile) => [profile.user_id, profile]));
+  return profilesResult.data.map((profile) => ({ ...profile, user_profiles: userProfiles.get(profile.user_id) || null }));
+ },
+ async configurePromoter(values) {
+  const { error } = await supabase.rpc("configure_promoter", { p_user_id: values.userId, p_full_name: values.fullName, p_agency_organization_id: values.agencyOrganizationId || null, p_brand_ids: values.brandIds });
+  if (error) throw error;
+  return true;
  }
 };
 
@@ -149,7 +231,8 @@ function showSession(session) {
  body.classList.add(authenticated ? "auth-authenticated" : "auth-anonymous");
  app.setAttribute("aria-hidden", String(!authenticated));
  const accessRole = session?.user?.app_metadata?.access_role || "editor";
- userLabel.textContent = authenticated ? `${session.user.email}${accessRole === "viewer" ? " · Visualizador" : ""}` : "";
+ const roleLabels = { viewer: "Visualizador", platform_admin: "Administrador Skalee" };
+ userLabel.textContent = authenticated ? `${session.user.email}${roleLabels[accessRole] ? ` · ${roleLabels[accessRole]}` : ""}` : "";
  if (!authenticated) password.value = "";
  if (activeUserId !== nextUserId) {
   activeUserId = nextUserId;

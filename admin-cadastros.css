@@ -1,0 +1,19 @@
+.registry-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.registry-tabs{display:flex;gap:7px;overflow-x:auto;margin:16px 0 8px;padding-bottom:3px}
+.registry-tab{white-space:nowrap;border:1px solid var(--line);border-radius:999px;padding:9px 13px;background:#f8fafc;color:var(--muted);font-weight:800;cursor:pointer}
+.registry-tab.active{border-color:var(--blue);background:var(--blue);color:#fff}
+.registry-panel{display:none}.registry-panel.active{display:block}
+.registry-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 10px;margin:12px 0 18px;padding:15px;border:1px solid var(--line);border-radius:14px;background:#f8fafc}
+.registry-form.compact{grid-template-columns:1fr 1fr auto;align-items:end}
+.registry-submit{align-self:end;margin-top:14px;min-height:43px}
+.registry-list{display:grid;gap:8px}
+.registry-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 13px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.registry-row.inactive{opacity:.68}.registry-info{min-width:0}.registry-info strong{display:block}.registry-info small{display:block;margin-top:4px;color:var(--muted);line-height:1.35}.registry-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.registry-badge{display:inline-block;padding:4px 7px;border-radius:999px;background:var(--blue2);color:var(--blue);font-size:10px;font-weight:850;text-transform:uppercase}
+.registry-empty{padding:22px;border:1px dashed var(--line);border-radius:12px;color:var(--muted);text-align:center}
+.registry-link-editor{display:grid;grid-template-columns:minmax(160px,1fr) repeat(3,minmax(130px,1fr)) auto;gap:8px;align-items:end;padding:13px;border:1px solid var(--line);border-radius:12px;background:#fff}.registry-link-editor .label{margin-top:0}.registry-link-title{align-self:center;min-width:0}.registry-link-title strong,.registry-link-title small{display:block}.registry-link-title small{margin-top:4px;color:var(--muted)}
+.registry-fieldset{grid-column:1/-1;margin:12px 0 0;padding:12px;border:1px solid var(--line);border-radius:12px}.registry-fieldset legend{padding:0 6px;font-size:13px;font-weight:800}.registry-checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.registry-check{display:flex;align-items:center;gap:8px;padding:9px;border:1px solid var(--line);border-radius:10px;background:#fff}.registry-check input{width:auto}.registry-form .registry-fieldset+.registry-submit{grid-column:1/-1;justify-self:start}.registry-promoter-brands{margin-top:6px;color:var(--blue);font-size:12px;font-weight:700}
+html[data-theme="dark"] :is(.registry-form,.registry-tab,.registry-row){background:#121e31;border-color:var(--line)}
+html[data-theme="dark"] :is(.registry-link-editor,.registry-check){background:#121e31;border-color:var(--line)}
+@media(max-width:850px){.registry-link-editor{grid-template-columns:1fr 1fr}.registry-link-title{grid-column:1/-1}}
+@media(max-width:620px){.registry-heading,.registry-row{align-items:stretch;flex-direction:column}.registry-form,.registry-form.compact,.registry-link-editor,.registry-checks{grid-template-columns:1fr}.registry-link-title{grid-column:auto}.registry-actions .btn2{width:100%}}
