@@ -146,3 +146,32 @@ Antes da implementação, ainda será necessário definir:
 - Política para fotos e evidências.
 - Regras de aprovação e encerramento das visitas.
 - Indicadores e painéis de acompanhamento.
+
+## Decisões confirmadas em 08/08/2026
+
+- Indústrias, agências e redes varejistas podem contratar a plataforma.
+- Haverá um único painel adaptável. Os módulos, produtos e informações exibidos serão filtrados conforme a necessidade e o escopo de cada organização.
+- Rotas e periodicidade das visitas serão opcionais na primeira fase.
+- A primeira fase funcional será dedicada aos cadastros administrativos.
+- Visitas, relatórios, fotos, aprovações e indicadores serão definidos e implementados em fases posteriores.
+- Somente o Administrador Skalee poderá criar usuários e alterar perfis, vínculos ou permissões.
+
+## Estrutura implementada no Supabase
+
+Em 08/08/2026 foi criada a fundação multiempresa com as seguintes tabelas:
+
+- `organizations`: indústrias, agências e redes varejistas.
+- `brands`: marcas e sua organização proprietária.
+- `catalog_products`: catálogo de produtos vinculado às marcas.
+- `retail_locations`: lojas e pontos de venda das redes varejistas.
+- `user_profiles`: dados complementares e situação dos usuários.
+- `organization_memberships`: vínculos dos usuários com organizações e seus papéis.
+- `promoter_profiles`: dados operacionais dos promotores e supervisores.
+- `promoter_brand_assignments`: marcas permitidas por promotor.
+- `promoter_product_assignments`: produtos permitidos por promotor.
+- `promoter_location_assignments`: locais permitidos por promotor.
+- `admin_audit_log`: histórico das alterações administrativas.
+
+Todas as tabelas possuem RLS ativo. A leitura é limitada pelo escopo do usuário e a manutenção dos cadastros é reservada ao Administrador Skalee. Também foram criados índices, validações, atualização automática de datas e gatilhos de auditoria.
+
+A Skalee não foi cadastrada como empresa cliente: ela permanece como operadora da plataforma. A conta principal `skalee.razarth@gmail.com` foi ativada como `platform_admin` e recebeu o perfil Administrador Skalee.
