@@ -127,21 +127,26 @@ window.skaleeDb = {
   if (error) throw error;
   return data.id;
  },
+ formatFunctionError(error) {
+  if (!error) return "Não foi possível chamar a função administrativa.";
+  if (error.message?.includes("non-2xx")) return "A função admin-users respondeu com erro. Verifique se ela está publicada no Supabase e se sua conta tem permissão de Administrador Skalee.";
+  return error.message || "Não foi possível chamar a função administrativa.";
+ },
  async listUsers() {
   const { data, error } = await supabase.functions.invoke("admin-users", { body: { action: "list" } });
-  if (error) throw error;
+  if (error) throw new Error(this.formatFunctionError(error));
   if (data?.error) throw new Error(data.error);
   return data.users || [];
  },
  async createUser(email, password) {
   const { data, error } = await supabase.functions.invoke("admin-users", { body: { action: "create", email, password } });
-  if (error) throw error;
+  if (error) throw new Error(this.formatFunctionError(error));
   if (data?.error) throw new Error(data.error);
   return data.user;
  },
  async setUserActive(id, active) {
   const { data, error } = await supabase.functions.invoke("admin-users", { body: { action: "set_active", id, active } });
-  if (error) throw error;
+  if (error) throw new Error(this.formatFunctionError(error));
   if (data?.error) throw new Error(data.error);
   return data.success;
  },
@@ -152,6 +157,11 @@ window.skaleeDb = {
  },
  async createOrganization(values) {
   const { data, error } = await supabase.from("organizations").insert(values).select("id,name,legal_name,tax_id,organization_type,contact_email,contact_phone,active,created_at").single();
+  if (error) throw error;
+  return data;
+ },
+ async updateOrganization(id, values) {
+  const { data, error } = await supabase.from("organizations").update(values).eq("id", id).select("id,name,legal_name,tax_id,organization_type,contact_email,contact_phone,active,created_at").single();
   if (error) throw error;
   return data;
  },
@@ -180,8 +190,40 @@ window.skaleeDb = {
   if (error) throw error;
   return data;
  },
+ async listAllowedRetailLocationsForCurrentUser() {
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError) throw userError;
+  if (!user) return [];
+  if (user.app_metadata?.access_role === "platform_admin") return this.listRetailLocations();
+  const { data: assignments, error: assignmentsError } = await supabase
+   .from("promoter_location_assignments")
+   .select("location_id")
+   .eq("promoter_user_id", user.id)
+   .eq("active", true);
+  if (assignmentsError) throw assignmentsError;
+  const locationIds = [...new Set((assignments || []).map((item) => item.location_id).filter(Boolean))];
+  if (!locationIds.length) return [];
+  const { data, error } = await supabase
+   .from("retail_locations")
+   .select("id,retailer_organization_id,code,name,address_line,city,state,postal_code,active,created_at,organizations(name)")
+   .in("id", locationIds)
+   .eq("active", true)
+   .order("name");
+  if (error) throw error;
+  return data;
+ },
+ async listPromoterLocationAssignments() {
+  const { data, error } = await supabase.from("promoter_location_assignments").select("promoter_user_id,location_id,active");
+  if (error) throw error;
+  return data || [];
+ },
  async createRetailLocation(values) {
   const { data, error } = await supabase.from("retail_locations").insert(values).select("id,retailer_organization_id,code,name,address_line,city,state,postal_code,active,created_at").single();
+  if (error) throw error;
+  return data;
+ },
+ async updateRetailLocation(id, values) {
+  const { data, error } = await supabase.from("retail_locations").update(values).eq("id", id).select("id,retailer_organization_id,code,name,address_line,city,state,postal_code,active,created_at").single();
   if (error) throw error;
   return data;
  },
@@ -204,7 +246,7 @@ window.skaleeDb = {
  },
  async listPromoterProfiles() {
   const [profilesResult, usersResult] = await Promise.all([
-   supabase.from("promoter_profiles").select("user_id,agency_organization_id,active,promoter_brand_assignments(brand_id,active)").order("created_at", { ascending: false }),
+   supabase.from("promoter_profiles").select("user_id,agency_organization_id,active,promoter_brand_assignments(brand_id,active),promoter_location_assignments(location_id,active)").order("created_at", { ascending: false }),
    supabase.from("user_profiles").select("user_id,full_name")
   ]);
   if (profilesResult.error) throw profilesResult.error;
@@ -212,9 +254,22 @@ window.skaleeDb = {
   const userProfiles = new Map(usersResult.data.map((profile) => [profile.user_id, profile]));
   return profilesResult.data.map((profile) => ({ ...profile, user_profiles: userProfiles.get(profile.user_id) || null }));
  },
+ async syncPromoterLocations(userId, locationIds = []) {
+  const selectedIds = [...new Set(locationIds.filter(Boolean))];
+  const { error: profileError } = await supabase.from("promoter_profiles").upsert({ user_id: userId }, { onConflict: "user_id" });
+  if (profileError) throw profileError;
+  const { error: deactivateError } = await supabase.from("promoter_location_assignments").update({ active: false }).eq("promoter_user_id", userId);
+  if (deactivateError) throw deactivateError;
+  if (!selectedIds.length) return true;
+  const rows = selectedIds.map((locationId) => ({ promoter_user_id: userId, location_id: locationId, active: true }));
+  const { error } = await supabase.from("promoter_location_assignments").upsert(rows, { onConflict: "promoter_user_id,location_id" });
+  if (error) throw error;
+  return true;
+ },
  async configurePromoter(values) {
   const { error } = await supabase.rpc("configure_promoter", { p_user_id: values.userId, p_full_name: values.fullName, p_agency_organization_id: values.agencyOrganizationId || null, p_brand_ids: values.brandIds });
   if (error) throw error;
+  await this.syncPromoterLocations(values.userId, values.locationIds || []);
   return true;
  }
 };
@@ -295,7 +350,14 @@ signOutButton.addEventListener("click", async () => {
  signOutButton.disabled = true;
  const { error } = await supabase.auth.signOut();
  signOutButton.disabled = false;
- if (error) window.alert(`Não foi possível sair: ${error.message}`);
+ if (error) {
+  const message = error.message || "";
+  if (message.toLowerCase().includes("auth session missing")) {
+   showSession(null);
+   return;
+  }
+  window.alert(`Não foi possível sair: ${message}`);
+ }
 });
 supabase.auth.onAuthStateChange((_event, session) => {
  if (!manualAuthInProgress) showSession(session);

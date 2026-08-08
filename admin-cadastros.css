@@ -6,6 +6,7 @@
 .registry-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 10px;margin:12px 0 18px;padding:15px;border:1px solid var(--line);border-radius:14px;background:#f8fafc}
 .registry-form.compact{grid-template-columns:1fr 1fr auto;align-items:end}
 .registry-submit{align-self:end;margin-top:14px;min-height:43px}
+.registry-submit[hidden]{display:none}
 .registry-list{display:grid;gap:8px}
 .registry-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 13px;border:1px solid var(--line);border-radius:12px;background:#fff}
 .registry-row.inactive{opacity:.68}.registry-info{min-width:0}.registry-info strong{display:block}.registry-info small{display:block;margin-top:4px;color:var(--muted);line-height:1.35}.registry-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}

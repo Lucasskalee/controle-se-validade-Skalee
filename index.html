@@ -32,6 +32,7 @@ nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
 button{font:inherit}
 .tab,.btn{border:0;border-radius:11px;padding:11px 15px;font-weight:750;cursor:pointer}
 .tab{background:#e9edf4;color:#48546a}.tab.active{background:var(--blue);color:#fff}
+.tab[hidden]{display:none}
 .page{display:none}.page.active{display:block}
 .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px}
 .stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px}
@@ -69,8 +70,9 @@ input:focus,select:focus{border-color:#9dbbf9;box-shadow:0 0 0 3px #e8f0ff}
 .settings{max-width:760px;margin:auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px}
 .report{max-width:900px;margin:auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px}.report-head{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;margin-bottom:16px}.report-head h2{margin:0 0 5px}.report-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.report-controls select{min-width:150px}.report-date{display:grid;gap:3px;color:var(--muted);font-size:11px;font-weight:750}.report-date input{min-width:145px;padding:10px}.report-selection-actions{display:flex;gap:8px;margin:0 0 10px}.layout-picker{display:flex;gap:5px;padding:4px;border:1px solid var(--line);border-radius:11px;background:#f1f5f9}.layout-button{display:grid;place-items:center;width:38px;height:36px;padding:7px;border:0;border-radius:8px;background:transparent;color:#7a8499;cursor:pointer}.layout-button.active{background:var(--blue);color:#fff;box-shadow:0 3px 9px rgba(37,99,235,.25)}.layout-icon{display:grid;grid-template-columns:repeat(var(--icon-columns),1fr);grid-template-rows:repeat(3,4px);gap:2px;width:100%;height:16px}.layout-icon span{border-radius:1px;background:currentColor}.report-grid{display:grid;grid-template-columns:repeat(var(--report-columns,1),minmax(0,1fr));gap:10px;min-height:260px;padding:12px;border:1px solid var(--line);border-radius:13px;background:#f8fafc}.report-item{position:relative;min-width:0;padding:14px 14px 14px 44px;border:1px solid #dbe1ea;border-radius:10px;background:#fff;color:#111827;white-space:pre-wrap;overflow-wrap:anywhere;font:700 15px/1.45 "Courier New",monospace;cursor:pointer}.report-item.selected{border-color:#60a5fa;box-shadow:0 0 0 2px rgba(37,99,235,.12)}.report-item input{position:absolute;top:15px;left:14px;width:18px;height:18px;cursor:pointer}.report-grid[data-columns="2"] .report-item{font-size:13px;padding:12px 12px 12px 39px}.report-grid[data-columns="3"] .report-item{font-size:11px;padding:9px 9px 9px 34px}.report-grid[data-columns="4"] .report-item{font-size:9px;padding:7px 7px 7px 31px}.report-empty{grid-column:1/-1;align-self:start;padding:30px;text-align:center;color:var(--muted)}.report-status{margin-top:10px;color:var(--muted);font-size:13px}
 .settings h2{margin:0 0 5px}.settings-note{margin:0 0 18px;color:var(--muted);font-size:14px;line-height:1.5}
+.settings-tabs{display:flex;gap:7px;overflow-x:auto;margin:0 0 18px;padding-bottom:3px}.settings-tab{white-space:nowrap;border:1px solid var(--line);border-radius:999px;padding:9px 13px;background:#f8fafc;color:var(--muted);font-weight:800;cursor:pointer}.settings-tab.active{border-color:var(--blue);background:var(--blue);color:#fff}.settings-tab[hidden]{display:none}.settings-panel{display:none}.settings-panel.active{display:block}
 .settings-section+.settings-section{margin-top:24px;padding-top:22px;border-top:1px solid var(--line)}.theme-options{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}.theme-button{display:flex;align-items:center;gap:10px;padding:13px;border:1px solid var(--line);border-radius:13px;background:#f8fafc;color:var(--text);font-weight:800;cursor:pointer;text-align:left}.theme-button.active{border-color:var(--blue);background:var(--blue2);color:#1d4ed8;box-shadow:0 0 0 2px rgba(37,99,235,.1)}.theme-icon{display:grid;place-items:center;width:31px;height:31px;border-radius:9px;background:#fff;font-size:18px;box-shadow:0 2px 7px rgba(15,23,42,.1)}.theme-status{margin-top:10px;color:var(--muted);font-size:13px}
-.settings-section[hidden]{display:none}.user-create{display:grid;grid-template-columns:1fr 1fr auto;gap:9px;align-items:end;margin-top:14px}.user-list{display:grid;gap:9px;margin-top:16px}.user-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px;border:1px solid var(--line);border-radius:12px;background:#f8fafc}.user-info{min-width:0}.user-info strong{display:block;overflow:hidden;text-overflow:ellipsis}.user-info small{display:block;margin-top:4px;color:var(--muted)}.user-state{display:inline-block;margin-top:6px;padding:4px 7px;border-radius:999px;font-size:11px;font-weight:850}.user-state.active{background:#dcfce7;color:#166534}.user-state.inactive{background:#fee2e2;color:#b91c1c}.user-message{min-height:19px;margin-top:10px;color:var(--muted);font-size:13px}.user-message.error{color:var(--red)}.user-message.success{color:var(--green)}
+.settings-section[hidden]{display:none}.user-create{display:grid;grid-template-columns:1fr 1fr auto;gap:9px;align-items:end;margin-top:14px}.user-list{display:grid;gap:9px;margin-top:16px}.user-card{border:1px solid var(--line);border-radius:12px;background:#f8fafc;overflow:hidden}.user-card.expanded .user-locations{display:block}.user-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px}.user-info{min-width:0}.user-info strong{display:block;overflow:hidden;text-overflow:ellipsis}.user-info small{display:block;margin-top:4px;color:var(--muted)}.user-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}.user-state{display:inline-block;margin-top:6px;padding:4px 7px;border-radius:999px;font-size:11px;font-weight:850}.user-state.active{background:#dcfce7;color:#166534}.user-state.inactive{background:#fee2e2;color:#b91c1c}.user-locations{display:none;padding:0 13px 13px;border-top:1px solid var(--line)}.user-locations-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 9px}.user-locations-head strong{font-size:13px}.user-location-actions{display:flex;gap:7px;flex-wrap:wrap}.user-location-checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.user-location-check{display:flex;align-items:center;gap:8px;padding:9px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:13px;font-weight:700}.user-location-check input{width:auto}.user-location-empty{padding:13px;border:1px dashed var(--line);border-radius:10px;color:var(--muted);font-size:13px;text-align:center}.user-message{min-height:19px;margin-top:10px;color:var(--muted);font-size:13px}.user-message.error{color:var(--red)}.user-message.success{color:var(--green)}
 .import-box{border:2px dashed #cbd3df;border-radius:15px;padding:24px;text-align:center;background:#fafbfc}
 .import-box input{margin:14px auto 0;max-width:440px}.catalog-info{margin-top:16px;padding:14px;border-radius:12px;background:var(--blue2);font-size:14px;line-height:1.55}
 .catalog-info b{display:block}.settings-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
@@ -98,8 +100,8 @@ html[data-theme="dark"] body{background:var(--bg);color:var(--text)}
 html[data-theme="dark"] :is(.stat,.card,.form,.settings,.report,.update-panel,.scanner-panel,.saving-box){background:var(--card);border-color:var(--line)}
 html[data-theme="dark"] :is(input,select){background:#0f192a;border-color:var(--line);color:var(--text)}
 html[data-theme="dark"] :is(.tab,.btn2){background:#223047;color:#dbe7f7}
-html[data-theme="dark"] :is(.chip,.theme-button,.report-item){background:#121e31;border-color:var(--line);color:var(--text)}
-html[data-theme="dark"] .user-row{background:#121e31;border-color:var(--line)}
+html[data-theme="dark"] :is(.chip,.theme-button,.settings-tab,.report-item){background:#121e31;border-color:var(--line);color:var(--text)}
+html[data-theme="dark"] :is(.user-card,.user-location-check){background:#121e31;border-color:var(--line)}
 html[data-theme="dark"] .install-banner{background:var(--card);border-color:#31558a}
 html[data-theme="dark"] .chip.active{background:#e5edf9;color:#111827;border-color:#e5edf9}
 html[data-theme="dark"] :is(.photo,.layout-picker,.report-grid,.import-box){background:#0d1727;border-color:var(--line)}
@@ -111,7 +113,7 @@ html[data-theme="dark"] :is(.catalog-info,.found){background:#132b4b;border-colo
 html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
 @media(max-width:620px){.scan{grid-template-columns:1fr}}
 @media(max-width:850px){.stats{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:620px){.app{padding:14px}.searchrow,.searchrow.with-layout{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}header{align-items:flex-start;flex-direction:column;gap:5px}.photo{height:180px}.report-head{align-items:stretch;flex-direction:column}.report-controls{align-items:stretch;flex-direction:column}.product-layout-picker{justify-self:start}.theme-options,.user-create{grid-template-columns:1fr}.user-row{align-items:stretch;flex-direction:column}.user-row .btn2{width:100%}.install-banner{align-items:flex-start;flex-wrap:wrap}.install-copy{flex:1 1 calc(100% - 65px)}.install-actions{width:100%;justify-content:flex-end}.grid[data-columns="2"] .photo{height:120px}.grid[data-columns="3"] .photo{height:90px}.grid[data-columns="4"] .photo{height:70px}.grid[data-columns="3"] .content,.grid[data-columns="4"] .content{padding:7px}.grid[data-columns="3"] .name,.grid[data-columns="4"] .name{min-height:0;font-size:10px}.grid[data-columns="3"] .code,.grid[data-columns="4"] .code{font-size:8px}.grid[data-columns="3"] .info,.grid[data-columns="4"] .info{display:block;font-size:8px}.grid[data-columns="3"] .badge,.grid[data-columns="4"] .badge{font-size:7px;padding:4px}.grid[data-columns="3"] .card-actions .btn2,.grid[data-columns="4"] .card-actions .btn2{width:100%;padding:6px 3px;font-size:8px}}
+@media(max-width:620px){.app{padding:14px}.searchrow,.searchrow.with-layout{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}header{align-items:flex-start;flex-direction:column;gap:5px}.photo{height:180px}.report-head{align-items:stretch;flex-direction:column}.report-controls{align-items:stretch;flex-direction:column}.product-layout-picker{justify-self:start}.theme-options,.user-create,.user-location-checks{grid-template-columns:1fr}.user-row,.user-locations-head,.user-actions,.user-location-actions{align-items:stretch;flex-direction:column}.user-row .btn2,.user-locations-head .btn2{width:100%}.install-banner{align-items:flex-start;flex-wrap:wrap}.install-copy{flex:1 1 calc(100% - 65px)}.install-actions{width:100%;justify-content:flex-end}.grid[data-columns="2"] .photo{height:120px}.grid[data-columns="3"] .photo{height:90px}.grid[data-columns="4"] .photo{height:70px}.grid[data-columns="3"] .content,.grid[data-columns="4"] .content{padding:7px}.grid[data-columns="3"] .name,.grid[data-columns="4"] .name{min-height:0;font-size:10px}.grid[data-columns="3"] .code,.grid[data-columns="4"] .code{font-size:8px}.grid[data-columns="3"] .info,.grid[data-columns="4"] .info{display:block;font-size:8px}.grid[data-columns="3"] .badge,.grid[data-columns="4"] .badge{font-size:7px;padding:4px}.grid[data-columns="3"] .card-actions .btn2,.grid[data-columns="4"] .card-actions .btn2{width:100%;padding:6px 3px;font-size:8px}}
 </style>
 </head>
 <body class="auth-loading">
@@ -148,7 +150,7 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
 <nav>
  <button class="tab active" data-page="products">Produtos</button>
  <button class="tab" data-page="register">+ Registrar produto</button>
- <button class="tab" data-page="report">Relatório</button>
+ <button class="tab" data-page="report">Relatórios</button>
  <button class="tab" data-page="settings">Configurações</button>
 </nav>
 
@@ -257,7 +259,14 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
 
 <section class="page" id="settings">
  <div class="settings">
-  <div class="settings-section">
+  <div class="settings-tabs" role="tablist" aria-label="Áreas de configuração">
+   <button class="settings-tab active" type="button" data-settings="general">Geral</button>
+   <button id="settingsUsersTab" class="settings-tab" type="button" data-settings="users" hidden>Usuários</button>
+   <button id="settingsRegistriesTab" class="settings-tab" type="button" data-settings="registries" hidden>Cadastros</button>
+  </div>
+
+  <section class="settings-panel active" data-settings-panel="general">
+   <div class="settings-section">
    <h2>Tema do aplicativo</h2>
    <p class="settings-note">Escolha a aparência que fica mais confortável para você.</p>
    <div class="theme-options" role="group" aria-label="Tema do aplicativo">
@@ -267,6 +276,25 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
    </div>
    <div id="themeStatus" class="theme-status" aria-live="polite"></div>
   </div>
+  <div id="catalogSettingsSection" class="settings-section" hidden>
+   <h2>Catálogo de produtos</h2>
+   <p class="settings-note">Importe uma nova versão do arquivo DBF para atualizar os produtos disponíveis na busca. O arquivo fica salvo somente neste navegador e dispositivo.</p>
+   <div class="import-box">
+    <strong>Selecionar arquivo DBF</strong>
+    <div class="sub">Formato esperado: campos CODBAR, CODPROD e DESCRICAO.</div>
+    <input id="dbfFile" type="file" accept=".dbf,application/vnd.dbf">
+   </div>
+   <div id="catalogInfo" class="catalog-info" aria-live="polite">
+    <b>Carregando informações do catálogo...</b>
+   </div>
+   <div class="settings-actions">
+    <button id="importDbf" class="btn" type="button">Importar arquivo</button>
+    <button id="restoreDbf" class="btn2" type="button">Usar arquivo padrão do sistema</button>
+   </div>
+  </div>
+  </section>
+
+  <section class="settings-panel" data-settings-panel="users">
   <div id="adminUsersSection" class="settings-section" hidden>
    <h2>Usuários</h2>
    <p class="settings-note">Crie contas e controle quem pode acessar o aplicativo.</p>
@@ -278,6 +306,9 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
    <div id="userMessage" class="user-message" aria-live="polite"></div>
    <div id="userList" class="user-list"></div>
   </div>
+  </section>
+
+  <section class="settings-panel" data-settings-panel="registries">
   <div id="multiCompanySection" class="settings-section" hidden>
    <div class="registry-heading">
     <div><h2>Estrutura multiempresa</h2><p class="settings-note">Cadastre empresas, marcas, produtos e locais que serão vinculados aos promotores.</p></div>
@@ -301,7 +332,8 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
      <div><label class="label" for="organizationTaxId">CNPJ / documento</label><input id="organizationTaxId" maxlength="30"></div>
      <div><label class="label" for="organizationEmail">E-mail</label><input id="organizationEmail" type="email" maxlength="160"></div>
      <div><label class="label" for="organizationPhone">Telefone</label><input id="organizationPhone" maxlength="30"></div>
-     <button class="btn registry-submit" type="submit">Cadastrar empresa</button>
+     <button id="organizationSubmit" class="btn registry-submit" type="submit">Cadastrar empresa</button>
+     <button id="cancelOrganizationEdit" class="btn2 registry-submit" type="button" hidden>Cancelar edição</button>
     </form>
     <div id="organizationList" class="registry-list"></div>
    </section>
@@ -336,7 +368,8 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
      <div><label class="label" for="locationAddress">Endereço</label><input id="locationAddress" maxlength="200"></div>
      <div><label class="label" for="locationCity">Cidade</label><input id="locationCity" maxlength="100"></div>
      <div><label class="label" for="locationState">UF</label><input id="locationState" maxlength="2"></div>
-     <button class="btn registry-submit" type="submit">Cadastrar local</button>
+     <button id="locationSubmit" class="btn registry-submit" type="submit">Cadastrar local</button>
+     <button id="cancelLocationEdit" class="btn2 registry-submit" type="button" hidden>Cancelar edição</button>
     </form>
     <div id="retailLocationList" class="registry-list"></div>
    </section>
@@ -352,27 +385,13 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
      <div><label class="label" for="promoterName">Nome do promotor *</label><input id="promoterName" required maxlength="140"></div>
      <div><label class="label" for="promoterAgency">Agência</label><select id="promoterAgency"></select></div>
      <fieldset class="registry-fieldset"><legend>Marcas atendidas</legend><div id="promoterBrands" class="registry-checks"></div></fieldset>
+     <fieldset class="registry-fieldset"><legend>Locais permitidos</legend><div id="promoterLocations" class="registry-checks"></div></fieldset>
      <button class="btn registry-submit" type="submit">Salvar promotor</button>
     </form>
     <div id="promoterList" class="registry-list"></div>
    </section>
   </div>
-  <div id="catalogSettingsSection" class="settings-section" hidden>
-   <h2>Catálogo de produtos</h2>
-   <p class="settings-note">Importe uma nova versão do arquivo DBF para atualizar os produtos disponíveis na busca. O arquivo fica salvo somente neste navegador e dispositivo.</p>
-   <div class="import-box">
-    <strong>Selecionar arquivo DBF</strong>
-    <div class="sub">Formato esperado: campos CODBAR, CODPROD e DESCRICAO.</div>
-    <input id="dbfFile" type="file" accept=".dbf,application/vnd.dbf">
-   </div>
-   <div id="catalogInfo" class="catalog-info" aria-live="polite">
-    <b>Carregando informações do catálogo...</b>
-   </div>
-   <div class="settings-actions">
-    <button id="importDbf" class="btn" type="button">Importar arquivo</button>
-    <button id="restoreDbf" class="btn2" type="button">Usar arquivo padrão do sistema</button>
-   </div>
-  </div>
+  </section>
  </div>
 </section>
 </main>
@@ -511,6 +530,10 @@ const els = {
  copyReport: document.getElementById('copyReport'),
  selectAllReport: document.getElementById('selectAllReport'),
  clearReportSelection: document.getElementById('clearReportSelection'),
+ settingsTabs: document.querySelectorAll('.settings-tab'),
+ settingsPanels: document.querySelectorAll('.settings-panel'),
+ settingsUsersTab: document.getElementById('settingsUsersTab'),
+ settingsRegistriesTab: document.getElementById('settingsRegistriesTab'),
  layoutButtons: document.querySelectorAll('#layoutPicker .layout-button'),
  productLayoutButtons: document.querySelectorAll('.product-layout-button'),
  themeButtons: document.querySelectorAll('.theme-button'),
@@ -701,10 +724,79 @@ function setUserMessage(text = "", type = "") {
  els.userMessage.className = `user-message ${type}`.trim();
 }
 
-function renderAdminUsers(users) {
+function renderUserLocationEditor(user, locations, assignments) {
+ const editor = document.createElement("div");
+ editor.className = "user-locations";
+ const head = document.createElement("div");
+ head.className = "user-locations-head";
+ const title = document.createElement("strong");
+ title.textContent = "Locais permitidos para cadastro";
+ const locationActions = document.createElement("div");
+ locationActions.className = "user-location-actions";
+ const selectAll = document.createElement("button");
+ selectAll.type = "button";
+ selectAll.className = "btn2";
+ selectAll.textContent = "Selecionar todos";
+ const clearSelection = document.createElement("button");
+ clearSelection.type = "button";
+ clearSelection.className = "btn2";
+ clearSelection.textContent = "Limpar seleção";
+ const save = document.createElement("button");
+ save.type = "button";
+ save.className = "btn2";
+ save.textContent = "Salvar locais";
+ locationActions.append(selectAll, clearSelection, save);
+ head.append(title, locationActions);
+ const checks = document.createElement("div");
+ checks.className = "user-location-checks";
+ const selectedLocationIds = new Set(assignments.filter((item) => item.promoter_user_id === user.id && item.active).map((item) => item.location_id));
+ locations.filter((location) => location.active !== false).forEach((location) => {
+  const label = document.createElement("label");
+  label.className = "user-location-check";
+  const input = document.createElement("input");
+  input.type = "checkbox";
+  input.value = location.id;
+  input.checked = selectedLocationIds.has(location.id);
+  const span = document.createElement("span");
+  span.textContent = [location.name, location.organizations?.name].filter(Boolean).join(" · ");
+  label.append(input, span);
+  checks.append(label);
+ });
+ if (!locations.some((location) => location.active !== false)) {
+  const empty = document.createElement("div");
+  empty.className = "user-location-empty";
+  empty.textContent = "Nenhum local ativo cadastrado.";
+  checks.append(empty);
+  save.disabled = true;
+  selectAll.disabled = true;
+  clearSelection.disabled = true;
+ }
+ selectAll.addEventListener("click", () => checks.querySelectorAll("input").forEach((input) => { input.checked = true; }));
+ clearSelection.addEventListener("click", () => checks.querySelectorAll("input").forEach((input) => { input.checked = false; }));
+ save.addEventListener("click", async () => {
+  const locationIds = [...checks.querySelectorAll("input:checked")].map((input) => input.value);
+  save.disabled = true;
+  setUserMessage(`Salvando locais de ${user.email}...`);
+  try {
+   await window.skaleeDb.syncPromoterLocations(user.id, locationIds);
+   setUserMessage("Locais permitidos atualizados com sucesso.", "success");
+   await loadAdminUsers();
+  } catch (error) {
+   console.error("Falha ao salvar locais do usuário.", error);
+   setUserMessage(error.message || "Não foi possível salvar os locais do usuário.", "error");
+   save.disabled = false;
+  }
+ });
+ editor.append(head, checks);
+ return editor;
+}
+
+function renderAdminUsers(users, locations = [], assignments = []) {
  els.userList.replaceChildren();
  users.sort((a, b) => Number(b.isAdmin) - Number(a.isAdmin) || a.email.localeCompare(b.email));
  users.forEach((user) => {
+  const card = document.createElement("div");
+  card.className = "user-card";
   const row = document.createElement("div");
   row.className = "user-row";
   const info = document.createElement("div");
@@ -717,6 +809,18 @@ function renderAdminUsers(users) {
   state.className = `user-state ${user.active ? "active" : "inactive"}`;
   state.textContent = user.active ? "ATIVO" : "INATIVO";
   info.append(email, dates, state);
+  const actions = document.createElement("div");
+  actions.className = "user-actions";
+  const toggle = document.createElement("button");
+  toggle.type = "button";
+  toggle.className = "btn2";
+  toggle.textContent = "Ver mais";
+  toggle.setAttribute("aria-expanded", "false");
+  toggle.addEventListener("click", () => {
+   const expanded = card.classList.toggle("expanded");
+   toggle.textContent = expanded ? "Ver menos" : "Ver mais";
+   toggle.setAttribute("aria-expanded", String(expanded));
+  });
   const action = document.createElement("button");
   action.type = "button";
   action.className = "btn2";
@@ -739,16 +843,20 @@ function renderAdminUsers(users) {
     }
    });
   }
-  row.append(info, action);
-  els.userList.appendChild(row);
+  if (!user.isAdmin) actions.append(toggle);
+  actions.append(action);
+  row.append(info, actions);
+  card.append(row);
+  if (!user.isAdmin) card.append(renderUserLocationEditor(user, locations, assignments));
+  els.userList.appendChild(card);
  });
 }
 
 async function loadAdminUsers() {
  setUserMessage("Carregando usuários...");
  try {
-  const users = await window.skaleeDb.listUsers();
-  renderAdminUsers(users);
+  const [users, locations, assignments] = await Promise.all([window.skaleeDb.listUsers(), window.skaleeDb.listRetailLocations(), window.skaleeDb.listPromoterLocationAssignments()]);
+  renderAdminUsers(users, locations, assignments);
   setUserMessage(`${users.length} usuário(s) cadastrado(s).`);
  } catch (error) {
   console.error("Falha ao carregar usuários.", error);
@@ -783,11 +891,16 @@ window.addEventListener("skalee:authenticated", (event) => {
  showInstallBannerWhenAvailable();
  void carregarProdutosOnline();
  const isAdmin = String(event.detail?.email || "").toLowerCase() === ADMIN_EMAIL;
+ const isPlatformAdmin = event.detail?.accessRole === "platform_admin";
  const registerTab = document.querySelector('[data-page="register"]');
  const settingsTab = document.querySelector('[data-page="settings"]');
  registerTab.hidden = isViewer;
  settingsTab.hidden = isViewer;
- if (isViewer) document.querySelector('[data-page="products"]').click();
+ els.settingsUsersTab.hidden = !isAdmin;
+ els.settingsRegistriesTab.hidden = !isPlatformAdmin;
+ if (document.querySelector(".settings-tab.active")?.hidden) showSettingsPanel("general");
+ const activeTab = document.querySelector(".tab.active");
+ if (isViewer || activeTab?.hidden) document.querySelector('[data-page="products"]').click();
  els.adminUsersSection.hidden = !isAdmin;
  els.catalogSettingsSection.hidden = !isAdmin;
  if (isAdmin) void loadAdminUsers();
@@ -797,6 +910,9 @@ window.addEventListener("skalee:signed-out", () => {
  isViewer = false;
  els.installBanner.hidden = true;
  products = [];
+ els.settingsUsersTab.hidden = true;
+ els.settingsRegistriesTab.hidden = true;
+ showSettingsPanel("general");
  els.adminUsersSection.hidden = true;
  els.catalogSettingsSection.hidden = true;
  els.userList.replaceChildren();
@@ -849,6 +965,17 @@ document.querySelectorAll(".tab").forEach((button) => {
   button.classList.add("active");
   document.getElementById(button.dataset.page).classList.add("active");
  });
+});
+
+function showSettingsPanel(panelName = "general") {
+ const requestedTab = [...els.settingsTabs].find((tab) => tab.dataset.settings === panelName && !tab.hidden);
+ const activeName = requestedTab ? panelName : "general";
+ els.settingsTabs.forEach((tab) => tab.classList.toggle("active", tab.dataset.settings === activeName));
+ els.settingsPanels.forEach((panel) => panel.classList.toggle("active", panel.dataset.settingsPanel === activeName));
+}
+
+els.settingsTabs.forEach((button) => {
+ button.addEventListener("click", () => showSettingsPanel(button.dataset.settings));
 });
 
 function remaining(value) {

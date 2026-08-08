@@ -3,3 +3,4 @@ deploy-*.log
 .git
 .agents
 .codex
+.vscode
