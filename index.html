@@ -166,7 +166,7 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
  <div class="searchrow with-layout">
   <input id="search" placeholder="Buscar por nome ou código interno...">
   <select id="storeFilter">
-   <option value="">Todas as lojas</option><option>Loja 01</option><option>Loja 02</option><option>Loja 03</option><option>Loja 04</option>
+   <option value="">Todas as lojas</option>
   </select>
   <div class="layout-picker product-layout-picker" aria-label="Colunas dos produtos">
    <button class="layout-button product-layout-button" type="button" data-columns="1" aria-label="Uma coluna" title="Uma coluna"><span class="layout-icon" aria-hidden="true"></span></button>
@@ -235,7 +235,7 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
    <div><h2>Relatório de produtos</h2><div class="sub">Texto pronto para copiar e compartilhar.</div></div>
    <div class="report-controls">
     <select id="reportStore" aria-label="Filtrar relatório por loja">
-     <option value="">Todas as lojas</option><option>Loja 01</option><option>Loja 02</option><option>Loja 03</option><option>Loja 04</option>
+     <option value="">Todas as lojas</option>
     </select>
     <label class="report-date">Atualizado de<input id="reportUpdatedFrom" type="date"></label>
     <label class="report-date">Até<input id="reportUpdatedTo" type="date"></label>
@@ -1245,6 +1245,41 @@ async function buscarOpenFoodFacts(codigoBarras) {
  };
 }
 
+function nomeUpcItemDb(item) {
+ return [
+  item.title,
+  item.description,
+  item.brand
+ ].map((value) => String(value || "").trim()).find(Boolean) || "";
+}
+
+async function buscarUpcItemDb(codigoBarras) {
+ const url = `https://api.upcitemdb.com/prod/trial/lookup?upc=${encodeURIComponent(codigoBarras)}`;
+ const response = await fetch(url, { headers: { Accept: "application/json" } });
+ if (response.status === 404) return null;
+ if (!response.ok) throw new Error(`UPCItemDB HTTP ${response.status}`);
+ const payload = await response.json();
+ if (payload.code !== "OK" || !Array.isArray(payload.items) || !payload.items.length) return null;
+ const item = payload.items[0];
+ const name = nomeUpcItemDb(item);
+ if (!name) return null;
+ return {
+  barcode: codigoBarras,
+  code: "",
+  name,
+  catalogProductId: null,
+  brandId: null,
+  brandName: item.brand || "",
+  catalogSource: "upcitemdb",
+  sourcePayload: {
+   title: item.title || "",
+   description: item.description || "",
+   brand: item.brand || "",
+   category: item.category || ""
+  }
+ };
+}
+
 async function salvarProdutoExternoNoSupabase(product) {
  try {
   const cached = await window.skaleeDb.cacheExternalCatalogProduct({
@@ -1297,6 +1332,16 @@ async function buscarProdutoPorCodigo(codigoBarras) {
    console.error("Falha ao consultar Open Food Facts:", error);
   }
  }
+
+ if (!selected) {
+  els.found.innerHTML = "<b>Produto não encontrado no Supabase/Open Food Facts.</b><br>Consultando UPCItemDB...";
+  try {
+   selected = await buscarUpcItemDb(codigoBarras);
+   if (selected) selected = await salvarProdutoExternoNoSupabase(selected);
+  } catch (error) {
+   console.error("Falha ao consultar UPCItemDB:", error);
+  }
+ }
  els.find.disabled = false;
 
  if (!selected) {
@@ -1309,7 +1354,8 @@ async function buscarProdutoPorCodigo(codigoBarras) {
   selected = { ...selected, catalogProductId: catalogMatch.id, brandId: catalogMatch.brand_id, brandName: catalogMatch.brands?.name || "" };
  }
 
- const sourceText = selected.catalogSource === "open_food_facts" ? `<br><span style="color:#16a34a">Fonte: Open Food Facts</span>` : "";
+ const sourceLabels = { open_food_facts: "Open Food Facts", upcitemdb: "UPCItemDB" };
+ const sourceText = sourceLabels[selected.catalogSource] ? `<br><span style="color:#16a34a">Fonte: ${sourceLabels[selected.catalogSource]}</span>` : "";
  els.found.innerHTML = `<b>${selected.name}</b><br><span style="color:#2563eb">Cód. interno: ${selected.code || "sem código interno"}</span><br><span style="color:#39465c">Código de barras: ${selected.barcode}</span>${selected.brandName ? `<br><span style="color:#16a34a">Marca: ${selected.brandName}</span>` : ""}${sourceText}`;
  els.qty.focus();
 }

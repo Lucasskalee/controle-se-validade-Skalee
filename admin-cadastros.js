@@ -135,9 +135,12 @@
   });
   if ([...store.options].some((option) => option.value === selected)) store.value = selected;
   [el("storeFilter"), el("reportStore")].filter(Boolean).forEach((filter) => {
+   const selectedFilter = filter.value;
+   filter.replaceChildren(new Option("Todas as lojas", ""));
    state.locations.filter((location) => location.active).forEach((location) => {
-    if (![...filter.options].some((option) => option.value === location.name)) filter.add(new Option(location.name, location.name));
+    filter.add(new Option(location.name, location.name));
    });
+   if ([...filter.options].some((option) => option.value === selectedFilter)) filter.value = selectedFilter;
   });
  }
  function organizationValues() {
