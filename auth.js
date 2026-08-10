@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.55.0";
 const SUPABASE_URL = "https://scetuqugfbhozikridaw.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_RUy69LJc14uWrn0H9WgvKQ_ebicHtdN";
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-const LEGACY_STORAGE_KEY = "validade_demo_completa";
+const SHARED_CATALOG_OWNER_ID = "1d229a0e-7c6d-4b03-9505-95c50bb49cad";
 const body = document.body;
 const app = document.querySelector("#protectedApp");
 const form = document.querySelector("#authForm");
@@ -19,6 +19,20 @@ const VALIDITY_PRODUCT_SELECT = "id,user_id,barcode,product_code,name,store,quan
 let mode = "sign-in";
 let activeUserId;
 let manualAuthInProgress = false;
+
+async function selectAllPages(table, columns, options = {}) {
+ const pageSize = options.pageSize || 1000;
+ const rows = [];
+ for (let from = 0; ; from += pageSize) {
+  let query = supabase.from(table).select(columns).range(from, from + pageSize - 1);
+  if (options.order) query = query.order(options.order.column, options.order.options || {});
+  const { data, error } = await query;
+  if (error) throw error;
+  rows.push(...(data || []));
+  if (!data || data.length < pageSize) break;
+ }
+ return rows;
+}
 
 function fromDatabase(row) {
  return {
@@ -63,23 +77,8 @@ function toDatabase(product) {
  };
 }
 
-async function migrateLegacyProducts() {
- const raw = localStorage.getItem(LEGACY_STORAGE_KEY);
- if (!raw) return;
- let legacyProducts;
- try { legacyProducts = JSON.parse(raw); } catch { return; }
- if (!Array.isArray(legacyProducts) || legacyProducts.length === 0) {
-  localStorage.removeItem(LEGACY_STORAGE_KEY);
-  return;
- }
- const { error } = await supabase.from("validity_products").insert(legacyProducts.map(toDatabase));
- if (error) throw error;
- localStorage.removeItem(LEGACY_STORAGE_KEY);
-}
-
 window.skaleeDb = {
  async loadProducts() {
-  await migrateLegacyProducts();
   const { data, error } = await supabase
    .from("validity_products")
    .select(VALIDITY_PRODUCT_SELECT)
@@ -180,8 +179,78 @@ window.skaleeDb = {
   if (error) throw error;
   return data;
  },
+ async listSearchCatalogProducts() {
+  return selectAllPages("catalog_products", "id,brand_id,barcode,internal_code,name,active", {
+   order: { column: "name" }
+  });
+ },
+ async findSearchCatalogProduct(code) {
+  const value = String(code || "").trim();
+  if (!value) return null;
+  const { data, error } = await supabase
+   .from("catalog_products")
+   .select("id,brand_id,barcode,internal_code,name,active")
+   .or(`barcode.eq.${value},internal_code.eq.${value}`)
+   .eq("active", true)
+   .limit(1);
+  if (error) throw error;
+  return data?.[0] || null;
+ },
  async createCatalogProduct(values) {
   const { data, error } = await supabase.from("catalog_products").insert(values).select("id,owner_organization_id,brand_id,barcode,internal_code,name,category,active,created_at").single();
+  if (error) throw error;
+  return data;
+ },
+ async importCatalogProducts(products, options = {}) {
+  const source = options.source || "own_import";
+  const rows = products.map((product) => {
+   const barcode = String(product.barcode || "").trim() || null;
+   const internalCode = String(product.internal_code || product.internalCode || "").trim() || null;
+   const sourceKey = String(product.source_key || barcode || internalCode || "").trim();
+   return {
+    owner_organization_id: SHARED_CATALOG_OWNER_ID,
+    barcode,
+    internal_code: internalCode,
+    name: String(product.name || "").trim(),
+    active: true,
+    catalog_source: source,
+    source_key: sourceKey,
+    source_updated_at: new Date().toISOString()
+   };
+  }).filter((row) => row.name && row.source_key && (row.barcode || row.internal_code));
+  let imported = 0;
+  for (let index = 0; index < rows.length; index += 500) {
+   const chunk = rows.slice(index, index + 500);
+   const { error } = await supabase
+    .from("catalog_products")
+    .upsert(chunk, { onConflict: "catalog_source,source_key" });
+   if (error) throw error;
+   imported += chunk.length;
+  }
+  return imported;
+ },
+ async cacheExternalCatalogProduct(product, source) {
+  const barcode = String(product.barcode || "").trim();
+  const internalCode = String(product.internal_code || product.internalCode || "").trim();
+  const name = String(product.name || "").trim();
+  const sourceKey = String(product.source_key || barcode || internalCode).trim();
+  if (!name || !sourceKey || (!barcode && !internalCode)) return null;
+  const row = {
+   owner_organization_id: SHARED_CATALOG_OWNER_ID,
+   barcode: barcode || null,
+   internal_code: internalCode || null,
+   name,
+   active: true,
+   catalog_source: source,
+   source_key: sourceKey,
+   source_updated_at: new Date().toISOString(),
+   source_payload: product.source_payload || null
+  };
+  const { data, error } = await supabase
+   .from("catalog_products")
+   .upsert(row, { onConflict: "catalog_source,source_key" })
+   .select("id,brand_id,barcode,internal_code,name,active")
+   .single();
   if (error) throw error;
   return data;
  },
@@ -314,32 +383,33 @@ form.addEventListener("submit", async (event) => {
  manualAuthInProgress = true;
  authRing?.classList.add("is-authenticating");
  showMessage("Validando credenciais...");
- const credentials = { email: email.value.trim(), password: password.value };
- const result = mode === "sign-up" ? await supabase.auth.signUp(credentials) : await supabase.auth.signInWithPassword(credentials);
- if (result.error) {
+ try {
+  const credentials = { email: email.value.trim(), password: password.value };
+  const result = mode === "sign-up" ? await supabase.auth.signUp(credentials) : await supabase.auth.signInWithPassword(credentials);
+  if (result.error) {
+   showMessage(result.error.message, "error");
+   return;
+  }
+  if (mode === "sign-up" && !result.data.session) {
+   setMode("sign-in");
+   showMessage("Conta criada. Confirme o e-mail recebido antes de entrar.", "success");
+   return;
+  }
+  showMessage("Acesso liberado. Abrindo o Controle de Validades...", "success");
+  authRing?.classList.add("is-unlocking");
+  await new Promise((resolve) => setTimeout(resolve, 420));
+  showSession(result.data.session);
+  window.setTimeout(() => {
+   authRing?.classList.remove("is-authenticating", "is-unlocking");
+  }, 600);
+ } catch (error) {
+  console.error("Falha ao autenticar.", error);
+  showMessage(error.message || "Não foi possível entrar. Verifique sua conexão e tente novamente.", "error");
+ } finally {
   submit.disabled = false;
   manualAuthInProgress = false;
-  authRing?.classList.remove("is-authenticating");
-  showMessage(result.error.message, "error");
-  return;
+  if (!body.classList.contains("auth-authenticated")) authRing?.classList.remove("is-authenticating", "is-unlocking");
  }
- if (mode === "sign-up" && !result.data.session) {
-  submit.disabled = false;
-  manualAuthInProgress = false;
-  authRing?.classList.remove("is-authenticating");
-  setMode("sign-in");
-  showMessage("Conta criada. Confirme o e-mail recebido antes de entrar.", "success");
-  return;
- }
- showMessage("Acesso liberado. Abrindo o Controle de Validades...", "success");
- authRing?.classList.add("is-unlocking");
- await new Promise((resolve) => setTimeout(resolve, 420));
- submit.disabled = false;
- manualAuthInProgress = false;
- showSession(result.data.session);
- window.setTimeout(() => {
-  authRing?.classList.remove("is-authenticating", "is-unlocking");
- }, 600);
 });
 
 email.addEventListener("focus", () => authRing?.setAttribute("data-auth-focus", "email"));

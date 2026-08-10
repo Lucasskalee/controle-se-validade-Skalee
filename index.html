@@ -207,7 +207,7 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
   <label class="label">Código de barras</label>
   <div class="scan"><input id="barcode" inputmode="numeric" placeholder="Escaneie ou digite"><button id="find" class="btn2">Buscar</button><button id="scanCamera" class="btn2">Ler câmera</button></div>
   <input id="barcodePhoto" type="file" accept="image/*" capture="environment" class="hidden">
-  <div id="catalogStatus" class="catalog-status" hidden>Carregando produtos de consulta03.dbf...</div>
+  <div id="catalogStatus" class="catalog-status" hidden>Carregando produtos do Supabase...</div>
   <div id="found" class="found"></div>
 
   <label class="label">Local / loja</label>
@@ -278,18 +278,17 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
   </div>
   <div id="catalogSettingsSection" class="settings-section" hidden>
    <h2>Catálogo de produtos</h2>
-   <p class="settings-note">Importe uma nova versão do arquivo DBF para atualizar os produtos disponíveis na busca. O arquivo fica salvo somente neste navegador e dispositivo.</p>
+   <p class="settings-note">Os produtos disponíveis na busca são carregados do Supabase. Use importação apenas para alimentar a base compartilhada.</p>
    <div class="import-box">
-    <strong>Selecionar arquivo DBF</strong>
-    <div class="sub">Formato esperado: campos CODBAR, CODPROD e DESCRICAO.</div>
+    <strong>Importar base própria para o Supabase</strong>
+    <div class="sub">Arquivo DBF com campos CODBAR, CODPROD e DESCRICAO. O arquivo não fica salvo no navegador.</div>
     <input id="dbfFile" type="file" accept=".dbf,application/vnd.dbf">
    </div>
    <div id="catalogInfo" class="catalog-info" aria-live="polite">
     <b>Carregando informações do catálogo...</b>
    </div>
    <div class="settings-actions">
-    <button id="importDbf" class="btn" type="button">Importar arquivo</button>
-    <button id="restoreDbf" class="btn2" type="button">Usar arquivo padrão do sistema</button>
+    <button id="importDbf" class="btn" type="button">Enviar para Supabase</button>
    </div>
   </div>
   </section>
@@ -455,14 +454,8 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js" integrity="sha512-r6rDA7W6ZeQhvl8S7yRVQUKVHdexq+GAlNkNNqVC7YyIV+NwqCTJe2hDWCiffTyRNOeGEzRRJ9ifvRm/HCzGYg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
-const sgDemo = {
- "7896004400914": { barcode: "7896004400914", code: "29580", name: "PÃO DE ALHO SANTA MASSA 400G" },
- "7894900010015": { barcode: "7894900010015", code: "111", name: "REFRESCO TANG 18G LARANJA/MAMÃO" },
- "7891000100103": { barcode: "7891000100103", code: "28913", name: "NISSIN LÁMEN 75G" },
- "7891234567897": { barcode: "7891234567897", code: "41753", name: "BISCOITO RECHEADO CHOCOLATE 120G" }
-};
-
 let sg = new Map();
+let catalogProductCount = 0;
 
 const NATIVE_BARCODE_FORMATS = [
  "ean_13",
@@ -509,7 +502,6 @@ const els = {
  catalogStatus: document.getElementById('catalogStatus'),
  dbfFile: document.getElementById('dbfFile'),
  importDbf: document.getElementById('importDbf'),
- restoreDbf: document.getElementById('restoreDbf'),
  catalogInfo: document.getElementById('catalogInfo'),
  catalogSettingsSection: document.getElementById('catalogSettingsSection'),
  updateModal: document.getElementById('updateModal'),
@@ -558,6 +550,7 @@ let updatingProductId = null;
 let photoData = "";
 let activeFilter = "all";
 let isViewer = false;
+let isSkaleeAdmin = false;
 const selectedReportProductIds = new Set();
 let reportSelectionInitialized = false;
 const REPORT_COLUMNS_KEY = "skalee.report.columns";
@@ -669,41 +662,6 @@ let zxingControls = null;
 let html5Scanner = null;
 let scannerMode = null;
 let scannerSuccessTimer = null;
-const demoProducts = [
- {
-  id: 1,
-  barcode: "7896004400914",
-  code: "29580",
-  name: "PÃO DE ALHO SANTA MASSA 400G",
-  store: "Loja 03",
-  qty: 48,
-  expiry: "2026-08-05",
-  offer: false,
-  photo: ""
- },
- {
-  id: 2,
-  barcode: "7894900010015",
-  code: "111",
-  name: "REFRESCO TANG 18G LARANJA/MAMÃO",
-  store: "Loja 01",
-  qty: 130,
-  expiry: "2026-08-04",
-  offer: true,
-  photo: ""
- },
- {
-  id: 3,
-  barcode: "7891000100103",
-  code: "28913",
-  name: "NISSIN LÁMEN 75G",
-  store: "Loja 02",
-  qty: 22,
-  expiry: "2026-08-11",
-  offer: false,
-  photo: ""
- }
-];
 let products = [];
 
 async function carregarProdutosOnline() {
@@ -713,7 +671,8 @@ async function carregarProdutosOnline() {
   render();
  } catch (error) {
   console.error("Não foi possível carregar os produtos online.", error);
-  alert("Não foi possível carregar os produtos do Supabase.");
+  products = [];
+  render();
  }
 }
 
@@ -888,9 +847,11 @@ els.createUser.addEventListener("click", async () => {
 window.addEventListener("skalee:authenticated", (event) => {
  appAuthenticated = true;
  isViewer = event.detail?.accessRole === "viewer";
+ isSkaleeAdmin = String(event.detail?.email || "").toLowerCase() === ADMIN_EMAIL;
  showInstallBannerWhenAvailable();
  void carregarProdutosOnline();
- const isAdmin = String(event.detail?.email || "").toLowerCase() === ADMIN_EMAIL;
+ void iniciarCatalogo();
+ const isAdmin = isSkaleeAdmin;
  const isPlatformAdmin = event.detail?.accessRole === "platform_admin";
  const registerTab = document.querySelector('[data-page="register"]');
  const settingsTab = document.querySelector('[data-page="settings"]');
@@ -908,7 +869,9 @@ window.addEventListener("skalee:authenticated", (event) => {
 window.addEventListener("skalee:signed-out", () => {
  appAuthenticated = false;
  isViewer = false;
+ isSkaleeAdmin = false;
  els.installBanner.hidden = true;
+ els.catalogStatus.hidden = true;
  products = [];
  els.settingsUsersTab.hidden = true;
  els.settingsRegistriesTab.hidden = true;
@@ -1222,15 +1185,122 @@ els.chips.forEach((chip) => {
 });
 
 function findProduct() {
- buscarProdutoPorCodigo(els.barcode.value.trim());
+ void buscarProdutoPorCodigo(els.barcode.value.trim());
 }
 
-function buscarProdutoPorCodigo(codigoBarras) {
- selected = sg.get(codigoBarras) || null;
+function produtoCatalogoParaBusca(product) {
+ if (!product) return null;
+ return {
+  barcode: String(product.barcode || "").trim(),
+  code: String(product.internal_code || "").trim(),
+  name: String(product.name || "Produto sem descricao").trim(),
+  catalogProductId: product.id,
+  brandId: product.brand_id || null,
+  brandName: product.brands?.name || ""
+ };
+}
+
+function registrarProdutoNoMapa(product) {
+ if (!product) return;
+ if (product.barcode) sg.set(product.barcode, product);
+ if (product.code && !sg.has(product.code)) sg.set(product.code, product);
+}
+
+function nomeOpenFoodFacts(product) {
+ return [
+  product.product_name_pt,
+  product.product_name,
+  product.generic_name_pt,
+  product.generic_name,
+  product.abbreviated_product_name,
+  product.brands
+ ].map((value) => String(value || "").trim()).find(Boolean) || "";
+}
+
+async function buscarOpenFoodFacts(codigoBarras) {
+ const fields = "code,product_name,product_name_pt,generic_name,generic_name_pt,abbreviated_product_name,brands";
+ const url = `https://world.openfoodfacts.org/api/v3/product/${encodeURIComponent(codigoBarras)}?fields=${encodeURIComponent(fields)}&product_type=all&lc=pt&cc=br`;
+ const response = await fetch(url, { headers: { Accept: "application/json" } });
+ if (!response.ok) return null;
+ const payload = await response.json();
+ const product = payload.product || null;
+ const name = product ? nomeOpenFoodFacts(product) : "";
+ if (!product || !name) return null;
+ return {
+  barcode: codigoBarras,
+  code: "",
+  name,
+  catalogProductId: null,
+  brandId: null,
+  brandName: product.brands || "",
+  catalogSource: "open_food_facts",
+  sourcePayload: {
+   code: product.code || codigoBarras,
+   product_name: product.product_name || "",
+   product_name_pt: product.product_name_pt || "",
+   generic_name: product.generic_name || "",
+   generic_name_pt: product.generic_name_pt || "",
+   brands: product.brands || ""
+  }
+ };
+}
+
+async function salvarProdutoExternoNoSupabase(product) {
+ try {
+  const cached = await window.skaleeDb.cacheExternalCatalogProduct({
+   barcode: product.barcode,
+   internal_code: product.code,
+   name: product.name,
+   source_key: product.barcode || product.code,
+   source_payload: product.sourcePayload || null
+  }, product.catalogSource || "external");
+  const mapped = produtoCatalogoParaBusca(cached);
+  if (mapped) {
+   registrarProdutoNoMapa(mapped);
+   return { ...product, ...mapped };
+  }
+ } catch (error) {
+  console.warn("Produto externo encontrado, mas não foi salvo no Supabase:", error);
+ }
+ return product;
+}
+
+async function buscarProdutoPorCodigo(codigoBarras) {
+ if (!codigoBarras) {
+  els.found.classList.add("show");
+  els.found.innerHTML = "<b>Informe um código para buscar.</b>";
+  els.barcode.focus();
+  return;
+ }
+ els.find.disabled = true;
  els.found.classList.add("show");
+ els.found.innerHTML = "<b>Buscando produto...</b>";
+ selected = sg.get(codigoBarras) || null;
+ if (!selected) {
+  try {
+   selected = produtoCatalogoParaBusca(await window.skaleeDb.findSearchCatalogProduct(codigoBarras));
+   registrarProdutoNoMapa(selected);
+  } catch (error) {
+   console.error("Falha ao consultar produto no Supabase:", error);
+   els.found.innerHTML = `<b>Erro ao consultar o Supabase.</b><br>${error.message || "Verifique as permissões da tabela catalog_products."}`;
+   els.find.disabled = false;
+   return;
+  }
+ }
 
  if (!selected) {
-  els.found.innerHTML = `<b>Produto não encontrado</b><br>Código: ${codigoBarras}`;
+  els.found.innerHTML = "<b>Produto não encontrado no Supabase.</b><br>Consultando Open Food Facts...";
+  try {
+   selected = await buscarOpenFoodFacts(codigoBarras);
+   if (selected) selected = await salvarProdutoExternoNoSupabase(selected);
+  } catch (error) {
+   console.error("Falha ao consultar Open Food Facts:", error);
+  }
+ }
+ els.find.disabled = false;
+
+ if (!selected) {
+  els.found.innerHTML = `<b>Produto não encontrado em nenhuma fonte ativa.</b><br>Código: ${codigoBarras}`;
   return;
  }
 
@@ -1239,12 +1309,9 @@ function buscarProdutoPorCodigo(codigoBarras) {
   selected = { ...selected, catalogProductId: catalogMatch.id, brandId: catalogMatch.brand_id, brandName: catalogMatch.brands?.name || "" };
  }
 
- els.found.innerHTML = `<b>${selected.name}</b><br><span style="color:#2563eb">Cód. interno: ${selected.code}</span><br><span style="color:#39465c">Código de barras: ${selected.barcode}</span>${selected.brandName ? `<br><span style="color:#16a34a">Marca: ${selected.brandName}</span>` : ""}`;
+ const sourceText = selected.catalogSource === "open_food_facts" ? `<br><span style="color:#16a34a">Fonte: Open Food Facts</span>` : "";
+ els.found.innerHTML = `<b>${selected.name}</b><br><span style="color:#2563eb">Cód. interno: ${selected.code || "sem código interno"}</span><br><span style="color:#39465c">Código de barras: ${selected.barcode}</span>${selected.brandName ? `<br><span style="color:#16a34a">Marca: ${selected.brandName}</span>` : ""}${sourceText}`;
  els.qty.focus();
-}
-
-function textoDbf(bytes) {
- return new TextDecoder("windows-1252").decode(bytes).replace(/\0/g, "").trim();
 }
 
 function closeUpdateModal() {
@@ -1346,7 +1413,26 @@ els.deleteProduct.addEventListener("click", async () => {
  }
 });
 
-function carregarCatalogoDbf(buffer) {
+function atualizarStatusCatalogo(nome) {
+ const quantidade = catalogProductCount.toLocaleString("pt-BR");
+ els.catalogStatus.textContent = `${quantidade} produtos carregados de ${nome}`;
+ els.catalogStatus.className = "catalog-status ready";
+ els.catalogStatus.hidden = !isSkaleeAdmin;
+ definirInfoCatalogo(`Catálogo ativo: ${nome}`, `${quantidade} produtos`);
+}
+
+function definirInfoCatalogo(titulo, detalhe = "") {
+ els.catalogInfo.replaceChildren();
+ const destaque = document.createElement("b");
+ destaque.textContent = titulo;
+ els.catalogInfo.append(destaque, document.createTextNode(detalhe));
+}
+
+function textoDbf(bytes) {
+ return new TextDecoder("windows-1252").decode(bytes).replace(/\0/g, "").trim();
+}
+
+function carregarProdutosDbfParaSupabase(buffer) {
  if (!(buffer instanceof ArrayBuffer) || buffer.byteLength < 33) {
   throw new Error("Arquivo DBF inválido ou vazio.");
  }
@@ -1374,7 +1460,8 @@ function carregarCatalogoDbf(buffer) {
   throw new Error("O DBF precisa conter os campos CODBAR, CODPROD e DESCRICAO.");
  }
 
- const catalogo = new Map();
+ const produtos = [];
+ const vistos = new Set();
  for (let indice = 0; indice < totalRegistros; indice += 1) {
   const inicio = tamanhoCabecalho + indice * tamanhoRegistro;
   if (inicio + tamanhoRegistro > bytes.length || bytes[inicio] === 0x2a) continue;
@@ -1387,105 +1474,66 @@ function carregarCatalogoDbf(buffer) {
    posicao += campo.tamanho;
   });
 
-  const codigoBarras = String(registro.CODBAR || "").trim();
-  if (!codigoBarras) continue;
-  catalogo.set(codigoBarras, {
-   barcode: codigoBarras,
-   code: String(registro.CODPROD || ""),
-   name: String(registro.DESCRICAO || "Produto sem descricao").trim()
-  });
+  const barcode = String(registro.CODBAR || "").trim();
+  const internalCode = String(registro.CODPROD || "").trim();
+  const name = String(registro.DESCRICAO || "").trim();
+  const sourceKey = barcode || internalCode;
+  if (!sourceKey || !name || vistos.has(sourceKey)) continue;
+  vistos.add(sourceKey);
+  produtos.push({ barcode, internal_code: internalCode, name, source_key: sourceKey });
  }
- if (catalogo.size === 0) throw new Error("Nenhum produto com código de barras foi encontrado.");
+ if (produtos.length === 0) throw new Error("Nenhum produto com código foi encontrado no DBF.");
+ return produtos;
+}
+
+function montarCatalogoSupabase(rows) {
+ const catalogo = new Map();
+ const total = rows.length;
+ const ativos = rows.filter((product) => product.active !== false);
+ const comCodigo = ativos.filter((product) => String(product.barcode || "").trim() || String(product.internal_code || "").trim());
+ comCodigo.forEach((product) => {
+  const barcode = String(product.barcode || "").trim();
+  const code = String(product.internal_code || "").trim();
+  const item = {
+   barcode,
+   code,
+   name: String(product.name || "Produto sem descricao").trim(),
+   catalogProductId: product.id,
+   brandId: product.brand_id || null,
+   brandName: product.brands?.name || ""
+  };
+  if (barcode) catalogo.set(barcode, item);
+  if (code && !catalogo.has(code)) catalogo.set(code, item);
+ });
+ if (catalogo.size === 0) {
+  if (total === 0) throw new Error("A tabela catalog_products não retornou produtos para este usuário.");
+  if (ativos.length === 0) throw new Error(`${total} produto(s) retornado(s), mas todos estão inativos.`);
+  throw new Error(`${ativos.length} produto(s) ativo(s) retornado(s), mas nenhum tem barcode ou internal_code preenchido.`);
+ }
+ catalogProductCount = comCodigo.length;
  return catalogo;
 }
 
-const CATALOG_DB_NAME = "skalee-validade";
-const CATALOG_STORE = "catalogo";
-const CATALOG_KEY = "dbf-importado";
-
-function abrirBancoCatalogo() {
- return new Promise((resolve, reject) => {
-  const request = indexedDB.open(CATALOG_DB_NAME, 1);
-  request.onupgradeneeded = () => {
-   if (!request.result.objectStoreNames.contains(CATALOG_STORE)) {
-    request.result.createObjectStore(CATALOG_STORE);
-   }
-  };
-  request.onsuccess = () => resolve(request.result);
-  request.onerror = () => reject(request.error);
- });
-}
-
-async function lerCatalogoImportado() {
- const db = await abrirBancoCatalogo();
- return new Promise((resolve, reject) => {
-  const request = db.transaction(CATALOG_STORE, "readonly").objectStore(CATALOG_STORE).get(CATALOG_KEY);
-  request.onsuccess = () => { db.close(); resolve(request.result || null); };
-  request.onerror = () => { db.close(); reject(request.error); };
- });
-}
-
-async function salvarCatalogoImportado(valor) {
- const db = await abrirBancoCatalogo();
- return new Promise((resolve, reject) => {
-  const transaction = db.transaction(CATALOG_STORE, "readwrite");
-  transaction.objectStore(CATALOG_STORE).put(valor, CATALOG_KEY);
-  transaction.oncomplete = () => { db.close(); resolve(); };
-  transaction.onerror = () => { db.close(); reject(transaction.error); };
- });
-}
-
-async function removerCatalogoImportado() {
- const db = await abrirBancoCatalogo();
- return new Promise((resolve, reject) => {
-  const transaction = db.transaction(CATALOG_STORE, "readwrite");
-  transaction.objectStore(CATALOG_STORE).delete(CATALOG_KEY);
-  transaction.oncomplete = () => { db.close(); resolve(); };
-  transaction.onerror = () => { db.close(); reject(transaction.error); };
- });
-}
-
-function atualizarStatusCatalogo(nome, tamanho) {
- const quantidade = sg.size.toLocaleString("pt-BR");
- const tamanhoTexto = tamanho ? ` • ${(tamanho / 1024 / 1024).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} MB` : "";
- els.catalogStatus.textContent = `${quantidade} produtos carregados de ${nome}`;
- els.catalogStatus.className = "catalog-status ready";
- definirInfoCatalogo(`Catálogo ativo: ${nome}`, `${quantidade} produtos${tamanhoTexto}`);
-}
-
-function definirInfoCatalogo(titulo, detalhe = "") {
- els.catalogInfo.replaceChildren();
- const destaque = document.createElement("b");
- destaque.textContent = titulo;
- els.catalogInfo.append(destaque, document.createTextNode(detalhe));
-}
-
-async function carregarDbfPadrao() {
- const resposta = await fetch("consulta03.dbf", { cache: "no-store" });
- if (!resposta.ok) throw new Error(`HTTP ${resposta.status}`);
- const buffer = await resposta.arrayBuffer();
- sg = carregarCatalogoDbf(buffer);
- atualizarStatusCatalogo("consulta03.dbf (padrão)", buffer.byteLength);
-}
-
 async function iniciarCatalogo() {
- els.find.disabled = true;
+ els.find.disabled = false;
  els.scanCamera.disabled = true;
+ els.catalogStatus.hidden = !isSkaleeAdmin;
+ els.catalogStatus.textContent = "Carregando produtos do Supabase...";
+ els.catalogStatus.className = "catalog-status";
  try {
-  const importado = await lerCatalogoImportado();
-  if (importado && importado.buffer) {
-   sg = carregarCatalogoDbf(importado.buffer);
-   atualizarStatusCatalogo(`${importado.name} (importado)`, importado.buffer.byteLength);
-  } else {
-   await carregarDbfPadrao();
-  }
+  const produtosCatalogo = await window.skaleeDb.listSearchCatalogProducts();
+  catalogProductCount = 0;
+  sg = montarCatalogoSupabase(produtosCatalogo);
+  atualizarStatusCatalogo("Supabase");
   els.find.disabled = false;
   els.scanCamera.disabled = false;
  } catch (error) {
-  els.catalogStatus.textContent = "Não foi possível carregar o catálogo de produtos.";
+  els.find.disabled = false;
+  els.catalogStatus.textContent = `Não foi possível carregar o catálogo de produtos: ${error.message || "erro no Supabase"}`;
   els.catalogStatus.classList.add("error");
+  els.catalogStatus.hidden = !isSkaleeAdmin;
   definirInfoCatalogo("Erro ao carregar catálogo", error.message);
-  console.error("Falha ao carregar catalogo DBF:", error);
+  console.error("Falha ao carregar catalogo do Supabase:", error);
  }
 }
 
@@ -1495,35 +1543,20 @@ els.importDbf.addEventListener("click", async () => {
  if (!file.name.toLowerCase().endsWith(".dbf")) return alert("Selecione um arquivo com extensão .dbf.");
 
  els.importDbf.disabled = true;
- definirInfoCatalogo("Importando catálogo...", "Aguarde a leitura e validação do arquivo.");
+ definirInfoCatalogo("Lendo arquivo...", "Validando campos e preparando envio para o Supabase.");
  try {
-  const buffer = await file.arrayBuffer();
-  const novoCatalogo = carregarCatalogoDbf(buffer);
-  await salvarCatalogoImportado({ name: file.name, importedAt: new Date().toISOString(), buffer });
-  sg = novoCatalogo;
-  atualizarStatusCatalogo(`${file.name} (importado)`, buffer.byteLength);
+  const produtos = carregarProdutosDbfParaSupabase(await file.arrayBuffer());
+  definirInfoCatalogo("Enviando para o Supabase...", `${produtos.length.toLocaleString("pt-BR")} produto(s) preparados.`);
+  const imported = await window.skaleeDb.importCatalogProducts(produtos, { source: "own_dbf" });
   els.dbfFile.value = "";
-  alert("Catálogo atualizado com sucesso.");
+  definirInfoCatalogo("Importação concluída", `${imported.toLocaleString("pt-BR")} produto(s) enviados ao Supabase.`);
+  await iniciarCatalogo();
  } catch (error) {
-  definirInfoCatalogo("Não foi possível importar o arquivo", error.message);
-  alert(error.message);
+  console.error("Falha ao importar catálogo para o Supabase:", error);
+  definirInfoCatalogo("Não foi possível importar o catálogo", error.message || "Erro desconhecido.");
+  alert(error.message || "Não foi possível importar o catálogo.");
  } finally {
   els.importDbf.disabled = false;
- }
-});
-
-els.restoreDbf.addEventListener("click", async () => {
- els.restoreDbf.disabled = true;
- try {
-  await carregarDbfPadrao();
-  await removerCatalogoImportado();
-  els.dbfFile.value = "";
-  alert("O catálogo padrão foi restaurado.");
- } catch (error) {
-  definirInfoCatalogo("Não foi possível restaurar o catálogo padrão", error.message);
-  alert(error.message);
- } finally {
-  els.restoreDbf.disabled = false;
  }
 });
 
@@ -1601,7 +1634,7 @@ function onBarcodeDetected(value) {
  els.scannerStatus.textContent = `Lido: ${codigo}`;
  els.scannerSuccess.classList.add("show");
  els.barcode.value = codigo;
- buscarProdutoPorCodigo(codigo);
+ void buscarProdutoPorCodigo(codigo);
 
  scannerSuccessTimer = setTimeout(() => {
   void stopScanner();
@@ -1896,7 +1929,7 @@ async function scanFromPhoto(file) {
    return;
   }
   els.barcode.value = value;
-  buscarProdutoPorCodigo(value);
+  void buscarProdutoPorCodigo(value);
  } catch (error) {
   alert("Não foi possível ler o código pela foto. Tente uma imagem mais nítida.");
  }
@@ -1904,7 +1937,7 @@ async function scanFromPhoto(file) {
 
 els.find.addEventListener("click", () => {
  const codigo = els.barcode.value.trim();
- buscarProdutoPorCodigo(codigo);
+ void buscarProdutoPorCodigo(codigo);
 });
 els.scanCamera.addEventListener("click", () => { void startScanner(); });
 els.scannerClose.addEventListener("click", () => { void stopScanner(); });
@@ -1916,7 +1949,7 @@ els.barcodePhoto.addEventListener("change", (event) => {
 els.barcode.addEventListener("keydown", (event) => {
  if (event.key === "Enter") {
   const codigo = els.barcode.value.trim();
-  buscarProdutoPorCodigo(codigo);
+  void buscarProdutoPorCodigo(codigo);
  }
 });
 
@@ -2051,7 +2084,6 @@ function resetForm() {
 els.clear.addEventListener("click", resetForm);
 
 render();
-void iniciarCatalogo();
 </script>
 <script type="module" src="auth.js"></script>
 <script src="admin-cadastros.js" defer></script>

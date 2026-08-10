@@ -1,3 +1,4 @@
 .vercel
 .venv/
 deploy-*.log
+.npm-cache/

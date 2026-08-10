@@ -1,4 +1,4 @@
-const CACHE_NAME = "skalee-pwa-v14";
+const CACHE_NAME = "skalee-pwa-v25";
 const APP_SHELL = [
  "/",
  "/index.html",
@@ -28,7 +28,7 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
  const request = event.request;
  const url = new URL(request.url);
- if (request.method !== "GET" || url.origin !== self.location.origin || url.pathname.endsWith(".dbf")) return;
+ if (request.method !== "GET" || url.origin !== self.location.origin) return;
 
  if (request.mode === "navigate") {
   event.respondWith(
