@@ -60,8 +60,14 @@ input:focus,select:focus{border-color:#9dbbf9;box-shadow:0 0 0 3px #e8f0ff}
 .empty{grid-column:1/-1;background:#fff;border:1px dashed #cbd3df;border-radius:15px;padding:40px;text-align:center;color:var(--muted)}
 .form{max-width:680px;margin:auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px}
 .form h2{margin:0 0 4px}.label{display:block;margin:14px 0 6px;font-size:13px;font-weight:800}
-.scan{display:grid;grid-template-columns:1fr auto auto;gap:8px}.btn{background:var(--blue);color:#fff}.btn2{border:0;border-radius:11px;background:#e9edf4;color:#39465c;padding:11px 14px;font-weight:750;cursor:pointer}
+.scan{display:grid;grid-template-columns:1fr auto auto;gap:8px}.btn{background:var(--blue);color:#fff}.btn2{border:0;border-radius:11px;background:#e9edf4;color:#39465c;padding:11px 14px;font-weight:750;cursor:pointer}.btn2.active{background:var(--blue);color:#fff}
 .found{display:none;margin-top:10px;padding:13px;border-radius:11px;background:var(--blue2);border:1px solid #d8e6ff}.found.show{display:block}
+.manual-product-form{display:none;gap:9px;margin-top:12px;padding-top:12px;border-top:1px solid #d8e6ff}.manual-product-form.show{display:grid}
+.manual-product-form .actions{margin-top:2px}
+.manual-product-message{min-height:18px;color:var(--muted);font-size:13px;font-weight:700}
+.ocr-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.ocr-actions input{flex:1 1 220px}
+.ocr-suggestions{display:none;gap:7px;flex-wrap:wrap}.ocr-suggestions.show{display:flex}
+.ocr-suggestion{border:1px solid #bfdbfe;border-radius:999px;background:#fff;color:#1d4ed8;padding:8px 10px;font-size:12px;font-weight:800;cursor:pointer}
 .catalog-status{margin-top:7px;color:var(--muted);font-size:12px}.catalog-status[hidden]{display:none}.catalog-status.ready{color:var(--green)}.catalog-status.error{color:var(--red)}
 .preview{height:145px;margin-top:8px;border:1px dashed #cbd3df;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--muted);overflow:hidden}.preview img{width:100%;height:100%;object-fit:cover}
 .check{display:flex;gap:9px;align-items:center;margin-top:16px;font-size:14px;font-weight:700}.check input{width:auto}
@@ -79,8 +85,15 @@ input:focus,select:focus{border-color:#9dbbf9;box-shadow:0 0 0 3px #e8f0ff}
 .scanner-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.6);padding:16px;z-index:1000}
 .scanner-modal.show{display:flex}
 .scanner-panel{position:relative;width:min(560px,100%);background:#fff;border-radius:16px;padding:16px;border:1px solid var(--line)}
-.scanner-video{width:100%;height:min(58vh,380px);background:#0f172a;border-radius:12px;object-fit:cover}
+.scanner-view{position:relative;border-radius:12px;overflow:hidden;background:#0f172a}
+.scanner-video{display:block;width:100%;height:min(58vh,380px);background:#0f172a;object-fit:cover}
 .scanner-reader{width:100%;min-height:280px;border-radius:12px;overflow:hidden;background:#0f172a}
+.scanner-guide{position:absolute;left:50%;top:50%;width:min(86%,430px);height:34%;min-height:86px;transform:translate(-50%,-50%);border:2px solid rgba(255,255,255,.95);border-radius:10px;box-shadow:0 0 0 999px rgba(2,6,23,.36),0 0 20px rgba(37,99,235,.32);pointer-events:none}
+.scanner-guide::before,.scanner-guide::after{content:"";position:absolute;left:8%;right:8%;height:2px;background:rgba(96,165,250,.95);border-radius:999px}
+.scanner-guide::before{top:34%}.scanner-guide::after{bottom:34%}
+.scanner-controls{position:absolute;left:50%;bottom:12px;display:flex;gap:8px;transform:translateX(-50%)}
+.scanner-control{display:grid;place-items:center;width:38px;height:38px;border:1px solid rgba(255,255,255,.28);border-radius:10px;background:rgba(15,23,42,.78);color:#fff;font-size:18px;font-weight:900;line-height:1;cursor:pointer}
+.scanner-control.active{background:#2563eb;border-color:#93c5fd}.scanner-control[hidden]{display:none}.scanner-control:disabled{opacity:.45}
 .scanner-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .scanner-status{margin:10px 0 0;color:#5a6478;font-size:13px}
 .scanner-success{position:absolute;inset:0;border-radius:16px;background:rgba(22,163,74,.9);display:none;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:20px;letter-spacing:.02em}
@@ -209,6 +222,23 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
   <input id="barcodePhoto" type="file" accept="image/*" capture="environment" class="hidden">
   <div id="catalogStatus" class="catalog-status" hidden>Carregando produtos do Supabase...</div>
   <div id="found" class="found"></div>
+  <form id="manualProductForm" class="manual-product-form">
+   <label class="label" for="manualProductName">Descrição do produto</label>
+   <input id="manualProductName" maxlength="180" placeholder="Digite o nome que aparece na embalagem">
+   <label class="label" for="manualProductBrand">Marca</label>
+   <input id="manualProductBrand" maxlength="120" placeholder="Opcional">
+   <label class="label" for="manualProductOcrPhoto">Foto da embalagem para sugestão</label>
+   <div class="ocr-actions">
+   <input id="manualProductOcrPhoto" type="file" accept="image/*" capture="environment">
+   <button id="suggestManualProductName" class="btn2" type="button">Sugerir pela foto</button>
+   </div>
+   <div id="manualProductSuggestions" class="ocr-suggestions"></div>
+   <div class="actions">
+    <button id="confirmManualProduct" class="btn" type="submit">Confirmar produto</button>
+    <button id="cancelManualProduct" class="btn2" type="button">Cancelar</button>
+   </div>
+   <div id="manualProductMessage" class="manual-product-message"></div>
+  </form>
 
   <label class="label">Local / loja</label>
   <select id="store" required><option value="">Carregando locais permitidos...</option></select>
@@ -239,6 +269,7 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
     </select>
     <label class="report-date">Atualizado de<input id="reportUpdatedFrom" type="date"></label>
     <label class="report-date">Até<input id="reportUpdatedTo" type="date"></label>
+    <button id="reportTodayCreated" class="btn2" type="button" aria-pressed="false">Cadastrados hoje</button>
     <div id="layoutPicker" class="layout-picker" aria-label="Quantidade de colunas">
      <button class="layout-button active" type="button" data-columns="1" aria-label="Uma coluna" title="Uma coluna"><span class="layout-icon" aria-hidden="true"></span></button>
      <button class="layout-button" type="button" data-columns="2" aria-label="Duas colunas" title="Duas colunas"><span class="layout-icon" aria-hidden="true"></span></button>
@@ -413,9 +444,17 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
    <strong>Leitura por câmera</strong>
    <button id="scannerClose" class="btn2">Fechar</button>
   </div>
-    <div id="scannerReader" class="scanner-reader hidden"></div>
-  <video id="scannerVideo" class="scanner-video" playsinline muted></video>
-  <p id="scannerStatus" class="scanner-status">Aponte a câmera para o código de barras em qualquer posição.</p>
+  <div id="scannerView" class="scanner-view">
+   <div id="scannerReader" class="scanner-reader hidden"></div>
+   <video id="scannerVideo" class="scanner-video" playsinline muted></video>
+   <div id="scannerGuide" class="scanner-guide" aria-hidden="true"></div>
+   <div id="scannerControls" class="scanner-controls">
+    <button id="scannerZoomOut" class="scanner-control" type="button" aria-label="Diminuir zoom" hidden>-</button>
+    <button id="scannerZoomIn" class="scanner-control" type="button" aria-label="Aumentar zoom" hidden>+</button>
+    <button id="scannerTorch" class="scanner-control" type="button" aria-label="Ligar lanterna" hidden>L</button>
+   </div>
+  </div>
+  <p id="scannerStatus" class="scanner-status">Centralize o código de barras dentro do retângulo.</p>
   <div id="scannerSuccess" class="scanner-success">Leitura concluida</div>
  </div>
 </div>
@@ -452,6 +491,8 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
 </div>
 <div id="confettiLayer" class="confetti-layer" aria-hidden="true"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js" integrity="sha512-r6rDA7W6ZeQhvl8S7yRVQUKVHdexq+GAlNkNNqVC7YyIV+NwqCTJe2hDWCiffTyRNOeGEzRRJ9ifvRm/HCzGYg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
 let sg = new Map();
@@ -461,10 +502,7 @@ const NATIVE_BARCODE_FORMATS = [
  "ean_13",
  "ean_8",
  "upc_a",
- "upc_e",
- "code_128",
- "code_39",
- "itf"
+ "upc_e"
 ];
 
 const els = {
@@ -485,6 +523,15 @@ const els = {
  find: document.getElementById('find'),
  scanCamera: document.getElementById('scanCamera'),
  found: document.getElementById('found'),
+ manualProductForm: document.getElementById('manualProductForm'),
+ manualProductName: document.getElementById('manualProductName'),
+ manualProductBrand: document.getElementById('manualProductBrand'),
+ manualProductOcrPhoto: document.getElementById('manualProductOcrPhoto'),
+ suggestManualProductName: document.getElementById('suggestManualProductName'),
+ manualProductSuggestions: document.getElementById('manualProductSuggestions'),
+ confirmManualProduct: document.getElementById('confirmManualProduct'),
+ cancelManualProduct: document.getElementById('cancelManualProduct'),
+ manualProductMessage: document.getElementById('manualProductMessage'),
  store: document.getElementById('store'),
  qty: document.getElementById('qty'),
  expiry: document.getElementById('expiry'),
@@ -494,8 +541,13 @@ const els = {
  save: document.getElementById('save'),
  clear: document.getElementById('clear'),
  scannerModal: document.getElementById('scannerModal'),
+ scannerView: document.getElementById('scannerView'),
  scannerVideo: document.getElementById('scannerVideo'),
  scannerReader: document.getElementById('scannerReader'),
+ scannerGuide: document.getElementById('scannerGuide'),
+ scannerZoomOut: document.getElementById('scannerZoomOut'),
+ scannerZoomIn: document.getElementById('scannerZoomIn'),
+ scannerTorch: document.getElementById('scannerTorch'),
  scannerStatus: document.getElementById('scannerStatus'),
  scannerClose: document.getElementById('scannerClose'),
  scannerSuccess: document.getElementById('scannerSuccess'),
@@ -517,6 +569,7 @@ const els = {
  reportStore: document.getElementById('reportStore'),
  reportUpdatedFrom: document.getElementById('reportUpdatedFrom'),
  reportUpdatedTo: document.getElementById('reportUpdatedTo'),
+ reportTodayCreated: document.getElementById('reportTodayCreated'),
  reportText: document.getElementById('reportText'),
  reportStatus: document.getElementById('reportStatus'),
  copyReport: document.getElementById('copyReport'),
@@ -553,6 +606,7 @@ let isViewer = false;
 let isSkaleeAdmin = false;
 const selectedReportProductIds = new Set();
 let reportSelectionInitialized = false;
+let reportCreatedTodayOnly = false;
 const REPORT_COLUMNS_KEY = "skalee.report.columns";
 let reportColumns = Number(localStorage.getItem(REPORT_COLUMNS_KEY)) || 1;
 if (![1, 2, 3, 4].includes(reportColumns)) reportColumns = 1;
@@ -662,6 +716,20 @@ let zxingControls = null;
 let html5Scanner = null;
 let scannerMode = null;
 let scannerSuccessTimer = null;
+let scannerTrack = null;
+let scannerCapabilities = null;
+let scannerZoom = null;
+let scannerTorchOn = false;
+let scannerDetecting = false;
+let scannerConfirmCode = "";
+let scannerConfirmCount = 0;
+let scannerConfirmAt = 0;
+let scannerCanvas = null;
+let scannerCanvasContext = null;
+let manualProductBarcode = "";
+let manualProductAutoOcr = false;
+let ocrWorker = null;
+let ocrWorkerReady = false;
 let products = [];
 
 async function carregarProdutosOnline() {
@@ -870,6 +938,11 @@ window.addEventListener("skalee:signed-out", () => {
  appAuthenticated = false;
  isViewer = false;
  isSkaleeAdmin = false;
+ if (ocrWorker) {
+  ocrWorker.terminate().catch(() => {});
+  ocrWorker = null;
+  ocrWorkerReady = false;
+ }
  els.installBanner.hidden = true;
  els.catalogStatus.hidden = true;
  products = [];
@@ -898,10 +971,7 @@ function getHtml5BarcodeFormats() {
   Html5QrcodeSupportedFormats.EAN_13,
   Html5QrcodeSupportedFormats.EAN_8,
   Html5QrcodeSupportedFormats.UPC_A,
-  Html5QrcodeSupportedFormats.UPC_E,
-  Html5QrcodeSupportedFormats.CODE_128,
-  Html5QrcodeSupportedFormats.CODE_39,
-  Html5QrcodeSupportedFormats.ITF
+  Html5QrcodeSupportedFormats.UPC_E
  ].filter((value) => value !== undefined);
 }
 
@@ -912,10 +982,7 @@ function getZxingFormats(zxingApi) {
   formats.EAN_13,
   formats.EAN_8,
   formats.UPC_A,
-  formats.UPC_E,
-  formats.CODE_128,
-  formats.CODE_39,
-  formats.ITF
+  formats.UPC_E
  ].filter((value) => value !== undefined);
 }
 
@@ -979,9 +1046,11 @@ function localDateKey(value) {
 }
 
 function getReportProducts() {
+ const todayKey = localDateKey(new Date().toISOString());
  return activeProducts()
   .filter((product) => !els.reportStore.value || product.store === els.reportStore.value)
   .filter((product) => {
+   if (reportCreatedTodayOnly && localDateKey(product.createdAt) !== todayKey) return false;
    const updatedDate = localDateKey(product.updatedAt || product.createdAt);
    if (els.reportUpdatedFrom.value && (!updatedDate || updatedDate < els.reportUpdatedFrom.value)) return false;
    if (els.reportUpdatedTo.value && (!updatedDate || updatedDate > els.reportUpdatedTo.value)) return false;
@@ -1011,6 +1080,8 @@ function renderReport() {
  els.reportText.dataset.columns = String(reportColumns);
  els.reportText.style.setProperty("--report-columns", reportColumns);
  els.layoutButtons.forEach((button) => button.classList.toggle("active", Number(button.dataset.columns) === reportColumns));
+ els.reportTodayCreated.classList.toggle("active", reportCreatedTodayOnly);
+ els.reportTodayCreated.setAttribute("aria-pressed", String(reportCreatedTodayOnly));
  els.reportText.replaceChildren();
  if (reportProducts.length === 0) {
   const empty = document.createElement("div");
@@ -1125,6 +1196,11 @@ els.reportStore.addEventListener("change", () => {
  input.addEventListener("change", renderReport);
 });
 
+els.reportTodayCreated.addEventListener("click", () => {
+ reportCreatedTodayOnly = !reportCreatedTodayOnly;
+ renderReport();
+});
+
 els.selectAllReport.addEventListener("click", () => {
  getReportProducts().forEach((product) => selectedReportProductIds.add(String(product.id)));
  reportSelectionInitialized = true;
@@ -1204,6 +1280,235 @@ function registrarProdutoNoMapa(product) {
  if (!product) return;
  if (product.barcode) sg.set(product.barcode, product);
  if (product.code && !sg.has(product.code)) sg.set(product.code, product);
+}
+
+function escapeHtml(value) {
+ return String(value || "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
+}
+
+function renderProdutoNaoEncontrado(codigoBarras) {
+ const safeCode = escapeHtml(codigoBarras);
+ const query = encodeURIComponent(`${codigoBarras} produto embalagem`);
+ const action = `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button id="manualCatalogProduct" class="btn2" type="button" data-barcode="${safeCode}">Cadastrar manualmente</button><button id="manualOcrProduct" class="btn2" type="button" data-barcode="${safeCode}">Sugerir por foto</button><a class="btn2" href="https://www.google.com/search?q=${query}" target="_blank" rel="noopener noreferrer">Pesquisar descrição</a><a class="btn2" href="https://www.google.com/search?tbm=isch&q=${query}" target="_blank" rel="noopener noreferrer">Pesquisar imagem</a></div>`;
+ els.found.innerHTML = `<b>Produto não encontrado em nenhuma fonte ativa.</b><br>Código: ${safeCode}${action}`;
+}
+
+function abrirCadastroManualProduto(codigoBarras) {
+ manualProductBarcode = String(codigoBarras || "").trim();
+ els.manualProductForm.classList.add("show");
+ els.manualProductName.value = "";
+ els.manualProductBrand.value = "";
+ renderOcrSuggestions([]);
+ els.manualProductMessage.textContent = "";
+ els.manualProductName.focus();
+}
+
+function fecharCadastroManualProduto() {
+ manualProductBarcode = "";
+ manualProductAutoOcr = false;
+ els.manualProductForm.classList.remove("show");
+ els.manualProductName.value = "";
+ els.manualProductBrand.value = "";
+ els.manualProductOcrPhoto.value = "";
+ renderOcrSuggestions([]);
+ els.manualProductMessage.textContent = "";
+}
+
+function prepararImagemParaOcr(file) {
+ return new Promise((resolve, reject) => {
+  const reader = new FileReader();
+  reader.onerror = () => reject(new Error("Não foi possível abrir a foto da embalagem."));
+  reader.onload = () => {
+   const image = new Image();
+   image.onerror = () => reject(new Error("A foto da embalagem não é uma imagem válida."));
+   image.onload = () => {
+    const limite = 1500;
+    const escala = Math.min(1, limite / Math.max(image.width, image.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(image.width * escala));
+    canvas.height = Math.max(1, Math.round(image.height * escala));
+    const context = canvas.getContext("2d", { willReadFrequently: true });
+    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+    const pixels = context.getImageData(0, 0, canvas.width, canvas.height);
+    for (let index = 0; index < pixels.data.length; index += 4) {
+     const gray = pixels.data[index] * 0.299 + pixels.data[index + 1] * 0.587 + pixels.data[index + 2] * 0.114;
+     const contrast = gray > 148 ? 255 : Math.max(0, gray - 35);
+     pixels.data[index] = contrast;
+     pixels.data[index + 1] = contrast;
+     pixels.data[index + 2] = contrast;
+    }
+    context.putImageData(pixels, 0, 0);
+    resolve(canvas);
+   };
+   image.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+ });
+}
+
+async function getOcrWorker() {
+ if (!window.Tesseract || !window.Tesseract.createWorker) throw new Error("OCR não carregou no navegador.");
+ if (ocrWorker && ocrWorkerReady) return ocrWorker;
+ ocrWorker = await Tesseract.createWorker("por", 1, {
+  logger: (event) => {
+   if (event.status === "recognizing text" && typeof event.progress === "number") {
+    els.manualProductMessage.textContent = `Lendo embalagem... ${Math.round(event.progress * 100)}%`;
+   }
+  }
+ });
+ if (Tesseract.PSM && ocrWorker.setParameters) {
+  await ocrWorker.setParameters({ tessedit_pageseg_mode: Tesseract.PSM.SPARSE_TEXT });
+ }
+ ocrWorkerReady = true;
+ return ocrWorker;
+}
+
+function linhaPareceDescricaoProduto(line) {
+ const text = String(line || "").replace(/\s+/g, " ").trim();
+ if (text.length < 4 || text.length > 70) return false;
+ if (!/[a-zA-ZÀ-ÿ]/.test(text)) return false;
+ if (/^\d+$/.test(text.replace(/\s/g, ""))) return false;
+ if (/(ingred|nutric|valid|lote|fabric|conserv|sac|cnpj|www|\.com|@|telefone|consumidor|porcao|porção|alergic|cont[eé]m|gl[uú]ten|valor energ[eé]tico)/i.test(text)) return false;
+ const digits = (text.match(/\d/g) || []).length;
+ if (digits > Math.max(2, text.length * 0.25)) return false;
+ return true;
+}
+
+function normalizarSugestaoOcr(value) {
+ return String(value || "")
+  .replace(/\b(produto|embalagem|rotulo|r[oó]tulo)\b/ig, " ")
+  .replace(/\s+/g, " ")
+  .trim();
+}
+
+function sugerirDescricoesPorTextoOcr(text) {
+ const lines = String(text || "")
+  .split(/\r?\n/)
+  .map((line) => line.replace(/[|_*~()[\]{}]/g, " ").replace(/\s+/g, " ").trim())
+  .map(normalizarSugestaoOcr)
+  .filter(linhaPareceDescricaoProduto);
+ if (!lines.length) return [];
+ const candidates = [];
+ lines.forEach((line, index) => {
+  candidates.push({ line, index });
+  const next = lines[index + 1] || "";
+  if (next && `${line} ${next}`.length <= 80) candidates.push({ line: `${line} ${next}`, index });
+ });
+ const seen = new Set();
+ const scored = candidates.map(({ line, index }) => {
+  const clean = normalizarSugestaoOcr(line);
+  const words = line.split(" ").filter(Boolean);
+  const letters = (line.match(/[a-zA-ZÀ-ÿ]/g) || []).length;
+  const upper = (line.match(/[A-ZÀ-Ý]/g) || []).length;
+  let score = Math.min(letters, 45) + Math.min(words.length * 5, 25) - index * 2;
+  if (words.length < 2) score -= 20;
+  if (words.length >= 3) score += 8;
+  if (upper / Math.max(letters, 1) > 0.55) score += 8;
+  if (/(sabor|integral|tradicional|zero|light|natural|cremos|biscoito|bebida|leite|arroz|feij[aã]o|caf[eé]|molho|farinha|iogurte|achocolatado|chocolate|baunilha|morango|banana|milho|aveia|queijo|presunto|frango|carne|tomate)/i.test(clean)) score += 10;
+  if (/(kg|g|ml|litro|unidade|tabela|informacao|informa[cç][aã]o)/i.test(clean)) score -= 12;
+  return { line: clean, score };
+ }).filter((item) => {
+  const key = item.line.toLowerCase();
+  if (seen.has(key) || !linhaPareceDescricaoProduto(item.line)) return false;
+  seen.add(key);
+  return true;
+ }).sort((a, b) => b.score - a.score);
+ return scored.slice(0, 5).map((item) => item.line);
+}
+
+function renderOcrSuggestions(suggestions) {
+ els.manualProductSuggestions.replaceChildren();
+ els.manualProductSuggestions.classList.toggle("show", suggestions.length > 0);
+ suggestions.forEach((suggestion) => {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "ocr-suggestion";
+  button.textContent = suggestion;
+  button.addEventListener("click", () => {
+   els.manualProductName.value = suggestion.slice(0, 180);
+   els.manualProductName.focus();
+  });
+  els.manualProductSuggestions.append(button);
+ });
+}
+
+async function sugerirProdutoManualPorFoto() {
+ const file = els.manualProductOcrPhoto.files && els.manualProductOcrPhoto.files[0];
+ if (!file) {
+  els.manualProductMessage.textContent = "Escolha uma foto nítida da frente da embalagem.";
+  return;
+ }
+ els.suggestManualProductName.disabled = true;
+ els.confirmManualProduct.disabled = true;
+ els.manualProductMessage.textContent = "Preparando foto para leitura...";
+ try {
+  const image = await prepararImagemParaOcr(file);
+  const worker = await getOcrWorker();
+  const result = await worker.recognize(image);
+  const suggestions = sugerirDescricoesPorTextoOcr(result?.data?.text || "");
+  if (!suggestions.length) {
+   renderOcrSuggestions([]);
+   els.manualProductMessage.textContent = "Não consegui sugerir uma descrição. Tente uma foto mais próxima da frente da embalagem.";
+   return;
+  }
+  renderOcrSuggestions(suggestions);
+  els.manualProductName.value = suggestions[0].slice(0, 180);
+  els.manualProductMessage.textContent = "OCR encontrou algumas opções. Toque na melhor ou edite antes de confirmar.";
+  els.manualProductName.focus();
+ } catch (error) {
+  console.error("Falha ao sugerir descrição por OCR:", error);
+  els.manualProductMessage.textContent = error.message || "Não foi possível ler a embalagem.";
+ } finally {
+  els.suggestManualProductName.disabled = false;
+  els.confirmManualProduct.disabled = false;
+ }
+}
+
+async function salvarCadastroManualProduto() {
+ const name = els.manualProductName.value.trim();
+ const brand = els.manualProductBrand.value.trim();
+ const barcode = manualProductBarcode || els.barcode.value.trim();
+ if (!barcode) {
+  els.manualProductMessage.textContent = "Informe ou leia um código de barras antes de cadastrar.";
+  return;
+ }
+ if (!name) {
+  els.manualProductMessage.textContent = "Digite a descrição do produto.";
+  els.manualProductName.focus();
+  return;
+ }
+ els.confirmManualProduct.disabled = true;
+ els.manualProductMessage.textContent = "Salvando produto no catálogo...";
+ try {
+  const product = await salvarProdutoExternoNoSupabase({
+   barcode,
+   code: "",
+   name,
+   brandName: brand,
+   catalogSource: "manual",
+   sourcePayload: { name, brand, created_from: "register_not_found" }
+  });
+  selected = {
+   barcode,
+   code: product.code || "",
+   name: product.name || name,
+   catalogProductId: product.catalogProductId || null,
+   brandId: product.brandId || null,
+   brandName: product.brandName || brand,
+   catalogSource: "manual"
+  };
+  registrarProdutoNoMapa(selected);
+  els.barcode.value = barcode;
+  const brandText = selected.brandName ? `<br><span style="color:#16a34a">Marca: ${escapeHtml(selected.brandName)}</span>` : "";
+  els.found.innerHTML = `<b>${escapeHtml(selected.name)}</b><br><span style="color:#39465c">Código de barras: ${escapeHtml(selected.barcode)}</span>${brandText}<br><span style="color:#16a34a">Produto cadastrado manualmente.</span>`;
+  fecharCadastroManualProduto();
+  els.qty.focus();
+ } catch (error) {
+  console.error("Falha ao cadastrar produto manualmente:", error);
+  els.manualProductMessage.textContent = error.message || "Não foi possível cadastrar o produto.";
+ } finally {
+  els.confirmManualProduct.disabled = false;
+ }
 }
 
 function nomeOpenFoodFacts(product) {
@@ -1301,6 +1606,7 @@ async function salvarProdutoExternoNoSupabase(product) {
 }
 
 async function buscarProdutoPorCodigo(codigoBarras) {
+ fecharCadastroManualProduto();
  if (!codigoBarras) {
   els.found.classList.add("show");
   els.found.innerHTML = "<b>Informe um código para buscar.</b>";
@@ -1345,7 +1651,7 @@ async function buscarProdutoPorCodigo(codigoBarras) {
  els.find.disabled = false;
 
  if (!selected) {
-  els.found.innerHTML = `<b>Produto não encontrado em nenhuma fonte ativa.</b><br>Código: ${codigoBarras}`;
+  renderProdutoNaoEncontrado(codigoBarras);
   return;
  }
 
@@ -1562,7 +1868,7 @@ function montarCatalogoSupabase(rows) {
 
 async function iniciarCatalogo() {
  els.find.disabled = false;
- els.scanCamera.disabled = true;
+ els.scanCamera.disabled = false;
  els.catalogStatus.hidden = !isSkaleeAdmin;
  els.catalogStatus.textContent = "Carregando produtos do Supabase...";
  els.catalogStatus.className = "catalog-status";
@@ -1572,9 +1878,10 @@ async function iniciarCatalogo() {
   sg = montarCatalogoSupabase(produtosCatalogo);
   atualizarStatusCatalogo("Supabase");
   els.find.disabled = false;
-  els.scanCamera.disabled = false;
+ els.scanCamera.disabled = false;
  } catch (error) {
   els.find.disabled = false;
+  els.scanCamera.disabled = false;
   els.catalogStatus.textContent = `Não foi possível carregar o catálogo de produtos: ${error.message || "erro no Supabase"}`;
   els.catalogStatus.classList.add("error");
   els.catalogStatus.hidden = !isSkaleeAdmin;
@@ -1606,8 +1913,153 @@ els.importDbf.addEventListener("click", async () => {
  }
 });
 
+function resetScannerConfirmation() {
+ scannerConfirmCode = "";
+ scannerConfirmCount = 0;
+ scannerConfirmAt = 0;
+}
+
+function normalizeBarcodeValue(value) {
+ return String(value || "").replace(/\D/g, "");
+}
+
+function isSupportedProductBarcode(value) {
+ return /^(?:\d{6}|\d{8}|\d{12}|\d{13})$/.test(value);
+}
+
+function resetScannerCameraControls() {
+ scannerTrack = null;
+ scannerCapabilities = null;
+ scannerZoom = null;
+ scannerTorchOn = false;
+ els.scannerZoomOut.hidden = true;
+ els.scannerZoomIn.hidden = true;
+ els.scannerTorch.hidden = true;
+ els.scannerTorch.classList.remove("active");
+ els.scannerTorch.setAttribute("aria-label", "Ligar lanterna");
+}
+
+function showVideoScannerView(show) {
+ els.scannerView.classList.remove("hidden");
+ els.scannerVideo.classList.toggle("hidden", !show);
+ els.scannerReader.classList.toggle("hidden", show);
+ els.scannerGuide.classList.toggle("hidden", !show);
+}
+
+function showFallbackScannerView() {
+ els.scannerView.classList.remove("hidden");
+ els.scannerVideo.classList.add("hidden");
+ els.scannerReader.classList.remove("hidden");
+ els.scannerGuide.classList.remove("hidden");
+}
+
+function getScannerVideoConstraints() {
+ return {
+  facingMode: { ideal: "environment" },
+  width: { ideal: 1280 },
+  height: { ideal: 720 },
+  frameRate: { ideal: 24, max: 30 }
+ };
+}
+
+async function applyScannerConstraints(track, constraints) {
+ if (!track || typeof track.applyConstraints !== "function") return false;
+ try {
+  await track.applyConstraints(constraints);
+  return true;
+ } catch (error) {
+  return false;
+ }
+}
+
+function getCapabilityRange(name) {
+ const range = scannerCapabilities ? scannerCapabilities[name] : null;
+ if (!range || typeof range.min !== "number" || typeof range.max !== "number") return null;
+ return range;
+}
+
+async function setScannerZoom(value) {
+ const range = getCapabilityRange("zoom");
+ if (!range) return;
+ const step = typeof range.step === "number" && range.step > 0 ? range.step : 0.1;
+ const clamped = Math.min(range.max, Math.max(range.min, value));
+ const rounded = Math.round(clamped / step) * step;
+ if (await applyScannerConstraints(scannerTrack, { advanced: [{ zoom: rounded }] })) {
+  scannerZoom = rounded;
+  els.scannerZoomOut.disabled = scannerZoom <= range.min;
+  els.scannerZoomIn.disabled = scannerZoom >= range.max;
+ }
+}
+
+async function toggleScannerTorch() {
+ if (!scannerCapabilities || !scannerCapabilities.torch) return;
+ scannerTorchOn = !scannerTorchOn;
+ const applied = await applyScannerConstraints(scannerTrack, { advanced: [{ torch: scannerTorchOn }] });
+ if (!applied) {
+  scannerTorchOn = !scannerTorchOn;
+ }
+ els.scannerTorch.classList.toggle("active", scannerTorchOn);
+ els.scannerTorch.setAttribute("aria-label", scannerTorchOn ? "Desligar lanterna" : "Ligar lanterna");
+}
+
+async function setupScannerTrack(stream) {
+ resetScannerCameraControls();
+ scannerTrack = stream ? stream.getVideoTracks()[0] : null;
+ if (!scannerTrack) return;
+ if (typeof scannerTrack.getCapabilities === "function") {
+  try {
+   scannerCapabilities = scannerTrack.getCapabilities();
+  } catch (error) {
+   scannerCapabilities = null;
+  }
+ }
+ if (scannerCapabilities && Array.isArray(scannerCapabilities.focusMode) && scannerCapabilities.focusMode.includes("continuous")) {
+  await applyScannerConstraints(scannerTrack, { advanced: [{ focusMode: "continuous" }] });
+ }
+ const zoomRange = getCapabilityRange("zoom");
+ if (zoomRange) {
+  els.scannerZoomOut.hidden = false;
+  els.scannerZoomIn.hidden = false;
+  const initialZoom = Math.min(zoomRange.max, Math.max(zoomRange.min, 1.7));
+  await setScannerZoom(initialZoom);
+ }
+ if (scannerCapabilities && scannerCapabilities.torch) {
+  els.scannerTorch.hidden = false;
+ }
+}
+
+function getScannerCrop(video) {
+ const width = video.videoWidth || 0;
+ const height = video.videoHeight || 0;
+ if (!width || !height) return null;
+ const cropWidth = Math.round(width * 0.86);
+ const cropHeight = Math.round(height * 0.34);
+ return {
+  sx: Math.max(0, Math.round((width - cropWidth) / 2)),
+  sy: Math.max(0, Math.round((height - cropHeight) / 2)),
+  sw: cropWidth,
+  sh: cropHeight
+ };
+}
+
+function getScannerCropCanvas(video) {
+ const crop = getScannerCrop(video);
+ if (!crop) return video;
+ if (!scannerCanvas) {
+  scannerCanvas = document.createElement("canvas");
+  scannerCanvasContext = scannerCanvas.getContext("2d", { willReadFrequently: true });
+ }
+ if (!scannerCanvasContext) return video;
+ scannerCanvas.width = crop.sw;
+ scannerCanvas.height = crop.sh;
+ scannerCanvasContext.drawImage(video, crop.sx, crop.sy, crop.sw, crop.sh, 0, 0, crop.sw, crop.sh);
+ return scannerCanvas;
+}
+
 async function stopScanner() {
  scannerIsActive = false;
+ scannerDetecting = false;
+ resetScannerConfirmation();
  if (scannerSuccessTimer) {
   clearTimeout(scannerSuccessTimer);
   scannerSuccessTimer = null;
@@ -1661,78 +2113,98 @@ async function stopScanner() {
   scannerStream.getTracks().forEach((track) => track.stop());
   scannerStream = null;
  }
+ resetScannerCameraControls();
  scannerMode = null;
  els.scannerVideo.srcObject = null;
- els.scannerVideo.classList.remove("hidden");
+ showVideoScannerView(true);
  els.scannerReader.classList.add("hidden");
  els.scannerReader.innerHTML = "";
  els.scannerSuccess.classList.remove("show");
- els.scannerStatus.textContent = "Aponte a câmera para o código de barras.";
+ els.scannerStatus.textContent = "Centralize o código de barras dentro do retângulo.";
  els.scannerModal.classList.remove("show");
  els.scannerModal.setAttribute("aria-hidden", "true");
 }
 
 function onBarcodeDetected(value) {
- const codigo = (value || "").trim();
+ const codigo = normalizeBarcodeValue(value);
  if (!codigo || !scannerIsActive) return;
+ if (!isSupportedProductBarcode(codigo)) return;
+
+ const now = Date.now();
+ if (scannerConfirmCode === codigo && now - scannerConfirmAt < 1800) {
+  scannerConfirmCount += 1;
+ } else {
+  scannerConfirmCode = codigo;
+  scannerConfirmCount = 1;
+ }
+ scannerConfirmAt = now;
+ if (scannerConfirmCount < 2) {
+  els.scannerStatus.textContent = "Confirmando leitura... mantenha o código no retângulo.";
+  return;
+ }
 
  scannerIsActive = false;
  els.scannerStatus.textContent = `Lido: ${codigo}`;
  els.scannerSuccess.classList.add("show");
  els.barcode.value = codigo;
+ if (navigator.vibrate) navigator.vibrate(80);
  void buscarProdutoPorCodigo(codigo);
-
- scannerSuccessTimer = setTimeout(() => {
-  void stopScanner();
- }, 550);
+ void stopScanner();
 }
 
 async function startNativeScanner() {
  scannerMode = "native";
  scannerIsActive = true;
+ resetScannerConfirmation();
  els.scannerStatus.textContent = "Abrindo câmera...";
  els.scannerReader.classList.add("hidden");
- els.scannerVideo.classList.remove("hidden");
+ showVideoScannerView(true);
  els.scannerModal.classList.add("show");
  els.scannerModal.setAttribute("aria-hidden", "false");
  try {
   scannerStream = await navigator.mediaDevices.getUserMedia({
-   video: { facingMode: { ideal: "environment" } },
+   video: getScannerVideoConstraints(),
    audio: false
   });
 
   els.scannerVideo.srcObject = scannerStream;
   await els.scannerVideo.play();
-  els.scannerStatus.textContent = "Aponte para o código; a imagem inteira está sendo analisada.";
+  await setupScannerTrack(scannerStream);
+  els.scannerStatus.textContent = "Centralize o código de barras dentro do retângulo.";
 
   scannerTimer = setInterval(async () => {
-   if (!scannerIsActive) return;
+   if (!scannerIsActive || scannerDetecting) return;
+   scannerDetecting = true;
    try {
-    const detected = await barcodeReader.detect(els.scannerVideo);
+    const detected = await barcodeReader.detect(getScannerCropCanvas(els.scannerVideo));
     if (!detected || detected.length === 0) return;
     const value = (detected[0].rawValue || "").trim();
     if (!value) return;
     onBarcodeDetected(value);
    } catch (error) {
-    els.scannerStatus.textContent = "Tentando ler... mantenha o código centralizado.";
+    els.scannerStatus.textContent = "Tentando ler... mantenha o código no retângulo.";
+   } finally {
+    scannerDetecting = false;
    }
-  }, 250);
+  }, 180);
+  return true;
  } catch (error) {
   await stopScanner();
   if (error && error.name === "NotAllowedError") {
    alert("Permissão da câmera negada. Autorize a câmera no navegador.");
-   return;
+   return null;
   }
-  alert("Não foi possível abrir a câmera.");
+  console.warn("Falha no BarcodeDetector; tentando leitor alternativo.", error);
+  return false;
  }
 }
 
   async function startQuaggaScanner() {
    scannerMode = "quagga";
    scannerIsActive = true;
+   resetScannerConfirmation();
    els.scannerStatus.textContent = "Abrindo câmera...";
-   els.scannerVideo.classList.add("hidden");
-   els.scannerReader.classList.remove("hidden");
+   showFallbackScannerView();
    els.scannerReader.innerHTML = "";
    els.scannerModal.classList.add("show");
    els.scannerModal.setAttribute("aria-hidden", "false");
@@ -1750,7 +2222,8 @@ async function startNativeScanner() {
      constraints: {
       facingMode: "environment",
       width: { ideal: 1280 },
-      height: { ideal: 720 }
+      height: { ideal: 720 },
+      frameRate: { ideal: 24, max: 30 }
      },
      area: {
       top: "22%",
@@ -1767,13 +2240,10 @@ async function startNativeScanner() {
     frequency: 10,
     decoder: {
      readers: [
-      "ean_reader",
-      "ean_8_reader",
-      "upc_reader",
-      "upc_e_reader",
-      "code_128_reader",
-      "code_39_reader",
-      "i2of5_reader"
+     "ean_reader",
+     "ean_8_reader",
+     "upc_reader",
+     "upc_e_reader"
      ]
     },
     locate: true
@@ -1813,14 +2283,16 @@ async function startNativeScanner() {
 async function startZxingScanner() {
  scannerMode = "zxing";
  scannerIsActive = true;
+ resetScannerConfirmation();
  els.scannerStatus.textContent = "Abrindo câmera...";
  els.scannerReader.classList.add("hidden");
- els.scannerVideo.classList.remove("hidden");
+ showVideoScannerView(true);
  els.scannerModal.classList.add("show");
  els.scannerModal.setAttribute("aria-hidden", "false");
 
  const zxingApi = window.ZXingBrowser;
- if (!zxingApi || !zxingApi.BrowserMultiFormatReader) {
+ const ZxingReader = zxingApi ? zxingApi.BrowserMultiFormatOneDReader || zxingApi.BrowserMultiFormatReader : null;
+ if (!ZxingReader) {
   await stopScanner();
   alert("ZXing-JS não carregou no navegador.");
   return;
@@ -1833,15 +2305,11 @@ async function startZxingScanner() {
    hints.set(zxingApi.DecodeHintType.POSSIBLE_FORMATS, formats);
   }
 
-  zxingReader = new zxingApi.BrowserMultiFormatReader(hints, 300);
+  zxingReader = new ZxingReader(hints, 150);
 
   zxingControls = await zxingReader.decodeFromConstraints(
    {
-    video: {
-     facingMode: { ideal: "environment" },
-     width: { ideal: 1280 },
-     height: { ideal: 720 }
-    }
+    video: getScannerVideoConstraints()
    },
    els.scannerVideo,
    (result) => {
@@ -1852,7 +2320,8 @@ async function startZxingScanner() {
    }
   );
 
-  els.scannerStatus.textContent = "Aponte para o código de barras.";
+  if (els.scannerVideo.srcObject) await setupScannerTrack(els.scannerVideo.srcObject);
+  els.scannerStatus.textContent = "Centralize o código de barras dentro do retângulo.";
  } catch (error) {
   await stopScanner();
   if (error && error.name === "NotAllowedError") {
@@ -1866,9 +2335,9 @@ async function startZxingScanner() {
 async function startHtml5Scanner() {
  scannerMode = "html5";
  scannerIsActive = true;
+ resetScannerConfirmation();
  els.scannerStatus.textContent = "Abrindo câmera...";
- els.scannerVideo.classList.add("hidden");
- els.scannerReader.classList.remove("hidden");
+ showFallbackScannerView();
  els.scannerModal.classList.add("show");
  els.scannerModal.setAttribute("aria-hidden", "false");
 
@@ -1881,6 +2350,10 @@ async function startHtml5Scanner() {
   const scannerConfig = {
    fps: 12,
    aspectRatio: 1.7778,
+   qrbox: (viewfinderWidth, viewfinderHeight) => ({
+    width: Math.max(1, Math.min(430, Math.floor(viewfinderWidth * 0.86))),
+    height: Math.max(1, Math.min(150, Math.floor(viewfinderHeight * 0.34)))
+   }),
    disableFlip: false
   };
 
@@ -1893,22 +2366,13 @@ async function startHtml5Scanner() {
    }
   };
 
-  try {
-   await html5Scanner.start(
-    { facingMode: { exact: "environment" } },
-    scannerConfig,
-    onSuccess,
-    onError
-   );
-  } catch (firstError) {
-   await html5Scanner.start(
-    { facingMode: "environment" },
-    scannerConfig,
-    onSuccess,
-    onError
-   );
-  }
-  els.scannerStatus.textContent = "Aponte para o código; a imagem inteira está sendo analisada.";
+  await html5Scanner.start(
+   { facingMode: "environment" },
+   scannerConfig,
+   onSuccess,
+   onError
+  );
+  els.scannerStatus.textContent = "Centralize o código de barras dentro do retângulo.";
   return true;
  } catch (error) {
   await stopScanner();
@@ -1935,19 +2399,19 @@ async function startScanner() {
   return;
  }
 
- if (window.Html5Qrcode) {
-  const iniciou = await startHtml5Scanner();
-  if (iniciou !== false) return;
- }
-
  if (barcodeReader) {
-  await startNativeScanner();
-  return;
+  const iniciou = await startNativeScanner();
+  if (iniciou !== false) return;
  }
 
  if (window.ZXingBrowser) {
   await startZxingScanner();
   return;
+ }
+
+ if (window.Html5Qrcode) {
+  const iniciou = await startHtml5Scanner();
+  if (iniciou !== false) return;
  }
 
  if (window.Quagga) {
@@ -1985,8 +2449,41 @@ els.find.addEventListener("click", () => {
  const codigo = els.barcode.value.trim();
  void buscarProdutoPorCodigo(codigo);
 });
+els.found.addEventListener("click", (event) => {
+ const button = event.target.closest("#manualCatalogProduct,#manualOcrProduct");
+ if (!button) return;
+ const codigo = button.dataset.barcode || els.barcode.value.trim();
+ abrirCadastroManualProduto(codigo);
+ if (button.id === "manualOcrProduct") {
+  manualProductAutoOcr = true;
+  els.manualProductMessage.textContent = "Escolha uma foto nítida da frente da embalagem.";
+  els.manualProductOcrPhoto.click();
+ }
+});
+els.manualProductForm.addEventListener("submit", (event) => {
+ event.preventDefault();
+ void salvarCadastroManualProduto();
+});
+els.suggestManualProductName.addEventListener("click", () => { void sugerirProdutoManualPorFoto(); });
+els.manualProductOcrPhoto.addEventListener("change", () => {
+ if (!manualProductAutoOcr) return;
+ manualProductAutoOcr = false;
+ void sugerirProdutoManualPorFoto();
+});
+els.cancelManualProduct.addEventListener("click", fecharCadastroManualProduto);
 els.scanCamera.addEventListener("click", () => { void startScanner(); });
 els.scannerClose.addEventListener("click", () => { void stopScanner(); });
+els.scannerZoomOut.addEventListener("click", () => {
+ const range = getCapabilityRange("zoom");
+ if (!range || scannerZoom === null) return;
+ void setScannerZoom(scannerZoom - (range.step || 0.2));
+});
+els.scannerZoomIn.addEventListener("click", () => {
+ const range = getCapabilityRange("zoom");
+ if (!range || scannerZoom === null) return;
+ void setScannerZoom(scannerZoom + (range.step || 0.2));
+});
+els.scannerTorch.addEventListener("click", () => { void toggleScannerTorch(); });
 els.barcodePhoto.addEventListener("change", (event) => {
  const file = event.target.files && event.target.files[0] ? event.target.files[0] : null;
  void scanFromPhoto(file);
@@ -2117,6 +2614,7 @@ els.save.addEventListener("click", async () => {
 function resetForm() {
  selected = null;
  photoData = "";
+ fecharCadastroManualProduto();
  els.barcode.value = "";
  els.qty.value = "";
  els.expiry.value = "";
