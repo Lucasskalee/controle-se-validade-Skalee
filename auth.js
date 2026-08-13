@@ -4,6 +4,7 @@ const SUPABASE_URL = "https://scetuqugfbhozikridaw.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_RUy69LJc14uWrn0H9WgvKQ_ebicHtdN";
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 const SHARED_CATALOG_OWNER_ID = "1d229a0e-7c6d-4b03-9505-95c50bb49cad";
+const SKALEE_ADMIN_EMAIL = "skalee.razarth@gmail.com";
 const body = document.body;
 const app = document.querySelector("#protectedApp");
 const form = document.querySelector("#authForm");
@@ -19,6 +20,12 @@ const VALIDITY_PRODUCT_SELECT = "id,user_id,barcode,product_code,name,store,quan
 let mode = "sign-in";
 let activeUserId;
 let manualAuthInProgress = false;
+
+async function getCurrentUser() {
+ const { data: { user }, error } = await supabase.auth.getUser();
+ if (error) throw error;
+ return user || null;
+}
 
 async function selectAllPages(table, columns, options = {}) {
  const pageSize = options.pageSize || 1000;
@@ -78,6 +85,26 @@ function toDatabase(product) {
 }
 
 window.skaleeDb = {
+ async listAllowedBrandIdsForCurrentUser() {
+  const user = await getCurrentUser();
+  if (!user) return [];
+  if (user.app_metadata?.access_role === "platform_admin" || String(user.email || "").toLowerCase() === SKALEE_ADMIN_EMAIL) return null;
+  const { data: promoterProfile, error: profileError } = await supabase
+   .from("promoter_profiles")
+   .select("user_id,active")
+   .eq("user_id", user.id)
+   .eq("active", true)
+   .maybeSingle();
+  if (profileError) throw profileError;
+  if (!promoterProfile) return null;
+  const { data, error } = await supabase
+   .from("promoter_brand_assignments")
+   .select("brand_id")
+   .eq("promoter_user_id", user.id)
+   .eq("active", true);
+  if (error) throw error;
+  return [...new Set((data || []).map((item) => item.brand_id).filter(Boolean))];
+ },
  async loadProducts() {
   const { data, error } = await supabase
    .from("validity_products")
@@ -85,9 +112,18 @@ window.skaleeDb = {
    .is("completed_at", null)
    .order("created_at", { ascending: false });
   if (error) throw error;
-  return data.map(fromDatabase);
+  const allowedBrandIds = await this.listAllowedBrandIdsForCurrentUser();
+  const rows = Array.isArray(allowedBrandIds) ? data.filter((product) => product.brand_id && allowedBrandIds.includes(product.brand_id)) : data;
+  return rows.map(fromDatabase);
  },
  async saveProduct(product) {
+  const allowedBrandIds = await this.listAllowedBrandIdsForCurrentUser();
+  if (Array.isArray(allowedBrandIds)) {
+   if (!allowedBrandIds.length) throw new Error("Seu usuário promotor ainda não possui marcas atribuídas.");
+   if (!product.brandId || !allowedBrandIds.includes(product.brandId)) {
+    throw new Error("Este produto não pertence a uma marca atribuída ao seu usuário promotor.");
+   }
+  }
   const { data, error } = await supabase
    .from("validity_products")
    .insert(toDatabase(product))
@@ -177,24 +213,32 @@ window.skaleeDb = {
  async listCatalogProducts() {
   const { data, error } = await supabase.from("catalog_products").select("id,owner_organization_id,brand_id,barcode,internal_code,name,category,active,created_at,organizations(name),brands(name)").order("name");
   if (error) throw error;
-  return data;
+  const allowedBrandIds = await this.listAllowedBrandIdsForCurrentUser();
+  if (!Array.isArray(allowedBrandIds)) return data;
+  return data.filter((product) => product.brand_id && allowedBrandIds.includes(product.brand_id));
  },
  async listSearchCatalogProducts() {
-  return selectAllPages("catalog_products", "id,brand_id,barcode,internal_code,name,active", {
+  const rows = await selectAllPages("catalog_products", "id,brand_id,barcode,internal_code,name,active,brands(name)", {
    order: { column: "name" }
   });
+  const allowedBrandIds = await this.listAllowedBrandIdsForCurrentUser();
+  if (!Array.isArray(allowedBrandIds)) return rows;
+  return rows.filter((product) => product.brand_id && allowedBrandIds.includes(product.brand_id));
  },
  async findSearchCatalogProduct(code) {
   const value = String(code || "").trim();
   if (!value) return null;
+  const allowedBrandIds = await this.listAllowedBrandIdsForCurrentUser();
+  if (Array.isArray(allowedBrandIds) && !allowedBrandIds.length) return null;
   const { data, error } = await supabase
    .from("catalog_products")
-   .select("id,brand_id,barcode,internal_code,name,active")
+   .select("id,brand_id,barcode,internal_code,name,active,brands(name)")
    .or(`barcode.eq.${value},internal_code.eq.${value}`)
    .eq("active", true)
    .limit(1);
   if (error) throw error;
-  return data?.[0] || null;
+  const product = data?.find((item) => !Array.isArray(allowedBrandIds) || allowedBrandIds.includes(item.brand_id)) || null;
+  return product;
  },
  async createCatalogProduct(values) {
   const { data, error } = await supabase.from("catalog_products").insert(values).select("id,owner_organization_id,brand_id,barcode,internal_code,name,category,active,created_at").single();
@@ -203,12 +247,36 @@ window.skaleeDb = {
  },
  async importCatalogProducts(products, options = {}) {
   const source = options.source || "own_import";
+  const brandNames = [...new Set(products.map((product) => String(product.brand_name || product.brandName || "").trim()).filter(Boolean))];
+  const brandIds = new Map();
+  for (const brandName of brandNames) {
+   const { data: existing, error: findError } = await supabase
+    .from("brands")
+    .select("id,name")
+    .eq("owner_organization_id", SHARED_CATALOG_OWNER_ID)
+    .ilike("name", brandName)
+    .limit(1);
+   if (findError) throw findError;
+   if (existing?.[0]) {
+    brandIds.set(brandName, existing[0].id);
+    continue;
+   }
+   const { data: created, error: createError } = await supabase
+    .from("brands")
+    .insert({ owner_organization_id: SHARED_CATALOG_OWNER_ID, name: brandName, active: true })
+    .select("id,name")
+    .single();
+   if (createError) throw createError;
+   brandIds.set(brandName, created.id);
+  }
   const rows = products.map((product) => {
    const barcode = String(product.barcode || "").trim() || null;
    const internalCode = String(product.internal_code || product.internalCode || "").trim() || null;
    const sourceKey = String(product.source_key || barcode || internalCode || "").trim();
+   const brandName = String(product.brand_name || product.brandName || "").trim();
    return {
     owner_organization_id: SHARED_CATALOG_OWNER_ID,
+    brand_id: brandName ? brandIds.get(brandName) || null : null,
     barcode,
     internal_code: internalCode,
     name: String(product.name || "").trim(),

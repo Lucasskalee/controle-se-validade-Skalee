@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cartaz A6 | Skalee</title>
+<link rel="icon" type="image/png" sizes="64x64" href="skalee-icon-64.png">
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.55.0";
+
+const SUPABASE_URL = "https://scetuqugfbhozikridaw.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_RUy69LJc14uWrn0H9WgvKQ_ebicHtdN";
+const ADMIN_EMAIL = "skalee.razarth@gmail.com";
+const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+async function protectPosterAccess() {
+ const { data: { session } } = await supabase.auth.getSession();
+ const email = String(session?.user?.email || "").toLowerCase();
+ const accessRole = session?.user?.app_metadata?.access_role || "";
+ const canUsePoster = email === ADMIN_EMAIL || accessRole === "platform_admin";
+ if (!canUsePoster) window.location.replace("index.html");
+}
+
+protectPosterAccess();
+</script>
+<script>
+(() => {
+ const preference = localStorage.getItem("skalee.theme") || "auto";
+ const dark = preference === "dark" || (preference === "auto" && matchMedia("(prefers-color-scheme: dark)").matches);
+ document.documentElement.dataset.theme = dark ? "dark" : "light";
+ document.documentElement.dataset.themePreference = preference;
+})();
+</script>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--text:#172033;--muted:#7a8499;--line:#e4e8ef;--blue:#2563eb;--blue2:#eff6ff;--control:#e9edf4;--control-text:#39465c;--poster-text:#202329;--w:105mm;--h:148mm}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+.toolbar{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--card) 96%,transparent);border-bottom:1px solid var(--line);padding:10px;box-shadow:0 2px 10px #0001}
+.topbar{max-width:1050px;margin:0 auto 8px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.topbar h1{margin:0;font-size:18px}.top-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.back,.toggle-panel{border:0;border-radius:11px;background:var(--control);color:var(--control-text);padding:10px 13px;font-weight:800;text-decoration:none;cursor:pointer}.toggle-panel{min-height:auto;width:auto}
+.editor-controls[hidden]{display:none}
+.grid{max-width:1050px;margin:auto;display:grid;grid-template-columns:repeat(8,minmax(80px,1fr));gap:8px;align-items:end}
+.field{display:flex;flex-direction:column;gap:4px}.field label{font-size:11px;font-weight:700;color:#5c6570}.wide{grid-column:span 2}
+select,input,button{width:100%;min-height:38px;border:1px solid var(--line);border-radius:11px;background:var(--card);color:var(--text);padding:7px 9px;font-size:14px}
+input[type=color]{padding:3px}.row{display:flex;gap:6px}.toggle{min-width:38px;font-weight:900}.toggle.active{background:#202329;color:#fff}
+.quick-grid{max-width:1050px;margin:0 auto 10px;display:grid;grid-template-columns:1.1fr 1.1fr .6fr .6fr .6fr .9fr;gap:8px;align-items:end}.quick-grid .field label{color:var(--muted)}
+.layer-tools{max-width:1050px;margin:8px auto 0;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.layer-tools button{font-weight:800;background:var(--control);color:var(--control-text);cursor:pointer}.layer-tools button.active{background:#202329;color:#fff}
+.actions{max-width:1050px;margin:8px auto 0;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.actions button{font-weight:700;background:var(--control);color:var(--control-text);cursor:pointer}.primary{background:var(--blue)!important;color:#fff!important;border-color:var(--blue)!important}
+.hint{max-width:1050px;margin:10px auto 0;padding:10px 12px;background:var(--card);border:1px solid var(--line);border-radius:12px;font-size:13px;color:var(--muted)}
+.context-menu{position:fixed;z-index:4000;display:none;flex-direction:column;width:208px;padding:0;border:0;border-radius:10px;background:var(--card);color:var(--text);box-shadow:0 10px 20px rgba(64,64,64,.15);overflow:hidden}.context-menu.show{display:flex}.context-menu-list{list-style:none;margin:0;padding:8px}.context-menu-list+.context-menu-list{border-top:1px solid var(--line)}.context-menu-button{width:100%;min-height:36px;border:0;border-radius:8px;background:var(--card);color:inherit;display:flex;align-items:center;gap:10px;padding:8px;font:inherit;font-weight:700;text-align:left;cursor:pointer;position:relative}.context-menu-button:hover{background:var(--control)}.context-menu-button svg{width:20px;height:20px;flex:0 0 auto;stroke:var(--muted)}.context-menu-button:hover svg{stroke:var(--text)}.context-menu-button span:first-of-type{flex:1}.context-menu-button .shortcut{color:var(--muted);font-size:11px;font-weight:800;position:absolute;right:8px}.context-menu-button.danger:hover{color:#d92027}.context-menu-button.danger:hover svg{stroke:#d92027}.context-menu-actions{display:flex;justify-content:space-between;gap:0;padding:8px;background:var(--card);color:var(--text)}.context-icon-button{display:grid;place-items:center;width:44px;height:40px;min-height:40px;border:0;border-radius:8px;background:var(--card);color:inherit;cursor:pointer}.context-icon-button:hover{background:var(--control)}.context-icon-button.active{background:var(--control);color:var(--text)}.context-icon-button svg{width:20px;height:20px;stroke:var(--muted)}.context-icon-button:hover svg,.context-icon-button.active svg{stroke:var(--text)}
+.workspace{padding:28px 12px 50px;display:flex;justify-content:center}.shell{background:#cfd4d9;padding:18px;box-shadow:0 10px 35px #0002;overflow:visible}
+.poster{width:var(--w);height:var(--h);background:linear-gradient(#fff 0 31.5mm,#e7e7e7 31.5mm 100%);position:relative;overflow:visible;transform-origin:top center;color:var(--poster-text)}.editable{position:absolute;outline:none;cursor:text;overflow:visible}.editable.selected{outline:1px dashed #2864ffcc;outline-offset:2px}.editable.locked{cursor:not-allowed}.poster.move-mode .editable:not(.locked){cursor:move}.resize-handle{position:absolute;right:-6px;bottom:-6px;width:12px;height:12px;border:2px solid #2864ff;background:#fff;border-radius:3px;box-shadow:0 1px 4px #0003;cursor:nwse-resize;z-index:5}.editable.locked .resize-handle,.poster:not(.move-mode) .resize-handle{display:none}
+.line{position:absolute;left:7mm;width:91mm;height:1.2mm;background:#24272c;border-radius:3mm}
+#cerveja{top:39.5mm;left:6mm;width:93mm;text-align:center;font-family:Arial,Helvetica,sans-serif;font-size:15.8mm;font-weight:400;line-height:.9;letter-spacing:.1mm;white-space:nowrap}
+#itaipava{top:52.4mm;left:8mm;width:89mm;text-align:center;font-family:"Zulia","Arial Black",Impact,sans-serif;font-size:12.2mm;font-weight:900;line-height:.85;letter-spacing:.05mm;white-space:nowrap}
+#line1{top:67.3mm}#latapilsen{top:70.6mm;left:13mm;width:79mm;text-align:center;font-family:Arial,Helvetica,sans-serif;font-size:6.8mm;font-weight:800;line-height:1;letter-spacing:-.2mm;white-space:nowrap}
+#precoInteiro{top:75.8mm;left:-2mm;width:58mm;text-align:center;font-family:"Zulia","Arial Black",Impact,sans-serif;font-size:53.5mm;font-weight:900;line-height:.82;color:#d74622;text-shadow:1.1mm 1.1mm 0 #202329;letter-spacing:-1.6mm;white-space:nowrap}
+#precoCentavos{top:77mm;left:43mm;width:48mm;text-align:center;font-family:"Zulia","Arial Black",Impact,sans-serif;font-size:51mm;font-weight:900;line-height:.82;color:#d74622;text-shadow:1.1mm 1.1mm 0 #202329;letter-spacing:-1.8mm;white-space:nowrap}
+.volume-rule{position:absolute;display:block;top:115.8mm;left:55mm;width:37mm;height:1.4mm;background:#d74622;box-shadow:.7mm .7mm 0 #202329}.price-comma{position:absolute;display:block;top:121.4mm;left:54mm;width:8mm;height:7mm;background:#d74622;border-radius:50% 50% 50% 12%;transform:skewX(-12deg) rotate(-8deg);box-shadow:.9mm .9mm 0 #202329}
+#volume{top:119.8mm;left:64mm;width:30mm;text-align:center;font-family:"Brush Hand New","Brush Script MT",cursive;font-size:11.2mm;font-weight:900;line-height:1;color:#111827;white-space:nowrap}
+#line2{top:132.4mm}#aviso{top:134.3mm;left:7mm;width:91mm;font-family:Arial,Helvetica,sans-serif;font-size:2.45mm;font-weight:700;line-height:1.08;text-align:left;color:#111827}#aviso .title{display:inline-block;min-width:22mm;font-weight:900;text-decoration:underline}#aviso .date{font-weight:900}#aviso .note{font-size:2.3mm}
+@media(max-width:900px){.grid,.quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.wide{grid-column:span 2}.actions,.layer-tools{grid-template-columns:repeat(2,1fr)}.workspace{padding-top:18px;overflow:auto;justify-content:flex-start}.shell{margin:auto}.poster{transform:scale(.82);margin-bottom:-26mm}}
+@media(max-width:430px){.poster{transform:scale(.72);margin-bottom:-41mm}.shell{padding:10px}.topbar{align-items:flex-start;flex-direction:column}}
+html[data-theme="dark"]{color-scheme:dark;--bg:#0b1220;--card:#111b2e;--text:#e5edf9;--muted:#94a3b8;--line:#29364b;--blue:#3b82f6;--blue2:#172a49;--control:#223047;--control-text:#dbe7f7}
+html[data-theme="dark"] .shell{background:#29364b}
+@page{size:A6 portrait;margin:0}
+@media print{body{background:#fff}.toolbar,.hint{display:none!important}.workspace{padding:0;display:block}.shell{padding:0;background:transparent;box-shadow:none;overflow:hidden}.poster{transform:none!important;margin:0!important;overflow:hidden}.editable.selected{outline:none}.resize-handle{display:none!important}}
+</style>
+</head>
+<body>
+<div class="toolbar">
+ <div class="topbar"><h1>Cartaz A6</h1><div class="top-actions"><button id="toggleControls" class="toggle-panel" type="button" aria-expanded="true">Ver menos</button><button id="openContextMenu" class="toggle-panel" type="button">Menu camadas</button><a class="back" href="assets/cartaz-a6-antarctica-preview.png" target="_blank" rel="noopener">Ver prévia PSD</a><a class="back" href="assets/cartaz-a6-antarctica.psd" download>Abrir PSD</a><a class="back" href="index.html">Voltar ao sistema</a></div></div>
+ <div id="editorControls" class="editor-controls">
+ <div class="quick-grid">
+  <div class="field"><label>Marca</label><input id="quickBrand" type="text" value="ANTARCTICA"></div>
+  <div class="field"><label>Tipo / descrição</label><input id="quickDescription" type="text" value="ORIGINAL / LATA"></div>
+  <div class="field"><label>Unidade</label><input id="quickUnit" type="text" value="3" inputmode="numeric"></div>
+  <div class="field"><label>Decimal</label><input id="quickDecimal" type="text" value="39" inputmode="numeric" maxlength="2"></div>
+  <div class="field"><label>Volume</label><input id="quickVolume" type="text" value="269ML"></div>
+  <div class="field"><label>Vencimento</label><input id="quickExpiry" type="text" value="__/__" placeholder="dd/mm" maxlength="5"></div>
+ </div>
+ <div class="grid">
+  <div class="field wide"><label>Elemento selecionado</label><select id="elementSelect"><option value="cerveja">CERVEJA</option><option value="itaipava">ANTARCTICA</option><option value="latapilsen">ORIGINAL / LATA</option><option value="precoInteiro">UNIDADE</option><option value="precoCentavos">DECIMAL</option><option value="volume">269ML</option><option value="aviso">AVISO</option></select></div>
+  <div class="field wide"><label>Fonte</label><select id="fontFamily"><option value="Arial, Helvetica, sans-serif">Arial</option><option value="'Brush Hand New','Brush Script MT',cursive">Brush Hand New</option><option value="'Zulia','Arial Black',Impact,sans-serif">Zulia</option><option value="'Arial Black', Arial, sans-serif">Arial Black</option><option value="Impact, sans-serif">Impact</option><option value="Helvetica, Arial, sans-serif">Helvetica</option><option value="Georgia, serif">Georgia</option><option value="'Times New Roman', serif">Times New Roman</option></select></div>
+  <div class="field"><label>Tamanho (mm)</label><input id="fontSize" type="number" min="1" step="0.5"></div>
+  <div class="field"><label>Cor</label><input id="fontColor" type="color" value="#202329"></div>
+  <div class="field"><label>Estilo</label><div class="row"><button id="boldBtn" class="toggle" type="button">B</button><button id="italicBtn" class="toggle" type="button"><i>I</i></button></div></div>
+  <div class="field"><label>Sombra</label><select id="shadowSelect"><option value="none">Sem sombra</option><option value="soft">Suave</option><option value="medium">Media</option><option value="strong">Forte</option></select></div>
+  <div class="field"><label>Espacamento</label><input id="letterSpacing" type="number" min="-5" max="10" step="0.2"></div>
+  <div class="field"><label>Alinhamento</label><select id="textAlign"><option value="left">Esquerda</option><option value="center">Centro</option><option value="right">Direita</option></select></div>
+ </div>
+ <div class="layer-tools">
+  <button id="moveModeBtn" type="button" aria-pressed="false">Mover camadas</button>
+  <button id="lockLayerBtn" type="button" aria-pressed="false">Travar camada</button>
+  <button id="unlockAllBtn" type="button">Destravar todas</button>
+ </div>
+ <div class="actions"><button id="smaller">- Tamanho</button><button id="bigger">+ Tamanho</button><button id="restore">Restaurar modelo</button><button class="primary" id="printBtn">Imprimir / PDF A6</button></div>
+ </div>
+</div>
+<div class="hint">Toque em qualquer texto do cartaz para seleciona-lo. Depois altere fonte, tamanho, cor, negrito, italico, sombra, espacamento e alinhamento.</div>
+<div class="workspace"><div class="shell"><div class="poster" id="poster">
+ <div id="cerveja" class="editable" contenteditable="true">CERVEJA</div>
+ <div id="itaipava" class="editable" contenteditable="true">ANTARCTICA</div>
+ <div id="line1" class="line"></div>
+ <div id="latapilsen" class="editable" contenteditable="true">ORIGINAL / LATA</div>
+ <div id="precoInteiro" class="editable" contenteditable="true">3</div>
+ <div id="precoCentavos" class="editable" contenteditable="true">39</div>
+ <div class="volume-rule" aria-hidden="true"></div>
+ <div class="price-comma" aria-hidden="true"></div>
+ <div id="volume" class="editable" contenteditable="true">269ML</div>
+ <div id="line2" class="line"></div>
+<div id="aviso" class="editable" contenteditable="true"><div><span class="title">VENCIMENTO</span> <span class="date">__/__</span></div><div class="note">ITEM PROXIMO AO VENCIMENTO</div><div class="note">NAO EFETUAMOS A TROCA</div></div>
+</div></div></div>
+<div id="contextMenu" class="context-menu" role="menu" aria-hidden="true">
+ <div class="context-menu-actions">
+  <button id="contextMove" class="context-icon-button" type="button" title="Mover camadas" aria-label="Mover camadas"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 2v20M2 12h20M5 9l-3 3 3 3M19 9l3 3-3 3M9 5l3-3 3 3M9 19l3 3 3-3"/></svg></button>
+  <button id="contextLock" class="context-icon-button" type="button" title="Travar camada" aria-label="Travar camada"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></button>
+  <button id="contextUnlockAll" class="context-icon-button" type="button" title="Destravar todas" aria-label="Destravar todas"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg></button>
+ </div>
+ <ul class="context-menu-list">
+  <li><button id="contextSelect" class="context-menu-button" type="button"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 4l7 17 2-7 7-2-16-8z"/></svg><span>Selecionar camada</span><span class="shortcut">Clique</span></button></li>
+  <li><button id="contextBigger" class="context-menu-button" type="button"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg><span>Aumentar camada</span><span class="shortcut">+1</span></button></li>
+  <li><button id="contextSmaller" class="context-menu-button" type="button"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M5 12h14"/></svg><span>Diminuir camada</span><span class="shortcut">-1</span></button></li>
+ </ul>
+ <ul class="context-menu-list">
+  <li><button id="contextPrint" class="context-menu-button" type="button"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg><span>Imprimir / PDF</span><span class="shortcut">A6</span></button></li>
+  <li><button id="contextRestore" class="context-menu-button danger" type="button"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg><span>Restaurar modelo</span></button></li>
+ </ul>
+</div>
+<script>
+const ids=["cerveja","itaipava","latapilsen","precoInteiro","precoCentavos","volume","aviso"];
+const initialState=new Map(ids.map((id)=>{const element=document.getElementById(id);return[id,{html:element.innerHTML,style:element.getAttribute("style")||""}]}));
+let selectedId="precoInteiro";
+const sel=document.getElementById("elementSelect"),ff=document.getElementById("fontFamily"),fs=document.getElementById("fontSize"),fc=document.getElementById("fontColor"),bold=document.getElementById("boldBtn"),italic=document.getElementById("italicBtn"),shadow=document.getElementById("shadowSelect"),spacing=document.getElementById("letterSpacing"),align=document.getElementById("textAlign");
+const controls=document.getElementById("editorControls"),toggleControls=document.getElementById("toggleControls"),openContextMenu=document.getElementById("openContextMenu"),poster=document.getElementById("poster"),moveModeBtn=document.getElementById("moveModeBtn"),lockLayerBtn=document.getElementById("lockLayerBtn"),unlockAllBtn=document.getElementById("unlockAllBtn");
+const quickBrand=document.getElementById("quickBrand"),quickDescription=document.getElementById("quickDescription"),quickUnit=document.getElementById("quickUnit"),quickDecimal=document.getElementById("quickDecimal"),quickVolume=document.getElementById("quickVolume"),quickExpiry=document.getElementById("quickExpiry");
+const contextMenu=document.getElementById("contextMenu"),contextMove=document.getElementById("contextMove"),contextLock=document.getElementById("contextLock"),contextUnlockAll=document.getElementById("contextUnlockAll"),contextSelect=document.getElementById("contextSelect"),contextBigger=document.getElementById("contextBigger"),contextSmaller=document.getElementById("contextSmaller"),contextPrint=document.getElementById("contextPrint"),contextRestore=document.getElementById("contextRestore");
+let moveMode=false;
+let contextLayerId="";
+const E=()=>document.getElementById(selectedId);
+function rgbToHex(rgb){const m=rgb.match(/\d+/g);if(!m)return"#202329";return"#"+m.slice(0,3).map((n)=>(+n).toString(16).padStart(2,"0")).join("")}
+function mm(px){return(parseFloat(px)||0)*25.4/96}
+function pxToMm(px){return px*25.4/96}
+function setMm(element,property,value){element.style[property]=Math.max(0,value)+"mm"}
+function sname(v){if(!v||v==="none")return"none";const n=v.match(/-?[\d.]+px/g)||[];const x=n.length?Math.abs(parseFloat(n[0])):3;return x<2?"soft":x<5?"medium":"strong"}
+function setShadow(k){const m={none:"none",soft:"0.5mm 0.5mm 0.7mm rgba(0,0,0,.18)",medium:"1.1mm 1.1mm 1.2mm rgba(0,0,0,.23)",strong:"1.5mm 1.5mm 1.6mm rgba(0,0,0,.34)"};E().style.textShadow=m[k]||m.none}
+function fitElement(element){if(element.id===selectedId)fs.value=mm(getComputedStyle(element).fontSize).toFixed(1)}
+function fitAll(){ids.forEach((id)=>fitElement(document.getElementById(id)))}
+function sync(){document.querySelectorAll(".editable").forEach((x)=>x.classList.remove("selected"));E().classList.add("selected");sel.value=selectedId;const cs=getComputedStyle(E());fs.value=mm(cs.fontSize).toFixed(1);fc.value=rgbToHex(cs.color);spacing.value=cs.letterSpacing==="normal"?0:mm(cs.letterSpacing).toFixed(1);align.value=cs.textAlign||"left";bold.classList.toggle("active",parseInt(cs.fontWeight,10)>=700);italic.classList.toggle("active",cs.fontStyle==="italic");shadow.value=sname(cs.textShadow);lockLayerBtn.classList.toggle("active",E().classList.contains("locked"));lockLayerBtn.textContent=E().classList.contains("locked")?"Destravar camada":"Travar camada";lockLayerBtn.setAttribute("aria-pressed",String(E().classList.contains("locked")));const fam=cs.fontFamily.toLowerCase();if(fam.includes("brush"))ff.value="'Brush Hand New','Brush Script MT',cursive";else if(fam.includes("zulia"))ff.value="'Zulia','Arial Black',Impact,sans-serif";else if(fam.includes("arial black"))ff.value="'Arial Black', Arial, sans-serif";else if(fam.includes("impact"))ff.value="Impact, sans-serif";else ff.value="Arial, Helvetica, sans-serif"}
+function setMoveMode(active){moveMode=active;poster.classList.toggle("move-mode",active);moveModeBtn.classList.toggle("active",active);moveModeBtn.setAttribute("aria-pressed",String(active));moveModeBtn.textContent=active?"Editando posição":"Mover camadas";ids.forEach((id)=>{const element=document.getElementById(id);element.contentEditable=active||element.classList.contains("locked")?"false":"true"})}
+function selectLayer(id){selectedId=id;sync()}
+function hideContextMenu(){contextMenu.classList.remove("show");contextMenu.setAttribute("aria-hidden","true")}
+function showContextMenu(event,layer){
+ event.preventDefault();
+ if(layer)selectLayer(layer.id);
+ contextLayerId=layer?.id||selectedId;
+ contextMenu.classList.add("show");
+ contextMenu.setAttribute("aria-hidden","false");
+ contextMove.classList.toggle("active",moveMode);
+ contextLock.classList.toggle("active",E().classList.contains("locked"));
+ const margin=8,rect=contextMenu.getBoundingClientRect();
+ let left=event.clientX,top=event.clientY;
+ if(left+rect.width>window.innerWidth-margin)left=window.innerWidth-rect.width-margin;
+ if(top+rect.height>window.innerHeight-margin)top=window.innerHeight-rect.height-margin;
+ contextMenu.style.left=Math.max(margin,left)+"px";
+ contextMenu.style.top=Math.max(margin,top)+"px";
+}
+function clickById(id){document.getElementById(id).click();hideContextMenu()}
+function normalizeDecimal(value){const digits=String(value||"").replace(/\D/g,"").slice(0,2);return digits.length===1?"0"+digits:digits}
+function normalizeExpiry(value){const digits=String(value||"").replace(/\D/g,"").slice(0,4);if(digits.length<=2)return digits;return digits.slice(0,2)+"/"+digits.slice(2)}
+function applyPriceLayout(){
+ const unit=document.getElementById("precoInteiro"),decimal=document.getElementById("precoCentavos");
+ const unitLength=unit.textContent.trim().length;
+ const layouts={
+  one:{unit:{left:"-2mm",width:"58mm",fontSize:"53.5mm",letterSpacing:"-1.6mm"},decimal:{left:"50mm",width:"41mm",fontSize:"51mm",letterSpacing:"-1.8mm"}},
+  two:{unit:{left:"-3mm",width:"63mm",fontSize:"44mm",letterSpacing:"-2.4mm"},decimal:{left:"56mm",width:"36mm",fontSize:"43mm",letterSpacing:"-1.6mm"}},
+  many:{unit:{left:"-4mm",width:"68mm",fontSize:"36mm",letterSpacing:"-2.2mm"},decimal:{left:"61mm",width:"31mm",fontSize:"36mm",letterSpacing:"-1.2mm"}}
+ };
+ const selected=unitLength<=1?layouts.one:unitLength===2?layouts.two:layouts.many;
+ Object.assign(unit.style,selected.unit);
+ Object.assign(decimal.style,selected.decimal);
+}
+function updateQuickPoster(){
+ document.getElementById("itaipava").textContent=quickBrand.value.toUpperCase();
+ document.getElementById("latapilsen").textContent=quickDescription.value.toUpperCase();
+ document.getElementById("precoInteiro").textContent=quickUnit.value.replace(/[^\d]/g,"")||"0";
+ document.getElementById("precoCentavos").textContent=normalizeDecimal(quickDecimal.value)||"00";
+ document.getElementById("volume").textContent=quickVolume.value.toUpperCase();
+ quickExpiry.value=normalizeExpiry(quickExpiry.value);
+ document.getElementById("aviso").innerHTML=`<div><span class="title">VENCIMENTO</span> <span class="date">${quickExpiry.value||"__/__"}</span></div><div class="note">ITEM PROXIMO AO VENCIMENTO</div><div class="note">NAO EFETUAMOS A TROCA</div>`;
+ applyPriceLayout();
+ fitAll();
+ sync();
+}
+function addResizeHandle(element){const handle=document.createElement("span");handle.className="resize-handle";handle.setAttribute("aria-hidden","true");element.appendChild(handle);handle.addEventListener("pointerdown",(event)=>startResize(event,element))}
+ids.forEach((id)=>{const element=document.getElementById(id);addResizeHandle(element);element.addEventListener("click",()=>selectLayer(id));element.addEventListener("focus",()=>selectLayer(id));element.addEventListener("input",()=>fitElement(element));element.addEventListener("pointerdown",(event)=>startMove(event,element))});
+quickBrand.oninput=updateQuickPoster;quickDescription.oninput=updateQuickPoster;quickUnit.oninput=updateQuickPoster;quickVolume.oninput=updateQuickPoster;quickExpiry.oninput=updateQuickPoster;quickDecimal.oninput=()=>{quickDecimal.value=normalizeDecimal(quickDecimal.value);updateQuickPoster()};
+sel.onchange=(e)=>{selectedId=e.target.value;sync()};ff.onchange=()=>{E().style.fontFamily=ff.value;fitElement(E())};fs.oninput=()=>{E().style.fontSize=fs.value+"mm";fitElement(E())};fc.oninput=()=>E().style.color=fc.value;spacing.oninput=()=>{E().style.letterSpacing=spacing.value+"mm";fitElement(E())};align.onchange=()=>E().style.textAlign=align.value;shadow.onchange=()=>{setShadow(shadow.value);sync()};
+bold.onclick=()=>{const a=bold.classList.toggle("active");E().style.fontWeight=a?"900":"400"};italic.onclick=()=>{const a=italic.classList.toggle("active");E().style.fontStyle=a?"italic":"normal"};
+function startMove(event,element){
+ if(!moveMode||element.classList.contains("locked")||event.target.classList.contains("resize-handle"))return;
+ event.preventDefault();
+ selectLayer(element.id);
+ const startX=event.clientX,startY=event.clientY,posterRect=poster.getBoundingClientRect(),rect=element.getBoundingClientRect();
+ const scale=posterRect.width/poster.offsetWidth;
+ const startLeft=(rect.left-posterRect.left)/scale,startTop=(rect.top-posterRect.top)/scale;
+ function onMove(moveEvent){
+  const dx=(moveEvent.clientX-startX)/scale,dy=(moveEvent.clientY-startY)/scale;
+  element.style.left=pxToMm(startLeft+dx)+"mm";
+  element.style.top=pxToMm(startTop+dy)+"mm";
+ }
+ function onUp(){window.removeEventListener("pointermove",onMove);window.removeEventListener("pointerup",onUp)}
+ window.addEventListener("pointermove",onMove);
+ window.addEventListener("pointerup",onUp);
+}
+function startResize(event,element){
+ if(!moveMode||element.classList.contains("locked"))return;
+ event.preventDefault();
+ event.stopPropagation();
+ selectLayer(element.id);
+ const startX=event.clientX,startY=event.clientY,startWidth=element.offsetWidth,startFont=parseFloat(getComputedStyle(element).fontSize),posterRect=poster.getBoundingClientRect();
+ const scale=posterRect.width/poster.offsetWidth;
+ function onMove(moveEvent){
+  const dx=(moveEvent.clientX-startX)/scale,dy=(moveEvent.clientY-startY)/scale;
+  const nextWidth=Math.max(1,startWidth+dx);
+  const nextFont=Math.max(1,startFont+(dx+dy)*0.12);
+  setMm(element,"width",pxToMm(nextWidth));
+  element.style.fontSize=pxToMm(nextFont)+"mm";
+  fs.value=pxToMm(nextFont).toFixed(1);
+ }
+ function onUp(){window.removeEventListener("pointermove",onMove);window.removeEventListener("pointerup",onUp)}
+ window.addEventListener("pointermove",onMove);
+ window.addEventListener("pointerup",onUp);
+}
+moveModeBtn.onclick=()=>setMoveMode(!moveMode);
+lockLayerBtn.onclick=()=>{E().classList.toggle("locked");setMoveMode(moveMode);sync()};
+unlockAllBtn.onclick=()=>{ids.forEach((id)=>document.getElementById(id).classList.remove("locked"));setMoveMode(moveMode);sync()};
+poster.addEventListener("contextmenu",(event)=>showContextMenu(event,event.target.closest(".editable")));
+document.addEventListener("pointerdown",(event)=>{if(!contextMenu.contains(event.target))hideContextMenu()});
+document.addEventListener("keydown",(event)=>{if(event.key==="Escape")hideContextMenu()});
+contextMove.onclick=()=>{setMoveMode(!moveMode);hideContextMenu()};
+contextLock.onclick=()=>{E().classList.toggle("locked");setMoveMode(moveMode);sync();hideContextMenu()};
+contextUnlockAll.onclick=()=>{ids.forEach((id)=>document.getElementById(id).classList.remove("locked"));setMoveMode(moveMode);sync();hideContextMenu()};
+contextSelect.onclick=()=>{selectLayer(contextLayerId||selectedId);hideContextMenu()};
+contextBigger.onclick=()=>clickById("bigger");
+contextSmaller.onclick=()=>clickById("smaller");
+contextPrint.onclick=()=>clickById("printBtn");
+contextRestore.onclick=()=>clickById("restore");
+openContextMenu.onclick=(event)=>{
+ const rect=openContextMenu.getBoundingClientRect();
+ showContextMenu({preventDefault(){},clientX:rect.left,clientY:rect.bottom+6},document.getElementById(selectedId));
+ event.stopPropagation();
+};
+document.getElementById("smaller").onclick=()=>{fs.value=Math.max(1,(parseFloat(fs.value)||1)-1);E().style.fontSize=fs.value+"mm";fitElement(E())};
+document.getElementById("bigger").onclick=()=>{fs.value=(parseFloat(fs.value)||1)+1;E().style.fontSize=fs.value+"mm";fitElement(E())};
+document.getElementById("printBtn").onclick=()=>window.print();
+document.getElementById("restore").onclick=()=>{initialState.forEach((state,id)=>{const element=document.getElementById(id);const handle=element.querySelector(".resize-handle");element.innerHTML=state.html;if(handle)element.appendChild(handle);element.classList.remove("locked");if(state.style)element.setAttribute("style",state.style);else element.removeAttribute("style")});quickBrand.value="ANTARCTICA";quickDescription.value="ORIGINAL / LATA";quickUnit.value="3";quickDecimal.value="39";quickVolume.value="269ML";quickExpiry.value="__/__";selectedId="precoInteiro";setMoveMode(false);applyPriceLayout();fitAll();sync()};
+toggleControls.onclick=()=>{const expanded=controls.hidden;controls.hidden=!expanded;toggleControls.textContent=expanded?"Ver menos":"Ver mais";toggleControls.setAttribute("aria-expanded",String(expanded))};
+applyPriceLayout();
+fitAll();
+sync();
+</script>
+</body>
+</html>

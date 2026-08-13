@@ -29,6 +29,7 @@ body{margin:0;font-family:Inter,Arial,sans-serif;background:var(--bg);color:var(
 header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
 h1{margin:0;font-size:26px}.sub{color:var(--muted);font-size:13px;margin-top:4px}
 nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+nav a.tab{text-decoration:none;display:inline-block}
 button{font:inherit}
 .tab,.btn{border:0;border-radius:11px;padding:11px 15px;font-weight:750;cursor:pointer}
 .tab{background:#e9edf4;color:#48546a}.tab.active{background:var(--blue);color:#fff}
@@ -62,12 +63,6 @@ input:focus,select:focus{border-color:#9dbbf9;box-shadow:0 0 0 3px #e8f0ff}
 .form h2{margin:0 0 4px}.label{display:block;margin:14px 0 6px;font-size:13px;font-weight:800}
 .scan{display:grid;grid-template-columns:1fr auto auto;gap:8px}.btn{background:var(--blue);color:#fff}.btn2{border:0;border-radius:11px;background:#e9edf4;color:#39465c;padding:11px 14px;font-weight:750;cursor:pointer}.btn2.active{background:var(--blue);color:#fff}
 .found{display:none;margin-top:10px;padding:13px;border-radius:11px;background:var(--blue2);border:1px solid #d8e6ff}.found.show{display:block}
-.manual-product-form{display:none;gap:9px;margin-top:12px;padding-top:12px;border-top:1px solid #d8e6ff}.manual-product-form.show{display:grid}
-.manual-product-form .actions{margin-top:2px}
-.manual-product-message{min-height:18px;color:var(--muted);font-size:13px;font-weight:700}
-.ocr-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.ocr-actions input{flex:1 1 220px}
-.ocr-suggestions{display:none;gap:7px;flex-wrap:wrap}.ocr-suggestions.show{display:flex}
-.ocr-suggestion{border:1px solid #bfdbfe;border-radius:999px;background:#fff;color:#1d4ed8;padding:8px 10px;font-size:12px;font-weight:800;cursor:pointer}
 .catalog-status{margin-top:7px;color:var(--muted);font-size:12px}.catalog-status[hidden]{display:none}.catalog-status.ready{color:var(--green)}.catalog-status.error{color:var(--red)}
 .preview{height:145px;margin-top:8px;border:1px dashed #cbd3df;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--muted);overflow:hidden}.preview img{width:100%;height:100%;object-fit:cover}
 .check{display:flex;gap:9px;align-items:center;margin-top:16px;font-size:14px;font-weight:700}.check input{width:auto}
@@ -164,6 +159,7 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
  <button class="tab active" data-page="products">Produtos</button>
  <button class="tab" data-page="register">+ Registrar produto</button>
  <button class="tab" data-page="report">Relatórios</button>
+ <a id="posterTab" class="tab" href="poster.html" hidden>Cartaz</a>
  <button class="tab" data-page="settings">Configurações</button>
 </nav>
 
@@ -222,23 +218,6 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
   <input id="barcodePhoto" type="file" accept="image/*" capture="environment" class="hidden">
   <div id="catalogStatus" class="catalog-status" hidden>Carregando produtos do Supabase...</div>
   <div id="found" class="found"></div>
-  <form id="manualProductForm" class="manual-product-form">
-   <label class="label" for="manualProductName">Descrição do produto</label>
-   <input id="manualProductName" maxlength="180" placeholder="Digite o nome que aparece na embalagem">
-   <label class="label" for="manualProductBrand">Marca</label>
-   <input id="manualProductBrand" maxlength="120" placeholder="Opcional">
-   <label class="label" for="manualProductOcrPhoto">Foto da embalagem para sugestão</label>
-   <div class="ocr-actions">
-   <input id="manualProductOcrPhoto" type="file" accept="image/*" capture="environment">
-   <button id="suggestManualProductName" class="btn2" type="button">Sugerir pela foto</button>
-   </div>
-   <div id="manualProductSuggestions" class="ocr-suggestions"></div>
-   <div class="actions">
-    <button id="confirmManualProduct" class="btn" type="submit">Confirmar produto</button>
-    <button id="cancelManualProduct" class="btn2" type="button">Cancelar</button>
-   </div>
-   <div id="manualProductMessage" class="manual-product-message"></div>
-  </form>
 
   <label class="label">Local / loja</label>
   <select id="store" required><option value="">Carregando locais permitidos...</option></select>
@@ -312,14 +291,14 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
    <p class="settings-note">Os produtos disponíveis na busca são carregados do Supabase. Use importação apenas para alimentar a base compartilhada.</p>
    <div class="import-box">
     <strong>Importar base própria para o Supabase</strong>
-    <div class="sub">Arquivo DBF com campos CODBAR, CODPROD e DESCRICAO. O arquivo não fica salvo no navegador.</div>
-    <input id="dbfFile" type="file" accept=".dbf,application/vnd.dbf">
+    <div class="sub">Arquivo DBF com CODBAR, CODPROD e DESCRICAO, ou relatório XLS por FORNECEDOR. O arquivo não fica salvo no navegador.</div>
+    <input id="dbfFile" type="file" accept=".dbf,.xls,.txt,application/vnd.dbf" multiple>
    </div>
    <div id="catalogInfo" class="catalog-info" aria-live="polite">
     <b>Carregando informações do catálogo...</b>
    </div>
    <div class="settings-actions">
-    <button id="importDbf" class="btn" type="button">Enviar para Supabase</button>
+    <button id="importDbf" class="btn" type="button">Enviar catálogo</button>
    </div>
   </div>
   </section>
@@ -491,7 +470,6 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
 </div>
 <div id="confettiLayer" class="confetti-layer" aria-hidden="true"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js" integrity="sha512-r6rDA7W6ZeQhvl8S7yRVQUKVHdexq+GAlNkNNqVC7YyIV+NwqCTJe2hDWCiffTyRNOeGEzRRJ9ifvRm/HCzGYg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
@@ -523,15 +501,6 @@ const els = {
  find: document.getElementById('find'),
  scanCamera: document.getElementById('scanCamera'),
  found: document.getElementById('found'),
- manualProductForm: document.getElementById('manualProductForm'),
- manualProductName: document.getElementById('manualProductName'),
- manualProductBrand: document.getElementById('manualProductBrand'),
- manualProductOcrPhoto: document.getElementById('manualProductOcrPhoto'),
- suggestManualProductName: document.getElementById('suggestManualProductName'),
- manualProductSuggestions: document.getElementById('manualProductSuggestions'),
- confirmManualProduct: document.getElementById('confirmManualProduct'),
- cancelManualProduct: document.getElementById('cancelManualProduct'),
- manualProductMessage: document.getElementById('manualProductMessage'),
  store: document.getElementById('store'),
  qty: document.getElementById('qty'),
  expiry: document.getElementById('expiry'),
@@ -579,6 +548,7 @@ const els = {
  settingsPanels: document.querySelectorAll('.settings-panel'),
  settingsUsersTab: document.getElementById('settingsUsersTab'),
  settingsRegistriesTab: document.getElementById('settingsRegistriesTab'),
+ posterTab: document.getElementById('posterTab'),
  layoutButtons: document.querySelectorAll('#layoutPicker .layout-button'),
  productLayoutButtons: document.querySelectorAll('.product-layout-button'),
  themeButtons: document.querySelectorAll('.theme-button'),
@@ -726,10 +696,6 @@ let scannerConfirmCount = 0;
 let scannerConfirmAt = 0;
 let scannerCanvas = null;
 let scannerCanvasContext = null;
-let manualProductBarcode = "";
-let manualProductAutoOcr = false;
-let ocrWorker = null;
-let ocrWorkerReady = false;
 let products = [];
 
 async function carregarProdutosOnline() {
@@ -921,10 +887,12 @@ window.addEventListener("skalee:authenticated", (event) => {
  void iniciarCatalogo();
  const isAdmin = isSkaleeAdmin;
  const isPlatformAdmin = event.detail?.accessRole === "platform_admin";
+ const canUsePoster = isAdmin || isPlatformAdmin;
  const registerTab = document.querySelector('[data-page="register"]');
  const settingsTab = document.querySelector('[data-page="settings"]');
  registerTab.hidden = isViewer;
  settingsTab.hidden = isViewer;
+ els.posterTab.hidden = !canUsePoster;
  els.settingsUsersTab.hidden = !isAdmin;
  els.settingsRegistriesTab.hidden = !isPlatformAdmin;
  if (document.querySelector(".settings-tab.active")?.hidden) showSettingsPanel("general");
@@ -938,16 +906,12 @@ window.addEventListener("skalee:signed-out", () => {
  appAuthenticated = false;
  isViewer = false;
  isSkaleeAdmin = false;
- if (ocrWorker) {
-  ocrWorker.terminate().catch(() => {});
-  ocrWorker = null;
-  ocrWorkerReady = false;
- }
  els.installBanner.hidden = true;
  els.catalogStatus.hidden = true;
  products = [];
  els.settingsUsersTab.hidden = true;
  els.settingsRegistriesTab.hidden = true;
+ els.posterTab.hidden = true;
  showSettingsPanel("general");
  els.adminUsersSection.hidden = true;
  els.catalogSettingsSection.hidden = true;
@@ -988,9 +952,9 @@ function getZxingFormats(zxingApi) {
 
 els.today.textContent = new Date().toLocaleDateString("pt-BR");
 
-document.querySelectorAll(".tab").forEach((button) => {
+document.querySelectorAll(".tab[data-page]").forEach((button) => {
  button.addEventListener("click", () => {
-  document.querySelectorAll(".tab").forEach((item) => item.classList.remove("active"));
+  document.querySelectorAll(".tab[data-page]").forEach((item) => item.classList.remove("active"));
   document.querySelectorAll(".page").forEach((item) => item.classList.remove("active"));
   button.classList.add("active");
   document.getElementById(button.dataset.page).classList.add("active");
@@ -1287,228 +1251,10 @@ function escapeHtml(value) {
 }
 
 function renderProdutoNaoEncontrado(codigoBarras) {
+ const canOpenManualCatalog = !els.settingsRegistriesTab.hidden && typeof window.skaleeOpenCatalogProductForm === "function";
  const safeCode = escapeHtml(codigoBarras);
- const query = encodeURIComponent(`${codigoBarras} produto embalagem`);
- const action = `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button id="manualCatalogProduct" class="btn2" type="button" data-barcode="${safeCode}">Cadastrar manualmente</button><button id="manualOcrProduct" class="btn2" type="button" data-barcode="${safeCode}">Sugerir por foto</button><a class="btn2" href="https://www.google.com/search?q=${query}" target="_blank" rel="noopener noreferrer">Pesquisar descrição</a><a class="btn2" href="https://www.google.com/search?tbm=isch&q=${query}" target="_blank" rel="noopener noreferrer">Pesquisar imagem</a></div>`;
+ const action = canOpenManualCatalog ? `<div style="margin-top:10px"><button id="manualCatalogProduct" class="btn2" type="button" data-barcode="${safeCode}">Cadastrar manualmente</button></div>` : `<br><span style="color:#5a6478">Cadastro manual disponível para administrador.</span>`;
  els.found.innerHTML = `<b>Produto não encontrado em nenhuma fonte ativa.</b><br>Código: ${safeCode}${action}`;
-}
-
-function abrirCadastroManualProduto(codigoBarras) {
- manualProductBarcode = String(codigoBarras || "").trim();
- els.manualProductForm.classList.add("show");
- els.manualProductName.value = "";
- els.manualProductBrand.value = "";
- renderOcrSuggestions([]);
- els.manualProductMessage.textContent = "";
- els.manualProductName.focus();
-}
-
-function fecharCadastroManualProduto() {
- manualProductBarcode = "";
- manualProductAutoOcr = false;
- els.manualProductForm.classList.remove("show");
- els.manualProductName.value = "";
- els.manualProductBrand.value = "";
- els.manualProductOcrPhoto.value = "";
- renderOcrSuggestions([]);
- els.manualProductMessage.textContent = "";
-}
-
-function prepararImagemParaOcr(file) {
- return new Promise((resolve, reject) => {
-  const reader = new FileReader();
-  reader.onerror = () => reject(new Error("Não foi possível abrir a foto da embalagem."));
-  reader.onload = () => {
-   const image = new Image();
-   image.onerror = () => reject(new Error("A foto da embalagem não é uma imagem válida."));
-   image.onload = () => {
-    const limite = 1500;
-    const escala = Math.min(1, limite / Math.max(image.width, image.height));
-    const canvas = document.createElement("canvas");
-    canvas.width = Math.max(1, Math.round(image.width * escala));
-    canvas.height = Math.max(1, Math.round(image.height * escala));
-    const context = canvas.getContext("2d", { willReadFrequently: true });
-    context.drawImage(image, 0, 0, canvas.width, canvas.height);
-    const pixels = context.getImageData(0, 0, canvas.width, canvas.height);
-    for (let index = 0; index < pixels.data.length; index += 4) {
-     const gray = pixels.data[index] * 0.299 + pixels.data[index + 1] * 0.587 + pixels.data[index + 2] * 0.114;
-     const contrast = gray > 148 ? 255 : Math.max(0, gray - 35);
-     pixels.data[index] = contrast;
-     pixels.data[index + 1] = contrast;
-     pixels.data[index + 2] = contrast;
-    }
-    context.putImageData(pixels, 0, 0);
-    resolve(canvas);
-   };
-   image.src = reader.result;
-  };
-  reader.readAsDataURL(file);
- });
-}
-
-async function getOcrWorker() {
- if (!window.Tesseract || !window.Tesseract.createWorker) throw new Error("OCR não carregou no navegador.");
- if (ocrWorker && ocrWorkerReady) return ocrWorker;
- ocrWorker = await Tesseract.createWorker("por", 1, {
-  logger: (event) => {
-   if (event.status === "recognizing text" && typeof event.progress === "number") {
-    els.manualProductMessage.textContent = `Lendo embalagem... ${Math.round(event.progress * 100)}%`;
-   }
-  }
- });
- if (Tesseract.PSM && ocrWorker.setParameters) {
-  await ocrWorker.setParameters({ tessedit_pageseg_mode: Tesseract.PSM.SPARSE_TEXT });
- }
- ocrWorkerReady = true;
- return ocrWorker;
-}
-
-function linhaPareceDescricaoProduto(line) {
- const text = String(line || "").replace(/\s+/g, " ").trim();
- if (text.length < 4 || text.length > 70) return false;
- if (!/[a-zA-ZÀ-ÿ]/.test(text)) return false;
- if (/^\d+$/.test(text.replace(/\s/g, ""))) return false;
- if (/(ingred|nutric|valid|lote|fabric|conserv|sac|cnpj|www|\.com|@|telefone|consumidor|porcao|porção|alergic|cont[eé]m|gl[uú]ten|valor energ[eé]tico)/i.test(text)) return false;
- const digits = (text.match(/\d/g) || []).length;
- if (digits > Math.max(2, text.length * 0.25)) return false;
- return true;
-}
-
-function normalizarSugestaoOcr(value) {
- return String(value || "")
-  .replace(/\b(produto|embalagem|rotulo|r[oó]tulo)\b/ig, " ")
-  .replace(/\s+/g, " ")
-  .trim();
-}
-
-function sugerirDescricoesPorTextoOcr(text) {
- const lines = String(text || "")
-  .split(/\r?\n/)
-  .map((line) => line.replace(/[|_*~()[\]{}]/g, " ").replace(/\s+/g, " ").trim())
-  .map(normalizarSugestaoOcr)
-  .filter(linhaPareceDescricaoProduto);
- if (!lines.length) return [];
- const candidates = [];
- lines.forEach((line, index) => {
-  candidates.push({ line, index });
-  const next = lines[index + 1] || "";
-  if (next && `${line} ${next}`.length <= 80) candidates.push({ line: `${line} ${next}`, index });
- });
- const seen = new Set();
- const scored = candidates.map(({ line, index }) => {
-  const clean = normalizarSugestaoOcr(line);
-  const words = line.split(" ").filter(Boolean);
-  const letters = (line.match(/[a-zA-ZÀ-ÿ]/g) || []).length;
-  const upper = (line.match(/[A-ZÀ-Ý]/g) || []).length;
-  let score = Math.min(letters, 45) + Math.min(words.length * 5, 25) - index * 2;
-  if (words.length < 2) score -= 20;
-  if (words.length >= 3) score += 8;
-  if (upper / Math.max(letters, 1) > 0.55) score += 8;
-  if (/(sabor|integral|tradicional|zero|light|natural|cremos|biscoito|bebida|leite|arroz|feij[aã]o|caf[eé]|molho|farinha|iogurte|achocolatado|chocolate|baunilha|morango|banana|milho|aveia|queijo|presunto|frango|carne|tomate)/i.test(clean)) score += 10;
-  if (/(kg|g|ml|litro|unidade|tabela|informacao|informa[cç][aã]o)/i.test(clean)) score -= 12;
-  return { line: clean, score };
- }).filter((item) => {
-  const key = item.line.toLowerCase();
-  if (seen.has(key) || !linhaPareceDescricaoProduto(item.line)) return false;
-  seen.add(key);
-  return true;
- }).sort((a, b) => b.score - a.score);
- return scored.slice(0, 5).map((item) => item.line);
-}
-
-function renderOcrSuggestions(suggestions) {
- els.manualProductSuggestions.replaceChildren();
- els.manualProductSuggestions.classList.toggle("show", suggestions.length > 0);
- suggestions.forEach((suggestion) => {
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = "ocr-suggestion";
-  button.textContent = suggestion;
-  button.addEventListener("click", () => {
-   els.manualProductName.value = suggestion.slice(0, 180);
-   els.manualProductName.focus();
-  });
-  els.manualProductSuggestions.append(button);
- });
-}
-
-async function sugerirProdutoManualPorFoto() {
- const file = els.manualProductOcrPhoto.files && els.manualProductOcrPhoto.files[0];
- if (!file) {
-  els.manualProductMessage.textContent = "Escolha uma foto nítida da frente da embalagem.";
-  return;
- }
- els.suggestManualProductName.disabled = true;
- els.confirmManualProduct.disabled = true;
- els.manualProductMessage.textContent = "Preparando foto para leitura...";
- try {
-  const image = await prepararImagemParaOcr(file);
-  const worker = await getOcrWorker();
-  const result = await worker.recognize(image);
-  const suggestions = sugerirDescricoesPorTextoOcr(result?.data?.text || "");
-  if (!suggestions.length) {
-   renderOcrSuggestions([]);
-   els.manualProductMessage.textContent = "Não consegui sugerir uma descrição. Tente uma foto mais próxima da frente da embalagem.";
-   return;
-  }
-  renderOcrSuggestions(suggestions);
-  els.manualProductName.value = suggestions[0].slice(0, 180);
-  els.manualProductMessage.textContent = "OCR encontrou algumas opções. Toque na melhor ou edite antes de confirmar.";
-  els.manualProductName.focus();
- } catch (error) {
-  console.error("Falha ao sugerir descrição por OCR:", error);
-  els.manualProductMessage.textContent = error.message || "Não foi possível ler a embalagem.";
- } finally {
-  els.suggestManualProductName.disabled = false;
-  els.confirmManualProduct.disabled = false;
- }
-}
-
-async function salvarCadastroManualProduto() {
- const name = els.manualProductName.value.trim();
- const brand = els.manualProductBrand.value.trim();
- const barcode = manualProductBarcode || els.barcode.value.trim();
- if (!barcode) {
-  els.manualProductMessage.textContent = "Informe ou leia um código de barras antes de cadastrar.";
-  return;
- }
- if (!name) {
-  els.manualProductMessage.textContent = "Digite a descrição do produto.";
-  els.manualProductName.focus();
-  return;
- }
- els.confirmManualProduct.disabled = true;
- els.manualProductMessage.textContent = "Salvando produto no catálogo...";
- try {
-  const product = await salvarProdutoExternoNoSupabase({
-   barcode,
-   code: "",
-   name,
-   brandName: brand,
-   catalogSource: "manual",
-   sourcePayload: { name, brand, created_from: "register_not_found" }
-  });
-  selected = {
-   barcode,
-   code: product.code || "",
-   name: product.name || name,
-   catalogProductId: product.catalogProductId || null,
-   brandId: product.brandId || null,
-   brandName: product.brandName || brand,
-   catalogSource: "manual"
-  };
-  registrarProdutoNoMapa(selected);
-  els.barcode.value = barcode;
-  const brandText = selected.brandName ? `<br><span style="color:#16a34a">Marca: ${escapeHtml(selected.brandName)}</span>` : "";
-  els.found.innerHTML = `<b>${escapeHtml(selected.name)}</b><br><span style="color:#39465c">Código de barras: ${escapeHtml(selected.barcode)}</span>${brandText}<br><span style="color:#16a34a">Produto cadastrado manualmente.</span>`;
-  fecharCadastroManualProduto();
-  els.qty.focus();
- } catch (error) {
-  console.error("Falha ao cadastrar produto manualmente:", error);
-  els.manualProductMessage.textContent = error.message || "Não foi possível cadastrar o produto.";
- } finally {
-  els.confirmManualProduct.disabled = false;
- }
 }
 
 function nomeOpenFoodFacts(product) {
@@ -1606,7 +1352,6 @@ async function salvarProdutoExternoNoSupabase(product) {
 }
 
 async function buscarProdutoPorCodigo(codigoBarras) {
- fecharCadastroManualProduto();
  if (!codigoBarras) {
   els.found.classList.add("show");
   els.found.innerHTML = "<b>Informe um código para buscar.</b>";
@@ -1838,6 +1583,56 @@ function carregarProdutosDbfParaSupabase(buffer) {
  return produtos;
 }
 
+function normalizarEspacos(value) {
+ return String(value || "").replace(/\s+/g, " ").trim();
+}
+
+function limparNomeFornecedor(value) {
+ return normalizarEspacos(value)
+  .replace(/\s+\([^)]+\)\s*$/g, "")
+  .replace(/\s+LTDA\.?$/i, "")
+  .replace(/\s+S\/A\.?$/i, "")
+  .trim();
+}
+
+function carregarProdutosRelatorioFornecedorParaSupabase(buffer) {
+ const texto = new TextDecoder("windows-1252").decode(buffer).replace(/\0/g, "");
+ const linhas = texto.split(/\r?\n/);
+ const produtos = [];
+ const vistos = new Set();
+ let fornecedorAtual = "";
+
+ linhas.forEach((linha) => {
+  const fornecedor = linha.match(/^\s*FORNECEDOR:\s*\d+\s+(.+?)\s*$/i);
+  if (fornecedor) {
+   fornecedorAtual = limparNomeFornecedor(fornecedor[1]);
+   return;
+  }
+  if (!fornecedorAtual || !/^\s*\d+\t/.test(linha)) return;
+  const colunas = linha.split("\t").map((coluna) => normalizarEspacos(coluna));
+  const internalCode = String(colunas[0] || "").replace(/\D/g, "");
+  const name = colunas[1] || "";
+  const barcodeColumn = [...colunas].reverse().find((coluna) => /^\d{6,18}$/.test(String(coluna || "").replace(/\D/g, ""))) || "";
+  const barcode = String(barcodeColumn || "").replace(/\D/g, "");
+  const sourceKey = barcode || internalCode;
+  if (!sourceKey || !name || vistos.has(sourceKey)) return;
+  vistos.add(sourceKey);
+  produtos.push({ barcode, internal_code: internalCode, name, source_key: sourceKey, brand_name: fornecedorAtual });
+ });
+
+ if (produtos.length === 0) {
+  throw new Error("Nenhum produto com FORNECEDOR foi encontrado. Use o XLS de estoque por filial agrupado por fornecedor.");
+ }
+ return produtos;
+}
+
+function carregarProdutosArquivoCatalogo(file, buffer) {
+ const nome = String(file?.name || "").toLowerCase();
+ if (nome.endsWith(".dbf")) return { produtos: carregarProdutosDbfParaSupabase(buffer), origem: "own_dbf" };
+ if (nome.endsWith(".xls") || nome.endsWith(".txt")) return { produtos: carregarProdutosRelatorioFornecedorParaSupabase(buffer), origem: "supplier_stock_report" };
+ throw new Error("Selecione um arquivo .dbf, .xls ou .txt.");
+}
+
 function montarCatalogoSupabase(rows) {
  const catalogo = new Map();
  const total = rows.length;
@@ -1891,18 +1686,32 @@ async function iniciarCatalogo() {
 }
 
 els.importDbf.addEventListener("click", async () => {
- const file = els.dbfFile.files && els.dbfFile.files[0];
- if (!file) return alert("Selecione um arquivo DBF para importar.");
- if (!file.name.toLowerCase().endsWith(".dbf")) return alert("Selecione um arquivo com extensão .dbf.");
+ const files = [...(els.dbfFile.files || [])];
+ if (!files.length) return alert("Selecione um arquivo de catálogo para importar.");
 
  els.importDbf.disabled = true;
  definirInfoCatalogo("Lendo arquivo...", "Validando campos e preparando envio para o Supabase.");
  try {
-  const produtos = carregarProdutosDbfParaSupabase(await file.arrayBuffer());
+  const produtos = [];
+  const origens = new Set();
+  const arquivosIgnorados = [];
+  for (const file of files) {
+   try {
+    const resultado = carregarProdutosArquivoCatalogo(file, await file.arrayBuffer());
+    produtos.push(...resultado.produtos);
+    origens.add(resultado.origem);
+   } catch (error) {
+    arquivosIgnorados.push(`${file.name}: ${error.message || "formato não reconhecido"}`);
+   }
+  }
+  if (!produtos.length) throw new Error(arquivosIgnorados[0] || "Nenhum produto foi encontrado nos arquivos selecionados.");
+  const marcas = new Set(produtos.map((produto) => produto.brand_name).filter(Boolean));
   definirInfoCatalogo("Enviando para o Supabase...", `${produtos.length.toLocaleString("pt-BR")} produto(s) preparados.`);
-  const imported = await window.skaleeDb.importCatalogProducts(produtos, { source: "own_dbf" });
+  const imported = await window.skaleeDb.importCatalogProducts(produtos, { source: [...origens].sort().join("+") || "own_import" });
   els.dbfFile.value = "";
-  definirInfoCatalogo("Importação concluída", `${imported.toLocaleString("pt-BR")} produto(s) enviados ao Supabase.`);
+  const detalheMarcas = marcas.size ? ` em ${marcas.size.toLocaleString("pt-BR")} marca(s).` : ".";
+  const detalheIgnorados = arquivosIgnorados.length ? ` ${arquivosIgnorados.length} arquivo(s) ignorado(s) por não ter produtos por fornecedor.` : "";
+  definirInfoCatalogo("Importação concluída", `${imported.toLocaleString("pt-BR")} produto(s) enviados ao Supabase${detalheMarcas}${detalheIgnorados}`);
   await iniciarCatalogo();
  } catch (error) {
   console.error("Falha ao importar catálogo para o Supabase:", error);
@@ -2450,27 +2259,18 @@ els.find.addEventListener("click", () => {
  void buscarProdutoPorCodigo(codigo);
 });
 els.found.addEventListener("click", (event) => {
- const button = event.target.closest("#manualCatalogProduct,#manualOcrProduct");
+ const button = event.target.closest("#manualCatalogProduct");
  if (!button) return;
  const codigo = button.dataset.barcode || els.barcode.value.trim();
- abrirCadastroManualProduto(codigo);
- if (button.id === "manualOcrProduct") {
-  manualProductAutoOcr = true;
-  els.manualProductMessage.textContent = "Escolha uma foto nítida da frente da embalagem.";
-  els.manualProductOcrPhoto.click();
+ const settingsTab = document.querySelector('[data-page="settings"]');
+ if (settingsTab?.hidden || els.settingsRegistriesTab.hidden || typeof window.skaleeOpenCatalogProductForm !== "function") {
+  els.found.innerHTML += `<br><span style="color:#b91c1c">Seu usuário não tem acesso ao cadastro manual de produtos.</span>`;
+  return;
  }
+ settingsTab.click();
+ showSettingsPanel("registries");
+ window.skaleeOpenCatalogProductForm({ barcode: codigo });
 });
-els.manualProductForm.addEventListener("submit", (event) => {
- event.preventDefault();
- void salvarCadastroManualProduto();
-});
-els.suggestManualProductName.addEventListener("click", () => { void sugerirProdutoManualPorFoto(); });
-els.manualProductOcrPhoto.addEventListener("change", () => {
- if (!manualProductAutoOcr) return;
- manualProductAutoOcr = false;
- void sugerirProdutoManualPorFoto();
-});
-els.cancelManualProduct.addEventListener("click", fecharCadastroManualProduto);
 els.scanCamera.addEventListener("click", () => { void startScanner(); });
 els.scannerClose.addEventListener("click", () => { void stopScanner(); });
 els.scannerZoomOut.addEventListener("click", () => {
@@ -2614,7 +2414,6 @@ els.save.addEventListener("click", async () => {
 function resetForm() {
  selected = null;
  photoData = "";
- fecharCadastroManualProduto();
  els.barcode.value = "";
  els.qty.value = "";
  els.expiry.value = "";
