@@ -16,9 +16,12 @@ const modeButton = document.querySelector("#authMode");
 const userLabel = document.querySelector("#authUser");
 const signOutButton = document.querySelector("#signOut");
 const authRing = document.querySelector(".auth-ring");
-const VALIDITY_PRODUCT_SELECT = "id,user_id,barcode,product_code,name,store,quantity,expiry_date,offer,photo,created_at,updated_at,completed_at,updated_by_email,catalog_product_id,brand_id,retail_location_id,brands(name),catalog_products(name),retail_locations(name)";
+const VALIDITY_PRODUCT_BASE_SELECT = "id,user_id,barcode,product_code,name,store,quantity,expiry_date,offer,supplier_code,supplier_name,created_at,updated_at,completed_at,updated_by_email,catalog_product_id,brand_id,retail_location_id,brands(name),catalog_products(name,supplier_code,supplier_name),retail_locations(name)";
+const VALIDITY_PRODUCT_SELECT = `${VALIDITY_PRODUCT_BASE_SELECT},photo`;
 let mode = "sign-in";
 let activeUserId;
+let activeUserEmail = "";
+let activeAccessRole = "editor";
 let manualAuthInProgress = false;
 
 async function getCurrentUser() {
@@ -42,6 +45,8 @@ async function selectAllPages(table, columns, options = {}) {
 }
 
 function fromDatabase(row) {
+ const primarySupplierCode = row.supplier_code || row.catalog_products?.supplier_code || "";
+ const primarySupplierName = row.supplier_name || row.catalog_products?.supplier_name || "";
  return {
   id: row.id,
   barcode: row.barcode,
@@ -51,7 +56,11 @@ function fromDatabase(row) {
   qty: row.quantity,
   expiry: row.expiry_date,
   offer: row.offer,
+  supplierCode: primarySupplierCode,
+  supplierName: primarySupplierName,
+  supplierAliases: primarySupplierCode ? [{ code: primarySupplierCode, name: primarySupplierName }] : [],
   photo: row.photo || "",
+  photoLoaded: Object.prototype.hasOwnProperty.call(row, "photo"),
   createdAt: row.created_at,
   updatedAt: row.updated_at || row.created_at,
   completedAt: row.completed_at,
@@ -68,6 +77,65 @@ function fromDatabase(row) {
  };
 }
 
+function mergeSupplierAliases(product, aliases = []) {
+ const byCode = new Map();
+ [...(product.supplierAliases || []), ...aliases].forEach((alias) => {
+  const code = String(alias.code || "").trim();
+  if (!code) return;
+  const name = String(alias.name || "").trim();
+  byCode.set(code, { code, name: byCode.get(code)?.name || name });
+ });
+ const supplierAliases = [...byCode.values()];
+ const first = supplierAliases[0] || { code: "", name: "" };
+ return {
+  ...product,
+  supplierCode: product.supplierCode || first.code,
+  supplierName: product.supplierName || first.name,
+  supplierAliases
+ };
+}
+
+async function enrichProductsWithCatalogSuppliers(products) {
+ const barcodes = [...new Set(products.map((product) => String(product.barcode || "").trim()).filter(Boolean))];
+ const internalCodes = [...new Set(products.map((product) => String(product.code || "").trim()).filter(Boolean))];
+ if (!barcodes.length && !internalCodes.length) return products;
+ const catalogRows = [];
+ for (let index = 0; index < barcodes.length; index += 100) {
+  const { data, error } = await supabase
+   .from("catalog_products")
+   .select("barcode,internal_code,supplier_code,supplier_name")
+   .in("barcode", barcodes.slice(index, index + 100))
+   .eq("active", true)
+   .not("supplier_code", "is", null);
+  if (error) throw error;
+  catalogRows.push(...(data || []));
+ }
+ for (let index = 0; index < internalCodes.length; index += 100) {
+  const { data, error } = await supabase
+   .from("catalog_products")
+   .select("barcode,internal_code,supplier_code,supplier_name")
+   .in("internal_code", internalCodes.slice(index, index + 100))
+   .eq("active", true)
+   .not("supplier_code", "is", null);
+  if (error) throw error;
+  catalogRows.push(...(data || []));
+ }
+ const aliasesByKey = new Map();
+ catalogRows.forEach((row) => {
+  const alias = { code: row.supplier_code, name: row.supplier_name || "" };
+  [row.barcode, row.internal_code].forEach((value) => {
+   const key = String(value || "").trim();
+   if (!key) return;
+   if (!aliasesByKey.has(key)) aliasesByKey.set(key, []);
+   aliasesByKey.get(key).push(alias);
+  });
+ });
+ return products.map((product) => mergeSupplierAliases(product, [
+  ...(aliasesByKey.get(String(product.barcode || "").trim()) || []),
+  ...(aliasesByKey.get(String(product.code || "").trim()) || [])
+ ]));
+}
+
 function toDatabase(product) {
  return {
   barcode: String(product.barcode || ""),
@@ -77,6 +145,8 @@ function toDatabase(product) {
   quantity: Number(product.qty),
   expiry_date: product.expiry,
   offer: Boolean(product.offer),
+  supplier_code: String(product.supplierCode || "").trim() || null,
+  supplier_name: String(product.supplierName || "").trim() || null,
   photo: product.photo || "",
   catalog_product_id: product.catalogProductId || null,
   brand_id: product.brandId || null,
@@ -85,42 +155,100 @@ function toDatabase(product) {
 }
 
 window.skaleeDb = {
- async listAllowedBrandIdsForCurrentUser() {
-  const user = await getCurrentUser();
-  if (!user) return [];
-  if (user.app_metadata?.access_role === "platform_admin" || String(user.email || "").toLowerCase() === SKALEE_ADMIN_EMAIL) return null;
+ async currentPromoterAccess() {
+  if (activeAccessRole === "platform_admin" || activeUserEmail.toLowerCase() === SKALEE_ADMIN_EMAIL) return null;
+  let userId = activeUserId;
+  if (!userId) {
+   const user = await getCurrentUser();
+   if (!user) return { supplierCodes: [], brandIds: [] };
+   userId = user.id;
+   activeUserEmail = user.email || "";
+   activeAccessRole = user.app_metadata?.access_role || "editor";
+   if (activeAccessRole === "platform_admin" || activeUserEmail.toLowerCase() === SKALEE_ADMIN_EMAIL) return null;
+  }
   const { data: promoterProfile, error: profileError } = await supabase
    .from("promoter_profiles")
    .select("user_id,active")
-   .eq("user_id", user.id)
+   .eq("user_id", userId)
    .eq("active", true)
    .maybeSingle();
   if (profileError) throw profileError;
   if (!promoterProfile) return null;
+  const [supplierResult, brandResult] = await Promise.all([
+   supabase.from("promoter_supplier_assignments").select("supplier_code").eq("promoter_user_id", userId).eq("active", true),
+   supabase.from("promoter_brand_assignments").select("brand_id").eq("promoter_user_id", userId).eq("active", true)
+  ]);
+  if (supplierResult.error) throw supplierResult.error;
+  if (brandResult.error) throw brandResult.error;
+  return {
+   supplierCodes: [...new Set((supplierResult.data || []).map((item) => item.supplier_code).filter(Boolean))],
+   brandIds: [...new Set((brandResult.data || []).map((item) => item.brand_id).filter(Boolean))]
+  };
+ },
+ async listAllowedBrandIdsForCurrentUser() {
+  const access = await this.currentPromoterAccess();
+  if (!access) return null;
+  return access.brandIds;
+ },
+ async listAllowedSuppliersForCurrentUser() {
+  const access = await this.currentPromoterAccess();
+  if (!access) return null;
+  if (!access.supplierCodes.length) return [];
   const { data, error } = await supabase
-   .from("promoter_brand_assignments")
-   .select("brand_id")
-   .eq("promoter_user_id", user.id)
-   .eq("active", true);
+   .from("suppliers")
+   .select("code,name,active")
+   .in("code", access.supplierCodes)
+   .eq("active", true)
+   .order("name");
   if (error) throw error;
-  return [...new Set((data || []).map((item) => item.brand_id).filter(Boolean))];
+  const rows = data || [];
+  const foundCodes = new Set(rows.map((item) => item.code));
+  access.supplierCodes.forEach((code) => {
+   if (!foundCodes.has(code)) rows.push({ code, name: "", active: true });
+  });
+  return rows;
  },
  async loadProducts() {
-  const { data, error } = await supabase
+  const productsPromise = supabase
    .from("validity_products")
-   .select(VALIDITY_PRODUCT_SELECT)
+   .select(VALIDITY_PRODUCT_BASE_SELECT)
    .is("completed_at", null)
    .order("created_at", { ascending: false });
+  const accessPromise = this.currentPromoterAccess();
+  const [{ data, error }, access] = await Promise.all([productsPromise, accessPromise]);
   if (error) throw error;
-  const allowedBrandIds = await this.listAllowedBrandIdsForCurrentUser();
-  const rows = Array.isArray(allowedBrandIds) ? data.filter((product) => product.brand_id && allowedBrandIds.includes(product.brand_id)) : data;
-  return rows.map(fromDatabase);
+  let rows = data || [];
+  let products = await enrichProductsWithCatalogSuppliers(rows.map(fromDatabase));
+  if (access) {
+   if (access.supplierCodes.length) products = products.filter((product) => product.supplierAliases.some((alias) => access.supplierCodes.includes(alias.code)));
+   else products = products.filter((product) => product.brandId && access.brandIds.includes(product.brandId));
+  }
+  return products;
+ },
+ async loadProductPhotos(ids = []) {
+  const productIds = [...new Set(ids.filter(Boolean))];
+  if (!productIds.length) return [];
+  const rows = [];
+  for (let index = 0; index < productIds.length; index += 100) {
+   const { data, error } = await supabase
+    .from("validity_products")
+    .select("id,photo")
+    .in("id", productIds.slice(index, index + 100));
+   if (error) throw error;
+   rows.push(...(data || []));
+  }
+  return rows;
  },
  async saveProduct(product) {
-  const allowedBrandIds = await this.listAllowedBrandIdsForCurrentUser();
-  if (Array.isArray(allowedBrandIds)) {
-   if (!allowedBrandIds.length) throw new Error("Seu usuário promotor ainda não possui marcas atribuídas.");
-   if (!product.brandId || !allowedBrandIds.includes(product.brandId)) {
+  const access = await this.currentPromoterAccess();
+  if (access) {
+   if (access.supplierCodes.length) {
+    if (!product.supplierCode || !access.supplierCodes.includes(product.supplierCode)) {
+     throw new Error("Este produto não pertence a um fornecedor atribuído ao seu usuário promotor.");
+    }
+   } else if (!access.brandIds.length) {
+    throw new Error("Seu usuário promotor ainda não possui fornecedores ou marcas atribuídas.");
+   } else if (!product.brandId || !access.brandIds.includes(product.brandId)) {
     throw new Error("Este produto não pertence a uma marca atribuída ao seu usuário promotor.");
    }
   }
@@ -185,6 +313,11 @@ window.skaleeDb = {
   if (data?.error) throw new Error(data.error);
   return data.success;
  },
+ async setUserOperationalRole(id, role) {
+  const { error } = await supabase.rpc("set_user_operational_role", { p_user_id: id, p_role: role });
+  if (error) throw error;
+  return true;
+ },
  async listOrganizations() {
   const { data, error } = await supabase.from("organizations").select("id,name,legal_name,tax_id,organization_type,contact_email,contact_phone,active,created_at").order("name");
   if (error) throw error;
@@ -210,38 +343,107 @@ window.skaleeDb = {
   if (error) throw error;
   return data;
  },
- async listCatalogProducts() {
-  const { data, error } = await supabase.from("catalog_products").select("id,owner_organization_id,brand_id,barcode,internal_code,name,category,active,created_at,organizations(name),brands(name)").order("name");
+ async listSuppliers(options = {}) {
+  const search = String(options.search || "").trim();
+  let query = supabase
+   .from("suppliers")
+   .select("code,name,active,created_at,updated_at", { count: "exact" })
+   .order("code")
+   .limit(options.limit || 50);
+  if (search) query = query.or(`code.ilike.%${search}%,name.ilike.%${search}%`);
+  const { data, error, count } = await query;
   if (error) throw error;
-  const allowedBrandIds = await this.listAllowedBrandIdsForCurrentUser();
-  if (!Array.isArray(allowedBrandIds)) return data;
-  return data.filter((product) => product.brand_id && allowedBrandIds.includes(product.brand_id));
+  const rows = data || [];
+  rows.totalCount = count ?? rows.length;
+  return rows;
+ },
+ async findSupplierByCode(code) {
+  const supplierCode = String(code || "").trim();
+  if (!supplierCode) return null;
+  const { data, error } = await supabase.from("suppliers").select("code,name,active,created_at,updated_at").eq("code", supplierCode).maybeSingle();
+  if (error) throw error;
+  return data;
+ },
+ async countSuppliers() {
+  const { count, error } = await supabase.from("suppliers").select("code", { count: "exact", head: true });
+  if (error) throw error;
+  return count || 0;
+ },
+ async saveSupplier(values) {
+  const code = String(values.code || "").trim();
+  const name = String(values.name || "").trim();
+  if (!code || !name) throw new Error("Informe código e nome do fornecedor.");
+  const { data, error } = await supabase
+   .from("suppliers")
+   .upsert({ code, name, active: values.active !== false, updated_at: new Date().toISOString() }, { onConflict: "code" })
+   .select("code,name,active,created_at,updated_at")
+   .single();
+  if (error) throw error;
+  return data;
+ },
+ async setSupplierActive(code, active) {
+  const { data, error } = await supabase.from("suppliers").update({ active, updated_at: new Date().toISOString() }).eq("code", code).select("code,name,active,created_at,updated_at").single();
+  if (error) throw error;
+  return data;
+ },
+async listCatalogProducts(options = {}) {
+  const search = String(options.search || "").trim();
+  const supplierCode = String(options.supplierCode || "").trim();
+  let query = supabase
+   .from("catalog_products")
+   .select("id,owner_organization_id,brand_id,barcode,internal_code,name,category,supplier_code,supplier_name,active,created_at,organizations(name),brands(name)", { count: "exact" })
+   .order("name")
+   .limit(options.limit || 50);
+  if (search) query = query.or(`name.ilike.%${search}%,barcode.ilike.%${search}%,internal_code.ilike.%${search}%`);
+  if (supplierCode) query = query.eq("supplier_code", supplierCode);
+  const { data, error, count } = await query;
+  if (error) throw error;
+  const rows = data || [];
+  rows.totalCount = count ?? rows.length;
+  const access = await this.currentPromoterAccess();
+  if (!access) return rows;
+  const filtered = access.supplierCodes.length
+   ? rows.filter((product) => product.supplier_code && access.supplierCodes.includes(product.supplier_code))
+   : rows.filter((product) => product.brand_id && access.brandIds.includes(product.brand_id));
+  filtered.totalCount = rows.totalCount;
+  return filtered;
  },
  async listSearchCatalogProducts() {
-  const rows = await selectAllPages("catalog_products", "id,brand_id,barcode,internal_code,name,active,brands(name)", {
+  const rows = await selectAllPages("catalog_products", "id,brand_id,barcode,internal_code,name,supplier_code,supplier_name,active,brands(name)", {
    order: { column: "name" }
   });
-  const allowedBrandIds = await this.listAllowedBrandIdsForCurrentUser();
-  if (!Array.isArray(allowedBrandIds)) return rows;
-  return rows.filter((product) => product.brand_id && allowedBrandIds.includes(product.brand_id));
+  const access = await this.currentPromoterAccess();
+  if (!access) return rows;
+  if (access.supplierCodes.length) return rows.filter((product) => product.supplier_code && access.supplierCodes.includes(product.supplier_code));
+  return rows.filter((product) => product.brand_id && access.brandIds.includes(product.brand_id));
  },
  async findSearchCatalogProduct(code) {
   const value = String(code || "").trim();
   if (!value) return null;
-  const allowedBrandIds = await this.listAllowedBrandIdsForCurrentUser();
-  if (Array.isArray(allowedBrandIds) && !allowedBrandIds.length) return null;
+  const access = await this.currentPromoterAccess();
+  if (access && !access.supplierCodes.length && !access.brandIds.length) return null;
   const { data, error } = await supabase
    .from("catalog_products")
-   .select("id,brand_id,barcode,internal_code,name,active,brands(name)")
+   .select("id,brand_id,barcode,internal_code,name,supplier_code,supplier_name,active,brands(name)")
    .or(`barcode.eq.${value},internal_code.eq.${value}`)
    .eq("active", true)
-   .limit(1);
+   .limit(20);
   if (error) throw error;
-  const product = data?.find((item) => !Array.isArray(allowedBrandIds) || allowedBrandIds.includes(item.brand_id)) || null;
+  const allowed = (data || []).filter((item) => {
+   if (!access) return true;
+   if (access.supplierCodes.length) return item.supplier_code && access.supplierCodes.includes(item.supplier_code);
+   return item.brand_id && access.brandIds.includes(item.brand_id);
+  });
+  const product = allowed.find((item) => item.supplier_code) || allowed[0] || null;
   return product;
  },
+ async countCatalogProducts() {
+  const { count, error } = await supabase.from("catalog_products").select("id", { count: "exact", head: true });
+  if (error) throw error;
+  return count || 0;
+ },
  async createCatalogProduct(values) {
-  const { data, error } = await supabase.from("catalog_products").insert(values).select("id,owner_organization_id,brand_id,barcode,internal_code,name,category,active,created_at").single();
+  const { data, error } = await supabase.from("catalog_products").insert(values).select("id,owner_organization_id,brand_id,barcode,internal_code,name,category,supplier_code,supplier_name,active,created_at").single();
   if (error) throw error;
   return data;
  },
@@ -274,18 +476,34 @@ window.skaleeDb = {
    const internalCode = String(product.internal_code || product.internalCode || "").trim() || null;
    const sourceKey = String(product.source_key || barcode || internalCode || "").trim();
    const brandName = String(product.brand_name || product.brandName || "").trim();
+   const supplierCode = String(product.supplier_code || product.supplierCode || "").trim();
+   const supplierName = String(product.supplier_name || product.supplierName || "").trim();
    return {
     owner_organization_id: SHARED_CATALOG_OWNER_ID,
     brand_id: brandName ? brandIds.get(brandName) || null : null,
     barcode,
     internal_code: internalCode,
     name: String(product.name || "").trim(),
+    supplier_code: supplierCode || null,
+    supplier_name: supplierName || null,
     active: true,
     catalog_source: source,
     source_key: sourceKey,
     source_updated_at: new Date().toISOString()
    };
   }).filter((row) => row.name && row.source_key && (row.barcode || row.internal_code));
+  const supplierRows = [...new Map(rows.filter((row) => row.supplier_code && row.supplier_name).map((row) => [row.supplier_code, {
+   code: row.supplier_code,
+   name: row.supplier_name,
+   active: true,
+   updated_at: new Date().toISOString()
+  }])).values()];
+  for (let index = 0; index < supplierRows.length; index += 500) {
+   const { error } = await supabase
+    .from("suppliers")
+    .upsert(supplierRows.slice(index, index + 500), { onConflict: "code" });
+   if (error) throw error;
+  }
   let imported = 0;
   for (let index = 0; index < rows.length; index += 500) {
    const chunk = rows.slice(index, index + 500);
@@ -302,12 +520,16 @@ window.skaleeDb = {
   const internalCode = String(product.internal_code || product.internalCode || "").trim();
   const name = String(product.name || "").trim();
   const sourceKey = String(product.source_key || barcode || internalCode).trim();
+  const supplierCode = String(product.supplier_code || product.supplierCode || "").trim();
+  const supplierName = String(product.supplier_name || product.supplierName || "").trim();
   if (!name || !sourceKey || (!barcode && !internalCode)) return null;
   const row = {
    owner_organization_id: SHARED_CATALOG_OWNER_ID,
    barcode: barcode || null,
    internal_code: internalCode || null,
    name,
+   supplier_code: supplierCode || null,
+   supplier_name: supplierName || null,
    active: true,
    catalog_source: source,
    source_key: sourceKey,
@@ -317,7 +539,7 @@ window.skaleeDb = {
   const { data, error } = await supabase
    .from("catalog_products")
    .upsert(row, { onConflict: "catalog_source,source_key" })
-   .select("id,brand_id,barcode,internal_code,name,active")
+   .select("id,brand_id,barcode,internal_code,name,supplier_code,supplier_name,active")
    .single();
   if (error) throw error;
   return data;
@@ -331,7 +553,7 @@ window.skaleeDb = {
   const { data: { user }, error: userError } = await supabase.auth.getUser();
   if (userError) throw userError;
   if (!user) return [];
-  if (user.app_metadata?.access_role === "platform_admin") return this.listRetailLocations();
+  if (user.app_metadata?.access_role === "platform_admin" || activeUserEmail.toLowerCase() === SKALEE_ADMIN_EMAIL) return this.listRetailLocations();
   const { data: assignments, error: assignmentsError } = await supabase
    .from("promoter_location_assignments")
    .select("location_id")
@@ -354,6 +576,11 @@ window.skaleeDb = {
   if (error) throw error;
   return data || [];
  },
+ async listPromoterSupplierAssignments() {
+  const { data, error } = await supabase.from("promoter_supplier_assignments").select("promoter_user_id,supplier_code,active,suppliers(code,name,active)");
+  if (error) throw error;
+  return data || [];
+ },
  async createRetailLocation(values) {
   const { data, error } = await supabase.from("retail_locations").insert(values).select("id,retailer_organization_id,code,name,address_line,city,state,postal_code,active,created_at").single();
   if (error) throw error;
@@ -365,9 +592,11 @@ window.skaleeDb = {
   return data;
  },
  async setRegistryActive(table, id, active) {
-  const allowedTables = new Set(["organizations", "brands", "catalog_products", "retail_locations"]);
+  const allowedTables = new Set(["organizations", "brands", "suppliers", "catalog_products", "retail_locations"]);
   if (!allowedTables.has(table)) throw new Error("Cadastro não permitido.");
-  const { data, error } = await supabase.from(table).update({ active }).eq("id", id).select("id,active").single();
+  const key = table === "suppliers" ? "code" : "id";
+  const select = table === "suppliers" ? "code,active" : "id,active";
+  const { data, error } = await supabase.from(table).update({ active }).eq(key, id).select(select).single();
   if (error) throw error;
   return data;
  },
@@ -404,7 +633,7 @@ window.skaleeDb = {
   return true;
  },
  async configurePromoter(values) {
-  const { error } = await supabase.rpc("configure_promoter", { p_user_id: values.userId, p_full_name: values.fullName, p_agency_organization_id: values.agencyOrganizationId || null, p_brand_ids: values.brandIds });
+  const { error } = await supabase.rpc("configure_promoter", { p_user_id: values.userId, p_full_name: values.fullName, p_agency_organization_id: values.agencyOrganizationId || null, p_brand_ids: values.brandIds, p_supplier_codes: values.supplierCodes || [] });
   if (error) throw error;
   await this.syncPromoterLocations(values.userId, values.locationIds || []);
   return true;
@@ -419,15 +648,18 @@ function showMessage(text = "", type = "") {
 function showSession(session) {
  const authenticated = Boolean(session?.user);
  const nextUserId = session?.user?.id || null;
+ const previousUserId = activeUserId;
  body.classList.remove("auth-loading", "auth-anonymous", "auth-authenticated");
  body.classList.add(authenticated ? "auth-authenticated" : "auth-anonymous");
  app.setAttribute("aria-hidden", String(!authenticated));
  const accessRole = session?.user?.app_metadata?.access_role || "editor";
+ activeUserId = nextUserId;
+ activeUserEmail = session?.user?.email || "";
+ activeAccessRole = accessRole;
  const roleLabels = { viewer: "Visualizador", platform_admin: "Administrador Skalee" };
  userLabel.textContent = authenticated ? `${session.user.email}${roleLabels[accessRole] ? ` · ${roleLabels[accessRole]}` : ""}` : "";
  if (!authenticated) password.value = "";
- if (activeUserId !== nextUserId) {
-  activeUserId = nextUserId;
+ if (previousUserId !== nextUserId) {
   window.dispatchEvent(new CustomEvent(authenticated ? "skalee:authenticated" : "skalee:signed-out", {
    detail: { email: session?.user?.email || "", accessRole }
   }));
