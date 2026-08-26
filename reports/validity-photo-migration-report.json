@@ -1,0 +1,16 @@
+{
+  "started_at": "2026-08-17T01:19:56.540585+00:00",
+  "dry_run": false,
+  "batch_size": 10,
+  "total_found": 71,
+  "total_with_legacy_photo": 71,
+  "total_migrated": 70,
+  "total_already_migrated": 1,
+  "total_skipped_empty": 0,
+  "total_error": 0,
+  "bytes_previous": 17789421,
+  "bytes_sent_to_storage": 6360132,
+  "pending_records": [],
+  "errors": [],
+  "finished_at": "2026-08-17T01:22:42.131234+00:00"
+}

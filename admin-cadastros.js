@@ -283,6 +283,7 @@
     console.error("Falha ao carregar usuários/promotores.", error);
    }
    Object.assign(state, { organizations, brands, suppliers: [], products: [], locations, registeredProducts, users, promoters }); render();
+   window.skaleeUpdateAdminMetrics?.({ organizations, brands, supplierCount, locations, users });
    if (usersLoadError) {
     setMessage(`${organizations.length} empresa(s), ${brands.length} marca(s), ${supplierCount} fornecedor(es), ${productCount} produto(s) e ${locations.length} local(is). Usuários/promotores não carregaram: ${usersLoadError.message || "verifique a Edge Function admin-users."}`, "error");
    } else {

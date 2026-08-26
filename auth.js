@@ -3,6 +3,19 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.55.0";
 const SUPABASE_URL = "https://scetuqugfbhozikridaw.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_RUy69LJc14uWrn0H9WgvKQ_ebicHtdN";
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+console.log("[PHOTO] upload flow version: v68-debug");
+const VALIDITY_PHOTO_BUCKET = "validity-photos";
+const SIGNED_PHOTO_URL_TTL_SECONDS = 60 * 60 * 6;
+const SIGNED_PHOTO_URL_REFRESH_MARGIN_MS = 5 * 60 * 1000;
+const signedPhotoUrlCache = new Map();
+const pendingSignedPhotoUrlRequests = new Map();
+const photoUrlCacheStats = {
+ hits: 0,
+ misses: 0,
+ signed: 0,
+ pending: 0
+};
+window.skaleePhotoCacheStats = photoUrlCacheStats;
 const SHARED_CATALOG_OWNER_ID = "1d229a0e-7c6d-4b03-9505-95c50bb49cad";
 const SKALEE_ADMIN_EMAIL = "skalee.razarth@gmail.com";
 const body = document.body;
@@ -16,8 +29,7 @@ const modeButton = document.querySelector("#authMode");
 const userLabel = document.querySelector("#authUser");
 const signOutButton = document.querySelector("#signOut");
 const authRing = document.querySelector(".auth-ring");
-const VALIDITY_PRODUCT_BASE_SELECT = "id,user_id,barcode,product_code,name,store,quantity,expiry_date,offer,supplier_code,supplier_name,created_at,updated_at,completed_at,updated_by_email,catalog_product_id,brand_id,retail_location_id,brands(name),catalog_products(name,supplier_code,supplier_name),retail_locations(name)";
-const VALIDITY_PRODUCT_SELECT = `${VALIDITY_PRODUCT_BASE_SELECT},photo`;
+const VALIDITY_PRODUCT_BASE_SELECT = "id,user_id,barcode,product_code,name,store,quantity,expiry_date,offer,supplier_code,supplier_name,photo_path,created_at,updated_at,completed_at,updated_by_email,catalog_product_id,brand_id,retail_location_id,brands(name),catalog_products(name,supplier_code,supplier_name),retail_locations(name)";
 let mode = "sign-in";
 let activeUserId;
 let activeUserEmail = "";
@@ -59,6 +71,7 @@ function fromDatabase(row) {
   supplierCode: primarySupplierCode,
   supplierName: primarySupplierName,
   supplierAliases: primarySupplierCode ? [{ code: primarySupplierCode, name: primarySupplierName }] : [],
+  photoPath: row.photo_path || "",
   photo: row.photo || "",
   photoLoaded: Object.prototype.hasOwnProperty.call(row, "photo"),
   createdAt: row.created_at,
@@ -148,10 +161,190 @@ function toDatabase(product) {
   supplier_code: String(product.supplierCode || "").trim() || null,
   supplier_name: String(product.supplierName || "").trim() || null,
   photo: product.photo || "",
+  photo_path: product.photoPath || null,
   catalog_product_id: product.catalogProductId || null,
   brand_id: product.brandId || null,
   retail_location_id: product.retailLocationId || null
  };
+}
+
+function productPhotoPath(product, extension) {
+ const ownerId = product.user_id || activeUserId;
+ if (!ownerId || !product.id || !extension) throw new Error("Não foi possível identificar o caminho da foto do produto.");
+ return `${ownerId}/${product.id}/photo.${extension}`;
+}
+
+function validateProcessedPhoto(processedPhoto) {
+ const validExtensions = new Set(["webp", "jpg"]);
+ const validTypes = new Set(["image/webp", "image/jpeg"]);
+ if (
+  !processedPhoto?.blob ||
+  processedPhoto.blob.size <= 0 ||
+  !validExtensions.has(processedPhoto.extension) ||
+  !validTypes.has(processedPhoto.contentType)
+ ) {
+  throw new Error("Foto processada inválida");
+ }
+ return processedPhoto;
+}
+
+function logPhotoDiagnosticError(error) {
+ console.error("[PHOTO] ERRO COMPLETO", error);
+ console.error("[PHOTO] message", error?.message);
+ console.error("[PHOTO] name", error?.name);
+ console.error("[PHOTO] stack", error?.stack);
+}
+
+function photoCacheKey(path) {
+ return `validity-photo-url:${path}`;
+}
+
+function readStoredPhotoUrl(path) {
+ try {
+  const raw = sessionStorage.getItem(photoCacheKey(path));
+  if (!raw) return null;
+  const cached = JSON.parse(raw);
+  if (!cached?.url || !cached?.expiresAt || cached.expiresAt <= Date.now() + SIGNED_PHOTO_URL_REFRESH_MARGIN_MS) {
+   sessionStorage.removeItem(photoCacheKey(path));
+   return null;
+  }
+  return cached;
+ } catch (error) {
+  console.debug("[PHOTO] session cache ignored", path, error);
+  return null;
+ }
+}
+
+function writeStoredPhotoUrl(path, cached) {
+ try {
+  sessionStorage.setItem(photoCacheKey(path), JSON.stringify(cached));
+ } catch (error) {
+  console.debug("[PHOTO] session cache write skipped", path, error);
+ }
+}
+
+function rememberSignedPhotoUrl(path, url) {
+ const cached = {
+  url,
+  expiresAt: Date.now() + (SIGNED_PHOTO_URL_TTL_SECONDS * 1000) - SIGNED_PHOTO_URL_REFRESH_MARGIN_MS
+ };
+ signedPhotoUrlCache.set(path, cached);
+ writeStoredPhotoUrl(path, cached);
+ return cached;
+}
+
+async function getProductPhotoUrl(photoPath) {
+ const normalizedPath = String(photoPath || "").trim();
+ if (!normalizedPath) return "";
+ const cached = signedPhotoUrlCache.get(normalizedPath);
+ if (cached && cached.expiresAt > Date.now()) {
+  photoUrlCacheStats.hits += 1;
+  console.debug("[PHOTO CACHE] HIT", normalizedPath);
+  return cached.url;
+ }
+ const stored = readStoredPhotoUrl(normalizedPath);
+ if (stored) {
+  signedPhotoUrlCache.set(normalizedPath, stored);
+  photoUrlCacheStats.hits += 1;
+  console.debug("[PHOTO CACHE] HIT", normalizedPath);
+  return stored.url;
+ }
+ const pending = pendingSignedPhotoUrlRequests.get(normalizedPath);
+ if (pending) {
+  photoUrlCacheStats.pending += 1;
+  console.debug("[PHOTO CACHE] HIT", normalizedPath);
+  return pending;
+ }
+ photoUrlCacheStats.misses += 1;
+ console.debug("[PHOTO CACHE] MISS", normalizedPath);
+ const request = supabase
+  .storage
+  .from(VALIDITY_PHOTO_BUCKET)
+  .createSignedUrl(normalizedPath, SIGNED_PHOTO_URL_TTL_SECONDS)
+  .then(({ data, error }) => {
+   if (error) throw error;
+   const url = data?.signedUrl || "";
+   if (!url) throw new Error("Não foi possível gerar URL assinada da foto.");
+   photoUrlCacheStats.signed += 1;
+   console.debug("[PHOTO URL] SIGNED", normalizedPath);
+   return rememberSignedPhotoUrl(normalizedPath, url).url;
+  })
+  .finally(() => pendingSignedPhotoUrlRequests.delete(normalizedPath));
+ pendingSignedPhotoUrlRequests.set(normalizedPath, request);
+ return request;
+}
+
+async function removeStoredPhoto(path) {
+ const normalizedPath = String(path || "").trim();
+ if (!normalizedPath) return;
+ const { error } = await supabase.storage.from(VALIDITY_PHOTO_BUCKET).remove([normalizedPath]);
+ if (error) throw error;
+ signedPhotoUrlCache.delete(normalizedPath);
+ pendingSignedPhotoUrlRequests.delete(normalizedPath);
+ try {
+  sessionStorage.removeItem(photoCacheKey(normalizedPath));
+ } catch (storageError) {
+  console.debug("[PHOTO] session cache remove skipped", normalizedPath, storageError);
+ }
+}
+
+async function uploadProductPhoto(product, processedPhoto) {
+ const processed = validateProcessedPhoto(processedPhoto);
+ if (processed.blob.size > 512 * 1024) {
+  throw new Error(`A foto preparada ficou com ${(processed.blob.size / 1024).toFixed(0)} KB. O limite do Storage é 512 KB.`);
+ }
+ const userId = product.user_id || activeUserId;
+ const productId = product.id;
+ const path = productPhotoPath(product, processed.extension);
+ if (!processed.blob || !processed.contentType || !processed.extension || !userId || !productId || !path || path.endsWith(".undefined")) {
+  throw new Error("Dados da foto incompletos antes do upload");
+ }
+ console.log("[PHOTO] iniciando upload", {
+  productId,
+  path
+ });
+ console.log("[PHOTO FINAL]", {
+  productId,
+  userId,
+  extension: processed.extension,
+  contentType: processed.contentType,
+  size: processed.blob?.size,
+  path
+ });
+ const { data: uploadData, error: uploadError } = await supabase
+  .storage
+  .from(VALIDITY_PHOTO_BUCKET)
+  .upload(path, processed.blob, {
+   contentType: processed.contentType,
+   cacheControl: "31536000",
+   upsert: true
+  });
+ console.log("[PHOTO] resultado upload", {
+  data: uploadData,
+  error: uploadError
+ });
+ if (uploadError) {
+  console.error("Storage upload error:", uploadError);
+  logPhotoDiagnosticError(uploadError);
+  throw uploadError;
+ }
+ return uploadData?.path || path;
+}
+
+async function resolveProductPhoto(row) {
+ if (row.photo_path) {
+  try {
+   return {
+    id: row.id,
+    photo: await getProductPhotoUrl(row.photo_path),
+    photoPath: row.photo_path
+   };
+  } catch (error) {
+   console.error("Não foi possível assinar a foto privada do produto.", error);
+   return { id: row.id, photo: row.photo || "", photoPath: row.photo_path };
+  }
+ }
+ return { id: row.id, photo: row.photo || "", photoPath: "" };
 }
 
 window.skaleeDb = {
@@ -208,21 +401,27 @@ window.skaleeDb = {
   });
   return rows;
  },
- async loadProducts() {
-  const productsPromise = supabase
+ async loadProducts(options = {}) {
+  const limit = Number(options.limit) || 0;
+  const offset = Number(options.offset) || 0;
+  let productsQuery = supabase
    .from("validity_products")
    .select(VALIDITY_PRODUCT_BASE_SELECT)
    .is("completed_at", null)
    .order("created_at", { ascending: false });
+  if (limit > 0) productsQuery = productsQuery.range(offset, offset + limit - 1);
+  const productsPromise = productsQuery;
   const accessPromise = this.currentPromoterAccess();
   const [{ data, error }, access] = await Promise.all([productsPromise, accessPromise]);
   if (error) throw error;
   let rows = data || [];
+  const rawPageLength = rows.length;
   let products = await enrichProductsWithCatalogSuppliers(rows.map(fromDatabase));
   if (access) {
    if (access.supplierCodes.length) products = products.filter((product) => product.supplierAliases.some((alias) => access.supplierCodes.includes(alias.code)));
    else products = products.filter((product) => product.brandId && access.brandIds.includes(product.brandId));
   }
+  Object.defineProperty(products, "rawPageLength", { value: rawPageLength });
   return products;
  },
  async loadProductPhotos(ids = []) {
@@ -232,12 +431,12 @@ window.skaleeDb = {
   for (let index = 0; index < productIds.length; index += 100) {
    const { data, error } = await supabase
     .from("validity_products")
-    .select("id,photo")
+    .select("id,photo,photo_path")
     .in("id", productIds.slice(index, index + 100));
    if (error) throw error;
    rows.push(...(data || []));
   }
-  return rows;
+  return Promise.all(rows.map(resolveProductPhoto));
  },
  async saveProduct(product) {
   const access = await this.currentPromoterAccess();
@@ -252,20 +451,52 @@ window.skaleeDb = {
     throw new Error("Este produto não pertence a uma marca atribuída ao seu usuário promotor.");
    }
   }
+  const productForInsert = {
+   ...product,
+   photo: product.processedPhoto ? "" : product.photo || "",
+   photoPath: ""
+  };
   const { data, error } = await supabase
    .from("validity_products")
-   .insert(toDatabase(product))
-   .select(VALIDITY_PRODUCT_SELECT)
+   .insert(toDatabase(productForInsert))
+   .select(VALIDITY_PRODUCT_BASE_SELECT)
    .single();
-  if (error) throw error;
-  return fromDatabase(data);
+  if (error) {
+   logPhotoDiagnosticError(error);
+   throw error;
+  }
+  console.log("[PHOTO] produto criado", data?.id);
+  if (!product.processedPhoto) {
+   console.warn("[PHOTO] fluxo de foto interrompido: produto criado sem processedPhoto");
+   return fromDatabase(data);
+  }
+
+  try {
+   const path = await uploadProductPhoto(data, product.processedPhoto);
+   console.log("[PHOTO] iniciando update photo_path", path);
+   const { error: updateError } = await supabase
+    .from("validity_products")
+    .update({ photo_path: path })
+    .eq("id", data.id);
+   console.log("[PHOTO] resultado update", {
+    error: updateError
+   });
+   if (updateError) throw updateError;
+   const updatedData = { ...data, photo_path: path };
+   const resolvedPhoto = await resolveProductPhoto(updatedData);
+   return fromDatabase({ ...updatedData, photo: resolvedPhoto.photo });
+  } catch (uploadError) {
+   console.error("Storage upload error:", uploadError);
+   logPhotoDiagnosticError(uploadError);
+   return { ...fromDatabase(data), photoUploadError: "Produto registrado, mas não foi possível enviar a foto." };
+  }
  },
  async updateProduct(id, changes) {
   const { data, error } = await supabase
    .from("validity_products")
    .update({ quantity: Number(changes.qty), offer: Boolean(changes.offer) })
    .eq("id", id)
-   .select(VALIDITY_PRODUCT_SELECT)
+   .select(VALIDITY_PRODUCT_BASE_SELECT)
    .single();
   if (error) throw error;
   return fromDatabase(data);
@@ -281,6 +512,13 @@ window.skaleeDb = {
   return data.id;
  },
  async deleteProduct(id) {
+  const { data: existing, error: findError } = await supabase
+   .from("validity_products")
+   .select("id,photo_path")
+   .eq("id", id)
+   .single();
+  if (findError) throw findError;
+  if (existing?.photo_path) await removeStoredPhoto(existing.photo_path);
   const { data, error } = await supabase
    .from("validity_products")
    .delete()
@@ -554,6 +792,8 @@ async listCatalogProducts(options = {}) {
   if (userError) throw userError;
   if (!user) return [];
   if (user.app_metadata?.access_role === "platform_admin" || activeUserEmail.toLowerCase() === SKALEE_ADMIN_EMAIL) return this.listRetailLocations();
+  const access = await this.currentPromoterAccess();
+  if (!access) return this.listRetailLocations();
   const { data: assignments, error: assignmentsError } = await supabase
    .from("promoter_location_assignments")
    .select("location_id")
@@ -601,12 +841,12 @@ async listCatalogProducts(options = {}) {
   return data;
  },
  async listRegisteredProductsForAdmin() {
-  const { data, error } = await supabase.from("validity_products").select(VALIDITY_PRODUCT_SELECT).is("completed_at", null).order("created_at", { ascending: false });
+  const { data, error } = await supabase.from("validity_products").select(VALIDITY_PRODUCT_BASE_SELECT).is("completed_at", null).order("created_at", { ascending: false });
   if (error) throw error;
   return data.map(fromDatabase);
  },
  async updateRegisteredProductLinks(id, values) {
-  const { data, error } = await supabase.from("validity_products").update({ catalog_product_id: values.catalogProductId || null, brand_id: values.brandId || null, retail_location_id: values.retailLocationId || null }).eq("id", id).select(VALIDITY_PRODUCT_SELECT).single();
+  const { data, error } = await supabase.from("validity_products").update({ catalog_product_id: values.catalogProductId || null, brand_id: values.brandId || null, retail_location_id: values.retailLocationId || null }).eq("id", id).select(VALIDITY_PRODUCT_BASE_SELECT).single();
   if (error) throw error;
   return fromDatabase(data);
  },

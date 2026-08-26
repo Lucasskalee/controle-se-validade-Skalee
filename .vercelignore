@@ -5,3 +5,7 @@ deploy-*.log
 .codex
 .vscode
 .npm-cache
+docs
+reports
+supabase
+tools

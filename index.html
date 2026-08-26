@@ -22,25 +22,39 @@
 :root{
  --bg:#f4f6fa;--card:#fff;--text:#172033;--muted:#7a8499;--line:#e4e8ef;
  --blue:#2563eb;--blue2:#eff6ff;--red:#dc2626;--orange:#ea580c;--yellow:#ca8a04;--green:#16a34a;
+ --sk-bg:#070b12;--sk-surface:#101827;--sk-surface-hover:#18243a;--sk-primary:#0756d8;--sk-cyan:#00d9ff;--sk-text:#e8edf5;--sk-muted:#94a3b8;--sk-danger:#ff4057;--sk-warning:#ffb020;--sk-success:#22c77a;
 }
 *{box-sizing:border-box}
 body{margin:0;font-family:Inter,Arial,sans-serif;background:var(--bg);color:var(--text)}
 .app{max-width:1180px;margin:auto;padding:22px}
-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
-h1{margin:0;font-size:26px}.sub{color:var(--muted);font-size:13px;margin-top:4px}
-nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
-nav a.tab{text-decoration:none;display:inline-block}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding:6px 0}
+.app-brand{display:flex;align-items:center;gap:12px;min-width:0}.app-header-logo{display:block;width:46px;height:46px;object-fit:contain;filter:contrast(1.18) saturate(1.25) drop-shadow(0 0 8px rgba(0,124,255,.34))}
+h1{margin:0;font-size:20px}.sub{color:var(--muted);font-size:13px;margin-top:4px}
+.user-area{display:flex;align-items:center;gap:10px}.user-copy,.user-area>#signOut{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.header-profile-button{display:grid;place-items:center;width:38px;height:38px;border:1px solid rgba(148,163,184,.42);border-radius:999px;background:transparent;color:#c5cfdd;cursor:pointer}.header-profile-button:hover{border-color:#60a5fa;color:#fff}.header-profile-button svg{width:22px;height:22px;stroke:currentColor}
+.header-admin-button{display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:8px 12px;border:1px solid rgba(37,99,235,.45);border-radius:10px;background:rgba(37,99,235,.09);color:#0f326f;font-weight:800;cursor:pointer}.header-admin-button svg{width:18px;height:18px;stroke:currentColor}.header-admin-button:hover{background:rgba(37,99,235,.18);border-color:#2563eb;color:#08265b}.header-admin-button[hidden]{display:none}
+nav{position:sticky;top:0;z-index:800;display:flex;gap:8px;flex-wrap:nowrap;margin-bottom:18px;padding:7px;border:1px solid rgba(0,217,255,.14);border-radius:16px;background:linear-gradient(135deg,var(--sk-bg),var(--sk-surface));box-shadow:0 12px 30px rgba(7,11,18,.14);overflow:hidden}
+nav a.tab{text-decoration:none;display:inline-flex}
 button{font:inherit}
 .tab,.btn{border:0;border-radius:11px;padding:11px 15px;font-weight:750;cursor:pointer}
-.tab{background:#e9edf4;color:#48546a}.tab.active{background:var(--blue);color:#fff}
+.tab{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;border:1px solid transparent;background:transparent;color:#c5cfdd;transition:background .2s ease,color .2s ease,border-color .2s ease,box-shadow .2s ease,flex-basis .2s ease}
+.tab:hover{background:var(--sk-surface-hover);color:#fff}.tab:focus-visible{outline:2px solid var(--sk-cyan);outline-offset:2px}.tab.active,.tab[aria-current="page"]{background:linear-gradient(135deg,var(--sk-primary),#0a3f9f);color:#fff;border-color:rgba(0,217,255,.36);box-shadow:0 0 0 1px rgba(0,217,255,.15),0 8px 24px rgba(7,86,216,.28)}
+.tab-icon{display:grid;place-items:center;width:20px;height:20px;flex:0 0 auto}.tab-icon svg{width:20px;height:20px;display:block;stroke:currentColor}.tab-label{white-space:nowrap;overflow:hidden}
+.label-mobile{display:none}
 .tab[hidden]{display:none}
+.personal-overlay{position:fixed;inset:0;z-index:2400;background:rgba(7,11,18,.42);backdrop-filter:blur(5px);opacity:0;transition:opacity .2s ease}.personal-overlay.show{opacity:1}.personal-overlay[hidden]{display:none}
+.personal-panel{position:fixed;top:96px;right:0;z-index:2450;display:flex;flex-direction:column;width:min(340px,90vw);height:calc(100dvh - 96px);background:linear-gradient(145deg,rgba(42,42,42,.97),rgba(20,22,25,.98));border-left:1px solid rgba(148,163,184,.18);box-shadow:-18px 0 55px rgba(0,0,0,.38);color:#f8fafc;transform:translateX(100%);transition:transform .2s ease;outline:0}.personal-panel.show{transform:translateX(0)}.personal-panel[hidden]{display:none}
+.personal-header{position:relative;display:grid;justify-items:center;gap:8px;padding:44px 22px 26px;border-bottom:0}.personal-logo{width:66px;height:66px;padding:8px;border:1px solid rgba(148,163,184,.28);border-radius:10px;background:rgba(15,23,42,.62);object-fit:contain;filter:drop-shadow(0 0 8px rgba(0,217,255,.22))}.personal-title{min-width:0;text-align:center}.personal-title h2{margin:4px 0 0;font-size:18px}.personal-title span{display:block;margin-top:8px;color:#cbd5e1;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.personal-close{position:absolute;top:16px;right:16px;display:grid;place-items:center;width:36px;height:36px;border:0;border-radius:10px;background:transparent;color:#e5e7eb;font-size:24px;cursor:pointer}
+.personal-body{display:flex;flex:1;flex-direction:column;gap:16px;overflow:auto;padding:0 24px 22px}.personal-section{display:grid;gap:8px}.personal-section[hidden]{display:none}.personal-section h3{display:none}.personal-info{display:grid;gap:4px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#f8fafc}.personal-info strong{font-size:14px}.personal-info span{color:var(--muted);font-size:13px;line-height:1.35}.personal-theme{display:grid;grid-template-columns:1fr 1fr;gap:0;padding:0;border:1px solid rgba(96,165,250,.38);border-radius:8px;background:rgba(15,23,42,.2);overflow:hidden}.personal-theme-button{border:0;border-radius:0;padding:11px 8px;background:transparent;color:#f8fafc;font-weight:850;cursor:pointer}.personal-theme-button+.personal-theme-button{border-left:1px solid rgba(96,165,250,.38)}.personal-theme-button.active{background:rgba(37,99,235,.72);color:#fff}.personal-signout{margin-top:auto;border:0;border-radius:0;padding:16px 0;background:transparent;color:#f87171;text-align:left;font-weight:850;cursor:pointer}
+.personal-menu-list{display:grid;gap:0;margin-top:8px}.personal-menu-item{display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:10px;padding:15px 0;border-bottom:1px solid rgba(148,163,184,.15);color:inherit}.personal-menu-icon{display:grid;place-items:center;color:#dbe7f7}.personal-menu-icon svg{width:20px;height:20px;stroke:currentColor}.personal-menu-arrow{color:#94a3b8;font-size:22px}.personal-menu-item strong{font-size:15px;font-weight:750}.personal-menu-item span{display:block;margin-top:2px;color:var(--muted);font-size:12px}
+.personal-about-button{border:0;background:transparent;text-align:left;cursor:pointer}.personal-about-button:hover{background:rgba(148,163,184,.08)}.personal-about-modal .update-panel{display:grid;gap:14px}.personal-about-text{display:grid;gap:10px}.personal-about-text p{margin:0;color:var(--muted);font-size:14px;line-height:1.5}.personal-about-link{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:11px 13px;border-radius:9px;background:#16a34a;color:#fff;text-decoration:none;font-size:14px;font-weight:850}.personal-about-link:hover{background:#15803d}
 .page{display:none}.page.active{display:block}
 .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px}
 .stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px}
 .stat small{color:var(--muted)}.stat b{display:block;font-size:23px;margin-top:5px}
-.searchrow{display:grid;grid-template-columns:1fr 190px;gap:10px;margin-bottom:10px}.searchrow.with-layout{grid-template-columns:1fr 190px auto}
+.searchrow{display:grid;grid-template-columns:1fr 190px;gap:10px;margin-bottom:10px}.searchrow.with-layout{grid-template-columns:1fr 190px 190px auto}
 input,select{width:100%;padding:12px;border:1px solid var(--line);border-radius:11px;background:#fff;color:var(--text);font-size:14px;outline:none}
 input:focus,select:focus{border-color:#9dbbf9;box-shadow:0 0 0 3px #e8f0ff}
+.clearable-field{position:relative;min-width:0}.clearable-field input{padding-right:40px}.clear-input{position:absolute;top:50%;right:7px;display:grid;place-items:center;width:28px;height:28px;border:0;border-radius:8px;background:transparent;color:#7a8499;font-size:20px;font-weight:700;line-height:1;cursor:pointer;transform:translateY(-50%)}.clear-input:hover{background:#eef2f7;color:#172033}.clear-input[hidden]{display:none}
 .filters{display:flex;gap:8px;overflow:auto;padding:2px 0 14px;scrollbar-width:none}
 .chip{white-space:nowrap;border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 11px;color:#59657a;cursor:pointer;font-weight:700;font-size:13px}
 .chip.active{background:#172033;color:#fff;border-color:#172033}
@@ -55,23 +69,25 @@ input:focus,select:focus{border-color:#9dbbf9;box-shadow:0 0 0 3px #e8f0ff}
 .card-actions{display:flex;justify-content:flex-end;margin-top:13px}.card-actions .btn2{padding:9px 13px}
 .card-details{display:none;margin-top:7px}.card.expanded .card-details{display:block}.card-summary{margin-top:7px}.toggle-details{color:var(--blue);background:var(--blue2)}
 .btn-success{border:0;border-radius:11px;background:#dcfce7;color:#166534;padding:11px 14px;font-weight:800;cursor:pointer}.btn-danger{border:0;border-radius:11px;background:#fee2e2;color:#b91c1c;padding:11px 14px;font-weight:800;cursor:pointer}.danger-actions{display:flex;gap:8px;margin-top:10px;padding-top:14px;border-top:1px solid var(--line)}button:disabled{opacity:.6;cursor:not-allowed}
-.update-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,.62);padding:16px;z-index:1900}.update-modal.show{display:flex}
-.update-panel{width:min(440px,100%);background:#fff;border-radius:18px;padding:20px;box-shadow:0 24px 70px rgba(15,23,42,.28)}.update-panel h2{margin:0}.update-product-name{margin:5px 0 16px;color:var(--muted);font-size:14px}.update-error{min-height:19px;margin-top:10px;color:var(--red);font-size:13px;font-weight:700}
+.update-modal{position:fixed;inset:0;z-index:1900;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(15,23,42,.52);backdrop-filter:blur(6px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .14s ease,visibility .14s ease}.update-modal.show{opacity:1;visibility:visible;pointer-events:auto}
+.update-panel{width:min(440px,100%);background:#fff;border-radius:18px;padding:20px;box-shadow:0 24px 70px rgba(15,23,42,.28);transform:translateY(8px) scale(.98);transition:transform .14s ease}.update-modal.show .update-panel{transform:translateY(0) scale(1)}.update-panel h2{margin:0}.update-product-name{margin:5px 0 16px;color:var(--muted);font-size:14px}.update-error{min-height:19px;margin-top:10px;color:var(--red);font-size:13px;font-weight:700}
 .red{background:#fee2e2;color:var(--red)}.orange{background:#ffedd5;color:var(--orange)}.yellow{background:#fef9c3;color:var(--yellow)}.green{background:#dcfce7;color:var(--green)}.offer{background:#dbeafe;color:#1d4ed8}.high{background:#f3e8ff;color:#7e22ce}
 .empty{grid-column:1/-1;background:#fff;border:1px dashed #cbd3df;border-radius:15px;padding:40px;text-align:center;color:var(--muted)}
 .form{max-width:680px;margin:auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px}
 .form h2{margin:0 0 4px}.label{display:block;margin:14px 0 6px;font-size:13px;font-weight:800}
 .scan{display:grid;grid-template-columns:1fr auto auto;gap:8px}.btn{background:var(--blue);color:#fff}.btn2{border:0;border-radius:11px;background:#e9edf4;color:#39465c;padding:11px 14px;font-weight:750;cursor:pointer}.btn2.active{background:var(--blue);color:#fff}
-.found{display:none;margin-top:10px;padding:13px;border-radius:11px;background:var(--blue2);border:1px solid #d8e6ff}.found.show{display:block}
+.found{display:none;margin-top:10px;padding:13px;border-radius:11px;background:var(--blue2);border:1px solid #d8e6ff}.found.show{display:block}.manual-product-form{display:grid;gap:8px;margin-top:10px}.manual-product-form input{background:#fff}.manual-product-actions{display:flex;gap:8px;flex-wrap:wrap}
 .catalog-status{margin-top:7px;color:var(--muted);font-size:12px}.catalog-status[hidden]{display:none}.catalog-status.ready{color:var(--green)}.catalog-status.error{color:var(--red)}
 .preview{height:145px;margin-top:8px;border:1px dashed #cbd3df;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--muted);overflow:hidden}.preview img{width:100%;height:100%;object-fit:cover}
 .check{display:flex;gap:9px;align-items:center;margin-top:16px;font-size:14px;font-weight:700}.check input{width:auto}
 .actions{display:flex;gap:8px;margin-top:19px}
 .resultline{font-size:13px;color:var(--muted);margin-bottom:12px}
 .settings{max-width:760px;margin:auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px}
+.admin-open .app>header,.admin-open .main-nav,.admin-open .app>.page{display:none}.admin-central[hidden]{display:none}.admin-central{--admin-bg:#070b12;--admin-surface:#0d1726;--admin-surface-2:#111e30;--admin-border:#24344d;--admin-primary:#0756d8;--admin-cyan:#00d9ff;--admin-text:#e8edf5;--admin-muted:#94a3b8;--admin-success:#22c77a;--admin-warning:#ffb020;--admin-danger:#ff4057;min-height:calc(100dvh - 44px);border:1px solid var(--admin-border);border-radius:14px;background:radial-gradient(circle at 30% 0,rgba(0,217,255,.08),transparent 34%),var(--admin-bg);color:var(--admin-text);overflow:hidden}.admin-topbar{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px 22px;border-bottom:1px solid var(--admin-border);background:linear-gradient(135deg,rgba(7,86,216,.16),rgba(13,23,38,.86))}.admin-brand{display:flex;align-items:center;gap:12px;min-width:0}.admin-brand img{width:38px;height:38px;object-fit:contain}.admin-brand h2{margin:0;font-size:20px}.admin-badge{display:inline-flex;margin-left:8px;padding:4px 8px;border:1px solid rgba(96,165,250,.38);border-radius:8px;color:#bfdbfe;font-size:12px}.admin-actions{display:flex;align-items:center;gap:12px}.admin-user{display:flex;align-items:center;gap:9px;color:var(--admin-text);font-weight:800}.admin-user-icon{display:grid;place-items:center;width:36px;height:36px;border:1px solid rgba(148,163,184,.42);border-radius:999px}.admin-back{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--admin-border);border-radius:9px;background:rgba(15,23,42,.4);color:var(--admin-text);padding:9px 12px;font-weight:800;cursor:pointer}.admin-layout{display:grid;grid-template-columns:230px minmax(0,1fr);min-height:calc(100dvh - 128px)}.admin-sidebar{display:flex;flex-direction:column;gap:8px;padding:16px;border-right:1px solid var(--admin-border);background:rgba(8,15,26,.74)}.admin-nav-item{display:flex;align-items:center;gap:12px;min-height:48px;width:100%;padding:12px 14px;border:1px solid transparent;border-radius:8px;background:transparent;color:#cbd5e1;text-align:left;font-weight:800;cursor:pointer}.admin-nav-item svg{width:20px;height:20px;stroke:currentColor;color:#cbd5e1}.admin-nav-item.active,.admin-nav-item[aria-current="page"]{border-color:#1475ff;background:linear-gradient(135deg,rgba(7,86,216,.36),rgba(0,217,255,.08));box-shadow:inset 3px 0 0 var(--admin-cyan);color:#fff}.admin-nav-item:focus-visible{outline:2px solid var(--admin-cyan);outline-offset:2px}.admin-nav-item[disabled]{opacity:.45;cursor:not-allowed}.admin-content{min-width:0;padding:22px 24px 32px}.admin-content .settings-panel{display:none}.admin-content .settings-panel.active{display:block}.admin-page-title{margin:0 0 6px;font-size:28px}.admin-page-subtitle{margin:0 0 18px;color:var(--admin-muted)}.admin-metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:18px}.admin-metric{display:flex;align-items:center;gap:14px;min-height:90px;padding:16px;border:1px solid var(--admin-border);border-radius:8px;background:linear-gradient(135deg,rgba(17,30,48,.92),rgba(8,15,26,.92))}.admin-metric-icon{display:grid;place-items:center;width:48px;height:48px;border:1px solid var(--admin-border);border-radius:10px;color:#38bdf8}.admin-metric small{display:block;color:var(--admin-muted);font-weight:800}.admin-metric b{display:block;margin-top:4px;color:#3ea7ff;font-size:28px}.admin-card{border:1px solid var(--admin-border);border-radius:10px;background:rgba(13,23,38,.78);padding:18px}.admin-card h3{margin:0 0 8px}.admin-card p{margin:0;color:var(--admin-muted);line-height:1.5}.admin-content :is(.settings-section,.registry-form,.registry-row,.registry-link-editor,.registry-check,.import-box){background:var(--admin-surface-2);border-color:var(--admin-border);color:var(--admin-text)}.admin-content :is(input,select){background:#091322;border-color:var(--admin-border);color:var(--admin-text)}.admin-content :is(.settings-note,.registry-info small,.user-info small,.registry-empty,.user-message){color:var(--admin-muted)}.admin-content :is(.btn2,.settings-tab,.registry-tab){background:#111e30;border-color:var(--admin-border);color:#dbe7f7}.admin-content :is(.btn,.registry-tab.active,.settings-tab.active){background:var(--admin-primary);color:#fff}
 .report{max-width:900px;margin:auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px}.report-head{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;margin-bottom:16px}.report-head h2{margin:0 0 5px}.report-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.report-controls select{min-width:150px}.report-date{display:grid;gap:3px;color:var(--muted);font-size:11px;font-weight:750}.report-date input{min-width:145px;padding:10px}.report-primary-actions{display:flex;gap:8px;flex-wrap:wrap}.report-selection-actions{display:flex;gap:8px;margin:0 0 10px}.layout-picker{display:flex;gap:5px;padding:4px;border:1px solid var(--line);border-radius:11px;background:#f1f5f9}.layout-button{display:grid;place-items:center;width:38px;height:36px;padding:7px;border:0;border-radius:8px;background:transparent;color:#7a8499;cursor:pointer}.layout-button.active{background:var(--blue);color:#fff;box-shadow:0 3px 9px rgba(37,99,235,.25)}.layout-icon{display:grid;grid-template-columns:repeat(var(--icon-columns),1fr);grid-template-rows:repeat(3,4px);gap:2px;width:100%;height:16px}.layout-icon span{border-radius:1px;background:currentColor}.report-grid{display:grid;grid-template-columns:repeat(var(--report-columns,1),minmax(0,1fr));gap:10px;min-height:260px;padding:12px;border:1px solid var(--line);border-radius:13px;background:#f8fafc}.report-item{position:relative;min-width:0;padding:14px 14px 14px 44px;border:1px solid #dbe1ea;border-radius:10px;background:#fff;color:#111827;white-space:pre-wrap;overflow-wrap:anywhere;font:700 15px/1.45 "Courier New",monospace;cursor:pointer}.report-item.selected{border-color:#60a5fa;box-shadow:0 0 0 2px rgba(37,99,235,.12)}.report-item input{position:absolute;top:15px;left:14px;width:18px;height:18px;cursor:pointer}.report-grid[data-columns="2"] .report-item{font-size:13px;padding:12px 12px 12px 39px}.report-grid[data-columns="3"] .report-item{font-size:11px;padding:9px 9px 9px 34px}.report-grid[data-columns="4"] .report-item{font-size:9px;padding:7px 7px 7px 31px}.report-empty{grid-column:1/-1;align-self:start;padding:30px;text-align:center;color:var(--muted)}.report-status{margin-top:10px;color:var(--muted);font-size:13px}
 .settings h2{margin:0 0 5px}.settings-note{margin:0 0 18px;color:var(--muted);font-size:14px;line-height:1.5}
 .settings-tabs{display:flex;gap:7px;overflow-x:auto;margin:0 0 18px;padding-bottom:3px}.settings-tab{white-space:nowrap;border:1px solid var(--line);border-radius:999px;padding:9px 13px;background:#f8fafc;color:var(--muted);font-weight:800;cursor:pointer}.settings-tab.active{border-color:var(--blue);background:var(--blue);color:#fff}.settings-tab[hidden]{display:none}.settings-panel{display:none}.settings-panel.active{display:block}
+.admin-central .admin-brand h2,.admin-central .admin-page-title,.admin-central .admin-card h3{color:var(--admin-text);letter-spacing:0;line-height:1.16}.admin-central .admin-badge{vertical-align:middle;color:#dbeafe;background:rgba(37,99,235,.16)}.admin-central .admin-page-subtitle,.admin-central .settings-note{color:var(--admin-muted)}.admin-sidebar .settings-tab.admin-nav-item{border-radius:8px;background:transparent;color:#cbd5e1;line-height:1.2;white-space:nowrap}.admin-sidebar .settings-tab.admin-nav-item.active,.admin-sidebar .settings-tab.admin-nav-item[aria-current="page"]{background:linear-gradient(135deg,rgba(7,86,216,.36),rgba(0,217,255,.08));color:#fff;border-color:#1475ff}.admin-central .admin-metric{align-items:center}.admin-central .admin-metric small{line-height:1.2}.admin-central .admin-metric b{line-height:1}.admin-content .settings-section{padding:18px;border:1px solid var(--admin-border);border-radius:10px}.admin-content .user-row,.admin-content .registry-row{align-items:center;min-height:64px;line-height:1.32}.admin-content .user-info strong,.admin-content .registry-info strong{line-height:1.25}.admin-content .user-actions,.admin-content .registry-actions{align-items:center}.admin-content .registry-tabs{align-items:center;gap:8px}.admin-content .registry-tab{border-radius:8px;line-height:1.15}.admin-content .registry-form{gap:12px;padding:16px}.admin-content .registry-form .label{margin:0 0 6px}.admin-content .registry-submit{margin-top:0}
 .settings-section+.settings-section{margin-top:24px;padding-top:22px;border-top:1px solid var(--line)}.theme-options{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}.theme-button{display:flex;align-items:center;gap:10px;padding:13px;border:1px solid var(--line);border-radius:13px;background:#f8fafc;color:var(--text);font-weight:800;cursor:pointer;text-align:left}.theme-button.active{border-color:var(--blue);background:var(--blue2);color:#1d4ed8;box-shadow:0 0 0 2px rgba(37,99,235,.1)}.theme-icon{display:grid;place-items:center;width:31px;height:31px;border-radius:9px;background:#fff;font-size:18px;box-shadow:0 2px 7px rgba(15,23,42,.1)}.theme-status{margin-top:10px;color:var(--muted);font-size:13px}
 .settings-section[hidden]{display:none}.user-create{display:grid;grid-template-columns:1fr 1fr auto;gap:9px;align-items:end;margin-top:14px}.user-list{display:grid;gap:9px;margin-top:16px}.user-card{border:1px solid var(--line);border-radius:12px;background:#f8fafc;overflow:hidden}.user-card.expanded .user-locations{display:block}.user-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px}.user-info{min-width:0}.user-info strong{display:block;overflow:hidden;text-overflow:ellipsis}.user-info small{display:block;margin-top:4px;color:var(--muted)}.user-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}.user-role-select{min-width:150px;padding:10px;font-weight:750}.user-state{display:inline-block;margin-top:6px;padding:4px 7px;border-radius:999px;font-size:11px;font-weight:850}.user-state.active{background:#dcfce7;color:#166534}.user-state.inactive{background:#fee2e2;color:#b91c1c}.user-locations{display:none;padding:0 13px 13px;border-top:1px solid var(--line)}.user-locations-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 9px}.user-locations-head strong{font-size:13px}.user-location-actions{display:flex;gap:7px;flex-wrap:wrap}.user-location-checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.user-location-check{display:flex;align-items:center;gap:8px;padding:9px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:13px;font-weight:700}.user-location-check input{width:auto}.user-location-empty{padding:13px;border:1px dashed var(--line);border-radius:10px;color:var(--muted);font-size:13px;text-align:center}.user-message{min-height:19px;margin-top:10px;color:var(--muted);font-size:13px}.user-message.error{color:var(--red)}.user-message.success{color:var(--green)}
 .import-box{border:2px dashed #cbd3df;border-radius:15px;padding:24px;text-align:center;background:#fafbfc}
@@ -93,8 +109,10 @@ input:focus,select:focus{border-color:#9dbbf9;box-shadow:0 0 0 3px #e8f0ff}
 .scanner-status{margin:10px 0 0;color:#5a6478;font-size:13px}
 .scanner-success{position:absolute;inset:0;border-radius:16px;background:rgba(22,163,74,.9);display:none;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:20px;letter-spacing:.02em}
 .scanner-success.show{display:flex}
-.save-toast{position:fixed;left:50%;top:24px;z-index:2100;display:flex;align-items:center;gap:10px;padding:14px 18px;border-radius:14px;background:#166534;color:#fff;font-weight:800;box-shadow:0 14px 35px rgba(22,101,52,.3);opacity:0;transform:translate(-50%,-20px) scale(.96);pointer-events:none;transition:opacity .25s ease,transform .3s ease}
+.save-toast{position:fixed;left:50%;top:24px;z-index:2100;display:flex;align-items:center;gap:10px;max-width:min(520px,calc(100% - 28px));padding:14px 18px;border-radius:14px;background:#166534;color:#fff;font-weight:800;box-shadow:0 14px 35px rgba(22,101,52,.3);opacity:0;transform:translate(-50%,-20px) scale(.96);pointer-events:none;transition:opacity .25s ease,transform .3s ease}
 .save-toast.show{opacity:1;transform:translate(-50%,0) scale(1)}.save-toast-icon{font-size:21px}
+.save-toast.info{background:#1d4ed8;box-shadow:0 14px 35px rgba(37,99,235,.28)}.save-toast.error{background:#b91c1c;box-shadow:0 14px 35px rgba(185,28,28,.28)}
+.product-load-toast{position:fixed;left:50%;bottom:18px;z-index:2400;display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:center;width:min(520px,calc(100% - 28px));padding:14px 16px;border:1px solid #bfdbfe;border-radius:15px;background:#fff;box-shadow:0 18px 48px rgba(15,23,42,.22);transform:translateX(-50%)}.product-load-toast[hidden]{display:none}.product-load-spinner{width:34px;height:34px;border:4px solid #dbeafe;border-top-color:var(--blue);border-radius:50%;animation:saving-spin .8s linear infinite}.product-load-copy{min-width:0}.product-load-copy strong{display:block;font-size:14px}.product-load-copy span{display:block;margin-top:3px;color:var(--muted);font-size:12px;line-height:1.35}.product-load-bar{grid-column:1/-1;height:5px;border-radius:999px;background:#e5eaf2;overflow:hidden}.product-load-bar span{display:block;width:38%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#2563eb,#00b8d9);animation:product-load-bar 1.1s ease-in-out infinite}@keyframes product-load-bar{0%{transform:translateX(-100%)}100%{transform:translateX(265%)}}
 .saving-overlay{position:fixed;inset:0;z-index:3000;display:none;place-items:center;padding:20px;background:rgba(15,23,42,.68);backdrop-filter:blur(3px);cursor:wait}.saving-overlay.show{display:grid}.saving-box{display:flex;flex-direction:column;align-items:center;gap:14px;width:min(300px,100%);padding:25px;border-radius:18px;background:#fff;box-shadow:0 24px 70px rgba(15,23,42,.35);text-align:center}.saving-box strong{font-size:17px}.saving-box span{color:var(--muted);font-size:13px}.saving-spinner{width:46px;height:46px;border:5px solid #dbeafe;border-top-color:var(--blue);border-radius:50%;animation:saving-spin .75s linear infinite}@keyframes saving-spin{to{transform:rotate(360deg)}}
 .install-banner{position:fixed;left:50%;bottom:18px;z-index:2300;display:flex;align-items:center;gap:13px;width:min(620px,calc(100% - 28px));padding:14px;border:1px solid #bfdbfe;border-radius:17px;background:#fff;box-shadow:0 18px 48px rgba(15,23,42,.24);transform:translateX(-50%)}.install-banner[hidden]{display:none}.install-app-icon{width:48px;height:48px;flex:0 0 auto;border-radius:12px}.install-copy{min-width:0;flex:1}.install-copy strong{display:block;margin-bottom:3px}.install-copy span{display:block;color:var(--muted);font-size:13px;line-height:1.35}.install-actions{display:flex;gap:7px;flex:0 0 auto}
 .confetti-layer{position:fixed;inset:0;z-index:2000;overflow:hidden;pointer-events:none}
@@ -108,19 +126,31 @@ html[data-theme="dark"] body{background:var(--bg);color:var(--text)}
 html[data-theme="dark"] :is(.stat,.card,.form,.settings,.report,.update-panel,.scanner-panel,.saving-box){background:var(--card);border-color:var(--line)}
 html[data-theme="dark"] :is(input,select){background:#0f192a;border-color:var(--line);color:var(--text)}
 html[data-theme="dark"] :is(.tab,.btn2){background:#223047;color:#dbe7f7}
+html[data-theme="dark"] .header-admin-button{background:rgba(37,99,235,.14);color:#dbeafe;border-color:rgba(96,165,250,.45)}
+html[data-theme="dark"] .header-admin-button:hover{background:rgba(37,99,235,.24);color:#fff;border-color:#60a5fa}
+html[data-theme="dark"] nav .tab{background:transparent;color:#c5cfdd}
+html[data-theme="dark"] nav .tab:hover{background:var(--sk-surface-hover);color:#fff}
+html[data-theme="dark"] nav .tab.active,html[data-theme="dark"] nav .tab[aria-current="page"]{background:linear-gradient(135deg,var(--sk-primary),#0a3f9f);color:#fff}
 html[data-theme="dark"] :is(.chip,.theme-button,.settings-tab,.report-item){background:#121e31;border-color:var(--line);color:var(--text)}
 html[data-theme="dark"] :is(.user-card,.user-location-check){background:#121e31;border-color:var(--line)}
 html[data-theme="dark"] .install-banner{background:var(--card);border-color:#31558a}
+html[data-theme="dark"] .product-load-toast{background:var(--card);border-color:#31558a}
 html[data-theme="dark"] .chip.active{background:#e5edf9;color:#111827;border-color:#e5edf9}
 html[data-theme="dark"] :is(.photo,.layout-picker,.report-grid,.import-box){background:#0d1727;border-color:var(--line)}
 html[data-theme="dark"] :is(.info,.settings-section+.settings-section){border-color:var(--line)}
 html[data-theme="dark"] .code{color:#7db1ff}
 html[data-theme="dark"] .theme-button.active{background:#17315a;color:#bfdbfe;border-color:#60a5fa}
 html[data-theme="dark"] .theme-icon{background:#27364e;box-shadow:none}
+html[data-theme="dark"] .personal-info,html[data-theme="dark"] .personal-theme{background:#121e31;border-color:var(--line)}
+html[data-theme="dark"] .personal-close{background:#223047;color:#dbe7f7}
 html[data-theme="dark"] :is(.catalog-info,.found){background:#132b4b;border-color:#25466f}
 html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
+@media(max-width:768px){nav{gap:5px;padding:6px;border-radius:14px}.tab{flex:1 1 0;min-width:0;gap:0;padding:10px 0}.tab.active,.tab[aria-current="page"]{flex:2.65 1 0;gap:7px;padding-inline:9px}.tab-label{display:block;max-width:0;opacity:0;transition:max-width .2s ease,opacity .18s ease}.tab.active .tab-label,.tab[aria-current="page"] .tab-label{max-width:90px;opacity:1}.label-desktop{display:none}.label-mobile{display:inline}}
+@media(max-width:768px){.app-brand{gap:9px}.app-header-logo{width:36px;height:36px}.app-brand h1{font-size:16px}.app-brand .sub{display:none}header{margin-bottom:10px;padding:4px 2px}nav{top:0;margin-inline:-2px;margin-bottom:14px;border-radius:0;border-inline:0;background:rgba(5,12,24,.92);box-shadow:none}.personal-overlay{background:rgba(2,6,14,.6);backdrop-filter:blur(6px)}.personal-panel{top:0;width:min(300px,76vw);height:100dvh}.personal-header{padding-top:58px}.personal-header::before{content:"";width:48px;height:5px;border-radius:999px;background:rgba(255,255,255,.22);position:absolute;top:18px}.personal-title span{white-space:normal}.personal-body{padding-inline:20px}.personal-menu-list{margin-top:10px}.personal-menu-item{grid-template-columns:28px 1fr 20px;padding:17px 0;border-bottom-color:rgba(255,255,255,.08)}.personal-menu-item strong{font-size:15px}.personal-menu-item span{color:#cbd5e1}.personal-menu-arrow{color:#e5e7eb}}
+@media(max-width:480px){.app{max-width:430px}}
 @media(max-width:620px){.scan{grid-template-columns:1fr}}
 @media(max-width:850px){.stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:900px){.admin-topbar{align-items:flex-start;flex-direction:column}.admin-actions{width:100%;justify-content:space-between}.admin-layout{grid-template-columns:1fr}.admin-sidebar{position:sticky;top:0;z-index:5;flex-direction:row;overflow:auto;border-right:0;border-bottom:1px solid var(--admin-border)}.admin-sidebar .settings-tab.admin-nav-item{flex:1 0 48px;justify-content:center;gap:0;min-height:48px;padding:12px 10px;border-radius:8px}.admin-nav-item span{max-width:0;opacity:0;overflow:hidden;white-space:nowrap;transition:max-width .2s ease,opacity .18s ease}.admin-sidebar .settings-tab.admin-nav-item.active,.admin-sidebar .settings-tab.admin-nav-item[aria-current="page"]{flex:2.8 0 132px;gap:8px}.admin-nav-item.active span,.admin-nav-item[aria-current="page"] span{max-width:118px;opacity:1;text-overflow:ellipsis}.admin-content{padding:18px 14px 26px}.admin-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-metric{min-height:82px;padding:13px}.admin-metric-icon{width:42px;height:42px}.admin-metric b{font-size:24px}}
 @media(max-width:620px){.app{padding:14px}.searchrow,.searchrow.with-layout{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}header{align-items:flex-start;flex-direction:column;gap:5px}.photo{height:180px}.report-head{align-items:stretch;flex-direction:column}.report-controls{align-items:stretch;flex-direction:column}.product-layout-picker{justify-self:start}.theme-options,.user-create,.user-location-checks{grid-template-columns:1fr}.user-row,.user-locations-head,.user-actions,.user-location-actions{align-items:stretch;flex-direction:column}.user-row .btn2,.user-locations-head .btn2{width:100%}.install-banner{align-items:flex-start;flex-wrap:wrap}.install-copy{flex:1 1 calc(100% - 65px)}.install-actions{width:100%;justify-content:flex-end}.grid[data-columns="2"] .photo{height:120px}.grid[data-columns="3"] .photo{height:90px}.grid[data-columns="4"] .photo{height:70px}.grid[data-columns="3"] .content,.grid[data-columns="4"] .content{padding:7px}.grid[data-columns="3"] .name,.grid[data-columns="4"] .name{min-height:0;font-size:10px}.grid[data-columns="3"] .code,.grid[data-columns="4"] .code{font-size:8px}.grid[data-columns="3"] .info,.grid[data-columns="4"] .info{display:block;font-size:8px}.grid[data-columns="3"] .badge,.grid[data-columns="4"] .badge{font-size:7px;padding:4px}.grid[data-columns="3"] .card-actions .btn2,.grid[data-columns="4"] .card-actions .btn2{width:100%;padding:6px 3px;font-size:8px}}
 </style>
 </head>
@@ -133,7 +163,7 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
   <form id="authForm" class="auth-card">
    <div class="auth-brand">
     <img src="skalee-symbol-source.png" alt="Skalee">
-    <img class="auth-wordmark-image" src="https://raw.githubusercontent.com/Lucasskalee/razarth-fechamento-skalee/master/fechamentos/public/icons/skalee-wordmark-login.png" alt="Skalee — Criar, Evoluir, Impactar">
+    <img class="auth-wordmark-image" src="skalee-wordmark-login.png" alt="Skalee - Criar, Evoluir, Impactar">
    </div>
    <h1 id="authTitle">Entrar</h1>
    <p id="authSubtitle">Bem-vindo de volta. Acesse o controle de validades com sua conta operacional.</p>
@@ -151,17 +181,57 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
 
 <main id="protectedApp" class="app" aria-hidden="true">
 <header>
- <div><h1>Controle de Validades</h1><div class="sub">Acompanhe primeiro o que está mais perto de vencer.</div></div>
- <div class="user-area"><div><span id="authUser" class="sub"></span><div class="sub" id="today"></div></div><button id="signOut" class="btn2" type="button">Sair</button></div>
+ <div class="app-brand"><img class="app-header-logo" src="skalee-symbol-transparent.png" alt="Skalee"><div><h1>Controle de Validades | Skalee</h1><div class="sub">Acompanhe primeiro o que está mais perto de vencer.</div></div></div>
+ <div class="user-area"><div class="user-copy"><span id="authUser" class="sub"></span><div class="sub" id="today"></div></div><button id="signOut" class="btn2" type="button">Sair</button><button id="adminCentralButton" class="header-admin-button" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M12 3 20 7v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7l8-4Z"/><path d="M9 12l2 2 4-4"/></svg><span>Central Administrativa</span></button><button id="headerProfileButton" class="header-profile-button" type="button" aria-label="Abrir perfil" aria-haspopup="dialog" aria-controls="personalPanel"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></button></div>
 </header>
 
-<nav>
- <button class="tab active" data-page="products">Produtos</button>
- <button class="tab" data-page="register">+ Registrar produto</button>
- <button id="reportTab" class="tab" data-page="report" hidden>Relatórios</button>
- <a id="posterTab" class="tab" href="poster.html" hidden>Cartaz</a>
- <button class="tab" data-page="settings">Configurações</button>
+<nav class="main-nav" aria-label="Navegação principal">
+ <button class="tab active" data-page="products" aria-current="page"><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span><span class="tab-label"><span class="label-desktop">Produtos</span><span class="label-mobile">Produtos</span></span></button>
+ <button class="tab" data-page="register"><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 5v14"/><path d="M5 12h14"/><path d="M4 4h16v16H4z"/></svg></span><span class="tab-label"><span class="label-desktop">Registrar produto</span><span class="label-mobile">Registrar</span></span></button>
+ <button id="reportTab" class="tab" data-page="report" hidden><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 19V5"/><path d="M8 17v-6"/><path d="M13 17V7"/><path d="M18 17v-3"/><path d="M4 19h17"/></svg></span><span class="tab-label"><span class="label-desktop">Relatórios</span><span class="label-mobile">Relat.</span></span></button>
+ <a id="posterTab" class="tab" href="poster.html" hidden><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8"/><path d="M8 12h8"/><path d="M8 16h5"/></svg></span><span class="tab-label"><span class="label-desktop">Cartaz</span><span class="label-mobile">Cartaz</span></span></a>
+ <button id="personalSettingsButton" class="tab" type="button" aria-haspopup="dialog" aria-controls="personalPanel" aria-expanded="false"><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.6-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.6V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9v.1a1.7 1.7 0 0 0 1.6 1h.1a2 2 0 0 1 0 4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg></span><span class="tab-label"><span class="label-desktop">Configurações</span><span class="label-mobile">Config</span></span></button>
 </nav>
+
+<div id="personalOverlay" class="personal-overlay" hidden></div>
+<aside id="personalPanel" class="personal-panel" role="dialog" aria-modal="true" aria-labelledby="personalPanelTitle" tabindex="-1" hidden>
+ <div class="personal-header">
+  <img class="personal-logo" src="skalee-symbol-transparent.png" alt="Skalee">
+  <div class="personal-title">
+   <h2 id="personalPanelTitle">Configurações</h2>
+   <span id="personalUserName">Usuário</span>
+   <span id="personalUserRole">Perfil</span>
+  </div>
+  <button id="personalClose" class="personal-close" type="button" aria-label="Fechar configurações">×</button>
+ </div>
+ <div class="personal-body">
+  <section class="personal-section" aria-labelledby="personalAppearanceTitle">
+   <h3 id="personalAppearanceTitle">Aparência</h3>
+   <div class="personal-theme" role="group" aria-label="Tema do aplicativo">
+    <button class="personal-theme-button" type="button" data-personal-theme-choice="light">☀ Claro</button>
+    <button class="personal-theme-button" type="button" data-personal-theme-choice="dark">🌙 Escuro</button>
+   </div>
+  </section>
+  <div class="personal-menu-list">
+   <section class="personal-menu-item" aria-labelledby="personalProfileTitle">
+    <span class="personal-menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span>
+    <div><strong id="personalProfileTitle">Meu perfil</strong><span id="personalProfileEmail">--</span></div>
+    <span class="personal-menu-arrow" aria-hidden="true">›</span>
+   </section>
+   <section id="personalSupplierSection" class="personal-menu-item" aria-labelledby="personalSupplierTitle" hidden>
+    <span class="personal-menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 21V7l8-4 8 4v14"/><path d="M9 21v-6h6v6"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg></span>
+    <div><strong id="personalSupplierTitle">Minha empresa</strong><span id="personalSupplierDetails">--</span></div>
+    <span class="personal-menu-arrow" aria-hidden="true">›</span>
+   </section>
+   <button id="personalAboutButton" class="personal-menu-item personal-about-button" type="button" aria-labelledby="personalAboutTitle">
+    <span class="personal-menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span>
+    <div><strong id="personalAboutTitle">Sobre o aplicativo</strong><span>Termos, disponibilidade e suporte</span></div>
+    <span class="personal-menu-arrow" aria-hidden="true">›</span>
+   </button>
+  </div>
+  <button id="personalSignOut" class="personal-signout" type="button">Sair</button>
+ </div>
+</aside>
 
 <section class="page active" id="products">
  <div class="stats">
@@ -173,11 +243,17 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
  </div>
 
  <div class="searchrow with-layout">
-  <input id="search" placeholder="Buscar por nome ou código interno...">
+  <div class="clearable-field">
+   <input id="search" placeholder="Buscar por nome ou código interno...">
+   <button id="clearSearch" class="clear-input" type="button" aria-label="Limpar busca" title="Limpar busca" hidden>×</button>
+  </div>
   <select id="storeFilter">
    <option value="">Todas as lojas</option>
   </select>
-  <input id="supplierFilter" inputmode="numeric" maxlength="60" placeholder="Cód. forn." style="max-width:120px">
+  <div class="clearable-field">
+   <input id="supplierFilter" inputmode="numeric" maxlength="160" placeholder="Cód. forn. Ex: 209, 223">
+   <button id="clearSupplierFilter" class="clear-input" type="button" aria-label="Limpar fornecedores" title="Limpar fornecedores" hidden>×</button>
+  </div>
   <div class="layout-picker product-layout-picker" aria-label="Colunas dos produtos">
    <button class="layout-button product-layout-button" type="button" data-columns="1" aria-label="Uma coluna" title="Uma coluna"><span class="layout-icon" aria-hidden="true"></span></button>
    <button class="layout-button product-layout-button" type="button" data-columns="2" aria-label="Duas colunas" title="Duas colunas"><span class="layout-icon" aria-hidden="true"></span></button>
@@ -274,25 +350,37 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
  </div>
 </section>
 
-<section class="page" id="settings">
- <div class="settings">
-  <div class="settings-tabs" role="tablist" aria-label="Áreas de configuração">
-   <button class="settings-tab active" type="button" data-settings="general">Geral</button>
-   <button id="settingsUsersTab" class="settings-tab" type="button" data-settings="users" hidden>Usuários</button>
-   <button id="settingsRegistriesTab" class="settings-tab" type="button" data-settings="registries" hidden>Cadastros</button>
-  </div>
-
-  <section class="settings-panel active" data-settings-panel="general">
-   <div class="settings-section">
-   <h2>Tema do aplicativo</h2>
-   <p class="settings-note">Escolha a aparência que fica mais confortável para você.</p>
-   <div class="theme-options" role="group" aria-label="Tema do aplicativo">
-    <button class="theme-button" type="button" data-theme-choice="light"><span class="theme-icon" aria-hidden="true">☀️</span><span>Claro</span></button>
-    <button class="theme-button" type="button" data-theme-choice="dark"><span class="theme-icon" aria-hidden="true">🌙</span><span>Escuro</span></button>
-    <button class="theme-button" type="button" data-theme-choice="auto"><span class="theme-icon" aria-hidden="true">◐</span><span>Automático</span></button>
+<section id="adminCentral" class="admin-central" hidden aria-hidden="true">
+ <div class="admin-shell">
+  <header class="admin-topbar">
+   <div class="admin-brand">
+    <img src="skalee-symbol-transparent.png" alt="Skalee">
+    <div><h2>Central Administrativa <span class="admin-badge">Administrador</span></h2></div>
    </div>
-   <div id="themeStatus" class="theme-status" aria-live="polite"></div>
-  </div>
+   <div class="admin-actions">
+    <button id="adminBackToApp" class="admin-back" type="button"><span aria-hidden="true">←</span> Voltar ao aplicativo</button>
+    <div class="admin-user"><span class="admin-user-icon" aria-hidden="true">◎</span><span id="adminUserName">Administrador</span></div>
+   </div>
+  </header>
+  <div class="admin-layout">
+   <aside class="admin-sidebar" aria-label="Navegação administrativa">
+    <button class="settings-tab admin-nav-item active" type="button" data-settings="overview" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M4 4h7v7H4z"/><path d="M13 4h7v7h-7z"/><path d="M4 13h7v7H4z"/><path d="M13 13h7v7h-7z"/></svg><span>Visão geral</span></button>
+    <button id="settingsUsersTab" class="settings-tab admin-nav-item" type="button" data-settings="users" hidden><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M17 11a4 4 0 0 1 0 8"/></svg><span>Usuários</span></button>
+    <button id="settingsRegistriesTab" class="settings-tab admin-nav-item" type="button" data-settings="registries" hidden><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M4 21V7l8-4 8 4v14"/><path d="M9 21v-6h6v6"/></svg><span>Cadastros e vínculos</span></button>
+    <button class="admin-nav-item" type="button" disabled aria-disabled="true" title="Aguardando API segura de auditoria"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M6 3h12v18H6z"/><path d="M9 8h6"/><path d="M9 12h6"/><path d="M9 16h4"/></svg><span>Registros de atividade</span></button>
+   </aside>
+   <div class="admin-content">
+  <section class="settings-panel active" data-settings-panel="overview">
+   <h2 class="admin-page-title">Visão geral</h2>
+   <p class="admin-page-subtitle">Gestão de acessos, empresas e operações.</p>
+   <div class="admin-metrics" aria-live="polite">
+    <div class="admin-metric"><span class="admin-metric-icon" aria-hidden="true">👥</span><div><small>Usuários ativos</small><b id="adminMetricUsers">--</b></div></div>
+    <div class="admin-metric"><span class="admin-metric-icon" aria-hidden="true">🏢</span><div><small>Empresas</small><b id="adminMetricOrganizations">--</b></div></div>
+    <div class="admin-metric"><span class="admin-metric-icon" aria-hidden="true">🏪</span><div><small>Lojas</small><b id="adminMetricLocations">--</b></div></div>
+    <div class="admin-metric"><span class="admin-metric-icon" aria-hidden="true">📦</span><div><small>Fornecedores</small><b id="adminMetricSuppliers">--</b></div></div>
+    <div class="admin-metric"><span class="admin-metric-icon" aria-hidden="true">🏷</span><div><small>Marcas</small><b id="adminMetricBrands">--</b></div></div>
+   </div>
+   <div class="admin-card"><h3>Atividades recentes</h3><p>A listagem de auditoria será habilitada apenas com consulta paginada e sanitizada. Nenhum payload grande será carregado nesta tela.</p></div>
   <div id="catalogSettingsSection" class="settings-section" hidden>
    <h2>Catálogo de produtos</h2>
    <p class="settings-note">Os produtos disponíveis na busca são carregados do Supabase. Use importação apenas para alimentar a base compartilhada.</p>
@@ -428,6 +516,8 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
   </div>
   </section>
  </div>
+  </div>
+ </div>
 </section>
 </main>
 
@@ -441,6 +531,15 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
   <button id="dismissInstall" class="btn2" type="button">Agora não</button>
   <button id="installApp" class="btn" type="button">Instalar</button>
  </div>
+</aside>
+
+<aside id="productLoadToast" class="product-load-toast" role="status" aria-live="polite" hidden>
+ <div class="product-load-spinner" aria-hidden="true"></div>
+ <div class="product-load-copy">
+  <strong id="productLoadTitle">Carregando produtos...</strong>
+  <span id="productLoadDetail">Os produtos continuam carregando em segundo plano.</span>
+ </div>
+ <div class="product-load-bar" aria-hidden="true"><span></span></div>
 </aside>
 
 <div id="scannerModal" class="scanner-modal" aria-hidden="true">
@@ -483,9 +582,22 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
  </div>
 </div>
 
+<div id="aboutModal" class="update-modal personal-about-modal" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
+ <div class="update-panel">
+  <h2 id="aboutTitle">Sobre o aplicativo</h2>
+  <div class="personal-about-text">
+   <p>Controle de Validades Skalee e uma ferramenta de apoio para acompanhar produtos proximos ao vencimento, quantidades, lojas, fornecedores e relatorios internos.</p>
+   <p>As informacoes exibidas dependem dos cadastros realizados pelos usuarios, da conexao com a internet e da disponibilidade do banco de dados. Podem ocorrer atrasos de sincronizacao, falhas temporarias de carregamento ou informacoes incompletas.</p>
+   <p>O aplicativo nao substitui a conferencia fisica de validade, quantidade e condicao dos produtos pela equipe responsavel.</p>
+  </div>
+  <a class="personal-about-link" href="https://wa.me/5567992329184?text=Ol%C3%A1%20Lucas%20Skalee%2C%20preciso%20de%20suporte%20no%20Controle%20de%20Validades%20Skalee." target="_blank" rel="noopener noreferrer">Chamar Lucas Skalee no WhatsApp</a>
+  <div class="actions"><button id="aboutClose" class="btn2" type="button">Fechar</button></div>
+ </div>
+</div>
+
 <div id="saveToast" class="save-toast" role="status" aria-live="polite">
  <span class="save-toast-icon" aria-hidden="true">✓</span>
- <span>Produto salvo com sucesso!</span>
+ <span id="saveToastText">Produto salvo com sucesso!</span>
 </div>
 <div id="savingOverlay" class="saving-overlay" role="status" aria-live="assertive" aria-hidden="true">
  <div class="saving-box">
@@ -511,9 +623,12 @@ const NATIVE_BARCODE_FORMATS = [
 
 const els = {
  today: document.getElementById('today'),
+ signOut: document.getElementById('signOut'),
  search: document.getElementById('search'),
+ clearSearch: document.getElementById('clearSearch'),
  storeFilter: document.getElementById('storeFilter'),
  supplierFilter: document.getElementById('supplierFilter'),
+ clearSupplierFilter: document.getElementById('clearSupplierFilter'),
  sort: document.getElementById('sort'),
  grid: document.getElementById('grid'),
  result: document.getElementById('result'),
@@ -578,11 +693,35 @@ const els = {
  settingsPanels: document.querySelectorAll('.settings-panel'),
  settingsUsersTab: document.getElementById('settingsUsersTab'),
  settingsRegistriesTab: document.getElementById('settingsRegistriesTab'),
+ adminCentral: document.getElementById('adminCentral'),
+ adminCentralButton: document.getElementById('adminCentralButton'),
+ adminBackToApp: document.getElementById('adminBackToApp'),
+ adminUserName: document.getElementById('adminUserName'),
+ adminMetricUsers: document.getElementById('adminMetricUsers'),
+ adminMetricOrganizations: document.getElementById('adminMetricOrganizations'),
+ adminMetricLocations: document.getElementById('adminMetricLocations'),
+ adminMetricSuppliers: document.getElementById('adminMetricSuppliers'),
+ adminMetricBrands: document.getElementById('adminMetricBrands'),
+ headerProfileButton: document.getElementById('headerProfileButton'),
+ personalSettingsButton: document.getElementById('personalSettingsButton'),
+ personalOverlay: document.getElementById('personalOverlay'),
+ personalPanel: document.getElementById('personalPanel'),
+ personalClose: document.getElementById('personalClose'),
+ personalUserName: document.getElementById('personalUserName'),
+ personalUserRole: document.getElementById('personalUserRole'),
+ personalProfileEmail: document.getElementById('personalProfileEmail'),
+ personalSupplierSection: document.getElementById('personalSupplierSection'),
+ personalSupplierDetails: document.getElementById('personalSupplierDetails'),
+ personalAboutButton: document.getElementById('personalAboutButton'),
+ aboutModal: document.getElementById('aboutModal'),
+ aboutClose: document.getElementById('aboutClose'),
+ personalSignOut: document.getElementById('personalSignOut'),
  reportTab: document.getElementById('reportTab'),
  posterTab: document.getElementById('posterTab'),
  layoutButtons: document.querySelectorAll('#layoutPicker .layout-button'),
  productLayoutButtons: document.querySelectorAll('.product-layout-button'),
  themeButtons: document.querySelectorAll('.theme-button'),
+ personalThemeButtons: document.querySelectorAll('.personal-theme-button'),
  themeStatus: document.getElementById('themeStatus'),
  adminUsersSection: document.getElementById('adminUsersSection'),
  newUserEmail: document.getElementById('newUserEmail'),
@@ -595,21 +734,40 @@ const els = {
  installMessage: document.getElementById('installMessage'),
  installApp: document.getElementById('installApp'),
  dismissInstall: document.getElementById('dismissInstall'),
+ productLoadToast: document.getElementById('productLoadToast'),
+ productLoadTitle: document.getElementById('productLoadTitle'),
+ productLoadDetail: document.getElementById('productLoadDetail'),
  saveToast: document.getElementById('saveToast'),
+ saveToastText: document.getElementById('saveToastText'),
  confettiLayer: document.getElementById('confettiLayer')
 };
 
 let selected = null;
 let updatingProductId = null;
-let photoData = "";
+let photoFile = null;
+let photoData = null;
+let photoPreviewUrl = "";
 let activeFilter = "all";
 let isViewer = false;
 let isSkaleeAdmin = false;
+let canManageAdminUsers = false;
 let activeUserEmail = "";
 let catalogLoadPromise = null;
 let adminUsersLoaded = false;
 let adminUsersLoadPromise = null;
+let signOutConfirmedFromPanel = false;
+let productPhotoObserver = null;
+let productPageObserver = null;
+let productPageLoading = false;
+let productHasMorePages = false;
+let productPageOffset = 0;
+let productLoadGeneration = 0;
+const requestedProductPhotoIds = new Set();
 const selectedReportProductIds = new Set();
+const expandedProductIds = new Set();
+const pendingProductUpdateIds = new Set();
+const PRODUCT_PAGE_SIZE = 15;
+const PRODUCT_PHOTO_BATCH_SIZE = 30;
 let reportSelectionInitialized = false;
 let reportCreatedTodayOnly = false;
 const REPORT_COLUMNS_KEY = "skalee.report.columns";
@@ -628,9 +786,18 @@ function applyThemePreference(preference, announce = false) {
  const resolvedTheme = preference === "auto" ? (themeMedia.matches ? "dark" : "light") : preference;
  document.documentElement.dataset.theme = resolvedTheme;
  document.documentElement.dataset.themePreference = preference;
- els.themeButtons.forEach((button) => button.classList.toggle("active", button.dataset.themeChoice === preference));
+ els.themeButtons.forEach((button) => {
+  const active = button.dataset.themeChoice === preference;
+  button.classList.toggle("active", active);
+  button.setAttribute("aria-pressed", String(active));
+ });
+ els.personalThemeButtons.forEach((button) => {
+  const active = button.dataset.personalThemeChoice === resolvedTheme;
+  button.classList.toggle("active", active);
+  button.setAttribute("aria-pressed", String(active));
+ });
  const labels = { light: "Claro", dark: "Escuro", auto: `Automático (${resolvedTheme === "dark" ? "escuro" : "claro"})` };
- els.themeStatus.textContent = announce ? `Tema ${labels[preference]} ativado.` : `Tema atual: ${labels[preference]}.`;
+ if (els.themeStatus) els.themeStatus.textContent = announce ? `Tema ${labels[preference]} ativado.` : `Tema atual: ${labels[preference]}.`;
 }
 
 els.themeButtons.forEach((button) => {
@@ -641,11 +808,192 @@ els.themeButtons.forEach((button) => {
  });
 });
 
+els.personalThemeButtons.forEach((button) => {
+ button.addEventListener("click", () => {
+  const preference = button.dataset.personalThemeChoice;
+  localStorage.setItem(THEME_KEY, preference);
+  applyThemePreference(preference, true);
+ });
+});
+
 themeMedia.addEventListener("change", () => {
  if (themePreference === "auto") applyThemePreference("auto");
 });
 
 applyThemePreference(themePreference);
+
+let personalPanelPreviousFocus = null;
+
+function roleLabel(role) {
+ const labels = {
+  platform_admin: "Administrador da plataforma",
+  admin: "Administrador",
+  editor: "Usuário normal",
+  normal: "Usuário normal",
+  promoter: "Promotor",
+  viewer: "Visualizador"
+ };
+ return labels[role] || "Usuário normal";
+}
+
+function updatePersonalPanelIdentity(detail = {}) {
+ const email = detail.email || activeUserEmail || "";
+ const role = detail.accessRole || (isViewer ? "viewer" : "normal");
+ const name = displayUserName(email);
+ const label = roleLabel(role);
+ els.personalUserName.textContent = name;
+ els.personalUserRole.textContent = label;
+ els.personalProfileEmail.textContent = email || "Usuário autenticado";
+ if (els.adminUserName) els.adminUserName.textContent = name;
+ updatePersonalPanelScope();
+}
+
+function updatePersonalPanelScope() {
+ const suppliers = Array.isArray(allowedSuppliers) ? allowedSuppliers.filter((supplier) => supplier.active !== false) : [];
+ els.personalSupplierSection.hidden = !suppliers.length;
+ if (suppliers.length) {
+  const first = suppliers[0];
+  els.personalSupplierDetails.textContent = suppliers.length === 1 ? (first.name || first.code || "Fornecedor vinculado") : `${suppliers.length} fornecedores vinculados`;
+ }
+}
+
+function restoreActivePageTab() {
+ const activePageId = document.querySelector(".page.active")?.id || "products";
+ document.querySelectorAll("nav .tab").forEach((item) => {
+  const active = item.dataset.page === activePageId;
+  item.classList.toggle("active", active);
+  if (active) item.setAttribute("aria-current", "page");
+  else item.removeAttribute("aria-current");
+ });
+}
+
+function setPersonalPanelOpen(open) {
+ if (open) {
+  personalPanelPreviousFocus = document.activeElement;
+  els.personalPanel.hidden = false;
+  els.personalOverlay.hidden = false;
+  requestAnimationFrame(() => {
+   els.personalPanel.classList.add("show");
+   els.personalOverlay.classList.add("show");
+  });
+ document.body.style.overflow = "hidden";
+  document.querySelectorAll("nav .tab").forEach((item) => {
+   item.classList.remove("active");
+   item.removeAttribute("aria-current");
+  });
+  els.personalSettingsButton.classList.add("active");
+  els.personalSettingsButton.setAttribute("aria-expanded", "true");
+  els.personalPanel.focus();
+  return;
+ }
+ els.personalPanel.classList.remove("show");
+ els.personalOverlay.classList.remove("show");
+ els.personalSettingsButton.setAttribute("aria-expanded", "false");
+ setTimeout(() => {
+  els.personalPanel.hidden = true;
+  els.personalOverlay.hidden = true;
+ }, 200);
+ document.body.style.overflow = "";
+ restoreActivePageTab();
+ if (personalPanelPreviousFocus && typeof personalPanelPreviousFocus.focus === "function") personalPanelPreviousFocus.focus();
+}
+
+function setAdminMetric(element, value) {
+ if (!element) return;
+ element.textContent = Number.isFinite(Number(value)) ? Number(value).toLocaleString("pt-BR") : "--";
+}
+
+function updateAdminMetrics(metrics = {}) {
+ const users = Array.isArray(metrics.users) ? metrics.users : null;
+ const activeUsers = users ? users.filter((user) => user.active !== false).length : metrics.activeUsers;
+ setAdminMetric(els.adminMetricUsers, activeUsers);
+ setAdminMetric(els.adminMetricOrganizations, metrics.organizationsCount ?? (Array.isArray(metrics.organizations) ? metrics.organizations.length : undefined));
+ setAdminMetric(els.adminMetricLocations, metrics.locationsCount ?? (Array.isArray(metrics.locations) ? metrics.locations.length : undefined));
+ setAdminMetric(els.adminMetricSuppliers, metrics.supplierCount);
+ setAdminMetric(els.adminMetricBrands, metrics.brandsCount ?? (Array.isArray(metrics.brands) ? metrics.brands.length : undefined));
+}
+
+window.skaleeUpdateAdminMetrics = updateAdminMetrics;
+
+function openAdminCentral(panelName = "overview") {
+ if (!els.adminCentral || !els.adminCentralButton || els.adminCentralButton.hidden) return;
+ setPersonalPanelOpen(false);
+ els.adminCentral.hidden = false;
+ els.adminCentral.setAttribute("aria-hidden", "false");
+ document.body.classList.add("admin-open");
+ showSettingsPanel(panelName);
+ window.scrollTo(0, 0);
+}
+
+function closeAdminCentral() {
+ if (!els.adminCentral) return;
+ document.body.classList.remove("admin-open");
+ els.adminCentral.hidden = true;
+ els.adminCentral.setAttribute("aria-hidden", "true");
+ restoreActivePageTab();
+}
+
+function hasUnsavedProductWork() {
+ return Boolean(updatingProductId || selected || photoData || els.barcode.value.trim() || els.qty.value.trim() || els.expiry.value || els.offer.checked);
+}
+
+els.signOut.addEventListener("click", (event) => {
+ if (signOutConfirmedFromPanel) {
+  signOutConfirmedFromPanel = false;
+  return;
+ }
+ if (!hasUnsavedProductWork()) return;
+ if (window.confirm("Existem dados não salvos. Deseja sair mesmo assim?")) return;
+ event.preventDefault();
+ event.stopImmediatePropagation();
+}, true);
+
+els.personalSettingsButton.addEventListener("click", () => {
+ setPersonalPanelOpen(true);
+});
+els.headerProfileButton.addEventListener("click", () => {
+ setPersonalPanelOpen(true);
+});
+els.personalClose.addEventListener("click", () => setPersonalPanelOpen(false));
+els.personalOverlay.addEventListener("click", () => setPersonalPanelOpen(false));
+function setAboutModalOpen(open) {
+ els.aboutModal.classList.toggle("show", open);
+ if (open) els.aboutClose.focus();
+}
+els.personalAboutButton.addEventListener("click", () => setAboutModalOpen(true));
+els.aboutClose.addEventListener("click", () => setAboutModalOpen(false));
+els.aboutModal.addEventListener("click", (event) => {
+ if (event.target === els.aboutModal) setAboutModalOpen(false);
+});
+els.personalSignOut.addEventListener("click", () => {
+ if (hasUnsavedProductWork() && !window.confirm("Existem dados não salvos. Deseja sair mesmo assim?")) return;
+ signOutConfirmedFromPanel = true;
+ els.signOut.click();
+ setPersonalPanelOpen(false);
+});
+document.addEventListener("keydown", (event) => {
+ if (event.key === "Escape" && els.aboutModal.classList.contains("show")) {
+  setAboutModalOpen(false);
+  return;
+ }
+ if (els.personalPanel.hidden) return;
+ if (event.key === "Escape") {
+  setPersonalPanelOpen(false);
+  return;
+ }
+ if (event.key !== "Tab") return;
+ const focusable = [...els.personalPanel.querySelectorAll('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])')].filter((item) => !item.disabled && !item.hidden);
+ if (!focusable.length) return;
+ const first = focusable[0];
+ const last = focusable[focusable.length - 1];
+ if (event.shiftKey && document.activeElement === first) {
+  event.preventDefault();
+  last.focus();
+ } else if (!event.shiftKey && document.activeElement === last) {
+  event.preventDefault();
+  first.focus();
+ }
+});
 const INSTALL_DISMISSED_KEY = "skalee.install.dismissedAt";
 const INSTALL_REMINDER_DELAY = 7 * 24 * 60 * 60 * 1000;
 let deferredInstallPrompt = null;
@@ -735,19 +1083,102 @@ let products = [];
 let allowedLocations = null;
 let allowedSuppliers = null;
 
+function pageRawLength(page) {
+ return Number(page?.rawPageLength ?? page?.length ?? 0);
+}
+
+function setProductLoadToast(title = "", detail = "", active = true) {
+ if (!els.productLoadToast) return;
+ els.productLoadTitle.textContent = title;
+ els.productLoadDetail.textContent = detail;
+ els.productLoadToast.hidden = !active;
+}
+
+function hideProductLoadToastSoon() {
+ window.setTimeout(() => {
+  if (!productPageLoading) els.productLoadToast.hidden = true;
+ }, 1400);
+}
+
+function appendUniqueProducts(nextProducts) {
+ const existingIds = new Set(products.map((product) => product.id));
+ const uniqueProducts = nextProducts.filter((product) => !existingIds.has(product.id));
+ if (uniqueProducts.length) products = [...products, ...uniqueProducts];
+ return uniqueProducts.length;
+}
+
 async function carregarProdutosOnline() {
  if (!window.skaleeDb) return;
+ const generation = ++productLoadGeneration;
+ productPageLoading = true;
+ productHasMorePages = false;
+ productPageOffset = 0;
+ requestedProductPhotoIds.clear();
+ setProductLoadToast("Carregando produtos...", "Buscando os primeiros produtos.");
  try {
-  products = await window.skaleeDb.loadProducts();
+  const firstPage = await window.skaleeDb.loadProducts({ offset: productPageOffset, limit: PRODUCT_PAGE_SIZE });
+  products = firstPage;
+  const rawLength = pageRawLength(firstPage);
+  productPageOffset += rawLength;
+  productHasMorePages = rawLength === PRODUCT_PAGE_SIZE;
   preencherFornecedorPelosProdutos();
+  productPageLoading = false;
   render();
-  if (typeof window.skaleeDb.loadProductPhotos === "function") {
-   void carregarFotosProdutosOnline(products.map((product) => product.id));
-  }
+  setProductLoadToast("Carregando produtos...", `${products.length} produto(s) encontrados. Continuando em segundo plano.`);
+  void carregarProdutosRestantesOnline(generation);
  } catch (error) {
   console.error("Não foi possível carregar os produtos online.", error);
   products = [];
+  productHasMorePages = false;
+  productPageLoading = false;
+  setProductLoadToast("Falha ao carregar produtos", error.message || "Verifique a conexão e tente novamente.", true);
   render();
+ }
+}
+
+async function carregarMaisProdutosOnline() {
+ if (!window.skaleeDb || productPageLoading || !productHasMorePages) return;
+ productPageLoading = true;
+ try {
+  const nextProducts = await window.skaleeDb.loadProducts({ offset: productPageOffset, limit: PRODUCT_PAGE_SIZE });
+  const rawLength = pageRawLength(nextProducts);
+  productPageOffset += rawLength;
+  appendUniqueProducts(nextProducts);
+  productHasMorePages = rawLength === PRODUCT_PAGE_SIZE;
+  productPageLoading = false;
+  render();
+ } catch (error) {
+  console.error("Não foi possível carregar mais produtos.", error);
+  productPageLoading = false;
+ }
+}
+
+async function carregarProdutosRestantesOnline(generation) {
+ let scannedPages = 1;
+ try {
+  while (generation === productLoadGeneration && productHasMorePages) {
+   productPageLoading = true;
+   const nextProducts = await window.skaleeDb.loadProducts({ offset: productPageOffset, limit: PRODUCT_PAGE_SIZE });
+   const rawLength = pageRawLength(nextProducts);
+   productPageOffset += rawLength;
+   scannedPages += 1;
+   appendUniqueProducts(nextProducts);
+   productHasMorePages = rawLength === PRODUCT_PAGE_SIZE;
+   productPageLoading = false;
+   preencherFornecedorPelosProdutos();
+   render();
+   setProductLoadToast("Carregando produtos...", `${products.length} produto(s) encontrados em ${scannedPages} página(s).`);
+   if (rawLength === 0) break;
+  }
+  if (generation !== productLoadGeneration) return;
+  productPageLoading = false;
+  productHasMorePages = false;
+  render();
+  await carregarFotosPendentesEmSegundoPlano(generation);
+ } catch (error) {
+  productPageLoading = false;
+  console.error("Não foi possível concluir o carregamento dos produtos.", error);
+  setProductLoadToast("Carregamento incompleto", error.message || "Alguns produtos podem não ter sido carregados.", true);
  }
 }
 
@@ -789,12 +1220,14 @@ function popularLojasPermitidas(locations) {
   activeLocations.forEach((location) => els.reportStore.add(new Option(location.name, location.name)));
   if ([...els.reportStore.options].some((option) => option.value === selectedReportStore)) els.reportStore.value = selectedReportStore;
  }
+ updatePersonalPanelScope();
  render();
 }
 
 function popularFornecedoresPermitidos(suppliers) {
  const activeSuppliers = Array.isArray(suppliers) ? suppliers.filter((supplier) => supplier.active !== false) : null;
  allowedSuppliers = activeSuppliers;
+ updatePersonalPanelScope();
  if (!activeSuppliers || activeSuppliers.length !== 1 || els.supplierFilter.value.trim()) return;
  els.supplierFilter.value = activeSuppliers[0].code || "";
  render();
@@ -814,8 +1247,10 @@ function preencherFornecedorPelosProdutos() {
 }
 
 async function carregarFotosProdutosOnline(productIds) {
+ const ids = [...new Set((productIds || []).filter(Boolean))];
+ if (!ids.length) return;
  try {
-  const photos = await window.skaleeDb.loadProductPhotos(productIds);
+  const photos = await window.skaleeDb.loadProductPhotos(ids);
   const photoById = new Map(photos.map((row) => [row.id, row.photo || ""]));
   let changed = false;
   products = products.map((product) => {
@@ -823,10 +1258,89 @@ async function carregarFotosProdutosOnline(productIds) {
    changed = true;
    return { ...product, photo: photoById.get(product.id), photoLoaded: true };
   });
-  if (changed) render();
+  if (changed) aplicarFotosCarregadas(photoById);
  } catch (error) {
+  ids.forEach((id) => requestedProductPhotoIds.delete(id));
   console.error("Não foi possível carregar as fotos dos produtos.", error);
  }
+}
+
+function aplicarFotosCarregadas(photoById) {
+ photoById.forEach((photo, id) => {
+  const slot = [...els.grid.querySelectorAll(".photo[data-photo-id]")].find((item) => item.dataset.photoId === String(id));
+  if (!slot) return;
+  slot.removeAttribute("data-photo-id");
+  slot.replaceChildren();
+  if (photo) {
+   const image = document.createElement("img");
+   image.src = photo;
+   image.decoding = "async";
+   image.alt = "";
+   slot.appendChild(image);
+  } else {
+   slot.textContent = "Sem foto";
+  }
+ });
+}
+
+async function carregarFotosPendentesEmSegundoPlano(generation) {
+ if (typeof window.skaleeDb?.loadProductPhotos !== "function") return;
+ const pending = products.filter((product) => !product.photoLoaded && !requestedProductPhotoIds.has(product.id)).map((product) => product.id);
+ if (!pending.length) {
+  setProductLoadToast("Produtos carregados", `${products.length} produto(s) disponíveis.`, true);
+  hideProductLoadToastSoon();
+  return;
+ }
+ let loaded = 0;
+ setProductLoadToast("Carregando fotos...", `0 de ${pending.length} foto(s) verificadas.`);
+ for (let index = 0; index < pending.length && generation === productLoadGeneration; index += PRODUCT_PHOTO_BATCH_SIZE) {
+  const batch = pending.slice(index, index + PRODUCT_PHOTO_BATCH_SIZE);
+  batch.forEach((id) => requestedProductPhotoIds.add(id));
+  await carregarFotosProdutosOnline(batch);
+  loaded += batch.length;
+  setProductLoadToast("Carregando fotos...", `${Math.min(loaded, pending.length)} de ${pending.length} foto(s) verificadas.`);
+ }
+ if (generation !== productLoadGeneration) return;
+ setProductLoadToast("Produtos carregados", `${products.length} produto(s) e fotos verificados.`, true);
+ hideProductLoadToastSoon();
+}
+
+function agendarCargaFotosVisiveis() {
+ if (typeof window.skaleeDb?.loadProductPhotos !== "function") return;
+ if (productPhotoObserver) productPhotoObserver.disconnect();
+ const pendingPhotos = [...els.grid.querySelectorAll(".photo[data-photo-id]")];
+ if (!pendingPhotos.length) return;
+
+ if (!("IntersectionObserver" in window)) {
+  void carregarFotosProdutosOnline(pendingPhotos.map((item) => item.dataset.photoId));
+  return;
+ }
+
+ productPhotoObserver = new IntersectionObserver((entries) => {
+  const visibleIds = [];
+  entries.forEach((entry) => {
+   if (!entry.isIntersecting) return;
+   const id = entry.target.dataset.photoId;
+   productPhotoObserver.unobserve(entry.target);
+   if (!id || requestedProductPhotoIds.has(id)) return;
+   requestedProductPhotoIds.add(id);
+   visibleIds.push(id);
+  });
+  if (visibleIds.length) void carregarFotosProdutosOnline(visibleIds);
+ }, { rootMargin: "240px 0px" });
+
+ pendingPhotos.forEach((item) => productPhotoObserver.observe(item));
+}
+
+function agendarCargaMaisProdutos() {
+ if (productPageObserver) productPageObserver.disconnect();
+ const sentinel = els.grid.querySelector("[data-load-more-products]");
+ if (!sentinel || !productHasMorePages) return;
+ if (!("IntersectionObserver" in window)) return;
+ productPageObserver = new IntersectionObserver((entries) => {
+  if (entries.some((entry) => entry.isIntersecting)) void carregarMaisProdutosOnline();
+ }, { rootMargin: "360px 0px" });
+ productPageObserver.observe(sentinel);
 }
 
 const ADMIN_EMAIL = "skalee.razarth@gmail.com";
@@ -996,9 +1510,10 @@ function renderAdminUsers(users, locations = [], assignments = [], promoters = [
 async function loadAdminUsers() {
  setUserMessage("Carregando usuários...");
  try {
-  const [users, locations, assignments, promoters] = await Promise.all([window.skaleeDb.listUsers(), window.skaleeDb.listRetailLocations(), window.skaleeDb.listPromoterLocationAssignments(), window.skaleeDb.listPromoterProfiles()]);
-  renderAdminUsers(users, locations, assignments, promoters);
-  setUserMessage(`${users.length} usuário(s) cadastrado(s).`);
+ const [users, locations, assignments, promoters] = await Promise.all([window.skaleeDb.listUsers(), window.skaleeDb.listRetailLocations(), window.skaleeDb.listPromoterLocationAssignments(), window.skaleeDb.listPromoterProfiles()]);
+ renderAdminUsers(users, locations, assignments, promoters);
+ updateAdminMetrics({ users, locations });
+ setUserMessage(`${users.length} usuário(s) cadastrado(s).`);
  } catch (error) {
   console.error("Falha ao carregar usuários.", error);
   setUserMessage(error.message || "Não foi possível carregar os usuários.", "error");
@@ -1007,7 +1522,7 @@ async function loadAdminUsers() {
 }
 
 async function ensureAdminUsersLoaded(force = false) {
- if (!isSkaleeAdmin) return;
+ if (!canManageAdminUsers) return;
  if (adminUsersLoaded && !force) return;
  if (adminUsersLoadPromise && !force) return adminUsersLoadPromise;
  adminUsersLoadPromise = loadAdminUsers().then(() => {
@@ -1044,33 +1559,36 @@ window.addEventListener("skalee:authenticated", (event) => {
  isViewer = event.detail?.accessRole === "viewer";
  activeUserEmail = event.detail?.email || "";
  isSkaleeAdmin = String(event.detail?.email || "").toLowerCase() === ADMIN_EMAIL;
+ const isPlatformAdmin = event.detail?.accessRole === "platform_admin";
+ canManageAdminUsers = isSkaleeAdmin || isPlatformAdmin;
+ updatePersonalPanelIdentity(event.detail || {});
  catalogLoadPromise = null;
  adminUsersLoaded = false;
  adminUsersLoadPromise = null;
  showInstallBannerWhenAvailable();
  void carregarOpcoesPermitidas();
  void carregarProdutosOnline();
- const isAdmin = isSkaleeAdmin;
- const isPlatformAdmin = event.detail?.accessRole === "platform_admin";
+ const isAdmin = canManageAdminUsers;
  const canUsePoster = isAdmin || isPlatformAdmin;
+ const canOpenAdminSettings = isAdmin || isPlatformAdmin;
  const registerTab = document.querySelector('[data-page="register"]');
- const settingsTab = document.querySelector('[data-page="settings"]');
  registerTab.hidden = isViewer;
- settingsTab.hidden = isViewer;
+ els.adminCentralButton.hidden = !canOpenAdminSettings;
  els.reportTab.hidden = !isSkaleeAdmin;
  els.posterTab.hidden = !canUsePoster;
  els.settingsUsersTab.hidden = !isAdmin;
  els.settingsRegistriesTab.hidden = !isPlatformAdmin;
- if (document.querySelector(".settings-tab.active")?.hidden) showSettingsPanel("general");
+ if (document.querySelector(".settings-tab.active")?.hidden) showSettingsPanel("overview");
  const activeTab = document.querySelector(".tab.active");
  if (isViewer || activeTab?.hidden || (!isSkaleeAdmin && activeTab?.dataset.page === "report")) document.querySelector('[data-page="products"]').click();
  els.adminUsersSection.hidden = !isAdmin;
- els.catalogSettingsSection.hidden = !isAdmin;
+ els.catalogSettingsSection.hidden = !isSkaleeAdmin;
 });
 window.addEventListener("skalee:signed-out", () => {
  appAuthenticated = false;
  isViewer = false;
  isSkaleeAdmin = false;
+ canManageAdminUsers = false;
  activeUserEmail = "";
  catalogLoadPromise = null;
  adminUsersLoaded = false;
@@ -1078,13 +1596,18 @@ window.addEventListener("skalee:signed-out", () => {
  allowedLocations = null;
  allowedSuppliers = null;
  els.installBanner.hidden = true;
+ els.productLoadToast.hidden = true;
  els.catalogStatus.hidden = true;
  products = [];
  els.settingsUsersTab.hidden = true;
  els.settingsRegistriesTab.hidden = true;
  els.reportTab.hidden = true;
  els.posterTab.hidden = true;
- showSettingsPanel("general");
+ els.adminCentralButton.hidden = true;
+ closeAdminCentral();
+ setPersonalPanelOpen(false);
+ updatePersonalPanelIdentity({});
+ showSettingsPanel("overview");
  els.adminUsersSection.hidden = true;
  els.catalogSettingsSection.hidden = true;
  els.userList.replaceChildren();
@@ -1127,21 +1650,27 @@ els.today.textContent = new Date().toLocaleDateString("pt-BR");
 document.querySelectorAll(".tab[data-page]").forEach((button) => {
  button.addEventListener("click", () => {
   if (button.hidden) return;
-  document.querySelectorAll(".tab[data-page]").forEach((item) => item.classList.remove("active"));
+  document.querySelectorAll("nav .tab").forEach((item) => {
+   item.classList.remove("active");
+   item.removeAttribute("aria-current");
+  });
   document.querySelectorAll(".page").forEach((item) => item.classList.remove("active"));
   button.classList.add("active");
+  button.setAttribute("aria-current", "page");
   document.getElementById(button.dataset.page).classList.add("active");
-  if (button.dataset.page === "settings") {
-   const activeSettings = document.querySelector(".settings-tab.active")?.dataset.settings || "general";
-   void loadSettingsPanelData(activeSettings);
-  }
+  if (!els.personalPanel.hidden) setPersonalPanelOpen(false);
  });
 });
 
-function showSettingsPanel(panelName = "general") {
+function showSettingsPanel(panelName = "overview") {
  const requestedTab = [...els.settingsTabs].find((tab) => tab.dataset.settings === panelName && !tab.hidden);
- const activeName = requestedTab ? panelName : "general";
- els.settingsTabs.forEach((tab) => tab.classList.toggle("active", tab.dataset.settings === activeName));
+ const activeName = requestedTab ? panelName : "overview";
+ els.settingsTabs.forEach((tab) => {
+  const active = tab.dataset.settings === activeName;
+  tab.classList.toggle("active", active);
+  if (active) tab.setAttribute("aria-current", "page");
+  else tab.removeAttribute("aria-current");
+ });
  els.settingsPanels.forEach((panel) => panel.classList.toggle("active", panel.dataset.settingsPanel === activeName));
  void loadSettingsPanelData(activeName);
 }
@@ -1156,7 +1685,12 @@ async function loadSettingsPanelData(panelName) {
   await window.skaleeEnsureRegistriesLoaded();
   return;
  }
- if (panelName === "general" && isSkaleeAdmin) {
+ if (panelName === "overview") {
+  if (canManageAdminUsers) await ensureAdminUsersLoaded();
+  if (typeof window.skaleeEnsureRegistriesLoaded === "function") await window.skaleeEnsureRegistriesLoaded();
+  return;
+ }
+ if (isSkaleeAdmin) {
   await iniciarCatalogo();
  }
 }
@@ -1164,6 +1698,8 @@ async function loadSettingsPanelData(panelName) {
 els.settingsTabs.forEach((button) => {
  button.addEventListener("click", () => showSettingsPanel(button.dataset.settings));
 });
+els.adminCentralButton.addEventListener("click", () => openAdminCentral("overview"));
+els.adminBackToApp.addEventListener("click", closeAdminCentral);
 
 function remaining(value) {
  const today = new Date();
@@ -1216,11 +1752,16 @@ function getReportProducts() {
   .sort((a, b) => a.expiry.localeCompare(b.expiry) || a.name.localeCompare(b.name));
 }
 
-function productHasSupplier(product, supplierCode) {
- const selected = String(supplierCode || "").trim().toLowerCase();
- if (!selected) return true;
+function parseSupplierFilter(value) {
+ return [...new Set(String(value || "").toLowerCase().split(/[\s,;|/]+/).map((item) => item.trim()).filter(Boolean))];
+}
+
+function productHasSupplier(product, supplierFilter) {
+ const selectedCodes = parseSupplierFilter(supplierFilter);
+ if (!selectedCodes.length) return true;
+ const selected = new Set(selectedCodes);
  const aliases = Array.isArray(product.supplierAliases) ? product.supplierAliases : [];
- return [product.supplierCode, ...aliases.map((alias) => alias.code)].some((code) => String(code || "").trim().toLowerCase() === selected);
+ return [product.supplierCode, ...aliases.map((alias) => alias.code)].some((code) => selected.has(String(code || "").trim().toLowerCase()));
 }
 
 function supplierLabel(product) {
@@ -1241,8 +1782,7 @@ function supplierCardText(product) {
 
 function formatReportProduct(product) {
    const [, month, day] = product.expiry.split("-");
-   const fornecedor = supplierLabel(product);
-   return `${product.name.trim().toUpperCase()}\nF7:${product.code}${fornecedor ? `\nFORN:${fornecedor}` : ""}\nUND:${product.qty}\nvenc. ${day}/${month}`;
+   return `${product.name.trim().toUpperCase()}\nF7:${product.code}\nUND:${product.qty}\nvenc. ${day}/${month}`;
 }
 
 function buildReportText() {
@@ -1339,11 +1879,10 @@ function buildPdfReportRows(items) {
  return items.map((product) => {
   const days = remaining(product.expiry);
   const statusText = reportStatusLabel(product);
-  const fornecedor = supplierLabel(product);
   return `<tr>
    <td>${escapeHtml(product.store || "")}</td>
    <td>${escapeHtml(product.code || "")}</td>
-   <td>${escapeHtml(String(product.name || "").toUpperCase())}${fornecedor ? `<br><small>Forn: ${escapeHtml(fornecedor)}</small>` : ""}</td>
+   <td>${escapeHtml(String(product.name || "").toUpperCase())}</td>
    <td>${product.offer ? "SIM" : "SEM OFERTA"}</td>
    <td>${escapeHtml(reportMotiveLabel(product))}</td>
    <td>${escapeHtml(formatPdfDate(product.createdAt ? localDateKey(product.createdAt) : ""))}</td>
@@ -1530,6 +2069,7 @@ function syncStoreFiltersFromProducts() {
 }
 
 function render() {
+ updateClearButtons();
  const base = activeProducts();
  syncStoreFiltersFromProducts();
  const selectedStore = els.storeFilter.value;
@@ -1566,17 +2106,22 @@ function render() {
  if (els.sort.value === "qtyAsc") items.sort((a, b) => a.qty - b.qty);
  if (els.sort.value === "name") items.sort((a, b) => a.name.localeCompare(b.name));
 
- els.result.textContent = `${items.length} produto(s) encontrado(s)`;
+ const supplierFilterCodes = parseSupplierFilter(selectedSupplier);
+ const supplierFilterText = supplierFilterCodes.length > 1 ? ` em ${supplierFilterCodes.length} fornecedores` : "";
+ els.result.textContent = `${items.length} produto(s) encontrado(s)${supplierFilterText}`;
 
  const activeCards = items.map((product) => {
  const days = remaining(product.expiry);
  const [label, tone] = status(days);
  const expiryText = new Date(product.expiry + "T00:00:00").toLocaleDateString("pt-BR");
-  const photoContent = product.photo ? `<img src="${product.photo}" alt="">` : (product.photoLoaded ? "Sem foto" : "Carregando foto...");
+ const photoContent = product.photo ? `<img src="${product.photo}" decoding="async" alt="">` : (product.photoLoaded ? "Sem foto" : "Carregando foto...");
+ const photoAttrs = (!product.photo && !product.photoLoaded) ? ` data-photo-id="${escapeHtml(product.id)}"` : "";
   const fornecedor = supplierCardText(product);
+  const expanded = expandedProductIds.has(String(product.id));
+  const updating = pendingProductUpdateIds.has(String(product.id));
   return `
-   <article class="card">
-    <div class="photo">${photoContent}</div>
+   <article class="card${expanded ? " expanded" : ""}" data-product-id="${escapeHtml(product.id)}">
+    <div class="photo"${photoAttrs}>${photoContent}</div>
     <div class="content">
     <div class="name">${escapeHtml(product.name)}</div><div class="code">Cód. interno ${escapeHtml(product.code || "sem código")} · Barras ${escapeHtml(product.barcode || "sem barras")}</div>${fornecedor.text ? `<div class="code" ${fornecedor.title ? `title="${escapeHtml(fornecedor.title)}"` : ""}>Fornecedor ${escapeHtml(fornecedor.text)}</div>` : ""}
      <div class="card-summary">
@@ -1593,13 +2138,20 @@ function render() {
         ${product.offer ? '<span class="badge offer">EM OFERTA</span>' : ''}
         ${product.qty >= 100 ? '<span class="badge high">QUANTIDADE ALTA</span>' : ''}
       </div>
-      ${isViewer ? "" : `<div class="card-actions"><button class="btn2 update-product" type="button" data-product-id="${product.id}">Atualizar</button></div>`}
+      ${isViewer ? "" : `<div class="card-actions"><button class="btn2 update-product" type="button" data-product-id="${product.id}"${updating ? " disabled" : ""}>${updating ? "Atualizando..." : "Atualizar"}</button></div>`}
      </div>
-     <div class="card-actions"><button class="btn2 toggle-details" type="button" aria-expanded="false">Ver mais</button></div>
+     <div class="card-actions"><button class="btn2 toggle-details" type="button" aria-expanded="${expanded ? "true" : "false"}">${expanded ? "Ver menos" : "Ver mais"}</button></div>
     </div>
    </article>`;
  }).join("");
- els.grid.innerHTML = activeCards || '<div class="empty">Nenhum produto encontrado com esses filtros.</div>';
+ console.debug("[PHOTO CACHE] LIST", {
+  products: items.length,
+  withPhotoPath: items.filter((product) => Boolean(product.photoPath)).length,
+  requested: requestedProductPhotoIds.size
+ });
+ const moreProducts = productHasMorePages ? '<div class="empty">Carregando mais produtos em segundo plano...</div>' : "";
+ els.grid.innerHTML = activeCards ? activeCards + moreProducts : '<div class="empty">Nenhum produto encontrado com esses filtros.</div>';
+ agendarCargaFotosVisiveis();
 }
 
 els.reportStore.addEventListener("change", () => {
@@ -1666,9 +2218,24 @@ els.copyReport.addEventListener("click", async () => {
 
 els.exportReportPdf.addEventListener("click", openPdfReport);
 
+function updateClearButtons() {
+ els.clearSearch.hidden = !els.search.value;
+ els.clearSupplierFilter.hidden = !els.supplierFilter.value;
+}
+
+function clearFilterInput(input, button) {
+ if (!input.value) return;
+ input.value = "";
+ button.hidden = true;
+ render();
+ input.focus();
+}
+
 els.search.addEventListener("input", render);
+els.clearSearch.addEventListener("click", () => clearFilterInput(els.search, els.clearSearch));
 els.storeFilter.addEventListener("change", render);
 els.supplierFilter.addEventListener("input", render);
+els.clearSupplierFilter.addEventListener("click", () => clearFilterInput(els.supplierFilter, els.clearSupplierFilter));
 els.sort.addEventListener("change", render);
 
 els.chips.forEach((chip) => {
@@ -1711,8 +2278,46 @@ function escapeHtml(value) {
 function renderProdutoNaoEncontrado(codigoBarras) {
  const canOpenManualCatalog = !els.settingsRegistriesTab.hidden && typeof window.skaleeOpenCatalogProductForm === "function";
  const safeCode = escapeHtml(codigoBarras);
- const action = canOpenManualCatalog ? `<div style="margin-top:10px"><button id="manualCatalogProduct" class="btn2" type="button" data-barcode="${safeCode}">Cadastrar manualmente</button></div>` : `<br><span style="color:#5a6478">Cadastro manual disponível para administrador.</span>`;
- els.found.innerHTML = `<b>Produto não encontrado em nenhuma fonte ativa.</b><br>Código: ${safeCode}${action}`;
+ const catalogAction = canOpenManualCatalog ? `<button id="manualCatalogProduct" class="btn2" type="button" data-barcode="${safeCode}">Cadastrar no catálogo</button>` : "";
+ els.found.innerHTML = `
+  <b>Produto não encontrado em nenhuma fonte ativa.</b><br>
+  Código: ${safeCode}
+  <div class="manual-product-form">
+   <input id="manualProductName" type="text" placeholder="Nome do produto">
+   <input id="manualProductCode" type="text" placeholder="Código interno (opcional)">
+   <input id="manualSupplierCode" type="text" placeholder="Código do fornecedor (opcional)">
+   <input id="manualSupplierName" type="text" placeholder="Nome do fornecedor (opcional)">
+   <div class="manual-product-actions">
+    <button id="scanPhotoFromManual" class="btn2" type="button">Ler foto</button>
+    <button id="useManualProduct" class="btn" type="button" data-barcode="${safeCode}">Usar este produto</button>
+    ${catalogAction}
+   </div>
+  </div>`;
+ setTimeout(() => document.getElementById("manualProductName")?.focus(), 0);
+}
+
+function selecionarProdutoManual(codigoBarras) {
+ const name = document.getElementById("manualProductName")?.value.trim() || "";
+ if (!name) {
+  alert("Informe o nome do produto.");
+  document.getElementById("manualProductName")?.focus();
+  return;
+ }
+ selected = {
+  barcode: codigoBarras,
+  code: document.getElementById("manualProductCode")?.value.trim() || "",
+  name,
+  catalogProductId: null,
+  brandId: null,
+  brandName: "",
+  supplierCode: document.getElementById("manualSupplierCode")?.value.trim() || "",
+  supplierName: document.getElementById("manualSupplierName")?.value.trim() || "",
+  catalogSource: "manual"
+ };
+ els.supplierCode.value = selected.supplierCode;
+ els.supplierName.value = selected.supplierName;
+ els.found.innerHTML = `<b>${escapeHtml(selected.name)}</b><br><span style="color:#2563eb">Cód. interno: ${escapeHtml(selected.code || "sem código interno")}</span><br><span style="color:#39465c">Código de barras: ${escapeHtml(selected.barcode)}</span><br><span style="color:#16a34a">Fonte: cadastro manual</span>`;
+ els.qty.focus();
 }
 
 function nomeOpenFoodFacts(product) {
@@ -1881,7 +2486,12 @@ els.grid.addEventListener("click", (event) => {
  const detailsButton = event.target.closest(".toggle-details");
  if (detailsButton) {
   const card = detailsButton.closest(".card");
+  const productId = card?.dataset.productId;
   const expanded = card.classList.toggle("expanded");
+  if (productId) {
+   if (expanded) expandedProductIds.add(String(productId));
+   else expandedProductIds.delete(String(productId));
+  }
   detailsButton.textContent = expanded ? "Ver menos" : "Ver mais";
   detailsButton.setAttribute("aria-expanded", String(expanded));
   return;
@@ -1912,19 +2522,41 @@ els.confirmUpdate.addEventListener("click", async () => {
  }
  const productId = updatingProductId;
  if (!productId) return;
- els.confirmUpdate.disabled = true;
+ const previousProduct = products.find((product) => product.id === productId);
+ if (!previousProduct) return;
+ const productName = previousProduct.name || "Produto";
  els.updateError.textContent = "";
- try {
-  const updatedProduct = await window.skaleeDb.updateProduct(productId, { qty: quantity, offer: els.updateOffer.checked });
-  products = products.map((product) => product.id === productId ? updatedProduct : product);
-  closeUpdateModal();
-  render();
- } catch (error) {
-  console.error("Falha ao atualizar produto.", error);
-  els.updateError.textContent = "Não foi possível atualizar. Verifique sua conexão e tente novamente.";
- } finally {
-  els.confirmUpdate.disabled = false;
- }
+ pendingProductUpdateIds.add(String(productId));
+ expandedProductIds.add(String(productId));
+ products = products.map((product) => product.id === productId ? {
+  ...product,
+  qty: quantity,
+  offer: els.updateOffer.checked,
+  updatedAt: new Date().toISOString()
+ } : product);
+ closeUpdateModal();
+ render();
+ showToast(`Atualizando ${productName}...`, "info", "⏳");
+
+ window.skaleeDb.updateProduct(productId, { qty: quantity, offer: els.updateOffer.checked })
+  .then((updatedProduct) => {
+   products = products.map((product) => product.id === productId ? {
+    ...updatedProduct,
+    photo: updatedProduct.photo || product.photo || "",
+    photoPath: updatedProduct.photoPath || product.photoPath || "",
+    photoLoaded: updatedProduct.photoLoaded || product.photoLoaded
+   } : product);
+   showToast(`${productName} atualizado.`, "success", "✓");
+  })
+  .catch((error) => {
+   console.error("Falha ao atualizar produto.", error);
+   products = products.map((product) => product.id === productId ? previousProduct : product);
+   showToast(`Não foi possível atualizar ${productName}.`, "error", "!");
+  })
+  .finally(() => {
+   pendingProductUpdateIds.delete(String(productId));
+   render();
+  });
 });
 
 function setUpdateActionsDisabled(disabled) {
@@ -2731,16 +3363,24 @@ els.find.addEventListener("click", () => {
  void buscarProdutoPorCodigo(codigo);
 });
 els.found.addEventListener("click", (event) => {
+ if (event.target.closest("#scanPhotoFromManual")) {
+  els.barcodePhoto.click();
+  return;
+ }
+ const manualButton = event.target.closest("#useManualProduct");
+ if (manualButton) {
+  const codigo = manualButton.dataset.barcode || els.barcode.value.trim();
+  selecionarProdutoManual(codigo);
+  return;
+ }
  const button = event.target.closest("#manualCatalogProduct");
  if (!button) return;
  const codigo = button.dataset.barcode || els.barcode.value.trim();
- const settingsTab = document.querySelector('[data-page="settings"]');
- if (settingsTab?.hidden || els.settingsRegistriesTab.hidden || typeof window.skaleeOpenCatalogProductForm !== "function") {
+ if (els.adminCentralButton?.hidden || els.settingsRegistriesTab.hidden || typeof window.skaleeOpenCatalogProductForm !== "function") {
   els.found.innerHTML += `<br><span style="color:#b91c1c">Seu usuário não tem acesso ao cadastro manual de produtos.</span>`;
   return;
  }
- settingsTab.click();
- showSettingsPanel("registries");
+ openAdminCentral("registries");
  window.skaleeOpenCatalogProductForm({ barcode: codigo });
 });
 els.scanCamera.addEventListener("click", () => { void startScanner(); });
@@ -2774,37 +3414,171 @@ document.addEventListener("keydown", (event) => {
  }
 });
 
-function prepararFoto(file) {
- return new Promise((resolve, reject) => {
-  const reader = new FileReader();
-  reader.onerror = () => reject(new Error("Não foi possível abrir a foto."));
-  reader.onload = () => {
-   const image = new Image();
-   image.onerror = () => reject(new Error("O arquivo selecionado não é uma imagem válida."));
-   image.onload = () => {
-    const limite = 1000;
-    const escala = Math.min(1, limite / Math.max(image.width, image.height));
-    const canvas = document.createElement("canvas");
-    canvas.width = Math.max(1, Math.round(image.width * escala));
-    canvas.height = Math.max(1, Math.round(image.height * escala));
-    canvas.getContext("2d").drawImage(image, 0, 0, canvas.width, canvas.height);
-    resolve(canvas.toDataURL("image/jpeg", 0.72));
-   };
-   image.src = reader.result;
-  };
-  reader.readAsDataURL(file);
+function canvasToBlob(canvas, type, quality) {
+ return new Promise((resolve) => canvas.toBlob(resolve, type, quality));
+}
+
+function logPhotoDiagnosticError(error) {
+ console.error("[PHOTO] ERRO COMPLETO", error);
+ console.error("[PHOTO] message", error?.message);
+ console.error("[PHOTO] name", error?.name);
+ console.error("[PHOTO] stack", error?.stack);
+}
+
+function validarFotoProcessada(processedPhoto) {
+ const validExtensions = new Set(["webp", "jpg"]);
+ const validTypes = new Set(["image/webp", "image/jpeg"]);
+ if (
+  !processedPhoto?.blob ||
+  processedPhoto.blob.size <= 0 ||
+  !validExtensions.has(processedPhoto.extension) ||
+  !validTypes.has(processedPhoto.contentType)
+ ) {
+  throw new Error("Foto processada inválida");
+ }
+ return processedPhoto;
+}
+
+function criarFotoProcessada(blob, extension, contentType, width, height) {
+ return validarFotoProcessada({
+  blob,
+  extension,
+  contentType,
+  width,
+  height,
+  previewUrl: URL.createObjectURL(blob)
  });
+}
+
+async function carregarImagemArquivo(file) {
+ console.log("[PHOTO] carregando imagem", {
+  type: file?.type,
+  size: file?.size,
+  name: file?.name
+ });
+ if ("createImageBitmap" in window) {
+  try {
+   const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+   console.log("[PHOTO] imagem decodificada via createImageBitmap", {
+    width: bitmap.width,
+    height: bitmap.height
+   });
+   return bitmap;
+  } catch (error) {
+   console.warn("Não foi possível aplicar orientação EXIF automaticamente.", error);
+   logPhotoDiagnosticError(error);
+  }
+ }
+ return new Promise((resolve, reject) => {
+  const url = URL.createObjectURL(file);
+  const image = new Image();
+  image.onerror = () => {
+   URL.revokeObjectURL(url);
+   reject(new Error("O arquivo selecionado não é uma imagem válida."));
+  };
+  image.onload = () => {
+   URL.revokeObjectURL(url);
+   console.log("[PHOTO] imagem decodificada via Image", {
+    width: image.width,
+    height: image.height
+   });
+   resolve(image);
+  };
+  image.src = url;
+ });
+}
+
+async function otimizarImagem(image, options) {
+ const { contentType, extension, qualities } = options;
+ const maxBytes = 400 * 1024;
+ let limite = 1280;
+ let bestBlob = null;
+
+ for (let tentativa = 0; tentativa < 10; tentativa += 1) {
+  const escala = Math.min(1, limite / Math.max(image.width, image.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(image.width * escala));
+  canvas.height = Math.max(1, Math.round(image.height * escala));
+  canvas.getContext("2d").drawImage(image, 0, 0, canvas.width, canvas.height);
+
+  for (const quality of qualities) {
+   const blob = await canvasToBlob(canvas, contentType, quality);
+   console.log("[PHOTO] tentativa conversão", {
+    contentType,
+    extension,
+    quality,
+    width: canvas.width,
+    height: canvas.height,
+    blobType: blob?.type,
+    blobSize: blob?.size
+   });
+   if (!blob || blob.size <= 0) continue;
+   bestBlob = blob;
+   if (blob.size <= maxBytes) {
+    return criarFotoProcessada(blob, extension, contentType, canvas.width, canvas.height);
+   }
+  }
+  limite = Math.round(limite * 0.78);
+ }
+
+ if (!bestBlob) return null;
+ throw new Error("Não foi possível reduzir a foto para o limite de envio. Tente outra imagem.");
+}
+
+async function processPhoto(file) {
+ if (!file) throw new Error("Foto processada inválida");
+ console.log("[PHOTO] iniciando compressão");
+ const image = await carregarImagemArquivo(file);
+ try {
+  const webp = await otimizarImagem(image, {
+   contentType: "image/webp",
+   extension: "webp",
+   qualities: [0.82, 0.74, 0.66, 0.58, 0.5, 0.44, 0.38]
+  });
+  if (webp?.blob?.size > 0) {
+   console.log("[PHOTO] resultado compressão", webp);
+   console.log("[PHOTO] tipo comprimido", webp.contentType);
+   console.log("[PHOTO] tamanho comprimido", webp.blob?.size);
+   return validarFotoProcessada(webp);
+  }
+ } catch (error) {
+  console.debug("[PHOTO] WebP indisponível, usando JPEG.", error);
+  logPhotoDiagnosticError(error);
+ }
+ const jpeg = await otimizarImagem(image, {
+  contentType: "image/jpeg",
+ extension: "jpg",
+ qualities: [0.82, 0.78, 0.74, 0.7]
+ });
+ if (jpeg?.blob?.size > 0) {
+  console.log("[PHOTO] resultado compressão", jpeg);
+  console.log("[PHOTO] tipo comprimido", jpeg.contentType);
+  console.log("[PHOTO] tamanho comprimido", jpeg.blob?.size);
+  return validarFotoProcessada(jpeg);
+ }
+ throw new Error("Falha ao converter imagem.");
 }
 
 els.photo.addEventListener("change", async (event) => {
  const file = event.target.files[0];
  if (!file) return;
+ photoFile = file;
+ console.log("[PHOTO] arquivo selecionado", photoFile);
+ console.log("[PHOTO] tipo original", photoFile?.type);
+ console.log("[PHOTO] tamanho original", photoFile?.size);
  els.preview.textContent = "Preparando foto...";
  try {
-  photoData = await prepararFoto(file);
-  els.preview.innerHTML = `<img src="${photoData}" alt="">`;
+  photoData = await processPhoto(photoFile);
+  if (photoPreviewUrl) URL.revokeObjectURL(photoPreviewUrl);
+  photoPreviewUrl = photoData.previewUrl;
+  els.preview.innerHTML = `<img src="${photoPreviewUrl}" alt="">`;
  } catch (error) {
-  photoData = "";
+  console.error("Não foi possível preparar a foto.", error);
+  logPhotoDiagnosticError(error);
+  photoFile = null;
+  photoData = null;
+  if (photoPreviewUrl) URL.revokeObjectURL(photoPreviewUrl);
+  photoPreviewUrl = "";
   els.photo.value = "";
   els.preview.textContent = "Sem foto";
   alert(error.message);
@@ -2813,12 +3587,19 @@ els.photo.addEventListener("change", async (event) => {
 
 let saveToastTimer = null;
 
-function celebrarProdutoSalvo() {
+function showToast(message, type = "success", icon = "✓") {
  if (saveToastTimer) clearTimeout(saveToastTimer);
- els.saveToast.classList.remove("show");
+ els.saveToast.classList.remove("show", "info", "error");
+ if (type && type !== "success") els.saveToast.classList.add(type);
+ els.saveToast.querySelector(".save-toast-icon").textContent = icon;
+ els.saveToastText.textContent = message;
  void els.saveToast.offsetWidth;
  els.saveToast.classList.add("show");
  saveToastTimer = setTimeout(() => els.saveToast.classList.remove("show"), 2600);
+}
+
+function celebrarProdutoSalvo() {
+ showToast("Produto salvo com sucesso!", "success", "✓");
 
  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
  const cores = ["#2563eb", "#16a34a", "#facc15", "#f97316", "#ec4899", "#8b5cf6"];
@@ -2844,6 +3625,13 @@ function setSavingProduct(saving) {
  document.body.setAttribute("aria-busy", String(saving));
 }
 
+function mensagemErroCadastroProduto(error) {
+ const message = String(error?.message || "").trim();
+ const details = [error?.details, error?.hint, error?.code].map((value) => String(value || "").trim()).filter(Boolean);
+ if (message) return [message, ...details].join("\n");
+ return "O produto não foi salvo. Verifique sua conexão e tente novamente.";
+}
+
 els.save.addEventListener("click", async () => {
  if (!selected) return alert("Primeiro localize o produto pelo código de barras.");
  if (!els.qty.value || !els.expiry.value) return alert("Informe quantidade e data de vencimento.");
@@ -2862,20 +3650,33 @@ els.save.addEventListener("click", async () => {
   offer: els.offer.checked,
   supplierCode: els.supplierCode.value.trim() || selected.supplierCode || "",
   supplierName: els.supplierName.value.trim() || selected.supplierName || "",
-  photo: photoData,
+  processedPhoto: photoData || null,
   catalogProductId: selected.catalogProductId || null,
   brandId: selected.brandId || null,
   retailLocationId: els.store.value
  };
+ console.log("[PHOTO] produto preparado para salvar", {
+  hasPhotoFile: Boolean(photoFile),
+  originalType: photoFile?.type,
+  originalSize: photoFile?.size,
+  hasProcessedPhoto: Boolean(photoData),
+  extension: photoData?.extension,
+  contentType: photoData?.contentType,
+  size: photoData?.blob?.size
+ });
 
  setSavingProduct(true);
  try {
   const produtoSalvo = await window.skaleeDb.saveProduct(novoProduto);
   products = [produtoSalvo, ...products];
+  if (produtoSalvo.photoUploadError) {
+   alert(produtoSalvo.photoUploadError);
+  }
  } catch (error) {
   console.error("Falha ao salvar produto online.", error);
+  logPhotoDiagnosticError(error);
   setSavingProduct(false);
-  alert("O produto não foi salvo. Verifique sua conexão e tente novamente.");
+  alert(mensagemErroCadastroProduto(error));
   return;
  }
  setSavingProduct(false);
@@ -2887,7 +3688,10 @@ els.save.addEventListener("click", async () => {
 
 function resetForm() {
  selected = null;
- photoData = "";
+ photoFile = null;
+ photoData = null;
+ if (photoPreviewUrl) URL.revokeObjectURL(photoPreviewUrl);
+ photoPreviewUrl = "";
  els.barcode.value = "";
  els.supplierCode.value = "";
  els.supplierName.value = "";

@@ -1,4 +1,4 @@
-const CACHE_NAME = "skalee-pwa-v43";
+const CACHE_NAME = "skalee-pwa-v80-clickable-about";
 const APP_SHELL = [
  "/",
  "/index.html",
@@ -9,7 +9,12 @@ const APP_SHELL = [
  "/manifest.webmanifest",
  "/skalee-icon-64.png",
  "/skalee-icon-192.png",
- "/skalee-icon-512.png"
+ "/skalee-icon-512.png",
+ "/skalee-icon-maskable-192.png",
+ "/skalee-icon-maskable-512.png",
+ "/skalee-symbol-enhanced.png",
+ "/skalee-symbol-transparent.png",
+ "/skalee-wordmark-login.png"
 ];
 
 self.addEventListener("install", (event) => {
