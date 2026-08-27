@@ -45,6 +45,8 @@ button{font:inherit}
 .personal-panel{position:fixed;top:96px;right:0;z-index:2450;display:flex;flex-direction:column;width:min(340px,90vw);height:calc(100dvh - 96px);background:linear-gradient(145deg,rgba(42,42,42,.97),rgba(20,22,25,.98));border-left:1px solid rgba(148,163,184,.18);box-shadow:-18px 0 55px rgba(0,0,0,.38);color:#f8fafc;transform:translateX(100%);transition:transform .2s ease;outline:0}.personal-panel.show{transform:translateX(0)}.personal-panel[hidden]{display:none}
 .personal-header{position:relative;display:grid;justify-items:center;gap:8px;padding:44px 22px 26px;border-bottom:0}.personal-logo{width:66px;height:66px;padding:8px;border:1px solid rgba(148,163,184,.28);border-radius:10px;background:rgba(15,23,42,.62);object-fit:contain;filter:drop-shadow(0 0 8px rgba(0,217,255,.22))}.personal-title{min-width:0;text-align:center}.personal-title h2{margin:4px 0 0;font-size:18px}.personal-title span{display:block;margin-top:8px;color:#cbd5e1;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.personal-close{position:absolute;top:16px;right:16px;display:grid;place-items:center;width:36px;height:36px;border:0;border-radius:10px;background:transparent;color:#e5e7eb;font-size:24px;cursor:pointer}
 .personal-body{display:flex;flex:1;flex-direction:column;gap:16px;overflow:auto;padding:0 24px 22px}.personal-section{display:grid;gap:8px}.personal-section[hidden]{display:none}.personal-section h3{display:none}.personal-info{display:grid;gap:4px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#f8fafc}.personal-info strong{font-size:14px}.personal-info span{color:var(--muted);font-size:13px;line-height:1.35}.personal-theme{display:grid;grid-template-columns:1fr 1fr;gap:0;padding:0;border:1px solid rgba(96,165,250,.38);border-radius:8px;background:rgba(15,23,42,.2);overflow:hidden}.personal-theme-button{border:0;border-radius:0;padding:11px 8px;background:transparent;color:#f8fafc;font-weight:850;cursor:pointer}.personal-theme-button+.personal-theme-button{border-left:1px solid rgba(96,165,250,.38)}.personal-theme-button.active{background:rgba(37,99,235,.72);color:#fff}.personal-signout{margin-top:auto;border:0;border-radius:0;padding:16px 0;background:transparent;color:#f87171;text-align:left;font-weight:850;cursor:pointer}
+.personal-notification-form{display:grid;gap:9px;padding:12px;border:1px solid rgba(96,165,250,.38);border-radius:10px;background:rgba(15,23,42,.2)}.personal-notification-form label{display:grid;gap:5px;color:#cbd5e1;font-size:12px;font-weight:800}.personal-notification-form select,.personal-notification-form input{padding:9px;border-color:rgba(148,163,184,.35);background:#111827;color:#f8fafc}.personal-notification-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px}.personal-notification-status{margin:0;color:#cbd5e1;font-size:12px;line-height:1.4}.personal-notification-form .btn2{background:#2563eb;color:#fff}
+.personal-notification-section[hidden]{display:none}.personal-notification-back{border:0;background:transparent;color:#93c5fd;padding:0;text-align:left;font-weight:800;cursor:pointer}.personal-notification-back:hover{color:#fff}
 .personal-menu-list{display:grid;gap:0;margin-top:8px}.personal-menu-item{display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:10px;padding:15px 0;border-bottom:1px solid rgba(148,163,184,.15);color:inherit}.personal-menu-icon{display:grid;place-items:center;color:#dbe7f7}.personal-menu-icon svg{width:20px;height:20px;stroke:currentColor}.personal-menu-arrow{color:#94a3b8;font-size:22px}.personal-menu-item strong{font-size:15px;font-weight:750}.personal-menu-item span{display:block;margin-top:2px;color:var(--muted);font-size:12px}
 .personal-about-button{border:0;background:transparent;text-align:left;cursor:pointer}.personal-about-button:hover{background:rgba(148,163,184,.08)}.personal-about-modal .update-panel{display:grid;gap:14px}.personal-about-text{display:grid;gap:10px}.personal-about-text p{margin:0;color:var(--muted);font-size:14px;line-height:1.5}.personal-about-link{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:11px 13px;border-radius:9px;background:#16a34a;color:#fff;text-decoration:none;font-size:14px;font-weight:850}.personal-about-link:hover{background:#15803d}
 .page{display:none}.page.active{display:block}
@@ -212,7 +214,26 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
     <button class="personal-theme-button" type="button" data-personal-theme-choice="dark">🌙 Escuro</button>
    </div>
   </section>
+  <section id="personalNotificationSection" class="personal-section personal-notification-section" aria-labelledby="personalNotificationTitle" hidden>
+   <button id="personalNotificationBack" class="personal-notification-back" type="button">← Voltar às configurações</button>
+   <h3 id="personalNotificationTitle">Notificações de vencimento</h3>
+   <div class="personal-notification-form">
+    <label>Loja<select id="notificationStore"><option value="">Carregando lojas...</option></select></label>
+    <div class="personal-notification-fields">
+     <label>A partir de<input id="notificationMinDays" type="number" min="0" max="365" value="7"></label>
+     <label>Até<input id="notificationMaxDays" type="number" min="0" max="365" value="15"></label>
+    </div>
+    <button id="saveNotificationRule" class="btn2" type="button">Salvar prazo da loja</button>
+    <button id="enableNotifications" class="btn2" type="button">Ativar notificações</button>
+    <p id="notificationStatus" class="personal-notification-status" aria-live="polite"></p>
+   </div>
+  </section>
   <div class="personal-menu-list">
+    <button id="personalNotificationsButton" class="personal-menu-item personal-about-button" type="button" aria-controls="personalNotificationSection">
+     <span class="personal-menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z"/><path d="M10 21h4"/></svg></span>
+     <div><strong>Notificações</strong><span>Alertas de vencimento por loja</span></div>
+     <span class="personal-menu-arrow" aria-hidden="true">›</span>
+    </button>
    <section class="personal-menu-item" aria-labelledby="personalProfileTitle">
     <span class="personal-menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span>
     <div><strong id="personalProfileTitle">Meu perfil</strong><span id="personalProfileEmail">--</span></div>
@@ -337,7 +358,7 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
     </div>
     <div class="report-primary-actions">
      <button id="copyReport" class="btn2" type="button">Copiar selecionados</button>
-     <button id="exportReportPdf" class="btn" type="button">Gerar PDF</button>
+    <button id="exportReportPdf" class="btn" type="button" disabled aria-disabled="true" title="Disponível somente para o administrador com produtos selecionados">Gerar PDF</button>
     </div>
    </div>
   </div>
@@ -722,6 +743,16 @@ const els = {
  productLayoutButtons: document.querySelectorAll('.product-layout-button'),
  themeButtons: document.querySelectorAll('.theme-button'),
  personalThemeButtons: document.querySelectorAll('.personal-theme-button'),
+ personalNotificationsButton: document.getElementById('personalNotificationsButton'),
+ personalNotificationSection: document.getElementById('personalNotificationSection'),
+ personalNotificationBack: document.getElementById('personalNotificationBack'),
+ personalMenuList: document.querySelector('.personal-menu-list'),
+ notificationStore: document.getElementById('notificationStore'),
+ notificationMinDays: document.getElementById('notificationMinDays'),
+ notificationMaxDays: document.getElementById('notificationMaxDays'),
+ saveNotificationRule: document.getElementById('saveNotificationRule'),
+ enableNotifications: document.getElementById('enableNotifications'),
+ notificationStatus: document.getElementById('notificationStatus'),
  themeStatus: document.getElementById('themeStatus'),
  adminUsersSection: document.getElementById('adminUsersSection'),
  newUserEmail: document.getElementById('newUserEmail'),
@@ -777,6 +808,8 @@ const PRODUCT_COLUMNS_KEY = "skalee.products.columns";
 let productColumns = Number(localStorage.getItem(PRODUCT_COLUMNS_KEY)) || (window.matchMedia("(max-width: 620px)").matches ? 1 : 3);
 if (![1, 2, 3, 4].includes(productColumns)) productColumns = 1;
 const THEME_KEY = "skalee.theme";
+const NOTIFICATION_RULES_KEY = "skalee.expiryNotificationRules";
+const NOTIFICATION_DISPATCH_KEY = "skalee.expiryNotificationDispatch";
 const themeMedia = window.matchMedia("(prefers-color-scheme: dark)");
 let themePreference = localStorage.getItem(THEME_KEY) || "auto";
 if (!["light", "dark", "auto"].includes(themePreference)) themePreference = "auto";
@@ -821,6 +854,95 @@ themeMedia.addEventListener("change", () => {
 });
 
 applyThemePreference(themePreference);
+
+function notificationStorageKey(base) {
+ return `${base}.${activeUserEmail || "anonymous"}`;
+}
+
+function readNotificationRules() {
+ try { return JSON.parse(localStorage.getItem(notificationStorageKey(NOTIFICATION_RULES_KEY)) || "{}"); }
+ catch { return {}; }
+}
+
+function updateNotificationStatus(text) {
+ els.notificationStatus.textContent = text;
+}
+
+function loadNotificationRule() {
+ const rule = readNotificationRules()[els.notificationStore.value];
+ els.notificationMinDays.value = rule?.min ?? 7;
+ els.notificationMaxDays.value = rule?.max ?? 15;
+}
+
+function syncNotificationStores() {
+ if (!els.notificationStore) return;
+ const selected = els.notificationStore.value;
+ const locations = (allowedLocations || []).filter((location) => location.active !== false);
+ els.notificationStore.replaceChildren(new Option(locations.length ? "Selecione a loja" : "Nenhuma loja disponível", ""));
+ locations.forEach((location) => els.notificationStore.add(new Option(location.name, location.id)));
+ if (locations.some((location) => location.id === selected)) els.notificationStore.value = selected;
+ loadNotificationRule();
+}
+
+function updateNotificationControls() {
+ if (!("Notification" in window)) {
+  els.enableNotifications.hidden = true;
+  updateNotificationStatus("Este navegador não oferece notificações.");
+  return;
+ }
+ els.enableNotifications.hidden = false;
+ els.enableNotifications.disabled = Notification.permission === "granted";
+ els.enableNotifications.textContent = Notification.permission === "granted" ? "Notificações ativadas" : "Ativar notificações";
+ if (Notification.permission === "granted") updateNotificationStatus("Notificações ativadas neste dispositivo.");
+ else if (Notification.permission === "denied") updateNotificationStatus("Notificações bloqueadas nas configurações do navegador.");
+ else updateNotificationStatus("Escolha a loja, defina o prazo e ative as notificações.");
+}
+
+function saveNotificationRule() {
+ const storeId = els.notificationStore.value;
+ const min = Number(els.notificationMinDays.value);
+ const max = Number(els.notificationMaxDays.value);
+ if (!storeId) return updateNotificationStatus("Selecione uma loja.");
+ if (!Number.isInteger(min) || !Number.isInteger(max) || min < 0 || max < min) return updateNotificationStatus("Informe um intervalo válido.");
+ const rules = readNotificationRules();
+ rules[storeId] = { min, max };
+ localStorage.setItem(notificationStorageKey(NOTIFICATION_RULES_KEY), JSON.stringify(rules));
+ updateNotificationStatus(`Avisos configurados de ${min} a ${max} dias.`);
+ checkExpiryNotifications();
+}
+
+async function requestExpiryNotifications() {
+ if (!("Notification" in window)) return;
+ const permission = await Notification.requestPermission();
+ updateNotificationControls();
+ if (permission === "granted") checkExpiryNotifications();
+}
+
+function checkExpiryNotifications() {
+ if (!("Notification" in window) || Notification.permission !== "granted") return;
+ const rules = readNotificationRules();
+ const today = new Date().toISOString().slice(0, 10);
+ let dispatched = {};
+ try { dispatched = JSON.parse(localStorage.getItem(notificationStorageKey(NOTIFICATION_DISPATCH_KEY)) || "{}"); } catch {}
+ products.filter((product) => {
+  const rule = rules[product.retailLocationId];
+  const days = remaining(product.expiry);
+  return rule && days >= rule.min && days <= rule.max;
+ }).forEach((product) => {
+  const key = `${today}:${product.id}:${product.expiry}`;
+  if (dispatched[key]) return;
+  const days = remaining(product.expiry);
+  const when = days === 0 ? "vence hoje" : `vence em ${days} dia${days === 1 ? "" : "s"}`;
+  const notification = new Notification("Alerta de validade", { body: `${product.name} ${when} em ${product.store}.`, icon: "skalee-icon-192.png", tag: key });
+  notification.onclick = () => { window.focus(); notification.close(); };
+  dispatched[key] = true;
+ });
+ localStorage.setItem(notificationStorageKey(NOTIFICATION_DISPATCH_KEY), JSON.stringify(dispatched));
+}
+
+els.notificationStore.addEventListener("change", loadNotificationRule);
+els.saveNotificationRule.addEventListener("click", saveNotificationRule);
+els.enableNotifications.addEventListener("click", requestExpiryNotifications);
 
 let personalPanelPreviousFocus = null;
 
@@ -956,6 +1078,17 @@ els.headerProfileButton.addEventListener("click", () => {
 });
 els.personalClose.addEventListener("click", () => setPersonalPanelOpen(false));
 els.personalOverlay.addEventListener("click", () => setPersonalPanelOpen(false));
+function setNotificationSettingsOpen(open) {
+ els.personalNotificationSection.hidden = !open;
+ els.personalMenuList.hidden = open;
+ els.personalNotificationsButton.setAttribute("aria-expanded", String(open));
+ if (open) {
+  loadNotificationRule();
+  els.notificationStore.focus();
+ }
+}
+els.personalNotificationsButton.addEventListener("click", () => setNotificationSettingsOpen(true));
+els.personalNotificationBack.addEventListener("click", () => setNotificationSettingsOpen(false));
 function setAboutModalOpen(open) {
  els.aboutModal.classList.toggle("show", open);
  if (open) els.aboutClose.focus();
@@ -1082,6 +1215,8 @@ let scannerCanvasContext = null;
 let products = [];
 let allowedLocations = null;
 let allowedSuppliers = null;
+syncNotificationStores();
+updateNotificationControls();
 
 function pageRawLength(page) {
  return Number(page?.rawPageLength ?? page?.length ?? 0);
@@ -1124,6 +1259,7 @@ async function carregarProdutosOnline() {
   preencherFornecedorPelosProdutos();
   productPageLoading = false;
   render();
+  checkExpiryNotifications();
   setProductLoadToast("Carregando produtos...", `${products.length} produto(s) encontrados. Continuando em segundo plano.`);
   void carregarProdutosRestantesOnline(generation);
  } catch (error) {
@@ -1174,6 +1310,7 @@ async function carregarProdutosRestantesOnline(generation) {
   productPageLoading = false;
   productHasMorePages = false;
   render();
+  checkExpiryNotifications();
   await carregarFotosPendentesEmSegundoPlano(generation);
  } catch (error) {
   productPageLoading = false;
@@ -1220,6 +1357,7 @@ function popularLojasPermitidas(locations) {
   activeLocations.forEach((location) => els.reportStore.add(new Option(location.name, location.name)));
   if ([...els.reportStore.options].some((option) => option.value === selectedReportStore)) els.reportStore.value = selectedReportStore;
  }
+ syncNotificationStores();
  updatePersonalPanelScope();
  render();
 }
@@ -1561,6 +1699,7 @@ window.addEventListener("skalee:authenticated", (event) => {
  isSkaleeAdmin = String(event.detail?.email || "").toLowerCase() === ADMIN_EMAIL;
  const isPlatformAdmin = event.detail?.accessRole === "platform_admin";
  canManageAdminUsers = isSkaleeAdmin || isPlatformAdmin;
+ syncNotificationStores();
  updatePersonalPanelIdentity(event.detail || {});
  catalogLoadPromise = null;
  adminUsersLoaded = false;
@@ -1819,6 +1958,13 @@ function reportStatusClass(product) {
  return "status-green";
 }
 
+function reportDaysClass(days) {
+ if (!Number.isFinite(days) || days <= 3) return "status-red";
+ if (days <= 7) return "status-orange";
+ if (days <= 15) return "status-yellow";
+ return "status-green";
+}
+
 function reportMotiveLabel(product) {
  if (product.offer) return "ACAO DE VENCIMENTO";
  const days = remaining(product.expiry);
@@ -1887,8 +2033,8 @@ function buildPdfReportRows(items) {
    <td>${escapeHtml(reportMotiveLabel(product))}</td>
    <td>${escapeHtml(formatPdfDate(product.createdAt ? localDateKey(product.createdAt) : ""))}</td>
    <td>${escapeHtml(formatPdfDate(product.expiry))}</td>
-   <td>${Number.isFinite(days) ? days : ""}</td>
-   <td>${escapeHtml(product.qty || 0)}</td>
+  <td class="${reportDaysClass(days)}">${Number.isFinite(days) ? days : ""}</td>
+  <td class="${Number(product.qty) >= 100 ? "status-high" : ""}">${escapeHtml(product.qty || 0)}</td>
    <td class="${reportStatusClass(product)}">${escapeHtml(statusText)}</td>
    <td>${escapeHtml(product.offer ? "EM OFERTA" : "")}</td>
   </tr>`;
@@ -1921,10 +2067,6 @@ function buildPdfReportSections(groups) {
 }
 
 function openPdfReport() {
- if (!isSkaleeAdmin) {
-  els.reportStatus.textContent = "Relatório em PDF disponível apenas para o Administrador Skalee.";
-  return;
- }
  const scope = askPdfReportScope(Boolean(els.reportStore.value));
  if (!scope) return;
  const items = filteredReportProductsForPdf(scope);
@@ -1952,7 +2094,7 @@ function openPdfReport() {
 <title>Relatorio_Validades_Skalee_${fileDate}</title>
 <style>
  @page{size:A4 landscape;margin:12mm}
- *{box-sizing:border-box}
+ *{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}
  body{margin:0;font-family:Arial,sans-serif;color:#111827;background:#fff;font-size:10px}
  .print-actions{display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px}
  .print-actions button{border:0;border-radius:8px;padding:9px 12px;background:#2563eb;color:#fff;font-weight:700;cursor:pointer}
@@ -1975,9 +2117,10 @@ function openPdfReport() {
  .status-yellow{background:#fef08a!important;color:#713f12;font-weight:800}
  .status-green{background:#bbf7d0!important;color:#14532d;font-weight:800}
  .status-blue{background:#bfdbfe!important;color:#1e3a8a;font-weight:800}
+ .status-high{background:#e9d5ff!important;color:#6b21a8;font-weight:800}
  .footer{margin-top:8px;color:#4b5563;font-size:10px}
  .page-break{break-before:page;page-break-before:always}
- @media print{.print-actions{display:none}}
+ @media print{.print-actions{display:none}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 </style>
 </head>
 <body>
@@ -2051,7 +2194,8 @@ function updateReportSelectionStatus() {
  const selectedCount = reportProducts.filter((product) => selectedReportProductIds.has(String(product.id))).length;
  els.reportStatus.textContent = `${selectedCount} produto(s) selecionado(s) de ${reportProducts.length} encontrado(s).`;
  els.copyReport.disabled = selectedCount === 0;
- els.exportReportPdf.disabled = selectedCount === 0 || !isSkaleeAdmin;
+ els.exportReportPdf.disabled = selectedCount === 0;
+ els.exportReportPdf.setAttribute("aria-disabled", String(els.exportReportPdf.disabled));
  els.selectAllReport.disabled = reportProducts.length === 0 || selectedCount === reportProducts.length;
  els.clearReportSelection.disabled = selectedCount === 0;
 }
