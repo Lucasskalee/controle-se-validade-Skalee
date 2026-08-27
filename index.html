@@ -1574,13 +1574,13 @@ window.addEventListener("skalee:authenticated", (event) => {
  const registerTab = document.querySelector('[data-page="register"]');
  registerTab.hidden = isViewer;
  els.adminCentralButton.hidden = !canOpenAdminSettings;
- els.reportTab.hidden = !isSkaleeAdmin;
+ els.reportTab.hidden = false;
  els.posterTab.hidden = !canUsePoster;
  els.settingsUsersTab.hidden = !isAdmin;
  els.settingsRegistriesTab.hidden = !isPlatformAdmin;
  if (document.querySelector(".settings-tab.active")?.hidden) showSettingsPanel("overview");
  const activeTab = document.querySelector(".tab.active");
- if (isViewer || activeTab?.hidden || (!isSkaleeAdmin && activeTab?.dataset.page === "report")) document.querySelector('[data-page="products"]').click();
+ if (isViewer || activeTab?.hidden) document.querySelector('[data-page="products"]').click();
  els.adminUsersSection.hidden = !isAdmin;
  els.catalogSettingsSection.hidden = !isSkaleeAdmin;
 });
