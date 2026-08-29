@@ -47,10 +47,11 @@ button{font:inherit}
 .personal-body{display:flex;flex:1;flex-direction:column;gap:16px;overflow:auto;padding:0 24px 22px}.personal-section{display:grid;gap:8px}.personal-section[hidden]{display:none}.personal-section h3{display:none}.personal-info{display:grid;gap:4px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#f8fafc}.personal-info strong{font-size:14px}.personal-info span{color:var(--muted);font-size:13px;line-height:1.35}.personal-theme{display:grid;grid-template-columns:1fr 1fr;gap:0;padding:0;border:1px solid rgba(96,165,250,.38);border-radius:8px;background:rgba(15,23,42,.2);overflow:hidden}.personal-theme-button{border:0;border-radius:0;padding:11px 8px;background:transparent;color:#f8fafc;font-weight:850;cursor:pointer}.personal-theme-button+.personal-theme-button{border-left:1px solid rgba(96,165,250,.38)}.personal-theme-button.active{background:rgba(37,99,235,.72);color:#fff}.personal-signout{margin-top:auto;border:0;border-radius:0;padding:16px 0;background:transparent;color:#f87171;text-align:left;font-weight:850;cursor:pointer}
 .personal-menu-list{display:grid;gap:0;margin-top:8px}.personal-menu-item{display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:10px;padding:15px 0;border-bottom:1px solid rgba(148,163,184,.15);color:inherit}.personal-menu-icon{display:grid;place-items:center;color:#dbe7f7}.personal-menu-icon svg{width:20px;height:20px;stroke:currentColor}.personal-menu-arrow{color:#94a3b8;font-size:22px}.personal-menu-item strong{font-size:15px;font-weight:750}.personal-menu-item span{display:block;margin-top:2px;color:var(--muted);font-size:12px}
 .personal-about-button{border:0;background:transparent;text-align:left;cursor:pointer}.personal-about-button:hover{background:rgba(148,163,184,.08)}.personal-about-modal .update-panel{display:grid;gap:14px}.personal-about-text{display:grid;gap:10px}.personal-about-text p{margin:0;color:var(--muted);font-size:14px;line-height:1.5}.personal-about-link{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:11px 13px;border-radius:9px;background:#16a34a;color:#fff;text-decoration:none;font-size:14px;font-weight:850}.personal-about-link:hover{background:#15803d}
+.notification-settings-modal .update-panel{display:grid;gap:15px}.notification-toggle{display:grid;gap:4px;padding:14px;border:1px solid var(--line);border-radius:12px;background:#f8fafc}.notification-toggle strong{display:block}.notification-toggle span{display:block;color:var(--muted);font-size:12px}.notification-enable-button{width:100%;min-height:44px;border:0;border-radius:11px;background:var(--blue);color:#fff;font-weight:850;cursor:pointer}.notification-enable-button.is-off{background:#e9edf4;color:#39465c}.notification-enable-button:disabled{opacity:.58}.notification-days,.notification-store{display:grid;gap:10px;padding:14px;border:1px solid var(--line);border-radius:12px;background:#f8fafc}.notification-days-head,.notification-store-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.notification-days-head strong,.notification-store-head strong{font-size:13px}.notification-days-value{padding:6px 10px;border-radius:999px;background:var(--blue2);color:var(--blue);font-size:13px;font-weight:850;white-space:nowrap}.notification-days input{width:100%;padding:0;border:0;accent-color:var(--blue);box-shadow:none}.notification-days input:disabled{opacity:.55}.notification-store select{padding:11px;border-radius:10px;font-weight:750}.notification-status{min-height:18px;color:var(--muted);font-size:13px;line-height:1.35}
 .page{display:none}.page.active{display:block}
 .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px}
-.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px}
-.stat small{color:var(--muted)}.stat b{display:block;font-size:23px;margin-top:5px}
+.stat{position:relative;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;overflow:hidden;transition:background .25s ease,border-color .25s ease,box-shadow .25s ease}
+.stat small{color:var(--muted)}.stat b{display:block;font-size:23px;margin-top:5px;font-variant-numeric:tabular-nums}.stat b.counting{color:var(--blue)}.stat.stat-up{border-color:#22c55e;background:#ecfdf5;box-shadow:0 10px 24px rgba(34,197,94,.16)}.stat.stat-down{border-color:#ef4444;background:#fef2f2;box-shadow:0 10px 24px rgba(239,68,68,.14)}.stat-delta{position:absolute;right:12px;top:12px;font-size:13px;font-weight:900;pointer-events:none;animation:stat-delta-float 1.05s ease-out forwards}.stat-delta.up{color:#16a34a}.stat-delta.down{color:#dc2626}@keyframes stat-delta-float{0%{opacity:0;transform:translateY(10px) scale(.9)}18%{opacity:1}100%{opacity:0;transform:translateY(-26px) scale(1.08)}}
 .searchrow{display:grid;grid-template-columns:1fr 190px;gap:10px;margin-bottom:10px}.searchrow.with-layout{grid-template-columns:1fr 190px 190px auto}
 input,select{width:100%;padding:12px;border:1px solid var(--line);border-radius:11px;background:#fff;color:var(--text);font-size:14px;outline:none}
 input:focus,select:focus{border-color:#9dbbf9;box-shadow:0 0 0 3px #e8f0ff}
@@ -87,12 +88,14 @@ input:focus,select:focus{border-color:#9dbbf9;box-shadow:0 0 0 3px #e8f0ff}
 .report{max-width:900px;margin:auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px}.report-head{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;margin-bottom:16px}.report-head h2{margin:0 0 5px}.report-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.report-controls select{min-width:150px}.report-date{display:grid;gap:3px;color:var(--muted);font-size:11px;font-weight:750}.report-date input{min-width:145px;padding:10px}.report-primary-actions{display:flex;gap:8px;flex-wrap:wrap}.report-selection-actions{display:flex;gap:8px;margin:0 0 10px}.layout-picker{display:flex;gap:5px;padding:4px;border:1px solid var(--line);border-radius:11px;background:#f1f5f9}.layout-button{display:grid;place-items:center;width:38px;height:36px;padding:7px;border:0;border-radius:8px;background:transparent;color:#7a8499;cursor:pointer}.layout-button.active{background:var(--blue);color:#fff;box-shadow:0 3px 9px rgba(37,99,235,.25)}.layout-icon{display:grid;grid-template-columns:repeat(var(--icon-columns),1fr);grid-template-rows:repeat(3,4px);gap:2px;width:100%;height:16px}.layout-icon span{border-radius:1px;background:currentColor}.report-grid{display:grid;grid-template-columns:repeat(var(--report-columns,1),minmax(0,1fr));gap:10px;min-height:260px;padding:12px;border:1px solid var(--line);border-radius:13px;background:#f8fafc}.report-item{position:relative;min-width:0;padding:14px 14px 14px 44px;border:1px solid #dbe1ea;border-radius:10px;background:#fff;color:#111827;white-space:pre-wrap;overflow-wrap:anywhere;font:700 15px/1.45 "Courier New",monospace;cursor:pointer}.report-item.selected{border-color:#60a5fa;box-shadow:0 0 0 2px rgba(37,99,235,.12)}.report-item input{position:absolute;top:15px;left:14px;width:18px;height:18px;cursor:pointer}.report-grid[data-columns="2"] .report-item{font-size:13px;padding:12px 12px 12px 39px}.report-grid[data-columns="3"] .report-item{font-size:11px;padding:9px 9px 9px 34px}.report-grid[data-columns="4"] .report-item{font-size:9px;padding:7px 7px 7px 31px}.report-empty{grid-column:1/-1;align-self:start;padding:30px;text-align:center;color:var(--muted)}.report-status{margin-top:10px;color:var(--muted);font-size:13px}
 .settings h2{margin:0 0 5px}.settings-note{margin:0 0 18px;color:var(--muted);font-size:14px;line-height:1.5}
 .settings-tabs{display:flex;gap:7px;overflow-x:auto;margin:0 0 18px;padding-bottom:3px}.settings-tab{white-space:nowrap;border:1px solid var(--line);border-radius:999px;padding:9px 13px;background:#f8fafc;color:var(--muted);font-weight:800;cursor:pointer}.settings-tab.active{border-color:var(--blue);background:var(--blue);color:#fff}.settings-tab[hidden]{display:none}.settings-panel{display:none}.settings-panel.active{display:block}
+.management-toolbar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) auto;gap:10px;align-items:end;margin-bottom:16px}.management-toolbar label{display:grid;gap:6px;color:var(--admin-muted);font-size:12px;font-weight:800}.management-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:16px}.management-card{min-height:96px;padding:15px;border:1px solid var(--admin-border);border-radius:8px;background:linear-gradient(135deg,rgba(17,30,48,.94),rgba(8,15,26,.94))}.management-card small{display:block;color:var(--admin-muted);font-weight:850}.management-card b{display:block;margin-top:7px;color:#60a5fa;font-size:28px;line-height:1}.management-card span{display:block;margin-top:6px;color:#cbd5e1;font-size:12px;line-height:1.35}.management-panels{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}.management-panel{padding:16px;border:1px solid var(--admin-border);border-radius:10px;background:rgba(13,23,38,.78)}.management-panel h3{margin:0 0 12px;color:var(--admin-text)}.management-list{display:grid;gap:10px}.management-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center}.management-row strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.management-row small{display:block;margin-top:3px;color:var(--admin-muted)}.management-bar{grid-column:1/-1;height:7px;border-radius:999px;background:#0b1322;overflow:hidden}.management-bar span{display:block;width:var(--bar,0%);height:100%;border-radius:inherit;background:linear-gradient(90deg,#22c55e,#38bdf8)}.management-table{grid-column:1/-1;overflow:auto}.management-table table{width:100%;border-collapse:collapse;min-width:760px}.management-table th,.management-table td{padding:11px 10px;border-bottom:1px solid var(--admin-border);text-align:left}.management-table th{color:var(--admin-muted);font-size:12px}.management-status{min-height:20px;margin:0 0 12px;color:var(--admin-muted);font-size:13px}.department-products-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,.85fr);gap:14px}.department-list{display:grid;gap:9px}.department-product-row{display:grid;gap:4px;padding:12px;border:1px solid var(--admin-border);border-radius:8px;background:#0b1322}.department-product-row strong{color:var(--admin-text);line-height:1.25}.department-product-row span{color:var(--admin-muted);font-size:12px;line-height:1.35}.department-warning{border-color:rgba(255,176,32,.35);background:rgba(255,176,32,.08)}
 .admin-central .admin-brand h2,.admin-central .admin-page-title,.admin-central .admin-card h3{color:var(--admin-text);letter-spacing:0;line-height:1.16}.admin-central .admin-badge{vertical-align:middle;color:#dbeafe;background:rgba(37,99,235,.16)}.admin-central .admin-page-subtitle,.admin-central .settings-note{color:var(--admin-muted)}.admin-sidebar .settings-tab.admin-nav-item{border-radius:8px;background:transparent;color:#cbd5e1;line-height:1.2;white-space:nowrap}.admin-sidebar .settings-tab.admin-nav-item.active,.admin-sidebar .settings-tab.admin-nav-item[aria-current="page"]{background:linear-gradient(135deg,rgba(7,86,216,.36),rgba(0,217,255,.08));color:#fff;border-color:#1475ff}.admin-central .admin-metric{align-items:center}.admin-central .admin-metric small{line-height:1.2}.admin-central .admin-metric b{line-height:1}.admin-content .settings-section{padding:18px;border:1px solid var(--admin-border);border-radius:10px}.admin-content .user-row,.admin-content .registry-row{align-items:center;min-height:64px;line-height:1.32}.admin-content .user-info strong,.admin-content .registry-info strong{line-height:1.25}.admin-content .user-actions,.admin-content .registry-actions{align-items:center}.admin-content .registry-tabs{align-items:center;gap:8px}.admin-content .registry-tab{border-radius:8px;line-height:1.15}.admin-content .registry-form{gap:12px;padding:16px}.admin-content .registry-form .label{margin:0 0 6px}.admin-content .registry-submit{margin-top:0}
 .settings-section+.settings-section{margin-top:24px;padding-top:22px;border-top:1px solid var(--line)}.theme-options{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}.theme-button{display:flex;align-items:center;gap:10px;padding:13px;border:1px solid var(--line);border-radius:13px;background:#f8fafc;color:var(--text);font-weight:800;cursor:pointer;text-align:left}.theme-button.active{border-color:var(--blue);background:var(--blue2);color:#1d4ed8;box-shadow:0 0 0 2px rgba(37,99,235,.1)}.theme-icon{display:grid;place-items:center;width:31px;height:31px;border-radius:9px;background:#fff;font-size:18px;box-shadow:0 2px 7px rgba(15,23,42,.1)}.theme-status{margin-top:10px;color:var(--muted);font-size:13px}
 .settings-section[hidden]{display:none}.user-create{display:grid;grid-template-columns:1fr 1fr auto;gap:9px;align-items:end;margin-top:14px}.user-list{display:grid;gap:9px;margin-top:16px}.user-card{border:1px solid var(--line);border-radius:12px;background:#f8fafc;overflow:hidden}.user-card.expanded .user-locations{display:block}.user-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px}.user-info{min-width:0}.user-info strong{display:block;overflow:hidden;text-overflow:ellipsis}.user-info small{display:block;margin-top:4px;color:var(--muted)}.user-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}.user-role-select{min-width:150px;padding:10px;font-weight:750}.user-state{display:inline-block;margin-top:6px;padding:4px 7px;border-radius:999px;font-size:11px;font-weight:850}.user-state.active{background:#dcfce7;color:#166534}.user-state.inactive{background:#fee2e2;color:#b91c1c}.user-locations{display:none;padding:0 13px 13px;border-top:1px solid var(--line)}.user-locations-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 9px}.user-locations-head strong{font-size:13px}.user-location-actions{display:flex;gap:7px;flex-wrap:wrap}.user-location-checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.user-location-check{display:flex;align-items:center;gap:8px;padding:9px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:13px;font-weight:700}.user-location-check input{width:auto}.user-location-empty{padding:13px;border:1px dashed var(--line);border-radius:10px;color:var(--muted);font-size:13px;text-align:center}.user-message{min-height:19px;margin-top:10px;color:var(--muted);font-size:13px}.user-message.error{color:var(--red)}.user-message.success{color:var(--green)}
 .import-box{border:2px dashed #cbd3df;border-radius:15px;padding:24px;text-align:center;background:#fafbfc}
 .import-box input{margin:14px auto 0;max-width:440px}.catalog-info{margin-top:16px;padding:14px;border-radius:12px;background:var(--blue2);font-size:14px;line-height:1.55}
-.catalog-info b{display:block}.settings-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.catalog-info b{display:block}.catalog-info.importing{position:relative;padding-left:58px;overflow:hidden}.catalog-info.importing::before{content:"";position:absolute;left:18px;top:18px;width:24px;height:24px;border:4px solid #bfdbfe;border-top-color:var(--blue);border-radius:999px;animation:saving-spin .8s linear infinite}.catalog-progress{display:block;height:6px;margin-top:10px;border-radius:999px;background:#dbeafe;overflow:hidden}.catalog-progress span{display:block;width:var(--catalog-progress,35%);height:100%;border-radius:inherit;background:linear-gradient(90deg,#2563eb,#00b8d9);transition:width .22s ease}.catalog-info.importing:not(.has-progress) .catalog-progress span{width:38%;animation:product-load-bar 1.1s ease-in-out infinite}
+.settings-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
 .scanner-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.6);padding:16px;z-index:1000}
 .scanner-modal.show{display:flex}
 .scanner-panel{position:relative;width:min(560px,100%);background:#fff;border-radius:16px;padding:16px;border:1px solid var(--line)}
@@ -111,19 +114,24 @@ input:focus,select:focus{border-color:#9dbbf9;box-shadow:0 0 0 3px #e8f0ff}
 .scanner-success.show{display:flex}
 .save-toast{position:fixed;left:50%;top:24px;z-index:2100;display:flex;align-items:center;gap:10px;max-width:min(520px,calc(100% - 28px));padding:14px 18px;border-radius:14px;background:#166534;color:#fff;font-weight:800;box-shadow:0 14px 35px rgba(22,101,52,.3);opacity:0;transform:translate(-50%,-20px) scale(.96);pointer-events:none;transition:opacity .25s ease,transform .3s ease}
 .save-toast.show{opacity:1;transform:translate(-50%,0) scale(1)}.save-toast-icon{font-size:21px}
-.save-toast.info{background:#1d4ed8;box-shadow:0 14px 35px rgba(37,99,235,.28)}.save-toast.error{background:#b91c1c;box-shadow:0 14px 35px rgba(185,28,28,.28)}
+.save-toast.info{background:#1d4ed8;box-shadow:0 14px 35px rgba(37,99,235,.28)}.save-toast.error{background:#b91c1c;box-shadow:0 14px 35px rgba(185,28,28,.28)}.save-toast.mission{background:linear-gradient(135deg,#15803d,#2563eb);box-shadow:0 16px 42px rgba(21,128,61,.28)}
 .product-load-toast{position:fixed;left:50%;bottom:18px;z-index:2400;display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:center;width:min(520px,calc(100% - 28px));padding:14px 16px;border:1px solid #bfdbfe;border-radius:15px;background:#fff;box-shadow:0 18px 48px rgba(15,23,42,.22);transform:translateX(-50%)}.product-load-toast[hidden]{display:none}.product-load-spinner{width:34px;height:34px;border:4px solid #dbeafe;border-top-color:var(--blue);border-radius:50%;animation:saving-spin .8s linear infinite}.product-load-copy{min-width:0}.product-load-copy strong{display:block;font-size:14px}.product-load-copy span{display:block;margin-top:3px;color:var(--muted);font-size:12px;line-height:1.35}.product-load-bar{grid-column:1/-1;height:5px;border-radius:999px;background:#e5eaf2;overflow:hidden}.product-load-bar span{display:block;width:38%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#2563eb,#00b8d9);animation:product-load-bar 1.1s ease-in-out infinite}@keyframes product-load-bar{0%{transform:translateX(-100%)}100%{transform:translateX(265%)}}
 .saving-overlay{position:fixed;inset:0;z-index:3000;display:none;place-items:center;padding:20px;background:rgba(15,23,42,.68);backdrop-filter:blur(3px);cursor:wait}.saving-overlay.show{display:grid}.saving-box{display:flex;flex-direction:column;align-items:center;gap:14px;width:min(300px,100%);padding:25px;border-radius:18px;background:#fff;box-shadow:0 24px 70px rgba(15,23,42,.35);text-align:center}.saving-box strong{font-size:17px}.saving-box span{color:var(--muted);font-size:13px}.saving-spinner{width:46px;height:46px;border:5px solid #dbeafe;border-top-color:var(--blue);border-radius:50%;animation:saving-spin .75s linear infinite}@keyframes saving-spin{to{transform:rotate(360deg)}}
 .install-banner{position:fixed;left:50%;bottom:18px;z-index:2300;display:flex;align-items:center;gap:13px;width:min(620px,calc(100% - 28px));padding:14px;border:1px solid #bfdbfe;border-radius:17px;background:#fff;box-shadow:0 18px 48px rgba(15,23,42,.24);transform:translateX(-50%)}.install-banner[hidden]{display:none}.install-app-icon{width:48px;height:48px;flex:0 0 auto;border-radius:12px}.install-copy{min-width:0;flex:1}.install-copy strong{display:block;margin-bottom:3px}.install-copy span{display:block;color:var(--muted);font-size:13px;line-height:1.35}.install-actions{display:flex;gap:7px;flex:0 0 auto}
 .confetti-layer{position:fixed;inset:0;z-index:2000;overflow:hidden;pointer-events:none}
 .confetti-piece{position:absolute;left:50%;top:48%;width:10px;height:16px;border-radius:3px;background:var(--confetti-color);opacity:0;animation:confetti-burst 1.7s cubic-bezier(.15,.7,.25,1) forwards;animation-delay:var(--confetti-delay);transform:translate(-50%,-50%) rotate(0deg)}
+.firework-spark{position:absolute;left:var(--firework-left);top:var(--firework-top);width:8px;height:8px;border-radius:999px;background:var(--firework-color);box-shadow:0 0 16px var(--firework-color),0 0 28px rgba(255,255,255,.22);opacity:0;animation:firework-burst 1.18s ease-out forwards;animation-delay:var(--firework-delay);transform:translate(-50%,-50%) scale(.8)}
+.confetti-test-button{position:fixed;right:16px;bottom:86px;z-index:2200;min-height:42px;padding:11px 14px;border:0;border-radius:999px;background:#111827;color:#fff;font-size:13px;font-weight:850;box-shadow:0 12px 30px rgba(15,23,42,.28);cursor:pointer}.confetti-test-button:hover{background:#2563eb}.confetti-test-button[hidden]{display:none}
 @keyframes confetti-burst{0%{opacity:1;transform:translate(-50%,-50%) rotate(0deg)}70%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--confetti-x)),calc(-50% + var(--confetti-y))) rotate(var(--confetti-rotation))}}
-@media(prefers-reduced-motion:reduce){.confetti-piece{display:none}.save-toast{transition:none}}
+@keyframes firework-burst{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}12%{opacity:1}72%{opacity:.95}100%{opacity:0;transform:translate(calc(-50% + var(--firework-x)),calc(-50% + var(--firework-y))) scale(.08)}}
+@media(prefers-reduced-motion:reduce){.confetti-piece,.firework-spark{display:none}.save-toast{transition:none}}
 @media(prefers-reduced-motion:reduce){.saving-spinner{animation-duration:1.5s}}
 .hidden{display:none !important}
 html[data-theme="dark"]{color-scheme:dark;--bg:#0b1220;--card:#111b2e;--text:#e5edf9;--muted:#94a3b8;--line:#29364b;--blue:#3b82f6;--blue2:#172a49}
 html[data-theme="dark"] body{background:var(--bg);color:var(--text)}
 html[data-theme="dark"] :is(.stat,.card,.form,.settings,.report,.update-panel,.scanner-panel,.saving-box){background:var(--card);border-color:var(--line)}
+html[data-theme="dark"] .stat.stat-up{background:#102a1d;border-color:#22c55e;box-shadow:0 10px 24px rgba(34,197,94,.18)}
+html[data-theme="dark"] .stat.stat-down{background:#2a1217;border-color:#ef4444;box-shadow:0 10px 24px rgba(239,68,68,.16)}
 html[data-theme="dark"] :is(input,select){background:#0f192a;border-color:var(--line);color:var(--text)}
 html[data-theme="dark"] :is(.tab,.btn2){background:#223047;color:#dbe7f7}
 html[data-theme="dark"] .header-admin-button{background:rgba(37,99,235,.14);color:#dbeafe;border-color:rgba(96,165,250,.45)}
@@ -143,6 +151,14 @@ html[data-theme="dark"] .theme-button.active{background:#17315a;color:#bfdbfe;bo
 html[data-theme="dark"] .theme-icon{background:#27364e;box-shadow:none}
 html[data-theme="dark"] .personal-info,html[data-theme="dark"] .personal-theme{background:#121e31;border-color:var(--line)}
 html[data-theme="dark"] .personal-close{background:#223047;color:#dbe7f7}
+html[data-theme="dark"] .notification-settings-modal .update-panel{background:#0f1a2d;border:1px solid #37517a;box-shadow:0 28px 80px rgba(0,0,0,.52)}
+html[data-theme="dark"] .notification-settings-modal h2{color:#f8fafc}
+html[data-theme="dark"] .notification-toggle,html[data-theme="dark"] .notification-days,html[data-theme="dark"] .notification-store{background:#17243a;border-color:#4d6b9e;color:#f8fafc}
+html[data-theme="dark"] .notification-toggle span,html[data-theme="dark"] .notification-status{color:#cbd5e1}
+html[data-theme="dark"] .notification-days-value{background:#0b1322;color:#93c5fd}
+html[data-theme="dark"] .notification-store select{background:#0b1322;border-color:#4d6b9e;color:#f8fafc}
+html[data-theme="dark"] .notification-enable-button{background:#2f6df6;color:#fff}
+html[data-theme="dark"] .notification-enable-button.is-off{background:#223047;color:#dbe7f7}
 html[data-theme="dark"] :is(.catalog-info,.found){background:#132b4b;border-color:#25466f}
 html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
 @media(max-width:768px){nav{gap:5px;padding:6px;border-radius:14px}.tab{flex:1 1 0;min-width:0;gap:0;padding:10px 0}.tab.active,.tab[aria-current="page"]{flex:2.65 1 0;gap:7px;padding-inline:9px}.tab-label{display:block;max-width:0;opacity:0;transition:max-width .2s ease,opacity .18s ease}.tab.active .tab-label,.tab[aria-current="page"] .tab-label{max-width:90px;opacity:1}.label-desktop{display:none}.label-mobile{display:inline}}
@@ -150,7 +166,7 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
 @media(max-width:480px){.app{max-width:430px}}
 @media(max-width:620px){.scan{grid-template-columns:1fr}}
 @media(max-width:850px){.stats{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:900px){.admin-topbar{align-items:flex-start;flex-direction:column}.admin-actions{width:100%;justify-content:space-between}.admin-layout{grid-template-columns:1fr}.admin-sidebar{position:sticky;top:0;z-index:5;flex-direction:row;overflow:auto;border-right:0;border-bottom:1px solid var(--admin-border)}.admin-sidebar .settings-tab.admin-nav-item{flex:1 0 48px;justify-content:center;gap:0;min-height:48px;padding:12px 10px;border-radius:8px}.admin-nav-item span{max-width:0;opacity:0;overflow:hidden;white-space:nowrap;transition:max-width .2s ease,opacity .18s ease}.admin-sidebar .settings-tab.admin-nav-item.active,.admin-sidebar .settings-tab.admin-nav-item[aria-current="page"]{flex:2.8 0 132px;gap:8px}.admin-nav-item.active span,.admin-nav-item[aria-current="page"] span{max-width:118px;opacity:1;text-overflow:ellipsis}.admin-content{padding:18px 14px 26px}.admin-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-metric{min-height:82px;padding:13px}.admin-metric-icon{width:42px;height:42px}.admin-metric b{font-size:24px}}
+@media(max-width:900px){.admin-topbar{align-items:flex-start;flex-direction:column}.admin-actions{width:100%;justify-content:space-between}.admin-layout{grid-template-columns:1fr}.admin-sidebar{position:sticky;top:0;z-index:5;flex-direction:row;overflow:auto;border-right:0;border-bottom:1px solid var(--admin-border)}.admin-sidebar .settings-tab.admin-nav-item{flex:1 0 48px;justify-content:center;gap:0;min-height:48px;padding:12px 10px;border-radius:8px}.admin-nav-item span{max-width:0;opacity:0;overflow:hidden;white-space:nowrap;transition:max-width .2s ease,opacity .18s ease}.admin-sidebar .settings-tab.admin-nav-item.active,.admin-sidebar .settings-tab.admin-nav-item[aria-current="page"]{flex:2.8 0 132px;gap:8px}.admin-nav-item.active span,.admin-nav-item[aria-current="page"] span{max-width:118px;opacity:1;text-overflow:ellipsis}.admin-content{padding:18px 14px 26px}.admin-metrics,.management-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.management-toolbar,.management-panels{grid-template-columns:1fr}.admin-metric{min-height:82px;padding:13px}.admin-metric-icon{width:42px;height:42px}.admin-metric b,.management-card b{font-size:24px}}
 @media(max-width:620px){.app{padding:14px}.searchrow,.searchrow.with-layout{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}header{align-items:flex-start;flex-direction:column;gap:5px}.photo{height:180px}.report-head{align-items:stretch;flex-direction:column}.report-controls{align-items:stretch;flex-direction:column}.product-layout-picker{justify-self:start}.theme-options,.user-create,.user-location-checks{grid-template-columns:1fr}.user-row,.user-locations-head,.user-actions,.user-location-actions{align-items:stretch;flex-direction:column}.user-row .btn2,.user-locations-head .btn2{width:100%}.install-banner{align-items:flex-start;flex-wrap:wrap}.install-copy{flex:1 1 calc(100% - 65px)}.install-actions{width:100%;justify-content:flex-end}.grid[data-columns="2"] .photo{height:120px}.grid[data-columns="3"] .photo{height:90px}.grid[data-columns="4"] .photo{height:70px}.grid[data-columns="3"] .content,.grid[data-columns="4"] .content{padding:7px}.grid[data-columns="3"] .name,.grid[data-columns="4"] .name{min-height:0;font-size:10px}.grid[data-columns="3"] .code,.grid[data-columns="4"] .code{font-size:8px}.grid[data-columns="3"] .info,.grid[data-columns="4"] .info{display:block;font-size:8px}.grid[data-columns="3"] .badge,.grid[data-columns="4"] .badge{font-size:7px;padding:4px}.grid[data-columns="3"] .card-actions .btn2,.grid[data-columns="4"] .card-actions .btn2{width:100%;padding:6px 3px;font-size:8px}}
 </style>
 </head>
@@ -220,12 +236,17 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
    </section>
    <section id="personalSupplierSection" class="personal-menu-item" aria-labelledby="personalSupplierTitle" hidden>
     <span class="personal-menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 21V7l8-4 8 4v14"/><path d="M9 21v-6h6v6"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg></span>
-    <div><strong id="personalSupplierTitle">Minha empresa</strong><span id="personalSupplierDetails">--</span></div>
-    <span class="personal-menu-arrow" aria-hidden="true">›</span>
-   </section>
-   <button id="personalAboutButton" class="personal-menu-item personal-about-button" type="button" aria-labelledby="personalAboutTitle">
-    <span class="personal-menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span>
-    <div><strong id="personalAboutTitle">Sobre o aplicativo</strong><span>Termos, disponibilidade e suporte</span></div>
+   <div><strong id="personalSupplierTitle">Minha empresa</strong><span id="personalSupplierDetails">--</span></div>
+   <span class="personal-menu-arrow" aria-hidden="true">›</span>
+  </section>
+  <button id="personalNotificationsButton" class="personal-menu-item personal-about-button" type="button" aria-labelledby="personalNotificationsTitle">
+   <span class="personal-menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg></span>
+   <div><strong id="personalNotificationsTitle">Notificações</strong><span id="personalNotificationsSummary">Alertas de vencimento</span></div>
+   <span class="personal-menu-arrow" aria-hidden="true">›</span>
+  </button>
+  <button id="personalAboutButton" class="personal-menu-item personal-about-button" type="button" aria-labelledby="personalAboutTitle">
+   <span class="personal-menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span>
+   <div><strong id="personalAboutTitle">Sobre o aplicativo</strong><span>Termos, disponibilidade e suporte</span></div>
     <span class="personal-menu-arrow" aria-hidden="true">›</span>
    </button>
   </div>
@@ -309,7 +330,7 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
   <input id="expiry" type="date">
 
   <label class="label">Foto do produto</label>
-  <input id="photo" type="file" accept="image/*" capture="environment">
+  <input id="photo" type="file" accept="image/jpeg,image/png,image/webp" capture="environment">
   <div id="preview" class="preview">Sem foto</div>
 
   <label class="check"><input id="offer" type="checkbox"> Produto está em oferta</label>
@@ -365,9 +386,10 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
   <div class="admin-layout">
    <aside class="admin-sidebar" aria-label="Navegação administrativa">
     <button class="settings-tab admin-nav-item active" type="button" data-settings="overview" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M4 4h7v7H4z"/><path d="M13 4h7v7h-7z"/><path d="M4 13h7v7H4z"/><path d="M13 13h7v7h-7z"/></svg><span>Visão geral</span></button>
+    <button id="settingsManagementTab" class="settings-tab admin-nav-item" type="button" data-settings="management" hidden><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M4 19V5"/><path d="M8 17v-6"/><path d="M13 17V7"/><path d="M18 17v-3"/><path d="M4 19h17"/></svg><span>Dashboard gerencial</span></button>
+    <button id="settingsDepartmentsTab" class="settings-tab admin-nav-item" type="button" data-settings="departments" hidden><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M3 7h18"/><path d="M6 7v13"/><path d="M18 7v13"/><path d="M9 11h6"/><path d="M9 15h6"/></svg><span>Produtos por departamento</span></button>
     <button id="settingsUsersTab" class="settings-tab admin-nav-item" type="button" data-settings="users" hidden><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M17 11a4 4 0 0 1 0 8"/></svg><span>Usuários</span></button>
     <button id="settingsRegistriesTab" class="settings-tab admin-nav-item" type="button" data-settings="registries" hidden><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M4 21V7l8-4 8 4v14"/><path d="M9 21v-6h6v6"/></svg><span>Cadastros e vínculos</span></button>
-    <button class="admin-nav-item" type="button" disabled aria-disabled="true" title="Aguardando API segura de auditoria"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M6 3h12v18H6z"/><path d="M9 8h6"/><path d="M9 12h6"/><path d="M9 16h4"/></svg><span>Registros de atividade</span></button>
    </aside>
    <div class="admin-content">
   <section class="settings-panel active" data-settings-panel="overview">
@@ -386,8 +408,8 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
    <p class="settings-note">Os produtos disponíveis na busca são carregados do Supabase. Use importação apenas para alimentar a base compartilhada.</p>
    <div class="import-box">
     <strong>Importar base própria para o Supabase</strong>
-    <div class="sub">Arquivo DBF com CODBAR, CODPROD e DESCRICAO, ou relatório XLS por FORNECEDOR. O arquivo não fica salvo no navegador.</div>
-    <input id="dbfFile" type="file" accept=".dbf,.xls,.txt,application/vnd.dbf" multiple>
+    <div class="sub">Arquivo DBF, XLS ou TXT completo, incluindo relatório "Posição do estoque por departamento".</div>
+    <input id="dbfFile" type="file" accept=".dbf,.xls,.txt,.csv,application/vnd.dbf,application/vnd.ms-excel,text/plain,application/octet-stream" multiple>
    </div>
    <div id="catalogInfo" class="catalog-info" aria-live="polite">
     <b>Carregando informações do catálogo...</b>
@@ -396,6 +418,84 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
     <button id="importDbf" class="btn" type="button">Enviar catálogo</button>
    </div>
   </div>
+  </section>
+
+  <section class="settings-panel" data-settings-panel="management">
+   <h2 class="admin-page-title">Dashboard gerencial</h2>
+   <p class="admin-page-subtitle">Monitoramento de produtos próximos do vencimento por loja e departamento.</p>
+   <div class="management-toolbar">
+    <label>Loja<select id="managementStore"><option value="">Todas as lojas</option></select></label>
+    <label>Departamento<select id="managementDepartment"><option value="">Todos os departamentos</option></select></label>
+    <label>Período<select id="managementPeriod"><option value="7">Até 7 dias</option><option value="3">Até 3 dias</option><option value="15">Até 15 dias</option><option value="30">Até 30 dias</option><option value="expired">Vencidos</option><option value="all">Todos ativos</option></select></label>
+    <label>Status<select id="managementStatus"><option value="all">Todos</option><option value="offer">Em oferta</option><option value="risk">Sem oferta</option></select></label>
+    <button id="refreshManagementDashboard" class="btn2" type="button">Atualizar</button>
+   </div>
+   <div id="managementStatusText" class="management-status" aria-live="polite">Abra a aba para carregar os dados.</div>
+   <div class="management-grid" aria-live="polite">
+    <div class="management-card"><small>Produtos no filtro</small><b id="managementProducts">--</b><span>Itens cadastrados</span></div>
+    <div class="management-card"><small>Unidades em risco</small><b id="managementUnits">--</b><span>Soma das quantidades</span></div>
+    <div class="management-card"><small>Vencidos</small><b id="managementExpired">--</b><span>Data menor que hoje</span></div>
+    <div class="management-card"><small>Vencem hoje</small><b id="managementToday">--</b><span>Prioridade do dia</span></div>
+    <div class="management-card"><small>Maior departamento</small><b id="managementTopDepartment">--</b><span id="managementTopDepartmentDetail">--</span></div>
+   </div>
+   <div class="management-panels">
+    <section class="management-panel">
+     <h3>Ranking por departamento</h3>
+     <div id="managementDepartmentRanking" class="management-list"></div>
+    </section>
+    <section class="management-panel">
+     <h3>Ranking por loja</h3>
+     <div id="managementStoreRanking" class="management-list"></div>
+    </section>
+    <section class="management-panel">
+     <h3>Vencidos por departamento</h3>
+     <div id="managementExpiredRanking" class="management-list"></div>
+    </section>
+    <section class="management-panel management-table">
+     <h3>Resumo gerencial</h3>
+     <table>
+      <thead><tr><th>Departamento</th><th>Loja</th><th>Produtos</th><th>Unidades</th><th>Hoje</th><th>7 dias</th><th>Vencidos</th></tr></thead>
+      <tbody id="managementTableBody"></tbody>
+     </table>
+    </section>
+   </div>
+  </section>
+
+  <section class="settings-panel" data-settings-panel="departments">
+   <h2 class="admin-page-title">Produtos por departamento</h2>
+   <p class="admin-page-subtitle">Visão detalhada dos produtos cadastrados, agrupados pelo departamento do catálogo.</p>
+   <div class="management-toolbar">
+    <label>Loja<select id="departmentProductsStore"><option value="">Todas as lojas</option></select></label>
+    <label>Departamento<select id="departmentProductsDepartment"><option value="">Todos os departamentos</option></select></label>
+    <label>Período<select id="departmentProductsPeriod"><option value="all">Todos ativos</option><option value="expired">Vencidos</option><option value="7">Até 7 dias</option><option value="15">Até 15 dias</option><option value="30">Até 30 dias</option></select></label>
+    <label>Busca<input id="departmentProductsSearch" maxlength="80" placeholder="Produto, código ou barras"></label>
+    <button id="refreshDepartmentProducts" class="btn2" type="button">Atualizar</button>
+   </div>
+   <div id="departmentProductsStatus" class="management-status" aria-live="polite">Abra a aba para carregar os dados.</div>
+   <div class="management-grid" aria-live="polite">
+    <div class="management-card"><small>Departamentos</small><b id="departmentProductsDepartmentCount">--</b><span>Com produtos no filtro</span></div>
+    <div class="management-card"><small>Produtos</small><b id="departmentProductsTotal">--</b><span>Itens cadastrados</span></div>
+    <div class="management-card"><small>Unidades</small><b id="departmentProductsUnits">--</b><span>Soma das quantidades</span></div>
+    <div class="management-card"><small>Sem departamento</small><b id="departmentProductsMissing">--</b><span>Sem match no catálogo</span></div>
+    <div class="management-card"><small>Vencidos</small><b id="departmentProductsExpired">--</b><span>Data menor que hoje</span></div>
+   </div>
+   <div class="department-products-layout">
+    <section class="management-panel">
+     <h3>Resumo por departamento</h3>
+     <div id="departmentProductsSummary" class="management-list"></div>
+    </section>
+    <section class="management-panel department-warning">
+     <h3>Produtos sem departamento</h3>
+     <div id="departmentProductsMissingList" class="department-list"></div>
+    </section>
+    <section class="management-panel management-table">
+     <h3>Produtos do filtro</h3>
+     <table>
+      <thead><tr><th>Produto</th><th>Departamento</th><th>Loja</th><th>Qtd.</th><th>Validade</th><th>Código</th></tr></thead>
+      <tbody id="departmentProductsTableBody"></tbody>
+     </table>
+    </section>
+   </div>
   </section>
 
   <section class="settings-panel" data-settings-panel="users">
@@ -582,6 +682,32 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
  </div>
 </div>
 
+<div id="notificationsModal" class="update-modal notification-settings-modal" role="dialog" aria-modal="true" aria-labelledby="notificationsTitle">
+ <div class="update-panel">
+  <h2 id="notificationsTitle">Notificações</h2>
+  <div class="notification-toggle">
+   <strong>Alertas de vencimento</strong>
+   <span>Receber aviso quando houver produtos próximos de vencer.</span>
+  </div>
+  <button id="notificationsEnableButton" class="notification-enable-button" type="button">Habilitar notificações</button>
+  <div class="notification-days">
+   <div class="notification-days-head">
+    <strong>Dias de antecedência</strong>
+    <span id="notificationDaysValue" class="notification-days-value">3 dias</span>
+   </div>
+   <input id="notificationDays" type="range" min="3" max="15" step="1" value="3" aria-label="Dias de antecedência do alerta">
+  </div>
+  <label class="notification-store" for="notificationStore">
+   <span class="notification-store-head"><strong>Loja do aviso</strong></span>
+   <select id="notificationStore">
+    <option value="">Todas as lojas</option>
+   </select>
+  </label>
+  <div id="notificationsStatus" class="notification-status"></div>
+  <div class="actions"><button id="notificationsClose" class="btn2" type="button">Fechar</button></div>
+ </div>
+</div>
+
 <div id="aboutModal" class="update-modal personal-about-modal" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
  <div class="update-panel">
   <h2 id="aboutTitle">Sobre o aplicativo</h2>
@@ -607,6 +733,7 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
  </div>
 </div>
 <div id="confettiLayer" class="confetti-layer" aria-hidden="true"></div>
+<button id="testConfetti" class="confetti-test-button" type="button" hidden>Teste confetes</button>
 
 <script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js" integrity="sha512-r6rDA7W6ZeQhvl8S7yRVQUKVHdexq+GAlNkNNqVC7YyIV+NwqCTJe2hDWCiffTyRNOeGEzRRJ9ifvRm/HCzGYg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -691,6 +818,38 @@ const els = {
  clearReportSelection: document.getElementById('clearReportSelection'),
  settingsTabs: document.querySelectorAll('.settings-tab'),
  settingsPanels: document.querySelectorAll('.settings-panel'),
+ settingsManagementTab: document.getElementById('settingsManagementTab'),
+ settingsDepartmentsTab: document.getElementById('settingsDepartmentsTab'),
+ managementStore: document.getElementById('managementStore'),
+ managementDepartment: document.getElementById('managementDepartment'),
+ managementPeriod: document.getElementById('managementPeriod'),
+ managementStatus: document.getElementById('managementStatus'),
+ refreshManagementDashboard: document.getElementById('refreshManagementDashboard'),
+ managementStatusText: document.getElementById('managementStatusText'),
+ managementProducts: document.getElementById('managementProducts'),
+ managementUnits: document.getElementById('managementUnits'),
+ managementExpired: document.getElementById('managementExpired'),
+ managementToday: document.getElementById('managementToday'),
+ managementTopDepartment: document.getElementById('managementTopDepartment'),
+ managementTopDepartmentDetail: document.getElementById('managementTopDepartmentDetail'),
+ managementDepartmentRanking: document.getElementById('managementDepartmentRanking'),
+ managementStoreRanking: document.getElementById('managementStoreRanking'),
+ managementExpiredRanking: document.getElementById('managementExpiredRanking'),
+ managementTableBody: document.getElementById('managementTableBody'),
+ departmentProductsStore: document.getElementById('departmentProductsStore'),
+ departmentProductsDepartment: document.getElementById('departmentProductsDepartment'),
+ departmentProductsPeriod: document.getElementById('departmentProductsPeriod'),
+ departmentProductsSearch: document.getElementById('departmentProductsSearch'),
+ refreshDepartmentProducts: document.getElementById('refreshDepartmentProducts'),
+ departmentProductsStatus: document.getElementById('departmentProductsStatus'),
+ departmentProductsDepartmentCount: document.getElementById('departmentProductsDepartmentCount'),
+ departmentProductsTotal: document.getElementById('departmentProductsTotal'),
+ departmentProductsUnits: document.getElementById('departmentProductsUnits'),
+ departmentProductsMissing: document.getElementById('departmentProductsMissing'),
+ departmentProductsExpired: document.getElementById('departmentProductsExpired'),
+ departmentProductsSummary: document.getElementById('departmentProductsSummary'),
+ departmentProductsMissingList: document.getElementById('departmentProductsMissingList'),
+ departmentProductsTableBody: document.getElementById('departmentProductsTableBody'),
  settingsUsersTab: document.getElementById('settingsUsersTab'),
  settingsRegistriesTab: document.getElementById('settingsRegistriesTab'),
  adminCentral: document.getElementById('adminCentral'),
@@ -712,6 +871,15 @@ const els = {
  personalProfileEmail: document.getElementById('personalProfileEmail'),
  personalSupplierSection: document.getElementById('personalSupplierSection'),
  personalSupplierDetails: document.getElementById('personalSupplierDetails'),
+ personalNotificationsButton: document.getElementById('personalNotificationsButton'),
+ personalNotificationsSummary: document.getElementById('personalNotificationsSummary'),
+ notificationsModal: document.getElementById('notificationsModal'),
+ notificationsEnableButton: document.getElementById('notificationsEnableButton'),
+ notificationDays: document.getElementById('notificationDays'),
+ notificationDaysValue: document.getElementById('notificationDaysValue'),
+ notificationStore: document.getElementById('notificationStore'),
+ notificationsStatus: document.getElementById('notificationsStatus'),
+ notificationsClose: document.getElementById('notificationsClose'),
  personalAboutButton: document.getElementById('personalAboutButton'),
  aboutModal: document.getElementById('aboutModal'),
  aboutClose: document.getElementById('aboutClose'),
@@ -739,7 +907,8 @@ const els = {
  productLoadDetail: document.getElementById('productLoadDetail'),
  saveToast: document.getElementById('saveToast'),
  saveToastText: document.getElementById('saveToastText'),
- confettiLayer: document.getElementById('confettiLayer')
+ confettiLayer: document.getElementById('confettiLayer'),
+ testConfetti: document.getElementById('testConfetti')
 };
 
 let selected = null;
@@ -755,6 +924,10 @@ let activeUserEmail = "";
 let catalogLoadPromise = null;
 let adminUsersLoaded = false;
 let adminUsersLoadPromise = null;
+let managementDashboardLoaded = false;
+let managementDashboardLoading = false;
+let managementDashboardData = null;
+let managementDashboardReloadTimer = null;
 let signOutConfirmedFromPanel = false;
 let productPhotoObserver = null;
 let productPageObserver = null;
@@ -762,12 +935,47 @@ let productPageLoading = false;
 let productHasMorePages = false;
 let productPageOffset = 0;
 let productLoadGeneration = 0;
+let validityProductsRealtimeChannel = null;
+let productQueryReloadTimer = null;
+let dashboardStatsReloadTimer = null;
+let dashboardStatsGeneration = 0;
+let dashboardStats = null;
+let dashboardStatsDelta = null;
+let dashboardSyncTimer = null;
+let lastDashboardSyncAt = 0;
+let lastRealtimeRestartAt = 0;
+const DASHBOARD_MONITOR_INTERVAL_MS = 8000;
 const requestedProductPhotoIds = new Set();
 const selectedReportProductIds = new Set();
 const expandedProductIds = new Set();
 const pendingProductUpdateIds = new Set();
 const PRODUCT_PAGE_SIZE = 15;
-const PRODUCT_PHOTO_BATCH_SIZE = 30;
+const PRODUCT_PHOTO_CONCURRENCY = 5;
+const queuedProductPhotoIds = [];
+const queuedProductPhotoIdSet = new Set();
+let activeProductPhotoLoads = 0;
+const locallyCountedRealtimeIds = new Set();
+const realtimeStats = {
+ events: 0,
+ inserts: 0,
+ updates: 0,
+ deletes: 0,
+ fullReloads: 0,
+ incrementalUpdates: 0,
+ ignored: 0,
+ fallbackRefreshes: 0,
+ reconnects: 0,
+ status: ""
+};
+window.skaleeRealtimeStats = realtimeStats;
+const queryStats = {
+ initialLoads: 0,
+ paginationLoads: 0,
+ searches: 0,
+ filterQueries: 0,
+ rowsReceived: 0
+};
+window.skaleeQueryStats = queryStats;
 let reportSelectionInitialized = false;
 let reportCreatedTodayOnly = false;
 const REPORT_COLUMNS_KEY = "skalee.report.columns";
@@ -960,6 +1168,33 @@ function setAboutModalOpen(open) {
  els.aboutModal.classList.toggle("show", open);
  if (open) els.aboutClose.focus();
 }
+
+function setNotificationsModalOpen(open) {
+ els.notificationsModal.classList.toggle("show", open);
+ if (open) {
+  updateNotificationSettingsUI();
+  els.notificationsClose.focus();
+ }
+}
+
+els.personalNotificationsButton.addEventListener("click", () => setNotificationsModalOpen(true));
+els.notificationsClose.addEventListener("click", () => setNotificationsModalOpen(false));
+els.notificationsModal.addEventListener("click", (event) => {
+ if (event.target === els.notificationsModal) setNotificationsModalOpen(false);
+});
+els.notificationsEnableButton.addEventListener("click", () => {
+ void toggleNotificationsFromSettings();
+});
+els.notificationDays.addEventListener("input", () => {
+ const current = readNotificationSettings();
+ writeNotificationSettings({ ...current, days: clampNotificationDays(els.notificationDays.value) });
+ maybeShowValidityNotification();
+});
+els.notificationStore.addEventListener("change", () => {
+ const current = readNotificationSettings();
+ writeNotificationSettings({ ...current, store: els.notificationStore.value });
+ maybeShowValidityNotification(true);
+});
 els.personalAboutButton.addEventListener("click", () => setAboutModalOpen(true));
 els.aboutClose.addEventListener("click", () => setAboutModalOpen(false));
 els.aboutModal.addEventListener("click", (event) => {
@@ -974,6 +1209,10 @@ els.personalSignOut.addEventListener("click", () => {
 document.addEventListener("keydown", (event) => {
  if (event.key === "Escape" && els.aboutModal.classList.contains("show")) {
   setAboutModalOpen(false);
+  return;
+ }
+ if (event.key === "Escape" && els.notificationsModal.classList.contains("show")) {
+  setNotificationsModalOpen(false);
   return;
  }
  if (els.personalPanel.hidden) return;
@@ -996,8 +1235,13 @@ document.addEventListener("keydown", (event) => {
 });
 const INSTALL_DISMISSED_KEY = "skalee.install.dismissedAt";
 const INSTALL_REMINDER_DELAY = 7 * 24 * 60 * 60 * 1000;
+const NOTIFICATION_LAST_SHOWN_KEY = "skalee.notification.lastShown";
+const NOTIFICATION_ENABLED_KEY = "skalee.notification.enabled";
+const NOTIFICATION_DAYS_KEY = "skalee.notification.days";
+const NOTIFICATION_STORE_KEY = "skalee.notification.store";
 let deferredInstallPrompt = null;
 let appAuthenticated = false;
+let notificationPermissionArmed = false;
 
 function isAppInstalled() {
  return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
@@ -1059,6 +1303,160 @@ els.installApp.addEventListener("click", async () => {
 if ("serviceWorker" in navigator) {
  window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch((error) => console.error("Falha ao registrar PWA.", error)));
 }
+
+function canUseNotifications() {
+ return "Notification" in window && "serviceWorker" in navigator;
+}
+
+function clampNotificationDays(value) {
+ const days = Number(value);
+ if (!Number.isFinite(days)) return 3;
+ return Math.min(15, Math.max(3, Math.round(days)));
+}
+
+function readNotificationSettings() {
+ return {
+  enabled: localStorage.getItem(NOTIFICATION_ENABLED_KEY) === "true",
+  days: clampNotificationDays(localStorage.getItem(NOTIFICATION_DAYS_KEY) || 3),
+  store: localStorage.getItem(NOTIFICATION_STORE_KEY) || ""
+ };
+}
+
+function writeNotificationSettings(settings) {
+ localStorage.setItem(NOTIFICATION_ENABLED_KEY, settings.enabled ? "true" : "false");
+ localStorage.setItem(NOTIFICATION_DAYS_KEY, String(clampNotificationDays(settings.days)));
+ localStorage.setItem(NOTIFICATION_STORE_KEY, String(settings.store || ""));
+ updateNotificationSettingsUI();
+}
+
+function notificationStoreLabel(store) {
+ return store ? store : "Todas as lojas";
+}
+
+function updateNotificationSettingsUI() {
+ const settings = readNotificationSettings();
+ const permission = canUseNotifications() ? Notification.permission : "unsupported";
+ const active = settings.enabled && permission === "granted";
+ if (els.notificationsEnableButton) {
+  els.notificationsEnableButton.classList.toggle("is-off", active);
+  els.notificationsEnableButton.disabled = !canUseNotifications();
+  if (!canUseNotifications()) {
+   els.notificationsEnableButton.textContent = "Notificações indisponíveis";
+  } else if (active) {
+   els.notificationsEnableButton.textContent = "Desabilitar notificações";
+  } else {
+   els.notificationsEnableButton.textContent = Notification.permission === "denied" ? "Permissão bloqueada" : "Habilitar notificações";
+  }
+ }
+ if (els.notificationDays) {
+  els.notificationDays.value = String(settings.days);
+  els.notificationDays.disabled = false;
+ }
+ if (els.notificationDaysValue) els.notificationDaysValue.textContent = `${settings.days} dias`;
+ if (els.notificationStore && els.notificationStore.value !== settings.store) els.notificationStore.value = [...els.notificationStore.options].some((option) => option.value === settings.store) ? settings.store : "";
+ if (els.personalNotificationsSummary) els.personalNotificationsSummary.textContent = active ? `Ativo: ${notificationStoreLabel(settings.store)} · ${settings.days} dias` : "Desativadas";
+ if (!els.notificationsStatus) return;
+ if (!canUseNotifications()) {
+  els.notificationsStatus.textContent = "Este navegador não oferece suporte a notificações.";
+ } else if (Notification.permission === "denied") {
+  els.notificationsStatus.textContent = "Notificações bloqueadas no navegador. Libere nas permissões do site e volte aqui para habilitar.";
+ } else if (!settings.enabled) {
+  els.notificationsStatus.textContent = "Alertas desligados.";
+ } else if (active) {
+  els.notificationsStatus.textContent = `Você receberá aviso de ${notificationStoreLabel(settings.store)} para produtos vencendo em até ${settings.days} dias.`;
+ } else {
+  els.notificationsStatus.textContent = "Permita a notificação quando o navegador solicitar.";
+ }
+}
+
+async function requestNotificationPermissionOnce() {
+ if (!appAuthenticated || !readNotificationSettings().enabled || !canUseNotifications() || Notification.permission !== "default") return;
+ try {
+  await Notification.requestPermission();
+  updateNotificationSettingsUI();
+  maybeShowValidityNotification();
+ } catch (error) {
+  console.debug("[NOTIFICATION] permission request skipped", error);
+ }
+}
+
+async function toggleNotificationsFromSettings() {
+ const current = readNotificationSettings();
+ if (current.enabled && canUseNotifications() && Notification.permission === "granted") {
+  writeNotificationSettings({ ...current, enabled: false });
+  return;
+ }
+ if (!canUseNotifications() || Notification.permission === "denied") {
+  updateNotificationSettingsUI();
+  return;
+ }
+ writeNotificationSettings({ ...current, enabled: true });
+ if (Notification.permission === "default") {
+  await requestNotificationPermissionOnce();
+  if (Notification.permission !== "granted") {
+   writeNotificationSettings({ ...current, enabled: false });
+   return;
+  }
+ }
+ maybeShowValidityNotification();
+ updateNotificationSettingsUI();
+}
+
+function armNotificationPermissionRequest() {
+ if (notificationPermissionArmed || !readNotificationSettings().enabled || !canUseNotifications() || Notification.permission !== "default") return;
+ notificationPermissionArmed = true;
+ const request = () => {
+  document.removeEventListener("click", request);
+  document.removeEventListener("touchend", request);
+  requestNotificationPermissionOnce();
+ };
+ document.addEventListener("click", request, { once: true });
+ document.addEventListener("touchend", request, { once: true });
+}
+
+async function loadNotificationStats(settings) {
+ if (typeof window.skaleeDb?.loadProductDashboardStats !== "function") return dashboardStats;
+ const dashboardHasFilters = Boolean(els.storeFilter.value || els.supplierFilter.value.trim());
+ if (!settings.store && !dashboardHasFilters && dashboardStats) return dashboardStats;
+ try {
+  return await window.skaleeDb.loadProductDashboardStats({ store: settings.store || "", supplier: "" });
+ } catch (error) {
+  console.debug("[NOTIFICATION] stats skipped", error);
+  return dashboardStats;
+ }
+}
+
+async function maybeShowValidityNotification(force = false) {
+ const settings = readNotificationSettings();
+ if (!settings.enabled || !appAuthenticated || !dashboardStats || !canUseNotifications() || Notification.permission !== "granted") return;
+ const stats = await loadNotificationStats(settings);
+ if (!stats) return;
+ const todayCount = Number(stats.today || 0);
+ const thresholdCount = Number(stats.alertWindows?.[settings.days] ?? (settings.days <= 7 ? stats.seven : stats.fifteen) ?? 0);
+ if (todayCount <= 0 && thresholdCount <= 0) return;
+ const storeName = notificationStoreLabel(settings.store);
+ const key = `${activeUserEmail || "user"}:${localDateKey(new Date().toISOString())}:${settings.store || "all"}:${settings.days}:${todayCount}:${thresholdCount}`;
+ if (!force && localStorage.getItem(NOTIFICATION_LAST_SHOWN_KEY) === key) return;
+ localStorage.setItem(NOTIFICATION_LAST_SHOWN_KEY, key);
+ const defaultTitle = settings.store ? `Vencimentos - ${settings.store}` : (todayCount > 0 ? "Produtos vencendo hoje" : "Produtos próximos do vencimento");
+ const body = todayCount > 0
+  ? `${todayCount} produto(s) vencem hoje em ${storeName}. ${thresholdCount} produto(s) vencem em até ${settings.days} dias.`
+  : `${thresholdCount} produto(s) vencem em até ${settings.days} dias em ${storeName}.`;
+ try {
+  const registration = await navigator.serviceWorker.ready;
+  await registration.showNotification(defaultTitle, {
+   body,
+   tag: "skalee-validity-alert",
+   renotify: false,
+   icon: "/skalee-icon-192.png",
+   badge: "/skalee-icon-64.png",
+   data: { url: "/" }
+  });
+ } catch (error) {
+  console.debug("[NOTIFICATION] show skipped", error);
+ }
+}
+updateNotificationSettingsUI();
 let scannerStream = null;
 let scannerTimer = null;
 let scannerIsActive = false;
@@ -1080,6 +1478,10 @@ let scannerConfirmAt = 0;
 let scannerCanvas = null;
 let scannerCanvasContext = null;
 let products = [];
+let reportProducts = [];
+let reportProductsLoaded = false;
+let reportProductsLoading = false;
+let reportProductsLoadGeneration = 0;
 let allowedLocations = null;
 let allowedSuppliers = null;
 
@@ -1092,6 +1494,14 @@ function setProductLoadToast(title = "", detail = "", active = true) {
  els.productLoadTitle.textContent = title;
  els.productLoadDetail.textContent = detail;
  els.productLoadToast.hidden = !active;
+}
+
+function formatProductLoadError(error, fallback = "Alguns produtos podem não ter sido carregados.") {
+ const message = String(error?.message || "");
+ if (message.includes("Failed to construct 'Notification'") || message.includes("showNotification()")) {
+  return "O navegador esta usando notificacoes antigas do PWA. Feche o app, abra novamente e atualize a pagina.";
+ }
+ return message || fallback;
 }
 
 function hideProductLoadToastSoon() {
@@ -1107,41 +1517,475 @@ function appendUniqueProducts(nextProducts) {
  return uniqueProducts.length;
 }
 
+function getProductQueryCriteria() {
+ return {
+  search: els.search.value.trim(),
+  store: els.storeFilter.value,
+  supplier: els.supplierFilter.value.trim(),
+  filter: activeFilter,
+  sort: els.sort.value || "expiry"
+ };
+}
+
+function hasServerSideCriteria(criteria = getProductQueryCriteria()) {
+ return Boolean(criteria.search || criteria.store || criteria.supplier || criteria.filter !== "all" || criteria.sort !== "expiry");
+}
+
+function productMatchesCurrentCriteria(product) {
+ const criteria = getProductQueryCriteria();
+ if (!productBelongsToKnownScope(product)) return false;
+ if (criteria.store && product.store !== criteria.store) return false;
+ if (criteria.supplier && !productHasSupplier(product, criteria.supplier.toLowerCase())) return false;
+ const term = criteria.search.toLowerCase();
+ if (term) {
+  const haystack = [product.name, product.code, product.barcode, product.supplierCode, product.supplierName, product.store].join(" ").toLowerCase();
+  if (!haystack.includes(term)) return false;
+ }
+ const days = remaining(product.expiry);
+ if (criteria.filter === "today") return days === 0;
+ if (criteria.filter === "3") return days <= 3;
+ if (criteria.filter === "7") return days <= 7;
+ if (criteria.filter === "15") return days <= 15;
+ if (criteria.filter === "offer") return product.offer;
+ if (criteria.filter === "high") return product.qty >= 100;
+ return days >= 0;
+}
+
+function sortProductsForCurrentCriteria(items) {
+ const sorted = [...items];
+ if (els.sort.value === "expiry") sorted.sort((a, b) => remaining(a.expiry) - remaining(b.expiry) || String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+ if (els.sort.value === "qtyDesc") sorted.sort((a, b) => b.qty - a.qty || String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+ if (els.sort.value === "qtyAsc") sorted.sort((a, b) => a.qty - b.qty || String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+ if (els.sort.value === "name") sorted.sort((a, b) => a.name.localeCompare(b.name) || String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+ return sorted;
+}
+
+function resetProductPhotoQueue() {
+ requestedProductPhotoIds.clear();
+ queuedProductPhotoIds.length = 0;
+ queuedProductPhotoIdSet.clear();
+ activeProductPhotoLoads = 0;
+}
+
+async function carregarDashboardStats() {
+ if (typeof window.skaleeDb?.loadProductDashboardStats !== "function") return;
+ const generation = ++dashboardStatsGeneration;
+ try {
+  const previousStats = dashboardStats;
+  const nextStats = await window.skaleeDb.loadProductDashboardStats({
+   store: els.storeFilter.value,
+   supplier: els.supplierFilter.value.trim()
+  });
+  if (generation !== dashboardStatsGeneration) return;
+  if (previousStats) dashboardStatsDelta = buildDashboardStatsDelta(previousStats, nextStats);
+  dashboardStats = nextStats;
+  lastDashboardSyncAt = Date.now();
+  renderDashboardStats();
+  maybeShowValidityNotification();
+ } catch (error) {
+  console.error("Não foi possível carregar contadores globais.", error);
+ }
+}
+
+function buildDashboardStatsDelta(beforeStats, afterStats) {
+ return {
+  products: Number(afterStats?.products || 0) - Number(beforeStats?.products || 0),
+  units: Number(afterStats?.units || 0) - Number(beforeStats?.units || 0),
+  today: Number(afterStats?.today || 0) - Number(beforeStats?.today || 0),
+  seven: Number(afterStats?.seven || 0) - Number(beforeStats?.seven || 0),
+  offer: Number(afterStats?.offer || 0) - Number(beforeStats?.offer || 0)
+ };
+}
+
+function renderDashboardStats() {
+ if (!dashboardStats) return false;
+ setDashboardCounter(els.sProducts, dashboardStats.products, dashboardStatsDelta?.products || 0);
+ setDashboardCounter(els.sUnits, dashboardStats.units, dashboardStatsDelta?.units || 0);
+ setDashboardCounter(els.sToday, dashboardStats.today, dashboardStatsDelta?.today || 0);
+ setDashboardCounter(els.s7, dashboardStats.seven, dashboardStatsDelta?.seven || 0);
+ setDashboardCounter(els.sOffer, dashboardStats.offer, dashboardStatsDelta?.offer || 0);
+ dashboardStatsDelta = null;
+ return true;
+}
+
+function setDashboardCounter(element, value, delta = 0) {
+ const target = Math.max(0, Math.round(Number(value || 0)));
+ const current = Math.max(0, Math.round(Number(element.dataset.value ?? element.textContent ?? 0)));
+ element.dataset.value = String(target);
+ animateDashboardDelta(element, delta);
+ if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || current === target) {
+  element.textContent = target.toLocaleString("pt-BR");
+  element.classList.remove("counting");
+  return;
+ }
+ const startedAt = performance.now();
+ const duration = Math.min(1100, Math.max(450, Math.abs(target - current) * 18));
+ element.classList.add("counting");
+ const animate = (now) => {
+  const progress = Math.min(1, (now - startedAt) / duration);
+  const eased = 1 - Math.pow(1 - progress, 3);
+  const next = Math.round(current + (target - current) * eased);
+  element.textContent = next.toLocaleString("pt-BR");
+  if (progress < 1 && element.dataset.value === String(target)) {
+   requestAnimationFrame(animate);
+   return;
+  }
+  element.textContent = target.toLocaleString("pt-BR");
+  element.classList.remove("counting");
+ };
+ requestAnimationFrame(animate);
+}
+
+function animateDashboardDelta(element, delta) {
+ const amount = Math.round(Number(delta || 0));
+ if (!amount || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+ const stat = element.closest(".stat");
+ if (!stat) return;
+ const direction = amount > 0 ? "up" : "down";
+ stat.classList.remove("stat-up", "stat-down");
+ void stat.offsetWidth;
+ stat.classList.add(direction === "up" ? "stat-up" : "stat-down");
+ const marker = document.createElement("span");
+ marker.className = `stat-delta ${direction}`;
+ marker.textContent = `${amount > 0 ? "+" : "-"}${Math.abs(amount).toLocaleString("pt-BR")}`;
+ stat.appendChild(marker);
+ setTimeout(() => marker.remove(), 1100);
+ setTimeout(() => stat.classList.remove("stat-up", "stat-down"), 900);
+}
+
+function productMatchesDashboardScope(product) {
+ if (!productBelongsToKnownScope(product)) return false;
+ const store = els.storeFilter.value;
+ const supplier = els.supplierFilter.value.trim().toLowerCase();
+ if (store && product.store !== store) return false;
+ if (supplier && !productHasSupplier(product, supplier)) return false;
+ return remaining(product.expiry) >= 0;
+}
+
+function productDashboardContribution(product) {
+ const emptyAlertWindows = Object.fromEntries(Array.from({ length: 13 }, (_, index) => [index + 3, 0]));
+ if (!productMatchesDashboardScope(product)) return { products: 0, units: 0, today: 0, seven: 0, fifteen: 0, offer: 0, alertWindows: emptyAlertWindows };
+ const days = remaining(product.expiry);
+ const alertWindows = Object.fromEntries(Array.from({ length: 13 }, (_, index) => {
+  const windowDays = index + 3;
+  return [windowDays, days >= 0 && days <= windowDays ? 1 : 0];
+ }));
+ return {
+  products: 1,
+  units: Number(product.qty || 0),
+  today: days === 0 ? 1 : 0,
+  seven: days >= 0 && days <= 7 ? 1 : 0,
+  fifteen: days >= 0 && days <= 15 ? 1 : 0,
+  offer: product.offer ? 1 : 0,
+  alertWindows
+ };
+}
+
+function applyDashboardStatsDelta(beforeProduct, afterProduct) {
+ const before = productDashboardContribution(beforeProduct);
+ const after = productDashboardContribution(afterProduct);
+ if (!dashboardStats) {
+  dashboardStats = {
+   products: Number(els.sProducts.textContent || 0),
+   units: Number(els.sUnits.textContent || 0),
+   today: Number(els.sToday.textContent || 0),
+   seven: Number(els.s7.textContent || 0),
+   fifteen: Number(els.s7.textContent || 0),
+   offer: Number(els.sOffer.textContent || 0),
+   alertWindows: { 7: Number(els.s7.textContent || 0), 15: Number(els.s7.textContent || 0) }
+  };
+ }
+ const currentAlertWindows = dashboardStats.alertWindows || { 7: dashboardStats.seven || 0, 15: dashboardStats.fifteen || dashboardStats.seven || 0 };
+ const alertWindows = {};
+ for (let days = 3; days <= 15; days += 1) {
+  alertWindows[days] = Math.max(0, Number(currentAlertWindows[days] ?? (days <= 7 ? dashboardStats.seven : dashboardStats.fifteen) ?? 0) + after.alertWindows[days] - before.alertWindows[days]);
+ }
+ dashboardStatsDelta = {
+  products: after.products - before.products,
+  units: after.units - before.units,
+  today: after.today - before.today,
+  seven: after.seven - before.seven,
+  offer: after.offer - before.offer
+ };
+ dashboardStats = {
+  products: Math.max(0, dashboardStats.products + after.products - before.products),
+  units: Math.max(0, dashboardStats.units + after.units - before.units),
+  today: Math.max(0, dashboardStats.today + after.today - before.today),
+  seven: Math.max(0, dashboardStats.seven + after.seven - before.seven),
+  fifteen: Math.max(0, Number(dashboardStats.fifteen || dashboardStats.seven || 0) + after.fifteen - before.fifteen),
+  offer: Math.max(0, dashboardStats.offer + after.offer - before.offer),
+  alertWindows
+ };
+ renderDashboardStats();
+ lastDashboardSyncAt = Date.now();
+}
+
+function scheduleProductQueryReload(delay = 300) {
+ if (productQueryReloadTimer) clearTimeout(productQueryReloadTimer);
+ productQueryReloadTimer = setTimeout(() => {
+  productQueryReloadTimer = null;
+  void carregarProdutosOnline();
+  void carregarDashboardStats();
+ }, delay);
+}
+
+function scheduleDashboardStatsReload(delay = 500) {
+ if (dashboardStatsReloadTimer) clearTimeout(dashboardStatsReloadTimer);
+ dashboardStatsReloadTimer = setTimeout(() => {
+  dashboardStatsReloadTimer = null;
+  void carregarDashboardStats();
+ }, delay);
+}
+
+function normalizeRealtimeProduct(row) {
+ if (!row || !window.skaleeDb?.mapValidityProductRow) return null;
+ try {
+  return window.skaleeDb.mapValidityProductRow(row);
+ } catch (error) {
+  console.debug("[REALTIME] payload ignored", error);
+  return null;
+ }
+}
+
+function productBelongsToKnownScope(product) {
+ if (!product || product.completedAt) return false;
+ if (allowedLocations?.length) {
+  const allowedStoreNames = new Set(allowedLocations.map((location) => location.name).filter(Boolean));
+  if (product.store && !allowedStoreNames.has(product.store)) return false;
+ }
+ if (Array.isArray(allowedSuppliers) && allowedSuppliers.length) {
+  const allowedCodes = new Set(allowedSuppliers.map((supplier) => String(supplier.code || "").trim()).filter(Boolean));
+  const aliases = Array.isArray(product.supplierAliases) ? product.supplierAliases : [];
+  const productCodes = [product.supplierCode, ...aliases.map((alias) => alias.code)].map((code) => String(code || "").trim()).filter(Boolean);
+  if (productCodes.length && !productCodes.some((code) => allowedCodes.has(code))) return false;
+ }
+ return true;
+}
+
+function mergeRealtimeProduct(nextProduct) {
+ const id = String(nextProduct.id || "");
+ if (!id) return false;
+ let changed = false;
+ const existing = products.find((product) => String(product.id) === id);
+ if (!productMatchesCurrentCriteria(nextProduct)) {
+  if (existing) {
+   products = products.filter((product) => String(product.id) !== id);
+   requestedProductPhotoIds.delete(id);
+   queuedProductPhotoIdSet.delete(id);
+   changed = true;
+  }
+  return changed;
+ }
+ if (existing) {
+  const samePhotoPath = String(existing.photoPath || "") === String(nextProduct.photoPath || "");
+  if (!samePhotoPath && existing.photoPath && typeof window.skaleeDb?.invalidateProductPhotoUrl === "function") {
+   window.skaleeDb.invalidateProductPhotoUrl(existing.photoPath);
+   requestedProductPhotoIds.delete(id);
+  }
+  products = products.map((product) => String(product.id) === id ? {
+   ...nextProduct,
+   photo: samePhotoPath ? product.photo : "",
+   photoLoaded: samePhotoPath ? product.photoLoaded : false,
+   supplierAliases: nextProduct.supplierAliases?.length ? nextProduct.supplierAliases : product.supplierAliases,
+   canEdit: product.canEdit,
+   canDelete: nextProduct.canDelete
+  } : product);
+  products = sortProductsForCurrentCriteria(products);
+  return true;
+ }
+ products = sortProductsForCurrentCriteria([nextProduct, ...products]);
+ return true;
+}
+
+function mergeReportProduct(nextProduct) {
+ if (!reportProductsLoaded || !nextProduct?.id) return;
+ const id = String(nextProduct.id);
+ if (!productBelongsToKnownScope(nextProduct) || nextProduct.completedAt || remaining(nextProduct.expiry) < 0) {
+  reportProducts = reportProducts.filter((product) => String(product.id) !== id);
+  selectedReportProductIds.delete(id);
+  return;
+ }
+ if (reportProducts.some((product) => String(product.id) === id)) {
+  reportProducts = reportProducts.map((product) => String(product.id) === id ? { ...nextProduct, photo: product.photo, photoLoaded: product.photoLoaded } : product);
+ } else {
+  reportProducts = [...reportProducts, nextProduct];
+  if (reportSelectionInitialized) selectedReportProductIds.add(id);
+ }
+ reportProducts.sort((a, b) => a.expiry.localeCompare(b.expiry) || a.name.localeCompare(b.name));
+}
+
+function removeReportProduct(id) {
+ const normalizedId = String(id || "");
+ if (!normalizedId || !reportProductsLoaded) return;
+ reportProducts = reportProducts.filter((product) => String(product.id) !== normalizedId);
+ selectedReportProductIds.delete(normalizedId);
+}
+
+function handleValidityProductsRealtime(payload) {
+ realtimeStats.events += 1;
+ const eventType = payload?.eventType || "";
+ if (eventType === "INSERT") realtimeStats.inserts += 1;
+ if (eventType === "UPDATE") realtimeStats.updates += 1;
+ if (eventType === "DELETE") realtimeStats.deletes += 1;
+
+ if (eventType === "DELETE") {
+  const id = String(payload?.old?.id || "");
+  if (!id) {
+   realtimeStats.ignored += 1;
+   return;
+  }
+  const existing = products.find((product) => String(product.id) === id);
+  if (existing?.photoPath && typeof window.skaleeDb?.invalidateProductPhotoUrl === "function") window.skaleeDb.invalidateProductPhotoUrl(existing.photoPath);
+  applyDashboardStatsDelta(existing || null, null);
+  products = products.filter((product) => String(product.id) !== id);
+  removeReportProduct(id);
+  requestedProductPhotoIds.delete(id);
+  queuedProductPhotoIdSet.delete(id);
+  realtimeStats.incrementalUpdates += 1;
+  scheduleDashboardStatsReload();
+  scheduleManagementDashboardReload();
+  render();
+  return;
+ }
+
+ const nextProduct = normalizeRealtimeProduct(payload?.new);
+ if (!nextProduct?.id) {
+  realtimeStats.ignored += 1;
+ return;
+}
+const existingProduct = products.find((product) => String(product.id) === String(nextProduct.id));
+ const oldRow = payload?.old || {};
+ const oldProduct = oldRow.expiry_date || oldRow.expiry ? normalizeRealtimeProduct(oldRow) : null;
+ const previousProduct = existingProduct || oldProduct;
+ if (eventType === "INSERT" && locallyCountedRealtimeIds.has(String(nextProduct.id))) {
+  locallyCountedRealtimeIds.delete(String(nextProduct.id));
+ } else if (eventType === "INSERT") {
+  applyDashboardStatsDelta(null, nextProduct);
+ } else if (eventType === "UPDATE" && previousProduct?.id) {
+  applyDashboardStatsDelta(previousProduct, nextProduct);
+ } else if (eventType === "UPDATE") {
+  scheduleDashboardStatsReload();
+ }
+ mergeReportProduct(nextProduct);
+ if (mergeRealtimeProduct(nextProduct)) {
+  realtimeStats.incrementalUpdates += 1;
+  preencherFornecedorPelosProdutos();
+  scheduleDashboardStatsReload();
+  scheduleManagementDashboardReload();
+  render();
+ } else {
+  realtimeStats.ignored += 1;
+ }
+}
+
+function startValidityProductsRealtime() {
+ if (validityProductsRealtimeChannel || !window.skaleeDb?.subscribeValidityProducts) return;
+ validityProductsRealtimeChannel = window.skaleeDb.subscribeValidityProducts(handleValidityProductsRealtime, (status, error) => {
+  realtimeStats.status = status;
+  if (error) console.debug("[REALTIME STATUS]", status, error);
+  if ((status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") && appAuthenticated) {
+   validityProductsRealtimeChannel = null;
+   setTimeout(() => {
+    if (!appAuthenticated || document.hidden || validityProductsRealtimeChannel) return;
+    realtimeStats.reconnects += 1;
+    startValidityProductsRealtime();
+    scheduleDashboardStatsReload(0);
+   }, 1500);
+  }
+ });
+}
+
+function restartValidityProductsRealtime() {
+ if (Date.now() - lastRealtimeRestartAt < 10000) return;
+ lastRealtimeRestartAt = Date.now();
+ stopValidityProductsRealtime();
+ realtimeStats.reconnects += 1;
+ startValidityProductsRealtime();
+}
+
+function stopValidityProductsRealtime() {
+ const channel = validityProductsRealtimeChannel;
+ validityProductsRealtimeChannel = null;
+ if (channel && typeof window.skaleeDb?.unsubscribeRealtimeChannel === "function") {
+  void window.skaleeDb.unsubscribeRealtimeChannel(channel);
+ }
+}
+
+function syncDashboardAfterAppResume(reason = "resume") {
+ if (!appAuthenticated || document.hidden) return;
+ realtimeStats.fallbackRefreshes += 1;
+ console.debug("[DASHBOARD SYNC]", reason);
+ restartValidityProductsRealtime();
+ scheduleDashboardStatsReload(0);
+}
+
+function startDashboardSyncFallback() {
+ if (dashboardSyncTimer) clearInterval(dashboardSyncTimer);
+ dashboardSyncTimer = setInterval(() => {
+  if (!appAuthenticated || document.hidden) return;
+  if (Date.now() - lastDashboardSyncAt < DASHBOARD_MONITOR_INTERVAL_MS - 1000) return;
+  realtimeStats.fallbackRefreshes += 1;
+  scheduleDashboardStatsReload(0);
+ }, DASHBOARD_MONITOR_INTERVAL_MS);
+}
+
+function stopDashboardSyncFallback() {
+ if (!dashboardSyncTimer) return;
+ clearInterval(dashboardSyncTimer);
+ dashboardSyncTimer = null;
+}
+
+document.addEventListener("visibilitychange", () => {
+ if (!document.hidden) syncDashboardAfterAppResume("visible");
+});
+window.addEventListener("focus", () => syncDashboardAfterAppResume("focus"));
+window.addEventListener("pageshow", () => syncDashboardAfterAppResume("pageshow"));
+window.addEventListener("online", () => syncDashboardAfterAppResume("online"));
+
 async function carregarProdutosOnline() {
  if (!window.skaleeDb) return;
  const generation = ++productLoadGeneration;
+ const criteria = getProductQueryCriteria();
+ realtimeStats.fullReloads += 1;
+ queryStats.initialLoads += 1;
+ if (criteria.search) queryStats.searches += 1;
+ if (hasServerSideCriteria(criteria)) queryStats.filterQueries += 1;
  productPageLoading = true;
  productHasMorePages = false;
  productPageOffset = 0;
- requestedProductPhotoIds.clear();
+ resetProductPhotoQueue();
  setProductLoadToast("Carregando produtos...", "Buscando os primeiros produtos.");
  try {
-  const firstPage = await window.skaleeDb.loadProducts({ offset: productPageOffset, limit: PRODUCT_PAGE_SIZE });
+  const firstPage = await window.skaleeDb.loadProducts({ ...criteria, offset: productPageOffset, limit: PRODUCT_PAGE_SIZE });
   products = firstPage;
   const rawLength = pageRawLength(firstPage);
+  queryStats.rowsReceived += firstPage.length;
   productPageOffset += rawLength;
   productHasMorePages = rawLength === PRODUCT_PAGE_SIZE;
   preencherFornecedorPelosProdutos();
   productPageLoading = false;
   render();
-  setProductLoadToast("Carregando produtos...", `${products.length} produto(s) encontrados. Continuando em segundo plano.`);
-  void carregarProdutosRestantesOnline(generation);
+  setProductLoadToast("Produtos carregados", `${products.length} produto(s) disponíveis. As fotos carregam conforme a rolagem.`, true);
+  hideProductLoadToastSoon();
  } catch (error) {
   console.error("Não foi possível carregar os produtos online.", error);
   products = [];
   productHasMorePages = false;
   productPageLoading = false;
-  setProductLoadToast("Falha ao carregar produtos", error.message || "Verifique a conexão e tente novamente.", true);
+  setProductLoadToast("Falha ao carregar produtos", formatProductLoadError(error, "Verifique a conexão e tente novamente."), true);
   render();
  }
 }
 
 async function carregarMaisProdutosOnline() {
  if (!window.skaleeDb || productPageLoading || !productHasMorePages) return;
+ const criteria = getProductQueryCriteria();
  productPageLoading = true;
+ queryStats.paginationLoads += 1;
  try {
-  const nextProducts = await window.skaleeDb.loadProducts({ offset: productPageOffset, limit: PRODUCT_PAGE_SIZE });
+  const nextProducts = await window.skaleeDb.loadProducts({ ...criteria, offset: productPageOffset, limit: PRODUCT_PAGE_SIZE });
   const rawLength = pageRawLength(nextProducts);
+  queryStats.rowsReceived += nextProducts.length;
   productPageOffset += rawLength;
   appendUniqueProducts(nextProducts);
   productHasMorePages = rawLength === PRODUCT_PAGE_SIZE;
@@ -1153,13 +1997,47 @@ async function carregarMaisProdutosOnline() {
  }
 }
 
+async function carregarProdutosRelatorio(force = false) {
+ if (!window.skaleeDb?.loadProducts) return;
+ if (reportProductsLoading) return;
+ if (reportProductsLoaded && !force) return;
+ const generation = ++reportProductsLoadGeneration;
+ reportProductsLoading = true;
+ reportProductsLoaded = false;
+ els.reportStatus.textContent = "Carregando todos os textos dos produtos...";
+ renderReport();
+ try {
+  const allProducts = [];
+  for (let offset = 0; ; offset += 1000) {
+   const page = await window.skaleeDb.loadProducts({ offset, limit: 1000, sort: "expiry" });
+   if (generation !== reportProductsLoadGeneration) return;
+   allProducts.push(...page);
+   const rawLength = pageRawLength(page);
+   queryStats.rowsReceived += page.length;
+   els.reportStatus.textContent = `${allProducts.length} texto(s) carregado(s) para o relatório...`;
+   if (rawLength < 1000) break;
+  }
+  reportProducts = sortProductsForCurrentCriteria(allProducts);
+  reportProductsLoaded = true;
+  reportSelectionInitialized = false;
+  renderReport();
+ } catch (error) {
+  console.error("Não foi possível carregar produtos do relatório.", error);
+  els.reportStatus.textContent = error.message || "Não foi possível carregar todos os textos do relatório.";
+ } finally {
+  reportProductsLoading = false;
+ }
+}
+
 async function carregarProdutosRestantesOnline(generation) {
  let scannedPages = 1;
+ const criteria = getProductQueryCriteria();
  try {
   while (generation === productLoadGeneration && productHasMorePages) {
    productPageLoading = true;
-   const nextProducts = await window.skaleeDb.loadProducts({ offset: productPageOffset, limit: PRODUCT_PAGE_SIZE });
+   const nextProducts = await window.skaleeDb.loadProducts({ ...criteria, offset: productPageOffset, limit: PRODUCT_PAGE_SIZE });
    const rawLength = pageRawLength(nextProducts);
+   queryStats.rowsReceived += nextProducts.length;
    productPageOffset += rawLength;
    scannedPages += 1;
    appendUniqueProducts(nextProducts);
@@ -1174,11 +2052,12 @@ async function carregarProdutosRestantesOnline(generation) {
   productPageLoading = false;
   productHasMorePages = false;
   render();
-  await carregarFotosPendentesEmSegundoPlano(generation);
+  setProductLoadToast("Produtos carregados", `${products.length} produto(s) disponíveis.`, true);
+  hideProductLoadToastSoon();
  } catch (error) {
   productPageLoading = false;
   console.error("Não foi possível concluir o carregamento dos produtos.", error);
-  setProductLoadToast("Carregamento incompleto", error.message || "Alguns produtos podem não ter sido carregados.", true);
+  setProductLoadToast("Carregamento incompleto", formatProductLoadError(error), true);
  }
 }
 
@@ -1214,6 +2093,14 @@ function popularLojasPermitidas(locations) {
  els.storeFilter.replaceChildren(new Option("Todas as lojas", ""));
  activeLocations.forEach((location) => els.storeFilter.add(new Option(location.name, location.name)));
  if ([...els.storeFilter.options].some((option) => option.value === selectedFilter)) els.storeFilter.value = selectedFilter;
+ if (els.notificationStore) {
+  const settings = readNotificationSettings();
+  els.notificationStore.replaceChildren(new Option("Todas as lojas", ""));
+  activeLocations.forEach((location) => els.notificationStore.add(new Option(location.name, location.name)));
+  els.notificationStore.value = [...els.notificationStore.options].some((option) => option.value === settings.store) ? settings.store : "";
+  if (els.notificationStore.value !== settings.store) writeNotificationSettings({ ...settings, store: "" });
+  else updateNotificationSettingsUI();
+ }
  if (els.reportStore) {
   const selectedReportStore = els.reportStore.value;
   els.reportStore.replaceChildren(new Option("Todas as lojas", ""));
@@ -1246,19 +2133,33 @@ function preencherFornecedorPelosProdutos() {
  if (codes.size === 1) els.supplierFilter.value = [...codes.keys()][0];
 }
 
+function markProductPhotoLoaded(id, photo = "") {
+ let changed = false;
+ products = products.map((product) => {
+  if (String(product.id) !== String(id)) return product;
+  changed = true;
+  return { ...product, photo, photoLoaded: true };
+ });
+ return changed;
+}
+
 async function carregarFotosProdutosOnline(productIds) {
  const ids = [...new Set((productIds || []).filter(Boolean))];
  if (!ids.length) return;
  try {
-  const photos = await window.skaleeDb.loadProductPhotos(ids);
-  const photoById = new Map(photos.map((row) => [row.id, row.photo || ""]));
-  let changed = false;
-  products = products.map((product) => {
-   if (!photoById.has(product.id)) return product;
-   changed = true;
-   return { ...product, photo: photoById.get(product.id), photoLoaded: true };
-  });
-  if (changed) aplicarFotosCarregadas(photoById);
+  const photoById = new Map();
+  for (const id of ids) {
+   const product = products.find((item) => String(item.id) === String(id));
+   if (!product) continue;
+   let photo = product.photo || "";
+   if (!photo && product.photoPath && typeof window.skaleeDb?.getProductPhotoUrl === "function") {
+    if (window.skaleePhotoCacheStats) window.skaleePhotoCacheStats.requested = (window.skaleePhotoCacheStats.requested || 0) + 1;
+    photo = await window.skaleeDb.getProductPhotoUrl(product.photoPath);
+   }
+   photoById.set(product.id, photo);
+   markProductPhotoLoaded(product.id, photo);
+  }
+  aplicarFotosCarregadas(photoById);
  } catch (error) {
   ids.forEach((id) => requestedProductPhotoIds.delete(id));
   console.error("Não foi possível carregar as fotos dos produtos.", error);
@@ -1274,8 +2175,12 @@ function aplicarFotosCarregadas(photoById) {
   if (photo) {
    const image = document.createElement("img");
    image.src = photo;
+   image.loading = "lazy";
    image.decoding = "async";
    image.alt = "";
+   image.addEventListener("load", () => {
+    if (window.skaleePhotoCacheStats) window.skaleePhotoCacheStats.downloaded = (window.skaleePhotoCacheStats.downloaded || 0) + 1;
+   }, { once: true });
    slot.appendChild(image);
   } else {
    slot.textContent = "Sem foto";
@@ -1283,36 +2188,35 @@ function aplicarFotosCarregadas(photoById) {
  });
 }
 
-async function carregarFotosPendentesEmSegundoPlano(generation) {
- if (typeof window.skaleeDb?.loadProductPhotos !== "function") return;
- const pending = products.filter((product) => !product.photoLoaded && !requestedProductPhotoIds.has(product.id)).map((product) => product.id);
- if (!pending.length) {
-  setProductLoadToast("Produtos carregados", `${products.length} produto(s) disponíveis.`, true);
-  hideProductLoadToastSoon();
-  return;
+function queueProductPhotoLoad(id) {
+ const normalizedId = String(id || "");
+ if (!normalizedId || requestedProductPhotoIds.has(normalizedId) || queuedProductPhotoIdSet.has(normalizedId)) return;
+ requestedProductPhotoIds.add(normalizedId);
+ queuedProductPhotoIdSet.add(normalizedId);
+ queuedProductPhotoIds.push(normalizedId);
+ drainProductPhotoQueue();
+}
+
+function drainProductPhotoQueue() {
+ while (activeProductPhotoLoads < PRODUCT_PHOTO_CONCURRENCY && queuedProductPhotoIds.length) {
+  const id = queuedProductPhotoIds.shift();
+  queuedProductPhotoIdSet.delete(id);
+  activeProductPhotoLoads += 1;
+  carregarFotosProdutosOnline([id]).finally(() => {
+   activeProductPhotoLoads = Math.max(0, activeProductPhotoLoads - 1);
+   drainProductPhotoQueue();
+  });
  }
- let loaded = 0;
- setProductLoadToast("Carregando fotos...", `0 de ${pending.length} foto(s) verificadas.`);
- for (let index = 0; index < pending.length && generation === productLoadGeneration; index += PRODUCT_PHOTO_BATCH_SIZE) {
-  const batch = pending.slice(index, index + PRODUCT_PHOTO_BATCH_SIZE);
-  batch.forEach((id) => requestedProductPhotoIds.add(id));
-  await carregarFotosProdutosOnline(batch);
-  loaded += batch.length;
-  setProductLoadToast("Carregando fotos...", `${Math.min(loaded, pending.length)} de ${pending.length} foto(s) verificadas.`);
- }
- if (generation !== productLoadGeneration) return;
- setProductLoadToast("Produtos carregados", `${products.length} produto(s) e fotos verificados.`, true);
- hideProductLoadToastSoon();
 }
 
 function agendarCargaFotosVisiveis() {
- if (typeof window.skaleeDb?.loadProductPhotos !== "function") return;
+ if (typeof window.skaleeDb?.getProductPhotoUrl !== "function" && typeof window.skaleeDb?.loadProductPhotos !== "function") return;
  if (productPhotoObserver) productPhotoObserver.disconnect();
  const pendingPhotos = [...els.grid.querySelectorAll(".photo[data-photo-id]")];
  if (!pendingPhotos.length) return;
 
  if (!("IntersectionObserver" in window)) {
-  void carregarFotosProdutosOnline(pendingPhotos.map((item) => item.dataset.photoId));
+  pendingPhotos.forEach((item) => queueProductPhotoLoad(item.dataset.photoId));
   return;
  }
 
@@ -1322,11 +2226,10 @@ function agendarCargaFotosVisiveis() {
    if (!entry.isIntersecting) return;
    const id = entry.target.dataset.photoId;
    productPhotoObserver.unobserve(entry.target);
-   if (!id || requestedProductPhotoIds.has(id)) return;
-   requestedProductPhotoIds.add(id);
+   if (!id) return;
    visibleIds.push(id);
   });
-  if (visibleIds.length) void carregarFotosProdutosOnline(visibleIds);
+  visibleIds.forEach(queueProductPhotoLoad);
  }, { rootMargin: "240px 0px" });
 
  pendingPhotos.forEach((item) => productPhotoObserver.observe(item));
@@ -1343,7 +2246,11 @@ function agendarCargaMaisProdutos() {
  productPageObserver.observe(sentinel);
 }
 
-const ADMIN_EMAIL = "skalee.razarth@gmail.com";
+const ADMIN_EMAILS = new Set(["skalee.razarth@gmail.com", "fabiana.bazan@sisten.com"]);
+
+function isAdminEmail(value) {
+ return ADMIN_EMAILS.has(String(value || "").trim().toLowerCase());
+}
 
 function setUserMessage(text = "", type = "") {
  els.userMessage.textContent = text;
@@ -1558,16 +2465,28 @@ window.addEventListener("skalee:authenticated", (event) => {
  appAuthenticated = true;
  isViewer = event.detail?.accessRole === "viewer";
  activeUserEmail = event.detail?.email || "";
- isSkaleeAdmin = String(event.detail?.email || "").toLowerCase() === ADMIN_EMAIL;
+ isSkaleeAdmin = isAdminEmail(event.detail?.email);
  const isPlatformAdmin = event.detail?.accessRole === "platform_admin";
  canManageAdminUsers = isSkaleeAdmin || isPlatformAdmin;
+ els.testConfetti.hidden = !canManageAdminUsers;
  updatePersonalPanelIdentity(event.detail || {});
  catalogLoadPromise = null;
  adminUsersLoaded = false;
  adminUsersLoadPromise = null;
+ managementDashboardLoaded = false;
+ managementDashboardLoading = false;
+ managementDashboardData = null;
+ reportProducts = [];
+ reportProductsLoaded = false;
+ reportProductsLoading = false;
+ reportSelectionInitialized = false;
  showInstallBannerWhenAvailable();
+ armNotificationPermissionRequest();
  void carregarOpcoesPermitidas();
  void carregarProdutosOnline();
+ void carregarDashboardStats();
+ startValidityProductsRealtime();
+ startDashboardSyncFallback();
  const isAdmin = canManageAdminUsers;
  const canUsePoster = isAdmin || isPlatformAdmin;
  const canOpenAdminSettings = isAdmin || isPlatformAdmin;
@@ -1576,6 +2495,8 @@ window.addEventListener("skalee:authenticated", (event) => {
  els.adminCentralButton.hidden = !canOpenAdminSettings;
  els.reportTab.hidden = false;
  els.posterTab.hidden = !canUsePoster;
+ els.settingsManagementTab.hidden = !canOpenAdminSettings;
+ els.settingsDepartmentsTab.hidden = !canOpenAdminSettings;
  els.settingsUsersTab.hidden = !isAdmin;
  els.settingsRegistriesTab.hidden = !isPlatformAdmin;
  if (document.querySelector(".settings-tab.active")?.hidden) showSettingsPanel("overview");
@@ -1593,13 +2514,29 @@ window.addEventListener("skalee:signed-out", () => {
  catalogLoadPromise = null;
  adminUsersLoaded = false;
  adminUsersLoadPromise = null;
+ managementDashboardLoaded = false;
+ managementDashboardLoading = false;
+ managementDashboardData = null;
+ if (managementDashboardReloadTimer) clearTimeout(managementDashboardReloadTimer);
+ managementDashboardReloadTimer = null;
  allowedLocations = null;
  allowedSuppliers = null;
  els.installBanner.hidden = true;
  els.productLoadToast.hidden = true;
  els.catalogStatus.hidden = true;
+ els.testConfetti.hidden = true;
+ stopValidityProductsRealtime();
+ stopDashboardSyncFallback();
+ dashboardStats = null;
+ dashboardStatsDelta = null;
  products = [];
+ reportProducts = [];
+ reportProductsLoaded = false;
+ reportProductsLoading = false;
+ reportSelectionInitialized = false;
  els.settingsUsersTab.hidden = true;
+ els.settingsManagementTab.hidden = true;
+ els.settingsDepartmentsTab.hidden = true;
  els.settingsRegistriesTab.hidden = true;
  els.reportTab.hidden = true;
  els.posterTab.hidden = true;
@@ -1658,6 +2595,7 @@ document.querySelectorAll(".tab[data-page]").forEach((button) => {
   button.classList.add("active");
   button.setAttribute("aria-current", "page");
   document.getElementById(button.dataset.page).classList.add("active");
+  if (button.dataset.page === "report") void carregarProdutosRelatorio();
   if (!els.personalPanel.hidden) setPersonalPanelOpen(false);
  });
 });
@@ -1675,8 +2613,282 @@ function showSettingsPanel(panelName = "overview") {
  void loadSettingsPanelData(activeName);
 }
 
+function formatManagementNumber(value) {
+ return Number(value || 0).toLocaleString("pt-BR");
+}
+
+function normalizeText(value) {
+ return String(value || "")
+  .normalize("NFD")
+  .replace(/[\u0300-\u036f]/g, "")
+  .replace(/\s+/g, " ")
+  .trim()
+  .toLowerCase();
+}
+
+function fillManagementFilter(select, values, placeholder) {
+ const current = select.value;
+ select.replaceChildren(new Option(placeholder, ""));
+ values.forEach((value) => select.appendChild(new Option(value, value)));
+ if ([...select.options].some((option) => option.value === current)) select.value = current;
+}
+
+function managementRow(item, max, detail) {
+ const row = document.createElement("div");
+ row.className = "management-row";
+ const copy = document.createElement("div");
+ const title = document.createElement("strong");
+ title.textContent = item.name || "Sem departamento";
+ const sub = document.createElement("small");
+ sub.textContent = detail(item);
+ copy.append(title, sub);
+ const total = document.createElement("b");
+ total.textContent = formatManagementNumber(item.products);
+ const bar = document.createElement("div");
+ bar.className = "management-bar";
+ bar.style.setProperty("--bar", `${Math.max(3, Math.round((item.products / Math.max(1, max)) * 100))}%`);
+ bar.appendChild(document.createElement("span"));
+ row.append(copy, total, bar);
+ return row;
+}
+
+function renderManagementDashboard() {
+ const data = managementDashboardData;
+ if (!data) return;
+ fillManagementFilter(els.managementStore, data.filters.stores, "Todas as lojas");
+ fillManagementFilter(els.managementDepartment, data.filters.departments, "Todos os departamentos");
+ const store = els.managementStore.value;
+ const department = els.managementDepartment.value;
+ const period = els.managementPeriod.value;
+ const status = els.managementStatus.value;
+ const today = data.today;
+ let rows = data.rows.filter((row) => {
+  if (store && row.store !== store) return false;
+  if (department && row.department !== department) return false;
+  if (status === "offer" && !row.offer) return false;
+  if (status === "risk" && row.offer) return false;
+  if (period === "expired") return row.days < 0;
+  if (period === "all") return true;
+  const days = Number(period);
+  return row.days >= 0 && row.days <= days;
+ });
+ rows = rows.sort((a, b) => a.days - b.days || a.department.localeCompare(b.department) || a.name.localeCompare(b.name));
+ const byDepartment = new Map();
+ const byStore = new Map();
+ const byPair = new Map();
+ rows.forEach((row) => {
+  const departmentKey = row.department || "Sem departamento";
+  const storeKey = row.store || "Sem loja";
+  const pairKey = `${departmentKey}|||${storeKey}`;
+  const add = (map, key, extra = {}) => {
+   const current = map.get(key) || { name: key, products: 0, units: 0, today: 0, seven: 0, expired: 0, ...extra };
+   current.products += 1;
+   current.units += row.quantity;
+   if (row.expiry === today) current.today += 1;
+   if (row.days >= 0 && row.days <= 7) current.seven += 1;
+   if (row.days < 0) current.expired += 1;
+   map.set(key, current);
+  };
+  add(byDepartment, departmentKey);
+  add(byStore, storeKey);
+  add(byPair, pairKey, { department: departmentKey, store: storeKey });
+ });
+ const departments = [...byDepartment.values()].sort((a, b) => b.products - a.products || b.units - a.units).slice(0, 8);
+ const stores = [...byStore.values()].sort((a, b) => b.products - a.products || b.units - a.units).slice(0, 8);
+ const pairs = [...byPair.values()].sort((a, b) => b.products - a.products || b.units - a.units).slice(0, 20);
+ const expiredByDepartment = new Map();
+ data.rows.filter((row) => {
+  if (store && row.store !== store) return false;
+  if (department && row.department !== department) return false;
+  if (status === "offer" && !row.offer) return false;
+  if (status === "risk" && row.offer) return false;
+  return row.days < 0;
+ }).forEach((row) => {
+  const departmentKey = row.department || "Sem departamento";
+  const current = expiredByDepartment.get(departmentKey) || { name: departmentKey, products: 0, units: 0, today: 0, seven: 0, expired: 0 };
+  current.products += 1;
+  current.units += row.quantity;
+  current.expired += 1;
+  expiredByDepartment.set(departmentKey, current);
+ });
+ const expiredDepartments = [...expiredByDepartment.values()].sort((a, b) => b.products - a.products || b.units - a.units).slice(0, 8);
+ const topDepartment = departments[0] || null;
+ els.managementProducts.textContent = formatManagementNumber(rows.length);
+ els.managementUnits.textContent = formatManagementNumber(rows.reduce((sum, row) => sum + row.quantity, 0));
+ els.managementExpired.textContent = formatManagementNumber(rows.filter((row) => row.days < 0).length);
+ els.managementToday.textContent = formatManagementNumber(rows.filter((row) => row.expiry === today).length);
+ els.managementTopDepartment.textContent = topDepartment ? formatManagementNumber(topDepartment.products) : "--";
+ els.managementTopDepartmentDetail.textContent = topDepartment ? topDepartment.name : "Sem dados no filtro";
+ els.managementDepartmentRanking.replaceChildren(...departments.map((item) => managementRow(item, departments[0]?.products || 1, (row) => `${formatManagementNumber(row.units)} unidade(s) · ${formatManagementNumber(row.today)} hoje · ${formatManagementNumber(row.expired)} vencido(s)`)));
+ els.managementStoreRanking.replaceChildren(...stores.map((item) => managementRow(item, stores[0]?.products || 1, (row) => `${formatManagementNumber(row.units)} unidade(s) · ${formatManagementNumber(row.seven)} em 7 dias`)));
+ els.managementExpiredRanking.replaceChildren(...expiredDepartments.map((item) => managementRow(item, expiredDepartments[0]?.products || 1, (row) => `${formatManagementNumber(row.units)} unidade(s) vencida(s)`)));
+ if (!expiredDepartments.length) {
+  const emptyExpired = document.createElement("div");
+  emptyExpired.className = "management-status";
+  emptyExpired.textContent = "Nenhum vencido nos filtros atuais.";
+  els.managementExpiredRanking.appendChild(emptyExpired);
+ }
+ els.managementTableBody.replaceChildren(...pairs.map((item) => {
+  const tr = document.createElement("tr");
+  [item.department, item.store, item.products, item.units, item.today, item.seven, item.expired].forEach((value, index) => {
+   const td = document.createElement("td");
+   td.textContent = index < 2 ? value : formatManagementNumber(value);
+   tr.appendChild(td);
+  });
+  return tr;
+ }));
+ if (!rows.length) {
+  const empty = document.createElement("tr");
+  const td = document.createElement("td");
+  td.colSpan = 7;
+  td.textContent = "Nenhum produto encontrado para os filtros selecionados.";
+  empty.appendChild(td);
+  els.managementTableBody.appendChild(empty);
+ }
+ const store3Filled = data.rows.filter((row) => row.departmentSource === "store_3_reference").length;
+ els.managementStatusText.textContent = `${formatManagementNumber(rows.length)} produto(s) no filtro atual. Base carregada: ${formatManagementNumber(data.rows.length)} produto(s). ${store3Filled ? `${formatManagementNumber(store3Filled)} departamento(s) preenchido(s) pela referência da loja 3.` : ""}`;
+}
+
+function departmentProductsReason(row) {
+ if (row.department !== "Sem departamento") return "";
+ if (!row.barcode && !row.code) return "Sem código de barras ou código interno para cruzar com o catálogo.";
+ if (!row.catalogProductId) return "Produto registrado sem vínculo direto ao catálogo e sem match por código.";
+ return "Produto vinculado ou localizado, mas o catálogo está sem categoria/departamento.";
+}
+
+function renderDepartmentProducts() {
+ const data = managementDashboardData;
+ if (!data) return;
+ fillManagementFilter(els.departmentProductsStore, data.filters.stores, "Todas as lojas");
+ fillManagementFilter(els.departmentProductsDepartment, data.filters.departments, "Todos os departamentos");
+ const store = els.departmentProductsStore.value;
+ const department = els.departmentProductsDepartment.value;
+ const period = els.departmentProductsPeriod.value;
+ const search = normalizeText(els.departmentProductsSearch.value);
+ let rows = data.rows.filter((row) => {
+  if (store && row.store !== store) return false;
+  if (department && row.department !== department) return false;
+  if (period === "expired" && row.days >= 0) return false;
+  if (!["all", "expired"].includes(period)) {
+   const days = Number(period);
+   if (row.days < 0 || row.days > days) return false;
+  }
+  if (search) {
+   const haystack = normalizeText([row.name, row.department, row.store, row.barcode, row.code].join(" "));
+   if (!haystack.includes(search)) return false;
+  }
+  return true;
+ }).sort((a, b) => a.department.localeCompare(b.department) || a.days - b.days || a.name.localeCompare(b.name));
+ const byDepartment = new Map();
+ rows.forEach((row) => {
+  const key = row.department || "Sem departamento";
+  const current = byDepartment.get(key) || { name: key, products: 0, units: 0, today: 0, seven: 0, expired: 0 };
+  current.products += 1;
+  current.units += row.quantity;
+  if (row.expiry === data.today) current.today += 1;
+  if (row.days >= 0 && row.days <= 7) current.seven += 1;
+  if (row.days < 0) current.expired += 1;
+  byDepartment.set(key, current);
+ });
+ const summary = [...byDepartment.values()].sort((a, b) => b.products - a.products || b.units - a.units);
+ const missing = rows.filter((row) => row.department === "Sem departamento").slice(0, 20);
+ els.departmentProductsDepartmentCount.textContent = formatManagementNumber(summary.length);
+ els.departmentProductsTotal.textContent = formatManagementNumber(rows.length);
+ els.departmentProductsUnits.textContent = formatManagementNumber(rows.reduce((sum, row) => sum + row.quantity, 0));
+ els.departmentProductsMissing.textContent = formatManagementNumber(rows.filter((row) => row.department === "Sem departamento").length);
+ els.departmentProductsExpired.textContent = formatManagementNumber(rows.filter((row) => row.days < 0).length);
+ els.departmentProductsSummary.replaceChildren(...summary.slice(0, 20).map((item) => managementRow(item, summary[0]?.products || 1, (row) => `${formatManagementNumber(row.units)} unidade(s) · ${formatManagementNumber(row.seven)} em 7 dias · ${formatManagementNumber(row.expired)} vencido(s)`)));
+ if (!summary.length) {
+  const empty = document.createElement("div");
+  empty.className = "management-status";
+  empty.textContent = "Nenhum departamento encontrado para os filtros.";
+  els.departmentProductsSummary.appendChild(empty);
+ }
+ els.departmentProductsMissingList.replaceChildren(...missing.map((row) => {
+  const item = document.createElement("div");
+  item.className = "department-product-row";
+  const title = document.createElement("strong");
+  title.textContent = row.name;
+  const detail = document.createElement("span");
+  detail.textContent = `${row.store} · ${row.expiry} · código ${row.code || "--"} · barras ${row.barcode || "--"}`;
+  const reason = document.createElement("span");
+  reason.textContent = departmentProductsReason(row);
+  item.append(title, detail, reason);
+  return item;
+ }));
+ if (!missing.length) {
+  const empty = document.createElement("div");
+  empty.className = "management-status";
+  empty.textContent = "Nenhum produto sem departamento nos filtros atuais.";
+  els.departmentProductsMissingList.appendChild(empty);
+ }
+ els.departmentProductsTableBody.replaceChildren(...rows.slice(0, 120).map((row) => {
+  const tr = document.createElement("tr");
+  [row.name, row.department, row.store, row.quantity, row.expiry, row.barcode || row.code || "--"].forEach((value, index) => {
+   const td = document.createElement("td");
+   td.textContent = index === 3 ? formatManagementNumber(value) : value;
+   tr.appendChild(td);
+  });
+  return tr;
+ }));
+ if (!rows.length) {
+  const empty = document.createElement("tr");
+  const td = document.createElement("td");
+  td.colSpan = 6;
+  td.textContent = "Nenhum produto encontrado para os filtros selecionados.";
+  empty.appendChild(td);
+  els.departmentProductsTableBody.appendChild(empty);
+ }
+ els.departmentProductsStatus.textContent = `${formatManagementNumber(rows.length)} produto(s) listados. A tabela mostra até 120 itens para manter a tela leve.`;
+}
+
+async function loadManagementDashboard(force = false) {
+ if (!canManageAdminUsers || !window.skaleeDb?.loadManagementDashboard) return;
+ if (managementDashboardLoading) return;
+ if (managementDashboardLoaded && !force) {
+  renderManagementDashboard();
+  renderDepartmentProducts();
+  return;
+ }
+ managementDashboardLoading = true;
+ els.refreshManagementDashboard.disabled = true;
+ els.managementStatusText.textContent = "Carregando dashboard gerencial...";
+ try {
+  managementDashboardData = await window.skaleeDb.loadManagementDashboard();
+  managementDashboardLoaded = true;
+  renderManagementDashboard();
+  renderDepartmentProducts();
+ } catch (error) {
+  console.error("Falha ao carregar dashboard gerencial.", error);
+  els.managementStatusText.textContent = error.message || "Não foi possível carregar o dashboard gerencial.";
+ } finally {
+  managementDashboardLoading = false;
+  els.refreshManagementDashboard.disabled = false;
+ }
+}
+
+function scheduleManagementDashboardReload(delay = 500) {
+ if (!managementDashboardLoaded || !canManageAdminUsers) return;
+ if (managementDashboardReloadTimer) clearTimeout(managementDashboardReloadTimer);
+ managementDashboardReloadTimer = setTimeout(() => {
+  managementDashboardReloadTimer = null;
+  const activePanel = document.querySelector('.settings-panel.active');
+  if (activePanel?.dataset.settingsPanel === "management") void loadManagementDashboard(true);
+  else managementDashboardLoaded = false;
+ }, delay);
+}
+
 async function loadSettingsPanelData(panelName) {
  if (!appAuthenticated) return;
+ if (panelName === "management") {
+  await loadManagementDashboard();
+  return;
+ }
+ if (panelName === "departments") {
+  await loadManagementDashboard();
+  renderDepartmentProducts();
+  return;
+ }
  if (panelName === "users") {
   await ensureAdminUsersLoaded();
   return;
@@ -1698,6 +2910,16 @@ async function loadSettingsPanelData(panelName) {
 els.settingsTabs.forEach((button) => {
  button.addEventListener("click", () => showSettingsPanel(button.dataset.settings));
 });
+["change", "input"].forEach((eventName) => {
+ [els.managementStore, els.managementDepartment, els.managementPeriod, els.managementStatus].forEach((select) => {
+  select.addEventListener(eventName, renderManagementDashboard);
+ });
+ [els.departmentProductsStore, els.departmentProductsDepartment, els.departmentProductsPeriod, els.departmentProductsSearch].forEach((field) => {
+  field.addEventListener(eventName, renderDepartmentProducts);
+ });
+});
+els.refreshManagementDashboard.addEventListener("click", () => loadManagementDashboard(true));
+els.refreshDepartmentProducts.addEventListener("click", () => loadManagementDashboard(true));
 els.adminCentralButton.addEventListener("click", () => openAdminCentral("overview"));
 els.adminBackToApp.addEventListener("click", closeAdminCentral);
 
@@ -1739,8 +2961,9 @@ function localDateKey(value) {
 }
 
 function getReportProducts() {
+ const source = reportProductsLoaded ? reportProducts : [];
  const todayKey = localDateKey(new Date().toISOString());
- return activeProducts()
+ return source.filter((product) => remaining(product.expiry) >= 0)
   .filter((product) => !els.reportStore.value || product.store === els.reportStore.value)
   .filter((product) => {
    if (reportCreatedTodayOnly && localDateKey(product.createdAt) !== todayKey) return false;
@@ -1851,7 +3074,7 @@ function askPdfReportScope(hasSelectedStore) {
 function filteredReportProductsForPdf(scope) {
  const selectedIds = new Set([...selectedReportProductIds].map(String));
  const todayKey = localDateKey(new Date().toISOString());
- return activeProducts()
+ return reportProducts.filter((product) => remaining(product.expiry) >= 0)
   .filter((product) => selectedIds.has(String(product.id)))
   .filter((product) => scope !== "selected" || product.store === els.reportStore.value)
   .filter((product) => {
@@ -2007,6 +3230,21 @@ function openPdfReport() {
 
 function renderReport() {
  const reportProducts = getReportProducts();
+ if (reportProductsLoading || !reportProductsLoaded) {
+  els.reportText.dataset.columns = String(reportColumns);
+  els.reportText.style.setProperty("--report-columns", reportColumns);
+  els.layoutButtons.forEach((button) => button.classList.toggle("active", Number(button.dataset.columns) === reportColumns));
+  els.reportText.replaceChildren();
+  const loading = document.createElement("div");
+  loading.className = "report-empty";
+  loading.textContent = reportProductsLoading ? "Carregando todos os textos dos produtos..." : "Abra a aba Relatórios para carregar os textos.";
+  els.reportText.appendChild(loading);
+  els.copyReport.disabled = true;
+  els.exportReportPdf.disabled = true;
+  els.selectAllReport.disabled = true;
+  els.clearReportSelection.disabled = true;
+  return;
+ }
  if (!reportSelectionInitialized && reportProducts.length > 0) {
   reportProducts.forEach((product) => selectedReportProductIds.add(String(product.id)));
   reportSelectionInitialized = true;
@@ -2079,11 +3317,13 @@ function render() {
  els.grid.dataset.columns = String(productColumns);
  els.grid.style.setProperty("--product-columns", productColumns);
  els.productLayoutButtons.forEach((button) => button.classList.toggle("active", Number(button.dataset.columns) === productColumns));
- els.sProducts.textContent = dashboardProducts.length;
- els.sUnits.textContent = dashboardProducts.reduce((sum, product) => sum + product.qty, 0);
- els.sToday.textContent = dashboardProducts.filter((product) => remaining(product.expiry) === 0).length;
- els.s7.textContent = dashboardProducts.filter((product) => remaining(product.expiry) >= 0 && remaining(product.expiry) <= 7).length;
- els.sOffer.textContent = dashboardProducts.filter((product) => product.offer).length;
+ if (!renderDashboardStats()) {
+  setDashboardCounter(els.sProducts, dashboardProducts.length);
+  setDashboardCounter(els.sUnits, dashboardProducts.reduce((sum, product) => sum + product.qty, 0));
+  setDashboardCounter(els.sToday, dashboardProducts.filter((product) => remaining(product.expiry) === 0).length);
+  setDashboardCounter(els.s7, dashboardProducts.filter((product) => remaining(product.expiry) >= 0 && remaining(product.expiry) <= 7).length);
+  setDashboardCounter(els.sOffer, dashboardProducts.filter((product) => product.offer).length);
+ }
 
  const query = els.search.value.trim().toLowerCase();
  let items = base.filter((product) => (
@@ -2114,7 +3354,7 @@ function render() {
  const days = remaining(product.expiry);
  const [label, tone] = status(days);
  const expiryText = new Date(product.expiry + "T00:00:00").toLocaleDateString("pt-BR");
- const photoContent = product.photo ? `<img src="${product.photo}" decoding="async" alt="">` : (product.photoLoaded ? "Sem foto" : "Carregando foto...");
+ const photoContent = product.photo ? `<img src="${product.photo}" loading="lazy" decoding="async" alt="">` : (product.photoLoaded ? "Sem foto" : "Carregando foto...");
  const photoAttrs = (!product.photo && !product.photoLoaded) ? ` data-photo-id="${escapeHtml(product.id)}"` : "";
   const fornecedor = supplierCardText(product);
   const expanded = expandedProductIds.has(String(product.id));
@@ -2149,9 +3389,10 @@ function render() {
   withPhotoPath: items.filter((product) => Boolean(product.photoPath)).length,
   requested: requestedProductPhotoIds.size
  });
- const moreProducts = productHasMorePages ? '<div class="empty">Carregando mais produtos em segundo plano...</div>' : "";
+ const moreProducts = productHasMorePages ? '<div class="empty" data-load-more-products>Carregando mais produtos...</div>' : "";
  els.grid.innerHTML = activeCards ? activeCards + moreProducts : '<div class="empty">Nenhum produto encontrado com esses filtros.</div>';
  agendarCargaFotosVisiveis();
+ agendarCargaMaisProdutos();
 }
 
 els.reportStore.addEventListener("change", () => {
@@ -2227,23 +3468,29 @@ function clearFilterInput(input, button) {
  if (!input.value) return;
  input.value = "";
  button.hidden = true;
- render();
+ scheduleProductQueryReload(0);
  input.focus();
 }
 
-els.search.addEventListener("input", render);
+els.search.addEventListener("input", () => {
+ updateClearButtons();
+ scheduleProductQueryReload(300);
+});
 els.clearSearch.addEventListener("click", () => clearFilterInput(els.search, els.clearSearch));
-els.storeFilter.addEventListener("change", render);
-els.supplierFilter.addEventListener("input", render);
+els.storeFilter.addEventListener("change", () => scheduleProductQueryReload(0));
+els.supplierFilter.addEventListener("input", () => {
+ updateClearButtons();
+ scheduleProductQueryReload(300);
+});
 els.clearSupplierFilter.addEventListener("click", () => clearFilterInput(els.supplierFilter, els.clearSupplierFilter));
-els.sort.addEventListener("change", render);
+els.sort.addEventListener("change", () => scheduleProductQueryReload(0));
 
 els.chips.forEach((chip) => {
  chip.addEventListener("click", () => {
   els.chips.forEach((item) => item.classList.remove("active"));
   chip.classList.add("active");
   activeFilter = chip.dataset.filter;
-  render();
+  scheduleProductQueryReload(0);
  });
 });
 
@@ -2528,18 +3775,21 @@ els.confirmUpdate.addEventListener("click", async () => {
  els.updateError.textContent = "";
  pendingProductUpdateIds.add(String(productId));
  expandedProductIds.add(String(productId));
- products = products.map((product) => product.id === productId ? {
-  ...product,
+ const optimisticProduct = {
+  ...previousProduct,
   qty: quantity,
   offer: els.updateOffer.checked,
   updatedAt: new Date().toISOString()
- } : product);
+ };
+ products = products.map((product) => product.id === productId ? optimisticProduct : product);
+ applyDashboardStatsDelta(previousProduct, optimisticProduct);
  closeUpdateModal();
  render();
  showToast(`Atualizando ${productName}...`, "info", "⏳");
 
  window.skaleeDb.updateProduct(productId, { qty: quantity, offer: els.updateOffer.checked })
   .then((updatedProduct) => {
+   mergeReportProduct(updatedProduct);
    products = products.map((product) => product.id === productId ? {
     ...updatedProduct,
     photo: updatedProduct.photo || product.photo || "",
@@ -2555,6 +3805,7 @@ els.confirmUpdate.addEventListener("click", async () => {
   })
   .finally(() => {
    pendingProductUpdateIds.delete(String(productId));
+   scheduleDashboardStatsReload();
    render();
   });
 });
@@ -2573,9 +3824,13 @@ els.completeProduct.addEventListener("click", async () => {
  els.updateError.textContent = "";
  try {
   await window.skaleeDb.completeProduct(product.id);
+  applyDashboardStatsDelta(product, null);
+  removeReportProduct(product.id);
   products = products.filter((item) => item.id !== product.id);
+  scheduleDashboardStatsReload(120);
   closeUpdateModal();
   render();
+  celebrarMissaoCumprida();
  } catch (error) {
   console.error("Falha ao concluir produto.", error);
   els.updateError.textContent = "Não foi possível concluir. Verifique sua conexão e tente novamente.";
@@ -2591,7 +3846,10 @@ els.deleteProduct.addEventListener("click", async () => {
  els.updateError.textContent = "";
  try {
   await window.skaleeDb.deleteProduct(product.id);
+  applyDashboardStatsDelta(product, null);
+  removeReportProduct(product.id);
   products = products.filter((item) => item.id !== product.id);
+  scheduleDashboardStatsReload();
   closeUpdateModal();
   render();
  } catch (error) {
@@ -2610,11 +3868,25 @@ function atualizarStatusCatalogo(nome) {
  definirInfoCatalogo(`Catálogo ativo: ${nome}`, `${quantidade} produtos`);
 }
 
-function definirInfoCatalogo(titulo, detalhe = "") {
+function definirInfoCatalogo(titulo, detalhe = "", options = {}) {
  els.catalogInfo.replaceChildren();
+ els.catalogInfo.classList.toggle("importing", Boolean(options.loading));
+ els.catalogInfo.classList.toggle("has-progress", Number.isFinite(options.progress));
+ if (Number.isFinite(options.progress)) {
+  els.catalogInfo.style.setProperty("--catalog-progress", `${Math.max(0, Math.min(100, options.progress))}%`);
+ } else {
+  els.catalogInfo.style.removeProperty("--catalog-progress");
+ }
  const destaque = document.createElement("b");
  destaque.textContent = titulo;
  els.catalogInfo.append(destaque, document.createTextNode(detalhe));
+ if (options.loading) {
+  const progress = document.createElement("span");
+  progress.className = "catalog-progress";
+  progress.setAttribute("aria-hidden", "true");
+  progress.appendChild(document.createElement("span"));
+  els.catalogInfo.appendChild(progress);
+ }
 }
 
 function textoDbf(bytes) {
@@ -2720,11 +3992,104 @@ function carregarProdutosRelatorioFornecedorParaSupabase(buffer) {
  return produtos;
 }
 
-function carregarProdutosArquivoCatalogo(file, buffer) {
+function departamentoPeloNomeArquivo(file) {
+ const nome = String(file?.name || "").replace(/\.[^.]+$/g, "").replace(/[_-]+/g, " ");
+ const limpo = normalizarEspacos(nome.replace(/\b(catalogo|catálogo|produtos|produto|estoque|skalee|lucas)\b/gi, ""));
+ return limpo.length >= 3 ? limpo : "";
+}
+
+function normalizarCabecalhoCatalogo(value) {
+ return normalizarEspacos(value)
+  .normalize("NFD")
+  .replace(/[\u0300-\u036f]/g, "")
+  .replace(/[^a-z0-9]+/gi, "")
+  .toLowerCase();
+}
+
+function indiceColunaCatalogo(cabecalho, nomes) {
+ const nomesNormalizados = new Set(nomes.map(normalizarCabecalhoCatalogo));
+ return cabecalho.findIndex((coluna) => {
+  const colunaNormalizada = normalizarCabecalhoCatalogo(coluna);
+  if (nomesNormalizados.has(colunaNormalizada)) return true;
+  return [...nomesNormalizados].some((nome) => nome.length >= 5 && colunaNormalizada.includes(nome));
+ });
+}
+
+function extrairDepartamentoRelatorioCatalogo(linha) {
+ const departamento = String(linha || "").match(/^\s*DEPARTAMENTO:\s*(\d+)\s*-\s*(.+?)\s*$/i);
+ if (!departamento) return "";
+ const codigo = departamento[1];
+ const nome = normalizarEspacos(departamento[2]);
+ return nome ? `${codigo} - ${nome}` : codigo;
+}
+
+function carregarProdutosRelatorioDepartamentoParaSupabase(file, buffer, departamentoPadrao = "") {
+ const texto = new TextDecoder("windows-1252").decode(buffer).replace(/\0/g, "");
+ const linhas = texto.split(/\r?\n/);
+ const produtos = [];
+ const vistos = new Set();
+ const departamentoBase = normalizarEspacos(departamentoPadrao) || departamentoPeloNomeArquivo(file);
+ let departamentoAtual = departamentoBase;
+ let mapaColunas = null;
+ let produtoAnterior = null;
+ linhas.forEach((linha) => {
+  const departamentoLinha = extrairDepartamentoRelatorioCatalogo(linha);
+  if (departamentoLinha) {
+   departamentoAtual = departamentoLinha;
+   produtoAnterior = null;
+   return;
+  }
+  const colunas = linha.split("\t").map((coluna) => normalizarEspacos(coluna));
+  if (!mapaColunas) {
+   const codigoIndex = indiceColunaCatalogo(colunas, ["CODIGO", "CODPROD", "COD. PRODUTO", "COD PRODUTO"]);
+   const descricaoIndex = indiceColunaCatalogo(colunas, ["DESCRICAO", "DESCRIÇÃO", "DESCRICAO DO PRODUTO", "DESCRIÇÃO DO PRODUTO", "PRODUTO", "NOME"]);
+   const barcodeIndex = indiceColunaCatalogo(colunas, ["COD. DE BARRAS", "COD BARRAS", "CODIGO BARRAS", "COD.BARRA", "COD BARRA", "CODBAR", "EAN", "BARRAS"]);
+   const departamentoIndex = indiceColunaCatalogo(colunas, ["DEPARTAMENTO", "DEPTO", "SECAO", "SEÇÃO", "GRUPO", "CATEGORIA"]);
+   if (codigoIndex >= 0 && descricaoIndex >= 0) {
+    mapaColunas = { codigoIndex, descricaoIndex, barcodeIndex, departamentoIndex };
+   }
+   return;
+  }
+  const primeiraColuna = String(colunas[mapaColunas.codigoIndex] || "").replace(/\D/g, "");
+  const temDescricao = Boolean(colunas[mapaColunas.descricaoIndex]);
+  if (!temDescricao && produtoAnterior && /^\d{6,18}$/.test(primeiraColuna) && !vistos.has(primeiraColuna)) {
+   vistos.add(primeiraColuna);
+   produtos.push({
+    barcode: primeiraColuna,
+    internal_code: produtoAnterior.internalCode,
+    name: produtoAnterior.name,
+    source_key: primeiraColuna,
+    category: produtoAnterior.category
+   });
+   return;
+  }
+  if (!/^\s*\d+/.test(colunas[mapaColunas.codigoIndex] || "")) return;
+  const internalCode = String(colunas[mapaColunas.codigoIndex] || "").replace(/\D/g, "");
+  const name = colunas[mapaColunas.descricaoIndex] || "";
+  const barcode = mapaColunas.barcodeIndex >= 0 ? String(colunas[mapaColunas.barcodeIndex] || "").replace(/\D/g, "") : "";
+  const rowDepartment = mapaColunas.departamentoIndex >= 0 ? normalizarEspacos(colunas[mapaColunas.departamentoIndex]) : "";
+  const sourceKey = barcode || internalCode;
+  if (!sourceKey || !name || vistos.has(sourceKey)) return;
+  const category = rowDepartment || departamentoAtual || departamentoBase;
+  vistos.add(sourceKey);
+  produtoAnterior = { internalCode, name, category };
+  produtos.push({ barcode, internal_code: internalCode, name, source_key: sourceKey, category });
+ });
+ if (produtos.length === 0) throw new Error("Nenhum produto com CODIGO, DESCRICAO e COD. DE BARRAS foi encontrado.");
+ return produtos;
+}
+
+function carregarProdutosArquivoCatalogo(file, buffer, departamentoPadrao = "") {
  const nome = String(file?.name || "").toLowerCase();
  if (nome.endsWith(".dbf")) return { produtos: carregarProdutosDbfParaSupabase(buffer), origem: "own_dbf" };
- if (nome.endsWith(".xls") || nome.endsWith(".txt")) return { produtos: carregarProdutosRelatorioFornecedorParaSupabase(buffer), origem: "supplier_stock_report" };
- throw new Error("Selecione um arquivo .dbf, .xls ou .txt.");
+ if (nome.endsWith(".xls") || nome.endsWith(".txt") || nome.endsWith(".csv")) {
+  try {
+   return { produtos: carregarProdutosRelatorioFornecedorParaSupabase(buffer), origem: "supplier_stock_report" };
+  } catch (error) {
+   return { produtos: carregarProdutosRelatorioDepartamentoParaSupabase(file, buffer, departamentoPadrao), origem: "department_stock_report" };
+  }
+ }
+ throw new Error("Selecione um arquivo .dbf, .xls, .txt ou .csv.");
 }
 
 function montarCatalogoSupabase(rows) {
@@ -2793,12 +4158,15 @@ els.importDbf.addEventListener("click", async () => {
  if (!files.length) return alert("Selecione um arquivo de catálogo para importar.");
 
  els.importDbf.disabled = true;
- definirInfoCatalogo("Lendo arquivo...", "Validando campos e preparando envio para o Supabase.");
+ definirInfoCatalogo("Lendo arquivo...", "Validando campos e preparando envio para o Supabase.", { loading: true });
  try {
   const produtos = [];
   const origens = new Set();
   const arquivosIgnorados = [];
-  for (const file of files) {
+  for (let index = 0; index < files.length; index += 1) {
+   const file = files[index];
+   definirInfoCatalogo("Lendo arquivo...", `${index + 1}/${files.length}: ${file.name}`, { loading: true });
+   await new Promise((resolve) => setTimeout(resolve, 40));
    try {
     const resultado = carregarProdutosArquivoCatalogo(file, await file.arrayBuffer());
     produtos.push(...resultado.produtos);
@@ -2809,12 +4177,17 @@ els.importDbf.addEventListener("click", async () => {
   }
   if (!produtos.length) throw new Error(arquivosIgnorados[0] || "Nenhum produto foi encontrado nos arquivos selecionados.");
   const fornecedores = new Set(produtos.map((produto) => produto.supplier_code || produto.supplier_name).filter(Boolean));
-  definirInfoCatalogo("Enviando para o Supabase...", `${produtos.length.toLocaleString("pt-BR")} produto(s) preparados.`);
-  const imported = await window.skaleeDb.importCatalogProducts(produtos, { source: [...origens].sort().join("+") || "own_import" });
+  const departamentos = new Set(produtos.map((produto) => produto.category).filter(Boolean));
+  definirInfoCatalogo("Preparando envio...", `${produtos.length.toLocaleString("pt-BR")} produto(s) preparados.`, { loading: true, progress: 8 });
+  const imported = await window.skaleeDb.importCatalogProducts(produtos, {
+   source: [...origens].sort().join("+") || "own_import",
+   onProgress: ({ title, detail, progress }) => definirInfoCatalogo(title, detail, { loading: true, progress })
+  });
   els.dbfFile.value = "";
   const detalheFornecedores = fornecedores.size ? ` em ${fornecedores.size.toLocaleString("pt-BR")} fornecedor(es).` : ".";
-  const detalheIgnorados = arquivosIgnorados.length ? ` ${arquivosIgnorados.length} arquivo(s) ignorado(s) por não ter produtos por fornecedor.` : "";
-  definirInfoCatalogo("Importação concluída", `${imported.toLocaleString("pt-BR")} produto(s) enviados ao Supabase${detalheFornecedores}${detalheIgnorados}`);
+  const detalheDepartamentos = departamentos.size ? ` Departamento(s): ${[...departamentos].slice(0, 4).join(", ")}${departamentos.size > 4 ? "..." : ""}.` : "";
+  const detalheIgnorados = arquivosIgnorados.length ? ` ${arquivosIgnorados.length} arquivo(s) ignorado(s) por não ter produtos reconhecidos.` : "";
+  definirInfoCatalogo("Importação concluída", `${imported.toLocaleString("pt-BR")} produto(s) enviados ao Supabase${detalheFornecedores}${detalheDepartamentos}${detalheIgnorados}`);
   catalogLoadPromise = null;
   await iniciarCatalogo();
  } catch (error) {
@@ -3418,6 +4791,10 @@ function canvasToBlob(canvas, type, quality) {
  return new Promise((resolve) => canvas.toBlob(resolve, type, quality));
 }
 
+const PHOTO_MAX_SOURCE_BYTES = 18 * 1024 * 1024;
+const PHOTO_MAX_DIMENSION = 1024;
+const PHOTO_MAX_UPLOAD_BYTES = 180 * 1024;
+
 function logPhotoDiagnosticError(error) {
  console.error("[PHOTO] ERRO COMPLETO", error);
  console.error("[PHOTO] message", error?.message);
@@ -3456,6 +4833,9 @@ async function carregarImagemArquivo(file) {
   size: file?.size,
   name: file?.name
  });
+ if (file.size > PHOTO_MAX_SOURCE_BYTES) {
+  throw new Error("A foto ficou muito grande para este celular processar. Reduza a resolução da câmera ou selecione uma imagem menor.");
+ }
  if ("createImageBitmap" in window) {
   try {
    const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
@@ -3490,8 +4870,8 @@ async function carregarImagemArquivo(file) {
 
 async function otimizarImagem(image, options) {
  const { contentType, extension, qualities } = options;
- const maxBytes = 400 * 1024;
- let limite = 1280;
+ const maxBytes = PHOTO_MAX_UPLOAD_BYTES;
+ let limite = PHOTO_MAX_DIMENSION;
  let bestBlob = null;
 
  for (let tentativa = 0; tentativa < 10; tentativa += 1) {
@@ -3530,33 +4910,37 @@ async function processPhoto(file) {
  console.log("[PHOTO] iniciando compressão");
  const image = await carregarImagemArquivo(file);
  try {
-  const webp = await otimizarImagem(image, {
-   contentType: "image/webp",
-   extension: "webp",
-   qualities: [0.82, 0.74, 0.66, 0.58, 0.5, 0.44, 0.38]
-  });
-  if (webp?.blob?.size > 0) {
-   console.log("[PHOTO] resultado compressão", webp);
-   console.log("[PHOTO] tipo comprimido", webp.contentType);
-   console.log("[PHOTO] tamanho comprimido", webp.blob?.size);
-   return validarFotoProcessada(webp);
+  try {
+   const webp = await otimizarImagem(image, {
+    contentType: "image/webp",
+    extension: "webp",
+    qualities: [0.76, 0.68, 0.6, 0.52, 0.44]
+   });
+   if (webp?.blob?.size > 0) {
+    console.log("[PHOTO] resultado compressão", webp);
+    console.log("[PHOTO] tipo comprimido", webp.contentType);
+    console.log("[PHOTO] tamanho comprimido", webp.blob?.size);
+    return validarFotoProcessada(webp);
+   }
+  } catch (error) {
+   console.debug("[PHOTO] WebP indisponível, usando JPEG.", error);
+   logPhotoDiagnosticError(error);
   }
- } catch (error) {
-  console.debug("[PHOTO] WebP indisponível, usando JPEG.", error);
-  logPhotoDiagnosticError(error);
+  const jpeg = await otimizarImagem(image, {
+   contentType: "image/jpeg",
+   extension: "jpg",
+   qualities: [0.78, 0.72, 0.66, 0.6, 0.54]
+  });
+  if (jpeg?.blob?.size > 0) {
+   console.log("[PHOTO] resultado compressão", jpeg);
+   console.log("[PHOTO] tipo comprimido", jpeg.contentType);
+   console.log("[PHOTO] tamanho comprimido", jpeg.blob?.size);
+   return validarFotoProcessada(jpeg);
+  }
+  throw new Error("Falha ao converter imagem.");
+ } finally {
+  if (typeof image.close === "function") image.close();
  }
- const jpeg = await otimizarImagem(image, {
-  contentType: "image/jpeg",
- extension: "jpg",
- qualities: [0.82, 0.78, 0.74, 0.7]
- });
- if (jpeg?.blob?.size > 0) {
-  console.log("[PHOTO] resultado compressão", jpeg);
-  console.log("[PHOTO] tipo comprimido", jpeg.contentType);
-  console.log("[PHOTO] tamanho comprimido", jpeg.blob?.size);
-  return validarFotoProcessada(jpeg);
- }
- throw new Error("Falha ao converter imagem.");
 }
 
 els.photo.addEventListener("change", async (event) => {
@@ -3589,7 +4973,7 @@ let saveToastTimer = null;
 
 function showToast(message, type = "success", icon = "✓") {
  if (saveToastTimer) clearTimeout(saveToastTimer);
- els.saveToast.classList.remove("show", "info", "error");
+ els.saveToast.classList.remove("show", "info", "error", "mission");
  if (type && type !== "success") els.saveToast.classList.add(type);
  els.saveToast.querySelector(".save-toast-icon").textContent = icon;
  els.saveToastText.textContent = message;
@@ -3598,25 +4982,67 @@ function showToast(message, type = "success", icon = "✓") {
  saveToastTimer = setTimeout(() => els.saveToast.classList.remove("show"), 2600);
 }
 
-function celebrarProdutoSalvo() {
- showToast("Produto salvo com sucesso!", "success", "✓");
-
+function lancarConfetes({ quantidade = 54, alcanceX = 760, alcanceY = 600, subida = 230, duracao = 2100 } = {}) {
  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
  const cores = ["#2563eb", "#16a34a", "#facc15", "#f97316", "#ec4899", "#8b5cf6"];
  const fragmento = document.createDocumentFragment();
- for (let indice = 0; indice < 54; indice += 1) {
+ for (let indice = 0; indice < quantidade; indice += 1) {
   const confete = document.createElement("span");
   confete.className = "confetti-piece";
   confete.style.setProperty("--confetti-color", cores[indice % cores.length]);
-  confete.style.setProperty("--confetti-x", `${Math.round((Math.random() - 0.5) * 760)}px`);
-  confete.style.setProperty("--confetti-y", `${Math.round(Math.random() * 600 - 230)}px`);
+  confete.style.setProperty("--confetti-x", `${Math.round((Math.random() - 0.5) * alcanceX)}px`);
+  confete.style.setProperty("--confetti-y", `${Math.round(Math.random() * alcanceY - subida)}px`);
   confete.style.setProperty("--confetti-rotation", `${Math.round(Math.random() * 1080 - 540)}deg`);
   confete.style.setProperty("--confetti-delay", `${(Math.random() * 0.18).toFixed(2)}s`);
   fragmento.appendChild(confete);
  }
  els.confettiLayer.replaceChildren(fragmento);
- setTimeout(() => els.confettiLayer.replaceChildren(), 2100);
+ setTimeout(() => els.confettiLayer.replaceChildren(), duracao);
 }
+
+function lancarFogosLaterais({ faiscas = 24, duracao = 2400 } = {}) {
+ if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+ const cores = ["#facc15", "#38bdf8", "#f97316", "#22c55e", "#ec4899"];
+ const fragmento = document.createDocumentFragment();
+ const centros = [
+  { left: "15%", top: "34%" },
+  { left: "84%", top: "38%" },
+  { left: "22%", top: "48%" },
+  { left: "78%", top: "29%" },
+  { left: "12%", top: "57%" },
+  { left: "88%", top: "51%" }
+ ];
+ centros.forEach((centro, centroIndice) => {
+  for (let indice = 0; indice < faiscas; indice += 1) {
+   const angulo = (Math.PI * 2 * indice) / faiscas;
+   const distancia = 98 + Math.random() * 58;
+   const faisca = document.createElement("span");
+   faisca.className = "firework-spark";
+   faisca.style.setProperty("--firework-left", centro.left);
+   faisca.style.setProperty("--firework-top", centro.top);
+   faisca.style.setProperty("--firework-color", cores[(indice + centroIndice) % cores.length]);
+   faisca.style.setProperty("--firework-x", `${Math.round(Math.cos(angulo) * distancia)}px`);
+   faisca.style.setProperty("--firework-y", `${Math.round(Math.sin(angulo) * distancia)}px`);
+   faisca.style.setProperty("--firework-delay", `${(Math.floor(centroIndice / 2) * 0.38 + Math.random() * 0.07).toFixed(2)}s`);
+   fragmento.appendChild(faisca);
+  }
+ });
+ els.confettiLayer.appendChild(fragmento);
+ setTimeout(() => els.confettiLayer.querySelectorAll(".firework-spark").forEach((item) => item.remove()), duracao);
+}
+
+function celebrarProdutoSalvo() {
+ showToast("Produto salvo com sucesso!", "success", "✓");
+ lancarConfetes();
+}
+
+function celebrarMissaoCumprida() {
+ showToast("Missão cumprida! Produto concluído.", "mission", "✓");
+ lancarConfetes({ quantidade: 30, alcanceX: 560, alcanceY: 430, subida: 170, duracao: 1800 });
+ lancarFogosLaterais();
+}
+
+els.testConfetti.addEventListener("click", celebrarMissaoCumprida);
 
 function setSavingProduct(saving) {
  els.save.disabled = saving;
@@ -3668,7 +5094,19 @@ els.save.addEventListener("click", async () => {
  setSavingProduct(true);
  try {
   const produtoSalvo = await window.skaleeDb.saveProduct(novoProduto);
-  products = [produtoSalvo, ...products];
+  applyDashboardStatsDelta(null, produtoSalvo);
+  mergeReportProduct(produtoSalvo);
+  locallyCountedRealtimeIds.add(String(produtoSalvo.id));
+  setTimeout(() => locallyCountedRealtimeIds.delete(String(produtoSalvo.id)), 8000);
+  if (products.some((product) => String(product.id) === String(produtoSalvo.id))) {
+   products = products.map((product) => String(product.id) === String(produtoSalvo.id) ? {
+    ...produtoSalvo,
+    photo: produtoSalvo.photo || product.photo || "",
+    photoLoaded: produtoSalvo.photoLoaded || product.photoLoaded
+   } : product);
+  } else if (productMatchesCurrentCriteria(produtoSalvo)) {
+   products = sortProductsForCurrentCriteria([produtoSalvo, ...products]);
+  }
   if (produtoSalvo.photoUploadError) {
    alert(produtoSalvo.photoUploadError);
   }
@@ -3681,6 +5119,7 @@ els.save.addEventListener("click", async () => {
  }
  setSavingProduct(false);
  resetForm();
+ scheduleDashboardStatsReload(120);
  render();
  document.querySelector('[data-page="products"]').click();
  celebrarProdutoSalvo();

@@ -10,14 +10,14 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.55.0";
 
 const SUPABASE_URL = "https://scetuqugfbhozikridaw.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_RUy69LJc14uWrn0H9WgvKQ_ebicHtdN";
-const ADMIN_EMAIL = "skalee.razarth@gmail.com";
+const ADMIN_EMAILS = new Set(["skalee.razarth@gmail.com", "fabiana.bazan@sisten.com"]);
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
 async function protectPosterAccess() {
  const { data: { session } } = await supabase.auth.getSession();
  const email = String(session?.user?.email || "").toLowerCase();
  const accessRole = session?.user?.app_metadata?.access_role || "";
- const canUsePoster = email === ADMIN_EMAIL || accessRole === "platform_admin";
+ const canUsePoster = ADMIN_EMAILS.has(email) || accessRole === "platform_admin";
  if (!canUsePoster) window.location.replace("index.html");
 }
 
