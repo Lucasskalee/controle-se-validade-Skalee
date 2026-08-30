@@ -19,7 +19,7 @@
       --primary: #0756d8;
       --primary-glow: rgba(7, 86, 216, 0.45);
       --cyan: #00d9ff;
-      --cyan-glow: rgba(0, 217, 255, 0.4);
+      --cyan-glow: rgba(0, 217, 255, 0.45);
       --red: #ff4057;
       --red-glow: rgba(255, 64, 87, 0.35);
       --orange: #ffb020;
@@ -549,7 +549,7 @@
     }
 
     /* =========================================
-       MASCOTE SKALITO (CSS PURO COM GLOW NEON)
+       MASCOTE SKALITO (VETORIAL SVG ANIMADO)
        ========================================= */
     #mascot-shell {
       position: fixed;
@@ -573,297 +573,142 @@
 
     .mascot-wrap {
       position: relative;
-      width: 90px;
-      height: 110px;
+      width: 105px;
+      height: 120px;
       flex-shrink: 0;
       cursor: pointer;
-      filter: drop-shadow(0 8px 24px rgba(0, 217, 255, 0.35));
+      filter: drop-shadow(0 10px 28px rgba(0, 217, 255, 0.32));
+      transition: transform .2s ease;
     }
-    .mascot-shadow {
-      position: absolute;
-      left: 50%;
-      bottom: 2px;
-      width: 54px;
-      height: 12px;
-      background: rgba(0, 0, 0, 0.55);
-      border-radius: 999px;
-      filter: blur(4px);
-      transform: translateX(-50%);
-      animation: shadowPulse 3.6s ease-in-out infinite;
-    }
-    .mascot {
-      position: absolute;
-      left: 50%;
-      top: 0;
-      width: 86px;
-      height: 96px;
-      transform: translateX(-50%);
-      transform-origin: center bottom;
-      animation: floaty 3.6s ease-in-out infinite;
+    .mascot-wrap:hover {
+      transform: scale(1.06);
     }
 
-    /* Asas */
-    .wing {
-      position: absolute;
-      top: 40px;
-      width: 34px;
-      height: 30px;
-      background: #0d1726;
-      border-radius: 8px 8px 18px 18px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      overflow: hidden;
+    .mascot-svg-box {
+      width: 100%;
+      height: 100%;
+      animation: floaty 3.6s ease-in-out infinite;
+      transform-origin: center bottom;
+    }
+
+    .mascot-svg-box svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      overflow: visible;
+    }
+
+    .mascot-raster-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: none;
+      animation: floaty 3.6s ease-in-out infinite;
+      filter: drop-shadow(0 0 16px rgba(0, 217, 255, 0.4));
+    }
+    .use-raster-mode .mascot-svg-box { display: none; }
+    .use-raster-mode .mascot-raster-img { display: block; }
+
+    /* ANIMAÇÕES VETORIAIS DO SKALITO NO SVG */
+    #skalito-eye-left,
+    #skalito-eye-right {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: skalitoBlink 4.2s infinite;
+    }
+
+    #skalito-arm-left {
+      transform-box: fill-box;
+      transform-origin: 85% 15%;
       transition: transform .3s ease;
     }
-    .wing.left {
-      left: -8px;
-      transform: rotate(-25deg);
-      box-shadow: -3px 0 14px var(--red-glow);
+    #skalito-arm-right {
+      transform-box: fill-box;
+      transform-origin: 15% 15%;
+      transition: transform .3s ease;
     }
-    .wing.left::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(255, 64, 87, 0.5), transparent 60%);
-      border-right: 2px solid var(--red);
+    #skalito-wing-left {
+      transform-box: fill-box;
+      transform-origin: 90% 50%;
+      animation: wingIdleLeft 4s ease-in-out infinite alternate;
     }
-    .wing.right {
-      right: -8px;
-      transform: rotate(25deg);
-      box-shadow: 3px 0 14px var(--cyan-glow);
-    }
-    .wing.right::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(225deg, rgba(0, 217, 255, 0.5), transparent 60%);
-      border-left: 2px solid var(--cyan);
+    #skalito-wing-right {
+      transform-box: fill-box;
+      transform-origin: 10% 50%;
+      animation: wingIdleRight 4s ease-in-out infinite alternate;
     }
 
-    /* Cauda */
-    .tail {
-      position: absolute;
-      right: 2px;
-      bottom: 10px;
-      width: 44px;
-      height: 14px;
-      background: #080f1a;
-      border-radius: 999px;
-      transform: rotate(28deg);
-      box-shadow: 2px 0 12px var(--cyan-glow);
-      border-right: 2px solid var(--cyan);
+    /* ESTADO ACENANDO */
+    .mascot.skalito-wave #skalito-arm-left {
+      animation: skalitoWave .7s ease-in-out infinite alternate;
     }
 
-    /* Cabeça */
-    .head {
-      position: absolute;
-      top: 0;
-      left: 50%;
-      width: 62px;
-      height: 60px;
-      transform: translateX(-50%);
-      background:
-        radial-gradient(circle at 20% 25%, rgba(255, 64, 87, 0.22), transparent 30%),
-        radial-gradient(circle at 80% 25%, rgba(0, 217, 255, 0.25), transparent 35%),
-        linear-gradient(145deg, #131f33, #09111c);
-      border-radius: 28px 28px 24px 24px;
-      box-shadow:
-        -3px 0 16px var(--red-glow),
-        3px 0 16px var(--cyan-glow);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      z-index: 2;
+    /* ESTADO APONTANDO PARA A DIREITA */
+    .mascot.skalito-point-right #skalito-arm-right {
+      animation: skalitoPointRight .85s ease-in-out infinite alternate;
     }
 
-    /* Chifres Neon */
-    .horn {
-      position: absolute;
-      top: -12px;
-      width: 14px;
-      height: 24px;
-      background: #111d2e;
-      border-radius: 12px 12px 4px 4px;
-    }
-    .horn.left {
-      left: 8px;
-      transform: rotate(-16deg);
-      box-shadow: -2px 0 10px var(--red);
-      border-left: 2px solid var(--red);
-    }
-    .horn.right {
-      right: 8px;
-      transform: rotate(16deg);
-      box-shadow: 2px 0 10px var(--cyan);
-      border-right: 2px solid var(--cyan);
-    }
-    .crest {
-      position: absolute;
-      top: -6px;
-      left: 50%;
-      width: 14px;
-      height: 18px;
-      transform: translateX(-50%);
-      background: linear-gradient(180deg, var(--cyan), #111d2e);
-      border-radius: 8px 8px 4px 4px;
-      box-shadow: 0 0 10px var(--cyan);
+    /* ESTADO APONTANDO PARA A ESQUERDA */
+    .mascot.skalito-point-left #skalito-arm-left {
+      animation: skalitoPointLeft .85s ease-in-out infinite alternate;
     }
 
-    /* Olhos */
-    .eye {
-      position: absolute;
-      top: 18px;
-      width: 14px;
-      height: 20px;
-      background: #ffffff;
-      border-radius: 50%;
-      box-shadow: 0 0 14px rgba(255, 255, 255, 0.85);
-      animation: blink 4.2s infinite;
-      transform-origin: center;
-      overflow: hidden;
+    /* ESTADO FELIZ / CELEBRAÇÃO */
+    .mascot.skalito-happy #skalito-mouth-idle {
+      opacity: 0;
     }
-    .eye::after {
-      content: "";
-      position: absolute;
-      top: 4px;
-      right: 2px;
-      width: 8px;
-      height: 12px;
-      background: #0284c7;
-      border-radius: 50%;
-      box-shadow: 0 0 4px #00d9ff;
+    .mascot.skalito-happy #skalito-mouth-happy {
+      opacity: 1;
     }
-    .eye.left { left: 12px; }
-    .eye.right { right: 12px; }
-
-    .eye-brow {
-      position: absolute;
-      top: 10px;
-      width: 12px;
-      height: 3px;
-      background: rgba(255, 255, 255, 0.4);
-      border-radius: 999px;
+    .mascot.skalito-happy #skalito-wing-left {
+      animation: wingFlap 0.45s ease-in-out infinite alternate;
     }
-    .eye-brow.left { left: 12px; transform: rotate(-10deg); }
-    .eye-brow.right { right: 12px; transform: rotate(10deg); }
-
-    /* Focinho & Boca */
-    .snout {
-      position: absolute;
-      left: 50%;
-      top: 32px;
-      transform: translateX(-50%);
-      width: 16px;
-      height: 8px;
+    .mascot.skalito-happy #skalito-wing-right {
+      animation: wingFlap 0.45s ease-in-out infinite alternate;
     }
-    .snout::before, .snout::after {
-      content: "";
-      position: absolute;
-      top: 0;
-      width: 3px;
-      height: 3px;
-      background: rgba(0, 217, 255, 0.6);
-      border-radius: 50%;
-      box-shadow: 0 0 4px var(--cyan);
-    }
-    .snout::before { left: 3px; }
-    .snout::after { right: 3px; }
-
-    .mouth {
-      position: absolute;
-      left: 50%;
-      bottom: 8px;
-      transform: translateX(-50%);
-      width: 18px;
-      height: 7px;
-      border-bottom: 3px solid rgba(255, 255, 255, 0.35);
-      border-radius: 0 0 14px 14px;
-      transition: all .2s ease;
+    .mascot.skalito-happy #skalito-forehead-symbol {
+      animation: foreheadPulse 1.2s ease-in-out infinite alternate;
     }
 
-    /* Corpo */
-    .body {
-      position: absolute;
-      top: 46px;
-      left: 50%;
-      width: 48px;
-      height: 44px;
-      transform: translateX(-50%);
-      border-radius: 20px 20px 14px 14px;
-      background: linear-gradient(145deg, #131f33, #080f1a);
-      box-shadow:
-        -2px 0 12px var(--red-glow),
-        2px 0 12px var(--cyan-glow);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+    /* KEYFRAMES */
+    @keyframes skalitoBlink {
+      0%, 42%, 48%, 92%, 100% { transform: scaleY(1); }
+      45%, 95% { transform: scaleY(0.08); }
     }
-    .belly {
-      position: absolute;
-      left: 50%;
-      top: 6px;
-      transform: translateX(-50%);
-      width: 20px;
-      height: 28px;
-      border: 1px solid rgba(0, 217, 255, 0.2);
-      border-radius: 999px;
-      background: rgba(0, 217, 255, 0.04);
+    @keyframes skalitoWave {
+      from { transform: rotate(-25deg); }
+      to   { transform: rotate(18deg); }
     }
-
-    /* Braços */
-    .arm {
-      position: absolute;
-      top: 50px;
-      width: 14px;
-      height: 32px;
-      background: #0b1422;
-      border-radius: 999px;
-      transform-origin: top center;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      z-index: 3;
+    @keyframes skalitoPointRight {
+      from { transform: rotate(0deg) translateX(0); }
+      to   { transform: rotate(35deg) translateX(6px); }
     }
-    .arm.left {
-      left: 12px;
-      animation: idleLeftArm 3.8s ease-in-out infinite;
+    @keyframes skalitoPointLeft {
+      from { transform: rotate(0deg) translateX(0); }
+      to   { transform: rotate(-35deg) translateX(-6px); }
     }
-    .arm.right {
-      right: 12px;
-      animation: idleRightArm 3.8s ease-in-out infinite;
+    @keyframes wingIdleLeft {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(-4deg); }
     }
-
-    /* Pernas */
-    .leg {
-      position: absolute;
-      bottom: 0;
-      width: 15px;
-      height: 22px;
-      background: #080f1a;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+    @keyframes wingIdleRight {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(4deg); }
     }
-    .leg.left { left: 24px; }
-    .leg.right { right: 24px; }
-
-    /* ESTADOS DO MASCOTE */
-    .mascot.waving .arm.left {
-      animation: waveFast .65s ease-in-out infinite alternate;
+    @keyframes wingFlap {
+      from { transform: scaleX(0.9) rotate(-10deg); }
+      to   { transform: scaleX(1.1) rotate(10deg); }
     }
-    .mascot.point-left .arm.left {
-      animation: pointLeft .9s ease-in-out infinite alternate;
-    }
-    .mascot.point-right .arm.right {
-      animation: pointRight .9s ease-in-out infinite alternate;
-    }
-    .mascot.happy .mouth {
-      width: 24px;
-      height: 12px;
-      border-bottom: 4px solid var(--cyan);
-      background: rgba(0, 217, 255, 0.25);
-    }
-    .mascot.happy .head {
-      box-shadow: 0 0 25px var(--cyan-glow);
+    @keyframes foreheadPulse {
+      0% { filter: drop-shadow(0 0 4px #00d9ff); }
+      100% { filter: drop-shadow(0 0 16px #00d9ff); }
     }
 
     /* BALÃO DE DIÁLOGO (GLASSMORPHISM CYBER) */
     .bubble {
       position: relative;
       width: 320px;
-      max-width: calc(100vw - 120px);
+      max-width: calc(100vw - 140px);
       background: rgba(13, 23, 38, 0.94);
       backdrop-filter: blur(14px);
       border: 1px solid rgba(0, 217, 255, 0.35);
@@ -889,7 +734,7 @@
       content: "";
       position: absolute;
       left: -8px;
-      top: 24px;
+      top: 28px;
       width: 14px;
       height: 14px;
       background: rgba(13, 23, 38, 0.94);
@@ -963,36 +808,8 @@
 
     /* ANIMAÇÕES GERAIS */
     @keyframes floaty {
-      0%, 100% { transform: translateX(-50%) translateY(0px); }
-      50% { transform: translateX(-50%) translateY(-9px); }
-    }
-    @keyframes shadowPulse {
-      0%, 100% { transform: translateX(-50%) scale(1); opacity: .55; }
-      50% { transform: translateX(-50%) scale(.75); opacity: .25; }
-    }
-    @keyframes blink {
-      0%, 42%, 48%, 92%, 100% { transform: scaleY(1); }
-      45%, 95% { transform: scaleY(.08); }
-    }
-    @keyframes idleLeftArm {
-      0%, 100% { transform: rotate(8deg); }
-      50% { transform: rotate(1deg); }
-    }
-    @keyframes idleRightArm {
-      0%, 100% { transform: rotate(-8deg); }
-      50% { transform: rotate(-1deg); }
-    }
-    @keyframes waveFast {
-      from { transform: rotate(-35deg); }
-      to   { transform: rotate(20deg); }
-    }
-    @keyframes pointLeft {
-      from { transform: rotate(-5deg) translateX(0); }
-      to   { transform: rotate(-45deg) translateX(-5px); }
-    }
-    @keyframes pointRight {
-      from { transform: rotate(5deg) translateX(0); }
-      to   { transform: rotate(45deg) translateX(5px); }
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
     }
 
     /* DEMO CONTROL DOCK AT BOTTOM */
@@ -1009,7 +826,7 @@
       padding: 8px 18px;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       box-shadow: 0 14px 40px rgba(0,0,0,0.5);
     }
     .demo-dock span {
@@ -1043,6 +860,7 @@
       .searchrow { grid-template-columns: 1fr; }
       #mascot-shell { top: 75px; left: 10px; }
       .bubble { width: 280px; }
+      .demo-dock { width: 95%; flex-wrap: wrap; justify-content: center; border-radius: 16px; bottom: 8px; }
     }
   </style>
 </head>
@@ -1258,30 +1076,380 @@
   <!-- MASCOTE SKALITO FLUTUANTE -->
   <div id="mascot-shell">
     <div class="mascot-wrap" id="mascot-clickable" title="Clique no Skalito para interagir">
-      <div class="mascot-shadow"></div>
-      <div class="mascot" id="mascot">
-        <div class="wing left"></div>
-        <div class="wing right"></div>
-        <div class="tail"></div>
-        <div class="head">
-          <div class="horn left"></div>
-          <div class="horn right"></div>
-          <div class="crest"></div>
-          <div class="eye-brow left"></div>
-          <div class="eye-brow right"></div>
-          <div class="eye left"></div>
-          <div class="eye right"></div>
-          <div class="snout"></div>
-          <div class="mouth"></div>
-        </div>
-        <div class="body">
-          <div class="belly"></div>
-        </div>
-        <div class="arm left"></div>
-        <div class="arm right"></div>
-        <div class="leg left"></div>
-        <div class="leg right"></div>
+      
+      <!-- SVG INLINE OFICIAL DO SKALITO -->
+      <div class="mascot-svg-box mascot" id="mascot">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 380 430"
+          role="img"
+          aria-labelledby="skalito-title skalito-desc"
+          id="skalito-mascot-svg"
+        >
+          <title id="skalito-title">Skalito</title>
+          <desc id="skalito-desc">Mascote dragão cibernético oficial da Skalee.</desc>
+          <defs>
+            <linearGradient id="skalito-body-gradient" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#1e293b"/>
+              <stop offset="35%" stop-color="#0f172a"/>
+              <stop offset="85%" stop-color="#070b14"/>
+              <stop offset="100%" stop-color="#030710"/>
+            </linearGradient>
+            <linearGradient id="skalito-horn-gradient" x1="0" y1="0" x2="0.8" y2="1">
+              <stop offset="0%" stop-color="#334155"/>
+              <stop offset="50%" stop-color="#1e293b"/>
+              <stop offset="100%" stop-color="#0b1120"/>
+            </linearGradient>
+            <linearGradient id="skalito-wing-gradient" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#00d9ff" stop-opacity="0.85"/>
+              <stop offset="60%" stop-color="#0284c7" stop-opacity="0.55"/>
+              <stop offset="100%" stop-color="#0756d8" stop-opacity="0.15"/>
+            </linearGradient>
+            <linearGradient id="skalito-cyan-gradient" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#00d9ff"/>
+              <stop offset="100%" stop-color="#38bdf8"/>
+            </linearGradient>
+            <linearGradient id="skalito-red-gradient" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#fb7185"/>
+              <stop offset="100%" stop-color="#ff4057"/>
+            </linearGradient>
+            <filter id="skalito-soft-glow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"/>
+              <feMerge>
+                <feMergeNode in="blur"/>
+                <feMergeNode in="blur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+            <filter id="skalito-eye-glow" x="-80%" y="-80%" width="260%" height="260%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="glow"/>
+              <feMerge>
+                <feMergeNode in="glow"/>
+                <feMergeNode in="glow"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+            <filter id="skalito-shadow-blur" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="6"/>
+            </filter>
+          </defs>
+
+          <!-- SOMBRA -->
+          <ellipse
+            id="skalito-shadow"
+            cx="190"
+            cy="402"
+            rx="84"
+            ry="14"
+            fill="#000000"
+            opacity="0.45"
+            filter="url(#skalito-shadow-blur)"
+          />
+
+          <!-- PARTÍCULAS ATRÁS -->
+          <g id="skalito-particles-back" opacity="0.8">
+            <circle id="skalito-particle-1" cx="55" cy="190" r="3" fill="#00d9ff" filter="url(#skalito-soft-glow)"/>
+            <circle id="skalito-particle-2" cx="330" cy="270" r="2.5" fill="#00d9ff" filter="url(#skalito-soft-glow)"/>
+            <circle id="skalito-particle-3" cx="320" cy="120" r="2" fill="#38bdf8" filter="url(#skalito-soft-glow)"/>
+            <circle id="skalito-particle-4" cx="70" cy="290" r="2.2" fill="#00d9ff" filter="url(#skalito-soft-glow)"/>
+          </g>
+
+          <!-- CAUDA -->
+          <g id="skalito-tail">
+            <path
+              d="
+                M242 300
+                C325 285 352 338 312 360
+                C285 372 260 358 286 344
+                C298 338 294 322 268 322
+                L242 322 Z
+              "
+              fill="url(#skalito-body-gradient)"
+              stroke="#0f2133"
+              stroke-width="3"
+            />
+            <path d="M302 336 L316 322 L315 342 Z" fill="#0d1827" stroke="#00d9ff" stroke-width="2" filter="url(#skalito-soft-glow)"/>
+            <path d="M284 330 L296 316 L295 334 Z" fill="#0d1827" stroke="#00d9ff" stroke-width="2"/>
+            <path d="M264 324 L274 312 L274 328 Z" fill="#0d1827" stroke="#38bdf8" stroke-width="1.5"/>
+            <path d="M256 312 L276 312 L288 332 L308 340" fill="none" stroke="#00d9ff" stroke-width="2" stroke-linecap="round" opacity="0.85"/>
+            <rect x="296" y="328" width="6" height="6" fill="none" stroke="#ff4057" stroke-width="2" transform="rotate(45 299 331)"/>
+          </g>
+
+          <!-- ASA ESQUERDA -->
+          <g id="skalito-wing-left">
+            <path
+              d="
+                M124 200
+                C78 170 48 185 24 235
+                C55 218 78 230 84 256
+                C102 236 116 230 134 242
+                Z
+              "
+              fill="url(#skalito-wing-gradient)"
+              opacity="0.85"
+            />
+            <path
+              d="
+                M124 200
+                C78 170 48 185 24 235
+                C55 218 78 230 84 256
+                C102 236 116 230 134 242
+                Z
+              "
+              fill="none"
+              stroke="#0f2133"
+              stroke-width="3.5"
+            />
+            <path d="M30 230 Q74 206 122 226" fill="none" stroke="#00d9ff" stroke-width="2.5" opacity="0.9" filter="url(#skalito-soft-glow)"/>
+            <path d="M84 254 Q98 226 126 216" fill="none" stroke="#38bdf8" stroke-width="2" opacity="0.75"/>
+            <circle cx="25" cy="233" r="3.5" fill="#0d1827" stroke="#00d9ff" stroke-width="1.5"/>
+          </g>
+
+          <!-- ASA DIREITA -->
+          <g id="skalito-wing-right">
+            <path
+              d="
+                M256 200
+                C302 170 332 185 356 235
+                C325 218 302 230 296 256
+                C278 236 264 230 246 242
+                Z
+              "
+              fill="url(#skalito-wing-gradient)"
+              opacity="0.9"
+            />
+            <path
+              d="
+                M256 200
+                C302 170 332 185 356 235
+                C325 218 302 230 296 256
+                C278 236 264 230 246 242
+                Z
+              "
+              fill="none"
+              stroke="#0f2133"
+              stroke-width="3.5"
+            />
+            <path d="M350 230 Q306 206 258 226" fill="none" stroke="#00d9ff" stroke-width="2.5" opacity="0.95" filter="url(#skalito-soft-glow)"/>
+            <path d="M296 254 Q282 226 254 216" fill="none" stroke="#38bdf8" stroke-width="2" opacity="0.75"/>
+            <circle cx="355" cy="233" r="3.5" fill="#0d1827" stroke="#00d9ff" stroke-width="1.5"/>
+          </g>
+
+          <!-- PERNAS -->
+          <g id="skalito-legs">
+            <g id="skalito-leg-left">
+              <path
+                d="
+                  M134 340
+                  C110 348 102 380 120 395
+                  C138 406 166 398 168 376
+                  C167 358 153 344 134 340
+                  Z
+                "
+                fill="url(#skalito-body-gradient)"
+                stroke="#162638"
+                stroke-width="3"
+              />
+              <path d="M120 392 Q124 380 128 392 Q134 378 138 393 Q144 380 148 394" fill="#09101a" stroke="#253a50" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M130 360 L140 372 L150 364" fill="none" stroke="#00d9ff" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+              <rect x="138" y="366" width="5" height="5" fill="none" stroke="#00d9ff" stroke-width="1.5" transform="rotate(45 140.5 368.5)"/>
+            </g>
+            <g id="skalito-leg-right">
+              <path
+                d="
+                  M246 340
+                  C270 348 278 380 260 395
+                  C242 406 214 398 212 376
+                  C213 358 227 344 246 340
+                  Z
+                "
+                fill="url(#skalito-body-gradient)"
+                stroke="#162638"
+                stroke-width="3"
+              />
+              <path d="M232 394 Q236 380 242 393 Q246 378 252 392 Q256 380 260 392" fill="#09101a" stroke="#253a50" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M236 352 L228 370 L242 380" fill="none" stroke="#00d9ff" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+              <rect x="225" y="366" width="5" height="5" fill="none" stroke="#00d9ff" stroke-width="1.5" transform="rotate(45 227.5 368.5)"/>
+            </g>
+          </g>
+
+          <!-- CORPO -->
+          <g id="skalito-body">
+            <path
+              d="
+                M120 236
+                C124 196 150 178 190 178
+                C230 178 256 196 260 236
+                L268 322
+                C269 368 232 390 190 390
+                C148 390 111 368 112 322
+                Z
+              "
+              fill="url(#skalito-body-gradient)"
+              stroke="#182c40"
+              stroke-width="3.5"
+            />
+            <path
+              id="skalito-belly"
+              d="
+                M156 242
+                C166 230 214 230 224 242
+                L220 338
+                C218 360 162 360 160 338
+                Z
+              "
+              fill="#0c1522"
+              stroke="#1e344a"
+              stroke-width="2.5"
+            />
+            <path d="M162 272 H218 M161 300 H219 M162 328 H218" stroke="#1f354c" stroke-width="2" opacity="0.8" fill="none"/>
+            <g id="skalito-belly-circuits">
+              <rect x="186" y="278" width="8" height="8" fill="none" stroke="#00d9ff" stroke-width="2" transform="rotate(45 190 282)" filter="url(#skalito-soft-glow)"/>
+              <rect x="187" y="306" width="6" height="6" fill="none" stroke="#00d9ff" stroke-width="1.8" transform="rotate(45 190 309)" opacity="0.85"/>
+              <path d="M190 262 L190 274 M190 290 L190 302" stroke="#00d9ff" stroke-width="1.8" opacity="0.75"/>
+            </g>
+          </g>
+
+          <!-- COWL / GOLA COM LOGO SKALEE -->
+          <g id="skalito-cowl">
+            <path
+              d="
+                M134 202
+                C158 220 222 220 246 202
+                L240 242
+                C216 266 164 266 140 242
+                Z
+              "
+              fill="#0b1320"
+              stroke="#1e374f"
+              stroke-width="3"
+            />
+            <path d="M142 208 C166 224 214 224 238 208" fill="none" stroke="#00d9ff" stroke-width="3" opacity="0.9" filter="url(#skalito-soft-glow)"/>
+            <g id="skalito-chest-badge" transform="translate(190, 234)">
+              <rect x="-9" y="-9" width="18" height="18" fill="#0b1728" stroke="#00d9ff" stroke-width="2.5" transform="rotate(45)" filter="url(#skalito-soft-glow)"/>
+              <rect x="-4" y="-4" width="8" height="8" fill="none" stroke="#38bdf8" stroke-width="1.5" transform="rotate(45)"/>
+              <text x="14" y="3" fill="#e2e8f0" font-family="'Inter', sans-serif" font-size="10" font-weight="900" letter-spacing="0.5">Skalee</text>
+            </g>
+          </g>
+
+          <!-- BRAÇO DIREITO -->
+          <g id="skalito-arm-right">
+            <path
+              d="
+                M236 244
+                C266 248 280 274 272 298
+                C267 315 250 314 240 302
+                C232 292 230 274 232 258
+                Z
+              "
+              fill="url(#skalito-body-gradient)"
+              stroke="#1e344a"
+              stroke-width="3"
+            />
+            <circle cx="266" cy="304" r="3.5" fill="#09101a"/>
+            <circle cx="258" cy="310" r="3.5" fill="#09101a"/>
+            <circle cx="248" cy="308" r="3.5" fill="#09101a"/>
+            <path d="M250 268 L264 262 L260 276" stroke="#00d9ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none" filter="url(#skalito-soft-glow)"/>
+            <path d="M246 294 L260 290" stroke="#ff4057" stroke-width="2" stroke-linecap="round" fill="none"/>
+          </g>
+
+          <!-- BRAÇO ESQUERDO -->
+          <g id="skalito-arm-left">
+            <path
+              d="
+                M144 244
+                C110 240 90 224 76 200
+                C70 188 82 178 92 188
+                C106 202 120 214 148 218
+                Z
+              "
+              fill="url(#skalito-body-gradient)"
+              stroke="#1e344a"
+              stroke-width="3"
+            />
+            <circle cx="78" cy="192" r="4" fill="#0d1827" stroke="#253a50" stroke-width="1.5"/>
+            <circle cx="86" cy="184" r="4" fill="#0d1827" stroke="#253a50" stroke-width="1.5"/>
+            <circle cx="96" cy="190" r="4" fill="#0d1827" stroke="#253a50" stroke-width="1.5"/>
+            <path d="M98 206 C88 200 84 196 80 188" fill="none" stroke="#00d9ff" stroke-width="2.5" stroke-linecap="round" filter="url(#skalito-soft-glow)"/>
+            <path d="M120 228 L108 218" fill="none" stroke="#ff4057" stroke-width="2" stroke-linecap="round"/>
+          </g>
+
+          <!-- CABEÇA -->
+          <g id="skalito-head">
+            <!-- CHIFRES E CRISTA -->
+            <g id="skalito-horns">
+              <path d="M124 76 L94 28 C128 32 146 50 152 78 Z" fill="url(#skalito-horn-gradient)" stroke="#122436" stroke-width="3"/>
+              <path d="M256 76 L286 28 C252 32 234 50 228 78 Z" fill="url(#skalito-horn-gradient)" stroke="#122436" stroke-width="3"/>
+              <path d="M96 150 L68 136 L94 164 Z" fill="url(#skalito-horn-gradient)" stroke="#122436" stroke-width="2.5"/>
+              <path d="M284 150 L312 136 L286 164 Z" fill="url(#skalito-horn-gradient)" stroke="#122436" stroke-width="2.5"/>
+              <path d="M162 56 L175 14 L190 50 L205 12 L218 56" fill="url(#skalito-horn-gradient)" stroke="#162e45" stroke-width="3" stroke-linejoin="round"/>
+            </g>
+
+            <!-- FORMATO DA CABEÇA -->
+            <path
+              d="
+                M92 120
+                C92 64 134 42 190 42
+                C246 42 288 64 288 120
+                C288 180 248 212 190 212
+                C132 212 92 180 92 120
+                Z
+              "
+              fill="url(#skalito-body-gradient)"
+              stroke="#1b324a"
+              stroke-width="3.5"
+            />
+            <path d="M98 110 C102 82 120 64 142 54" fill="none" stroke="#00d9ff" stroke-width="2.5" opacity="0.6" filter="url(#skalito-soft-glow)"/>
+            <path d="M282 110 C278 82 260 64 238 54" fill="none" stroke="#00d9ff" stroke-width="2.5" opacity="0.8" filter="url(#skalito-soft-glow)"/>
+
+            <!-- SÍMBOLO DA TESTA -->
+            <g id="skalito-forehead-symbol">
+              <rect x="176" y="62" width="28" height="28" fill="#071526" stroke="url(#skalito-cyan-gradient)" stroke-width="4.5" transform="rotate(45 190 76)" filter="url(#skalito-soft-glow)"/>
+              <rect x="182" y="68" width="16" height="16" fill="none" stroke="#00d9ff" stroke-width="2" transform="rotate(45 190 76)"/>
+              <path d="M180 108 L190 118 L200 108" fill="none" stroke="url(#skalito-red-gradient)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#skalito-soft-glow)"/>
+            </g>
+
+            <!-- DETALHES DO ROSTO -->
+            <g id="skalito-face-details">
+              <path d="M130 88 L146 80" stroke="#00d9ff" stroke-width="3.5" stroke-linecap="round" filter="url(#skalito-soft-glow)"/>
+              <path d="M250 88 L234 80" stroke="#00d9ff" stroke-width="3.5" stroke-linecap="round" filter="url(#skalito-soft-glow)"/>
+              <path d="M106 148 L118 142" stroke="#00d9ff" stroke-width="3" stroke-linecap="round" opacity="0.8"/>
+              <path d="M274 148 L262 142" stroke="#00d9ff" stroke-width="3" stroke-linecap="round" opacity="0.8"/>
+              <ellipse cx="178" cy="150" rx="2.5" ry="3" fill="#00d9ff" opacity="0.7"/>
+              <ellipse cx="202" cy="150" rx="2.5" ry="3" fill="#00d9ff" opacity="0.7"/>
+            </g>
+
+            <!-- OLHOS BRILHANTES -->
+            <g id="skalito-eye-left">
+              <ellipse cx="145" cy="124" rx="18" ry="25" fill="#ffffff" filter="url(#skalito-eye-glow)"/>
+              <ellipse cx="140" cy="116" rx="6" ry="9" fill="#ffffff"/>
+              <ellipse cx="152" cy="134" rx="3" ry="4" fill="#ffffff" opacity="0.9"/>
+            </g>
+            <g id="skalito-eye-right">
+              <ellipse cx="235" cy="124" rx="18" ry="25" fill="#ffffff" filter="url(#skalito-eye-glow)"/>
+              <ellipse cx="230" cy="116" rx="6" ry="9" fill="#ffffff"/>
+              <ellipse cx="242" cy="134" rx="3" ry="4" fill="#ffffff" opacity="0.9"/>
+            </g>
+
+            <!-- BOCA -->
+            <g id="skalito-mouth">
+              <path id="skalito-mouth-idle" d="M178 162 Q190 172 202 162" fill="none" stroke="#1c3044" stroke-width="3.5" stroke-linecap="round"/>
+              <path id="skalito-mouth-happy" d="M172 160 Q190 180 208 160" fill="none" stroke="#00d9ff" stroke-width="4" stroke-linecap="round" opacity="0" filter="url(#skalito-soft-glow)"/>
+            </g>
+          </g>
+
+          <!-- PARTÍCULAS FRENTE -->
+          <g id="skalito-particles">
+            <circle id="skalito-particle-5" cx="80" cy="130" r="2.5" fill="#00d9ff" filter="url(#skalito-soft-glow)"/>
+            <circle id="skalito-particle-6" cx="295" cy="170" r="3" fill="#00d9ff" filter="url(#skalito-soft-glow)"/>
+            <circle id="skalito-particle-7" cx="190" cy="30" r="2" fill="#38bdf8" filter="url(#skalito-soft-glow)"/>
+            <circle id="skalito-particle-8" cx="340" cy="330" r="2" fill="#00d9ff" filter="url(#skalito-soft-glow)"/>
+          </g>
+        </svg>
       </div>
+
+      <!-- ILUSTRAÇÃO HD RASTER (OPCIONAL) -->
+      <img class="mascot-raster-img mascot" src="assets/skalito.png" alt="Skalito HD" id="mascot-raster">
     </div>
 
     <!-- BALÃO DE DIÁLOGO -->
@@ -1300,11 +1468,12 @@
 
   <!-- BARRA FLUTUANTE DE TESTES DA DEMO (DOCK) -->
   <div class="demo-dock">
-    <span>🧪 Controles de Teste:</span>
-    <button class="dock-btn" id="dock-btn-intro">Reiniciar Boas-Vindas</button>
+    <span>🧪 Testes:</span>
+    <button class="dock-btn" id="dock-btn-intro">Boas-Vindas</button>
     <button class="dock-btn" id="dock-btn-start">Iniciar Tour</button>
     <button class="dock-btn" id="dock-btn-happy">Comemorar 🎉</button>
-    <button class="dock-btn" id="dock-btn-reset">Resetar LocalStorage</button>
+    <button class="dock-btn" id="dock-btn-toggle-render">Alternar: SVG / HD</button>
+    <button class="dock-btn" id="dock-btn-reset">Resetar</button>
   </div>
 
   <script>
@@ -1316,31 +1485,31 @@
         elementId: "tour-stats",
         title: "📊 Painel de Indicadores",
         text: "Aqui você tem a visão geral instantânea: quantos itens vencem hoje, quantos estão na janela crítica de 7 dias e o volume total sob controle.",
-        gesture: "point-right"
+        gesture: "skalito-point-right"
       },
       {
         elementId: "tour-search",
         title: "🔎 Busca & Filtros Rápidos",
         text: "Localize qualquer lote digitando o nome, código interno ou de barras. Você também pode clicar nos filtros para ver apenas o que está vencendo hoje.",
-        gesture: "point-right"
+        gesture: "skalito-point-right"
       },
       {
         elementId: "tour-sample-card",
         title: "📦 Cards e Ações Rápidas",
         text: "Cada produto exibe o selo com contagem regressiva, local na loja e botão para dar baixa ou ajustar o estoque rapidamente.",
-        gesture: "point-right"
+        gesture: "skalito-point-right"
       },
       {
         elementId: "tour-tab-register",
         title: "📷 Scanner e Cadastro Rápido",
         text: "Clique nesta aba para registrar novos lotes usando a câmera do celular ou leitor de código de barras físico com preenchimento automático.",
-        gesture: "waving"
+        gesture: "skalito-wave"
       },
       {
         elementId: "btn-open-settings",
         title: "⚙️ Central & Onde me Encontrar",
         text: "Prontinho! Quando terminar, eu fico guardado dentro das Configurações. Se precisar de ajuda ou quiser rever este tour, é só me chamar por lá!",
-        gesture: "happy"
+        gesture: "skalito-happy"
       }
     ];
 
@@ -1349,6 +1518,7 @@
 
     const mascotShell = document.getElementById("mascot-shell");
     const mascot = document.getElementById("mascot");
+    const mascotRaster = document.getElementById("mascot-raster");
     const mascotClickable = document.getElementById("mascot-clickable");
     const bubble = document.getElementById("mascot-bubble");
     const bubbleTitle = document.getElementById("bubble-title");
@@ -1369,8 +1539,12 @@
     const btnThemeLight = document.getElementById("btn-theme-light");
 
     function setMascotGesture(gesture = "") {
-      mascot.className = "mascot";
-      if (gesture) mascot.classList.add(gesture);
+      mascot.className = "mascot-svg-box mascot";
+      mascotRaster.className = "mascot-raster-img mascot";
+      if (gesture) {
+        mascot.classList.add(gesture);
+        mascotRaster.classList.add(gesture);
+      }
     }
 
     function openBubble() {
@@ -1408,12 +1582,12 @@
         if (rect.left < window.innerWidth / 2) {
           targetLeft = rect.right + window.scrollX + 20;
         } else {
-          targetLeft = rect.left + window.scrollX - bubbleWidth - 110;
+          targetLeft = rect.left + window.scrollX - bubbleWidth - 120;
         }
 
         if (targetLeft < 20) targetLeft = 20;
-        if (targetLeft + bubbleWidth + 120 > window.innerWidth) {
-          targetLeft = window.innerWidth - bubbleWidth - 130;
+        if (targetLeft + bubbleWidth + 130 > window.innerWidth) {
+          targetLeft = window.innerWidth - bubbleWidth - 140;
         }
       }
 
@@ -1429,7 +1603,7 @@
       tourOverlay.classList.remove("active");
       mascotShell.classList.remove("hidden");
       resetMascotPosition();
-      setMascotGesture("waving");
+      setMascotGesture("skalito-wave");
 
       bubbleTitle.innerHTML = "👋 Olá, eu sou o Skalito!";
       bubbleText.innerHTML = "Sou o assistente do <b>Skalee</b>. Posso te mostrar em 1 minuto as principais funções do controle de validade?";
@@ -1500,7 +1674,7 @@
       tourOverlay.classList.remove("active");
       currentStepIndex = -1;
       resetMascotPosition();
-      setMascotGesture("happy");
+      setMascotGesture("skalito-happy");
 
       bubbleTitle.innerHTML = completed ? "🎉 Tour Concluído!" : "✅ Tudo Pronto!";
       bubbleText.innerHTML = completed 
@@ -1577,10 +1751,15 @@
     });
     document.getElementById("dock-btn-happy").addEventListener("click", () => {
       mascotShell.classList.remove("hidden");
-      setMascotGesture("happy");
+      setMascotGesture("skalito-happy");
       bubbleTitle.innerHTML = "✨ Skalito Comemorando!";
       bubbleText.innerHTML = "Modo de celebração ativado! Olhos brilhando e asas animadas.";
       openBubble();
+    });
+    document.getElementById("dock-btn-toggle-render").addEventListener("click", () => {
+      document.body.classList.toggle("use-raster-mode");
+      const isRaster = document.body.classList.contains("use-raster-mode");
+      alert(isRaster ? "Modo Imagem HD ativado!" : "Modo Vetorial SVG Interativo ativado!");
     });
     document.getElementById("dock-btn-reset").addEventListener("click", () => {
       localStorage.removeItem(TOUR_STORAGE_KEY);
@@ -1608,4 +1787,3 @@
   </script>
 </body>
 </html>
-

@@ -1,7 +1,8 @@
-const CACHE_NAME = "skalee-pwa-v113-management-expired-store3-reference";
+const CACHE_NAME = "skalee-pwa-v114-mascot-demo";
 const APP_SHELL = [
  "/",
  "/index.html",
+ "/skalito-demo.html",
  "/auth.css",
  "/auth.js",
  "/admin-cadastros.css",
@@ -36,14 +37,15 @@ self.addEventListener("fetch", (event) => {
  if (request.method !== "GET" || url.origin !== self.location.origin) return;
 
  if (request.mode === "navigate") {
-  event.respondWith(
+ event.respondWith(
    fetch(request)
     .then((response) => {
      const copy = response.clone();
-     caches.open(CACHE_NAME).then((cache) => cache.put("/index.html", copy));
+     const cacheKey = url.pathname === "/" ? "/index.html" : request;
+     caches.open(CACHE_NAME).then((cache) => cache.put(cacheKey, copy));
      return response;
     })
-    .catch(() => caches.match("/index.html"))
+    .catch(() => caches.match(request).then((cached) => cached || caches.match("/index.html")))
   );
   return;
  }
