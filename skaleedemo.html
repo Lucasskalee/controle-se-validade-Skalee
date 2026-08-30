@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Skalee - Demo Mascote Skalito</title>
+  <link rel="icon" type="image/png" sizes="64x64" href="skalee-icon-64.png">
+  <style>
+    * { box-sizing: border-box; }
+    :root {
+      --bg: #070b12;
+      --surface: #101827;
+      --surface-hover: #18243a;
+      --card: #0d1726;
+      --card-border: #24344d;
+      --line: #1e2c40;
+      --text: #e8edf5;
+      --muted: #94a3b8;
+      --primary: #0756d8;
+      --primary-glow: rgba(7, 86, 216, 0.45);
+      --cyan: #00d9ff;
+      --cyan-glow: rgba(0, 217, 255, 0.4);
+      --red: #ff4057;
+      --red-glow: rgba(255, 64, 87, 0.35);
+      --orange: #ffb020;
+      --green: #22c77a;
+      --shadow: rgba(0, 0, 0, 0.55);
+    }
+
+    [data-theme="light"] {
+      --bg: #f4f6fa;
+      --surface: #ffffff;
+      --surface-hover: #f1f5f9;
+      --card: #ffffff;
+      --card-border: #e2e8f0;
+      --line: #e4e8ef;
+      --text: #172033;
+      --muted: #64748b;
+      --primary: #2563eb;
+      --primary-glow: rgba(37, 99, 235, 0.25);
+      --cyan: #0284c7;
+      --cyan-glow: rgba(2, 132, 199, 0.25);
+      --red: #dc2626;
+      --red-glow: rgba(220, 38, 38, 0.25);
+      --orange: #ea580c;
+      --green: #16a34a;
+      --shadow: rgba(15, 23, 42, 0.12);
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      background-image: 
+        radial-gradient(circle at 85% 10%, var(--cyan-glow), transparent 30%),
+        radial-gradient(circle at 15% 20%, var(--red-glow), transparent 32%),
+        radial-gradient(circle at 50% 90%, var(--primary-glow), transparent 45%);
+      background-attachment: fixed;
+      transition: background-color .3s ease, color .3s ease;
+      overflow-x: hidden;
+    }
+
+    /* HEADER */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 24px;
+      background: rgba(7, 11, 18, 0.85);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--line);
+    }
+    [data-theme="light"] header {
+      background: rgba(255, 255, 255, 0.88);
+    }
+    .app-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .app-header-logo {
+      width: 42px;
+      height: 42px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 10px var(--cyan-glow));
+    }
+    .brand-text h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge-tag {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: rgba(0, 217, 255, 0.15);
+      color: var(--cyan);
+      border: 1px solid rgba(0, 217, 255, 0.3);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .sub {
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 40px;
+      padding: 8px 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .2s ease;
+    }
+    .header-btn:hover {
+      border-color: var(--cyan);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .header-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* MAIN CONTAINER */
+    .app-container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 20px 20px 100px;
+    }
+
+    /* NAVIGATION */
+    nav.main-nav {
+      position: sticky;
+      top: 66px;
+      z-index: 90;
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      padding: 7px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--surface), var(--card));
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+    .tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 44px;
+      padding: 10px 18px;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 750;
+      cursor: pointer;
+      transition: all .2s ease;
+    }
+    .tab:hover {
+      color: var(--text);
+      background: var(--surface-hover);
+    }
+    .tab.active {
+      background: linear-gradient(135deg, var(--primary), #0a3f9f);
+      color: #fff;
+      border-color: rgba(0, 217, 255, 0.36);
+      box-shadow: 0 0 0 1px rgba(0, 217, 255, 0.15), 0 8px 24px rgba(7, 86, 216, 0.35);
+    }
+    .tab svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* STATS ROW */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+    .stat-card {
+      position: relative;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 16px;
+      transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+      box-shadow: 0 4px 20px var(--shadow);
+    }
+    .stat-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(0, 217, 255, 0.3);
+    }
+    .stat-card small {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .stat-card b {
+      display: block;
+      font-size: 26px;
+      margin-top: 6px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .stat-card.alert-today b { color: var(--red); }
+    .stat-card.alert-7days b { color: var(--orange); }
+    .stat-card.alert-offer b { color: var(--cyan); }
+
+    /* SEARCH & FILTER ROW */
+    .search-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 22px;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 16px;
+    }
+    .searchrow {
+      display: grid;
+      grid-template-columns: 1fr 200px 180px auto;
+      gap: 10px;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 500;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    input:focus, select:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.18);
+    }
+    .chips {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+    .chip {
+      white-space: nowrap;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .2s ease;
+    }
+    .chip:hover {
+      background: var(--surface-hover);
+      color: var(--text);
+    }
+    .chip.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--cyan);
+      box-shadow: 0 0 12px var(--cyan-glow);
+    }
+
+    /* PRODUCT GRID */
+    .grid-products {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .product-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 6px 24px var(--shadow);
+      transition: all .25s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .product-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(0, 217, 255, 0.35);
+      box-shadow: 0 12px 32px rgba(0, 217, 255, 0.15);
+    }
+    .product-photo {
+      height: 140px;
+      background: linear-gradient(135deg, rgba(0, 217, 255, 0.05), rgba(7, 86, 216, 0.1));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      border-bottom: 1px solid var(--line);
+    }
+    .product-photo span {
+      font-size: 40px;
+    }
+    .product-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .badge-danger { background: rgba(255, 64, 87, 0.2); color: #ff8090; border: 1px solid var(--red); }
+    .badge-warning { background: rgba(255, 176, 32, 0.2); color: #ffd166; border: 1px solid var(--orange); }
+    .badge-success { background: rgba(34, 199, 122, 0.2); color: #6ee7b7; border: 1px solid var(--green); }
+    .product-content {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .product-name {
+      font-size: 15px;
+      font-weight: 800;
+      margin: 0 0 6px;
+    }
+    .product-code {
+      font-size: 12px;
+      color: var(--cyan);
+      margin-bottom: 12px;
+      font-family: monospace;
+    }
+    .product-info-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      padding: 6px 0;
+      border-top: 1px solid var(--line);
+    }
+    .product-info-row span:first-child { color: var(--muted); }
+    .product-info-row span:last-child { font-weight: 700; }
+    .product-actions {
+      margin-top: 14px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+    .btn-edit {
+      padding: 8px 14px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface);
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 750;
+      cursor: pointer;
+    }
+    .btn-edit:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    /* PERSONAL PANEL / CONFIG SLIDEOUT */
+    .personal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 400;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(6px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s ease;
+    }
+    .personal-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .personal-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: min(380px, 90vw);
+      background: linear-gradient(145deg, #101827, #0b111e);
+      border-left: 1px solid var(--card-border);
+      box-shadow: -15px 0 50px rgba(0,0,0,0.5);
+      z-index: 410;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform .3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .personal-panel.show {
+      transform: translateX(0);
+    }
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 20px;
+    }
+    .panel-head h3 {
+      margin: 0;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-close-panel {
+      background: transparent;
+      border: 0;
+      color: var(--muted);
+      font-size: 24px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 8px;
+    }
+    .btn-close-panel:hover { color: #fff; background: var(--surface-hover); }
+    .panel-section {
+      margin-bottom: 24px;
+    }
+    .panel-section label {
+      display: block;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .theme-toggle-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      background: var(--surface);
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+    }
+    .theme-btn {
+      border: 0;
+      padding: 10px;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--muted);
+      font-weight: 750;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .theme-btn.active {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(7, 86, 216, 0.4);
+    }
+    .skalito-help-box {
+      background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(7, 86, 216, 0.15));
+      border: 1px solid rgba(0, 217, 255, 0.35);
+      border-radius: 16px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 8px 24px rgba(0, 217, 255, 0.08);
+    }
+    .skalito-help-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      color: var(--cyan);
+      font-size: 15px;
+    }
+    .skalito-help-desc {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.45;
+      margin: 0;
+    }
+    .btn-tour-launch {
+      border: 0;
+      border-radius: 10px;
+      padding: 11px;
+      background: linear-gradient(135deg, #00d9ff, #0756d8);
+      color: #fff;
+      font-weight: 800;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 16px rgba(0, 217, 255, 0.3);
+      transition: transform .2s ease;
+    }
+    .btn-tour-launch:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 217, 255, 0.45);
+    }
+
+    /* HIGHLIGHT EFFECT DURING TOUR */
+    .tour-active-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 7, 14, 0.82);
+      backdrop-filter: blur(5px);
+      z-index: 500;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .35s ease;
+    }
+    .tour-active-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .tour-spotlight {
+      z-index: 550 !important;
+      position: relative !important;
+      transform: scale(1.025);
+      border-color: var(--cyan) !important;
+      box-shadow: 
+        0 0 0 4px rgba(0, 217, 255, 0.28),
+        0 0 35px rgba(0, 217, 255, 0.45),
+        0 20px 45px rgba(0, 0, 0, 0.6) !important;
+      transition: all .35s ease !important;
+    }
+
+    /* =========================================
+       MASCOTE SKALITO (CSS PURO COM GLOW NEON)
+       ========================================= */
+    #mascot-shell {
+      position: fixed;
+      top: 86px;
+      left: 30px;
+      z-index: 600;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      transition:
+        top .45s cubic-bezier(0.16, 1, 0.3, 1),
+        left .45s cubic-bezier(0.16, 1, 0.3, 1),
+        transform .45s ease,
+        opacity .3s ease;
+    }
+    #mascot-shell.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.85);
+    }
+
+    .mascot-wrap {
+      position: relative;
+      width: 90px;
+      height: 110px;
+      flex-shrink: 0;
+      cursor: pointer;
+      filter: drop-shadow(0 8px 24px rgba(0, 217, 255, 0.35));
+    }
+    .mascot-shadow {
+      position: absolute;
+      left: 50%;
+      bottom: 2px;
+      width: 54px;
+      height: 12px;
+      background: rgba(0, 0, 0, 0.55);
+      border-radius: 999px;
+      filter: blur(4px);
+      transform: translateX(-50%);
+      animation: shadowPulse 3.6s ease-in-out infinite;
+    }
+    .mascot {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      width: 86px;
+      height: 96px;
+      transform: translateX(-50%);
+      transform-origin: center bottom;
+      animation: floaty 3.6s ease-in-out infinite;
+    }
+
+    /* Asas */
+    .wing {
+      position: absolute;
+      top: 40px;
+      width: 34px;
+      height: 30px;
+      background: #0d1726;
+      border-radius: 8px 8px 18px 18px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+      transition: transform .3s ease;
+    }
+    .wing.left {
+      left: -8px;
+      transform: rotate(-25deg);
+      box-shadow: -3px 0 14px var(--red-glow);
+    }
+    .wing.left::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 64, 87, 0.5), transparent 60%);
+      border-right: 2px solid var(--red);
+    }
+    .wing.right {
+      right: -8px;
+      transform: rotate(25deg);
+      box-shadow: 3px 0 14px var(--cyan-glow);
+    }
+    .wing.right::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(225deg, rgba(0, 217, 255, 0.5), transparent 60%);
+      border-left: 2px solid var(--cyan);
+    }
+
+    /* Cauda */
+    .tail {
+      position: absolute;
+      right: 2px;
+      bottom: 10px;
+      width: 44px;
+      height: 14px;
+      background: #080f1a;
+      border-radius: 999px;
+      transform: rotate(28deg);
+      box-shadow: 2px 0 12px var(--cyan-glow);
+      border-right: 2px solid var(--cyan);
+    }
+
+    /* Cabeça */
+    .head {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 62px;
+      height: 60px;
+      transform: translateX(-50%);
+      background:
+        radial-gradient(circle at 20% 25%, rgba(255, 64, 87, 0.22), transparent 30%),
+        radial-gradient(circle at 80% 25%, rgba(0, 217, 255, 0.25), transparent 35%),
+        linear-gradient(145deg, #131f33, #09111c);
+      border-radius: 28px 28px 24px 24px;
+      box-shadow:
+        -3px 0 16px var(--red-glow),
+        3px 0 16px var(--cyan-glow);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      z-index: 2;
+    }
+
+    /* Chifres Neon */
+    .horn {
+      position: absolute;
+      top: -12px;
+      width: 14px;
+      height: 24px;
+      background: #111d2e;
+      border-radius: 12px 12px 4px 4px;
+    }
+    .horn.left {
+      left: 8px;
+      transform: rotate(-16deg);
+      box-shadow: -2px 0 10px var(--red);
+      border-left: 2px solid var(--red);
+    }
+    .horn.right {
+      right: 8px;
+      transform: rotate(16deg);
+      box-shadow: 2px 0 10px var(--cyan);
+      border-right: 2px solid var(--cyan);
+    }
+    .crest {
+      position: absolute;
+      top: -6px;
+      left: 50%;
+      width: 14px;
+      height: 18px;
+      transform: translateX(-50%);
+      background: linear-gradient(180deg, var(--cyan), #111d2e);
+      border-radius: 8px 8px 4px 4px;
+      box-shadow: 0 0 10px var(--cyan);
+    }
+
+    /* Olhos */
+    .eye {
+      position: absolute;
+      top: 18px;
+      width: 14px;
+      height: 20px;
+      background: #ffffff;
+      border-radius: 50%;
+      box-shadow: 0 0 14px rgba(255, 255, 255, 0.85);
+      animation: blink 4.2s infinite;
+      transform-origin: center;
+      overflow: hidden;
+    }
+    .eye::after {
+      content: "";
+      position: absolute;
+      top: 4px;
+      right: 2px;
+      width: 8px;
+      height: 12px;
+      background: #0284c7;
+      border-radius: 50%;
+      box-shadow: 0 0 4px #00d9ff;
+    }
+    .eye.left { left: 12px; }
+    .eye.right { right: 12px; }
+
+    .eye-brow {
+      position: absolute;
+      top: 10px;
+      width: 12px;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 999px;
+    }
+    .eye-brow.left { left: 12px; transform: rotate(-10deg); }
+    .eye-brow.right { right: 12px; transform: rotate(10deg); }
+
+    /* Focinho & Boca */
+    .snout {
+      position: absolute;
+      left: 50%;
+      top: 32px;
+      transform: translateX(-50%);
+      width: 16px;
+      height: 8px;
+    }
+    .snout::before, .snout::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      width: 3px;
+      height: 3px;
+      background: rgba(0, 217, 255, 0.6);
+      border-radius: 50%;
+      box-shadow: 0 0 4px var(--cyan);
+    }
+    .snout::before { left: 3px; }
+    .snout::after { right: 3px; }
+
+    .mouth {
+      position: absolute;
+      left: 50%;
+      bottom: 8px;
+      transform: translateX(-50%);
+      width: 18px;
+      height: 7px;
+      border-bottom: 3px solid rgba(255, 255, 255, 0.35);
+      border-radius: 0 0 14px 14px;
+      transition: all .2s ease;
+    }
+
+    /* Corpo */
+    .body {
+      position: absolute;
+      top: 46px;
+      left: 50%;
+      width: 48px;
+      height: 44px;
+      transform: translateX(-50%);
+      border-radius: 20px 20px 14px 14px;
+      background: linear-gradient(145deg, #131f33, #080f1a);
+      box-shadow:
+        -2px 0 12px var(--red-glow),
+        2px 0 12px var(--cyan-glow);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .belly {
+      position: absolute;
+      left: 50%;
+      top: 6px;
+      transform: translateX(-50%);
+      width: 20px;
+      height: 28px;
+      border: 1px solid rgba(0, 217, 255, 0.2);
+      border-radius: 999px;
+      background: rgba(0, 217, 255, 0.04);
+    }
+
+    /* Braços */
+    .arm {
+      position: absolute;
+      top: 50px;
+      width: 14px;
+      height: 32px;
+      background: #0b1422;
+      border-radius: 999px;
+      transform-origin: top center;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      z-index: 3;
+    }
+    .arm.left {
+      left: 12px;
+      animation: idleLeftArm 3.8s ease-in-out infinite;
+    }
+    .arm.right {
+      right: 12px;
+      animation: idleRightArm 3.8s ease-in-out infinite;
+    }
+
+    /* Pernas */
+    .leg {
+      position: absolute;
+      bottom: 0;
+      width: 15px;
+      height: 22px;
+      background: #080f1a;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .leg.left { left: 24px; }
+    .leg.right { right: 24px; }
+
+    /* ESTADOS DO MASCOTE */
+    .mascot.waving .arm.left {
+      animation: waveFast .65s ease-in-out infinite alternate;
+    }
+    .mascot.point-left .arm.left {
+      animation: pointLeft .9s ease-in-out infinite alternate;
+    }
+    .mascot.point-right .arm.right {
+      animation: pointRight .9s ease-in-out infinite alternate;
+    }
+    .mascot.happy .mouth {
+      width: 24px;
+      height: 12px;
+      border-bottom: 4px solid var(--cyan);
+      background: rgba(0, 217, 255, 0.25);
+    }
+    .mascot.happy .head {
+      box-shadow: 0 0 25px var(--cyan-glow);
+    }
+
+    /* BALÃO DE DIÁLOGO (GLASSMORPHISM CYBER) */
+    .bubble {
+      position: relative;
+      width: 320px;
+      max-width: calc(100vw - 120px);
+      background: rgba(13, 23, 38, 0.94);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(0, 217, 255, 0.35);
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 217, 255, 0.15);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(10px) scale(.95);
+      transition: all .28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    [data-theme="light"] .bubble {
+      background: rgba(255, 255, 255, 0.96);
+      border-color: rgba(2, 132, 199, 0.4);
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18);
+    }
+    .bubble.open {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0) scale(1);
+    }
+    .bubble::before {
+      content: "";
+      position: absolute;
+      left: -8px;
+      top: 24px;
+      width: 14px;
+      height: 14px;
+      background: rgba(13, 23, 38, 0.94);
+      border-left: 1px solid rgba(0, 217, 255, 0.35);
+      border-bottom: 1px solid rgba(0, 217, 255, 0.35);
+      transform: rotate(45deg);
+    }
+    [data-theme="light"] .bubble::before {
+      background: rgba(255, 255, 255, 0.96);
+      border-color: rgba(2, 132, 199, 0.4);
+    }
+    .bubble-title {
+      margin: 0 0 8px;
+      color: var(--cyan);
+      font-size: 15px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .bubble-text {
+      margin: 0 0 16px;
+      color: var(--text);
+      font-size: 13.5px;
+      line-height: 1.5;
+    }
+    .bubble-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      border-top: 1px solid var(--line);
+      padding-top: 14px;
+    }
+    .tour-counter {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--muted);
+    }
+    .bubble-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .mini-btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 9px 14px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all .2s ease;
+    }
+    .mini-btn-primary {
+      background: linear-gradient(135deg, #00d9ff, #0756d8);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(0, 217, 255, 0.3);
+    }
+    .mini-btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(0, 217, 255, 0.45);
+    }
+    .mini-btn-secondary {
+      background: var(--surface);
+      color: var(--muted);
+      border: 1px solid var(--line);
+    }
+    .mini-btn-secondary:hover {
+      color: var(--text);
+      background: var(--surface-hover);
+    }
+
+    /* ANIMAÇÕES GERAIS */
+    @keyframes floaty {
+      0%, 100% { transform: translateX(-50%) translateY(0px); }
+      50% { transform: translateX(-50%) translateY(-9px); }
+    }
+    @keyframes shadowPulse {
+      0%, 100% { transform: translateX(-50%) scale(1); opacity: .55; }
+      50% { transform: translateX(-50%) scale(.75); opacity: .25; }
+    }
+    @keyframes blink {
+      0%, 42%, 48%, 92%, 100% { transform: scaleY(1); }
+      45%, 95% { transform: scaleY(.08); }
+    }
+    @keyframes idleLeftArm {
+      0%, 100% { transform: rotate(8deg); }
+      50% { transform: rotate(1deg); }
+    }
+    @keyframes idleRightArm {
+      0%, 100% { transform: rotate(-8deg); }
+      50% { transform: rotate(-1deg); }
+    }
+    @keyframes waveFast {
+      from { transform: rotate(-35deg); }
+      to   { transform: rotate(20deg); }
+    }
+    @keyframes pointLeft {
+      from { transform: rotate(-5deg) translateX(0); }
+      to   { transform: rotate(-45deg) translateX(-5px); }
+    }
+    @keyframes pointRight {
+      from { transform: rotate(5deg) translateX(0); }
+      to   { transform: rotate(45deg) translateX(5px); }
+    }
+
+    /* DEMO CONTROL DOCK AT BOTTOM */
+    .demo-dock {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 300;
+      background: rgba(13, 23, 38, 0.95);
+      border: 1px solid rgba(0, 217, 255, 0.3);
+      backdrop-filter: blur(12px);
+      border-radius: 999px;
+      padding: 8px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 14px 40px rgba(0,0,0,0.5);
+    }
+    .demo-dock span {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .dock-btn {
+      border: 0;
+      background: var(--surface);
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 750;
+      padding: 7px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      border: 1px solid var(--line);
+      transition: all .2s;
+    }
+    .dock-btn:hover {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--cyan);
+    }
+
+    @media (max-width: 860px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .grid-products { grid-template-columns: 1fr; }
+      .searchrow { grid-template-columns: 1fr; }
+      #mascot-shell { top: 75px; left: 10px; }
+      .bubble { width: 280px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- CAMADA DE FOCO / ESCURECIMENTO NO TOUR -->
+  <div id="tour-overlay" class="tour-active-overlay"></div>
+
+  <!-- HEADER REALÍSTICO -->
+  <header>
+    <div class="app-brand">
+      <img class="app-header-logo" src="skalee-symbol-transparent.png" alt="Skalee" onerror="this.src='skalee-icon-64.png'">
+      <div class="brand-text">
+        <h1>SKALEE <span class="badge-tag">Validades</span></h1>
+        <div class="sub">Acompanhe primeiro o que está mais perto de vencer</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="header-btn" id="btn-open-settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.6-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.6V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9v.1a1.7 1.7 0 0 0 1.6 1h.1a2 2 0 0 1 0 4H21a1.7 1.7 0 0 0-1.6 1Z"></path>
+        </svg>
+        <span>Configurações</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- CONTAINER PRINCIPAL -->
+  <main class="app-container">
+    
+    <!-- BARRA DE NAVEGAÇÃO -->
+    <nav class="main-nav" id="tour-nav">
+      <button class="tab active" data-page="products">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8 12 3 3 8l9 5 9-5Z"></path><path d="M3 8v8l9 5 9-5V8"></path><path d="M12 13v8"></path></svg>
+        <span>Produtos</span>
+      </button>
+      <button class="tab" id="tour-tab-register" data-page="register">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14"></path><path d="M5 12h14"></path><path d="M4 4h16v16H4z"></path></svg>
+        <span>Registrar produto / Scanner</span>
+      </button>
+      <button class="tab" data-page="report">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5"></path><path d="M8 17v-6"></path><path d="M13 17V7"></path><path d="M18 17v-3"></path><path d="M4 19h17"></path></svg>
+        <span>Relatórios</span>
+      </button>
+    </nav>
+
+    <!-- CARDS DE INDICADORES (STATS) -->
+    <section class="stats" id="tour-stats">
+      <div class="stat-card">
+        <small>Produtos ativos</small>
+        <b>142</b>
+      </div>
+      <div class="stat-card">
+        <small>Unidades totais</small>
+        <b>1.280</b>
+      </div>
+      <div class="stat-card alert-today">
+        <small>Vence hoje</small>
+        <b>3</b>
+      </div>
+      <div class="stat-card alert-7days">
+        <small>Até 7 dias</small>
+        <b>18</b>
+      </div>
+      <div class="stat-card alert-offer">
+        <small>Em oferta</small>
+        <b>7</b>
+      </div>
+    </section>
+
+    <!-- BARRA DE BUSCA E FILTROS -->
+    <section class="search-section" id="tour-search">
+      <div class="searchrow">
+        <input type="text" placeholder="Buscar por nome ou código interno..." value="Iogurte Grego">
+        <select>
+          <option>Todas as lojas</option>
+          <option selected>Loja 01 - Matriz</option>
+        </select>
+        <input type="text" placeholder="Cód. Fornecedor">
+        <select style="width: auto;">
+          <option>3 Colunas</option>
+          <option>2 Colunas</option>
+          <option>1 Coluna</option>
+        </select>
+      </div>
+      <div class="chips">
+        <button class="chip">Todos</button>
+        <button class="chip active">Vence hoje (3)</button>
+        <button class="chip">Até 3 dias (9)</button>
+        <button class="chip">Até 7 dias (18)</button>
+        <button class="chip">Até 15 dias</button>
+        <button class="chip">Em oferta</button>
+      </div>
+    </section>
+
+    <!-- GRADE DE PRODUTOS DEMO -->
+    <section class="grid-products" id="tour-products">
+      <div class="product-card" id="tour-sample-card">
+        <div class="product-photo">
+          <span>🥛</span>
+          <span class="product-badge badge-danger">Vence Hoje</span>
+        </div>
+        <div class="product-content">
+          <h3 class="product-name">Iogurte Grego Tradicional 400g</h3>
+          <div class="product-code">CÓD: 7891000245101</div>
+          <div class="product-info-row">
+            <span>Validade:</span>
+            <span style="color: var(--red);">30/08/2026</span>
+          </div>
+          <div class="product-info-row">
+            <span>Quantidade:</span>
+            <span>14 un</span>
+          </div>
+          <div class="product-info-row">
+            <span>Localização:</span>
+            <span>Geladeira Laticínios A2</span>
+          </div>
+          <div class="product-actions">
+            <button class="btn-edit">Ajustar Estoque</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-photo">
+          <span>🧀</span>
+          <span class="product-badge badge-warning">2 Dias</span>
+        </div>
+        <div class="product-content">
+          <h3 class="product-name">Queijo Mussarela Fatiado 200g</h3>
+          <div class="product-code">CÓD: 7891000881920</div>
+          <div class="product-info-row">
+            <span>Validade:</span>
+            <span style="color: var(--orange);">01/09/2026</span>
+          </div>
+          <div class="product-info-row">
+            <span>Quantidade:</span>
+            <span>22 un</span>
+          </div>
+          <div class="product-info-row">
+            <span>Localização:</span>
+            <span>Ilha Central 03</span>
+          </div>
+          <div class="product-actions">
+            <button class="btn-edit">Ajustar Estoque</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-photo">
+          <span>🍞</span>
+          <span class="product-badge badge-success">5 Dias</span>
+        </div>
+        <div class="product-content">
+          <h3 class="product-name">Pão de Forma Integral 500g</h3>
+          <div class="product-code">CÓD: 7891000994182</div>
+          <div class="product-info-row">
+            <span>Validade:</span>
+            <span style="color: var(--green);">04/09/2026</span>
+          </div>
+          <div class="product-info-row">
+            <span>Quantidade:</span>
+            <span>35 un</span>
+          </div>
+          <div class="product-info-row">
+            <span>Localização:</span>
+            <span>Gôndola Padaria 01</span>
+          </div>
+          <div class="product-actions">
+            <button class="btn-edit">Ajustar Estoque</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- PAINEL LATERAL DE CONFIGURAÇÕES (SLIDEOUT) -->
+  <div class="personal-overlay" id="panel-overlay"></div>
+  <aside class="personal-panel" id="personal-panel">
+    <div class="panel-head">
+      <h3>⚙️ Configurações</h3>
+      <button class="btn-close-panel" id="btn-close-panel">×</button>
+    </div>
+
+    <div class="panel-section">
+      <label>Aparência</label>
+      <div class="theme-toggle-row">
+        <button class="theme-btn active" id="btn-theme-dark">🌙 Escuro</button>
+        <button class="theme-btn" id="btn-theme-light">☀️ Claro</button>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <label>Assistente Skalito</label>
+      <div class="skalito-help-box" id="tour-skalito-help-box">
+        <div class="skalito-help-title">
+          <span>🐲</span>
+          <span>Central de Ajuda & Tour</span>
+        </div>
+        <p class="skalito-help-desc">
+          Precisa relembrar como usar as funções do Controle de Validades? O Skalito pode te guiar novamente a qualquer momento!
+        </p>
+        <button class="btn-tour-launch" id="btn-relaunch-tour">
+          Refazer Tour Guiado 🚀
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MASCOTE SKALITO FLUTUANTE -->
+  <div id="mascot-shell">
+    <div class="mascot-wrap" id="mascot-clickable" title="Clique no Skalito para interagir">
+      <div class="mascot-shadow"></div>
+      <div class="mascot" id="mascot">
+        <div class="wing left"></div>
+        <div class="wing right"></div>
+        <div class="tail"></div>
+        <div class="head">
+          <div class="horn left"></div>
+          <div class="horn right"></div>
+          <div class="crest"></div>
+          <div class="eye-brow left"></div>
+          <div class="eye-brow right"></div>
+          <div class="eye left"></div>
+          <div class="eye right"></div>
+          <div class="snout"></div>
+          <div class="mouth"></div>
+        </div>
+        <div class="body">
+          <div class="belly"></div>
+        </div>
+        <div class="arm left"></div>
+        <div class="arm right"></div>
+        <div class="leg left"></div>
+        <div class="leg right"></div>
+      </div>
+    </div>
+
+    <!-- BALÃO DE DIÁLOGO -->
+    <div class="bubble" id="mascot-bubble">
+      <h4 class="bubble-title" id="bubble-title">👋 Olá, eu sou o Skalito!</h4>
+      <p class="bubble-text" id="bubble-text">Bem-vindo ao Skalee Controle de Validade. Quer que eu te mostre como funciona?</p>
+      <div class="bubble-footer" id="bubble-footer">
+        <span class="tour-counter" id="tour-counter">Primeiro Acesso</span>
+        <div class="bubble-actions" id="bubble-actions">
+          <button class="mini-btn mini-btn-secondary" id="btn-tour-later">Agora não</button>
+          <button class="mini-btn mini-btn-primary" id="btn-tour-start">Me ensine 🚀</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BARRA FLUTUANTE DE TESTES DA DEMO (DOCK) -->
+  <div class="demo-dock">
+    <span>🧪 Controles de Teste:</span>
+    <button class="dock-btn" id="dock-btn-intro">Reiniciar Boas-Vindas</button>
+    <button class="dock-btn" id="dock-btn-start">Iniciar Tour</button>
+    <button class="dock-btn" id="dock-btn-happy">Comemorar 🎉</button>
+    <button class="dock-btn" id="dock-btn-reset">Resetar LocalStorage</button>
+  </div>
+
+  <script>
+    const TOUR_STORAGE_KEY = "skalee_skalito_tour_status";
+    
+    // Passos do tour com foco em elementos reais do Skalee
+    const tourSteps = [
+      {
+        elementId: "tour-stats",
+        title: "📊 Painel de Indicadores",
+        text: "Aqui você tem a visão geral instantânea: quantos itens vencem hoje, quantos estão na janela crítica de 7 dias e o volume total sob controle.",
+        gesture: "point-right"
+      },
+      {
+        elementId: "tour-search",
+        title: "🔎 Busca & Filtros Rápidos",
+        text: "Localize qualquer lote digitando o nome, código interno ou de barras. Você também pode clicar nos filtros para ver apenas o que está vencendo hoje.",
+        gesture: "point-right"
+      },
+      {
+        elementId: "tour-sample-card",
+        title: "📦 Cards e Ações Rápidas",
+        text: "Cada produto exibe o selo com contagem regressiva, local na loja e botão para dar baixa ou ajustar o estoque rapidamente.",
+        gesture: "point-right"
+      },
+      {
+        elementId: "tour-tab-register",
+        title: "📷 Scanner e Cadastro Rápido",
+        text: "Clique nesta aba para registrar novos lotes usando a câmera do celular ou leitor de código de barras físico com preenchimento automático.",
+        gesture: "waving"
+      },
+      {
+        elementId: "btn-open-settings",
+        title: "⚙️ Central & Onde me Encontrar",
+        text: "Prontinho! Quando terminar, eu fico guardado dentro das Configurações. Se precisar de ajuda ou quiser rever este tour, é só me chamar por lá!",
+        gesture: "happy"
+      }
+    ];
+
+    let currentStepIndex = -1;
+    let tourMode = "intro"; // "intro" | "tour" | "help" | "closed"
+
+    const mascotShell = document.getElementById("mascot-shell");
+    const mascot = document.getElementById("mascot");
+    const mascotClickable = document.getElementById("mascot-clickable");
+    const bubble = document.getElementById("mascot-bubble");
+    const bubbleTitle = document.getElementById("bubble-title");
+    const bubbleText = document.getElementById("bubble-text");
+    const bubbleCounter = document.getElementById("tour-counter");
+    const bubbleActions = document.getElementById("bubble-actions");
+    const tourOverlay = document.getElementById("tour-overlay");
+
+    // Painel lateral
+    const btnOpenSettings = document.getElementById("btn-open-settings");
+    const btnClosePanel = document.getElementById("btn-close-panel");
+    const panelOverlay = document.getElementById("panel-overlay");
+    const personalPanel = document.getElementById("personal-panel");
+    const btnRelaunchTour = document.getElementById("btn-relaunch-tour");
+
+    // Tema
+    const btnThemeDark = document.getElementById("btn-theme-dark");
+    const btnThemeLight = document.getElementById("btn-theme-light");
+
+    function setMascotGesture(gesture = "") {
+      mascot.className = "mascot";
+      if (gesture) mascot.classList.add(gesture);
+    }
+
+    function openBubble() {
+      bubble.classList.add("open");
+    }
+
+    function closeBubble() {
+      bubble.classList.remove("open");
+    }
+
+    function resetMascotPosition() {
+      mascotShell.style.top = "86px";
+      mascotShell.style.left = "30px";
+      mascotShell.style.transform = "translate(0, 0)";
+    }
+
+    function clearSpotlights() {
+      document.querySelectorAll(".tour-spotlight").forEach(el => {
+        el.classList.remove("tour-spotlight");
+      });
+    }
+
+    function positionMascotNear(element) {
+      const rect = element.getBoundingClientRect();
+      const bubbleWidth = bubble.offsetWidth || 320;
+      const isMobile = window.innerWidth < 860;
+      
+      let targetTop = rect.top + window.scrollY - 15;
+      let targetLeft = rect.left + window.scrollX;
+
+      if (isMobile) {
+        targetTop = rect.top + window.scrollY - 100;
+        targetLeft = 14;
+      } else {
+        if (rect.left < window.innerWidth / 2) {
+          targetLeft = rect.right + window.scrollX + 20;
+        } else {
+          targetLeft = rect.left + window.scrollX - bubbleWidth - 110;
+        }
+
+        if (targetLeft < 20) targetLeft = 20;
+        if (targetLeft + bubbleWidth + 120 > window.innerWidth) {
+          targetLeft = window.innerWidth - bubbleWidth - 130;
+        }
+      }
+
+      if (targetTop < 80) targetTop = 80;
+      mascotShell.style.top = `${targetTop}px`;
+      mascotShell.style.left = `${targetLeft}px`;
+    }
+
+    function showIntroDialog() {
+      tourMode = "intro";
+      currentStepIndex = -1;
+      clearSpotlights();
+      tourOverlay.classList.remove("active");
+      mascotShell.classList.remove("hidden");
+      resetMascotPosition();
+      setMascotGesture("waving");
+
+      bubbleTitle.innerHTML = "👋 Olá, eu sou o Skalito!";
+      bubbleText.innerHTML = "Sou o assistente do <b>Skalee</b>. Posso te mostrar em 1 minuto as principais funções do controle de validade?";
+      bubbleCounter.textContent = "Boas-vindas";
+      bubbleActions.innerHTML = `
+        <button class="mini-btn mini-btn-secondary" id="btn-action-later">Agora não</button>
+        <button class="mini-btn mini-btn-primary" id="btn-action-start">Me ensine 🚀</button>
+      `;
+      openBubble();
+
+      document.getElementById("btn-action-later").onclick = () => {
+        localStorage.setItem(TOUR_STORAGE_KEY, "adiado");
+        closeBubble();
+        setMascotGesture("");
+      };
+
+      document.getElementById("btn-action-start").onclick = () => {
+        startTour();
+      };
+    }
+
+    function startTour() {
+      tourMode = "tour";
+      currentStepIndex = 0;
+      tourOverlay.classList.add("active");
+      openBubble();
+      renderCurrentStep();
+    }
+
+    function renderCurrentStep() {
+      clearSpotlights();
+      const step = tourSteps[currentStepIndex];
+      const targetElement = document.getElementById(step.elementId);
+
+      if (targetElement) {
+        targetElement.classList.add("tour-spotlight");
+        targetElement.scrollIntoView({ behavior: "smooth", block: "center" });
+        setTimeout(() => {
+          positionMascotNear(targetElement);
+        }, 160);
+      }
+
+      setMascotGesture(step.gesture);
+      bubbleTitle.innerHTML = step.title;
+      bubbleText.innerHTML = step.text;
+
+      const isLast = currentStepIndex === tourSteps.length - 1;
+
+      bubbleCounter.textContent = `Passo ${currentStepIndex + 1} de ${tourSteps.length}`;
+      bubbleActions.innerHTML = `
+        <button class="mini-btn mini-btn-secondary" id="btn-tour-skip">Pular</button>
+        <button class="mini-btn mini-btn-primary" id="btn-tour-next">${isLast ? "Concluir 🎉" : "Próximo →"}</button>
+      `;
+
+      document.getElementById("btn-tour-skip").onclick = () => finishTour(false);
+      document.getElementById("btn-tour-next").onclick = () => {
+        if (isLast) {
+          finishTour(true);
+        } else {
+          currentStepIndex++;
+          renderCurrentStep();
+        }
+      };
+    }
+
+    function finishTour(completed = true) {
+      clearSpotlights();
+      tourOverlay.classList.remove("active");
+      currentStepIndex = -1;
+      resetMascotPosition();
+      setMascotGesture("happy");
+
+      bubbleTitle.innerHTML = completed ? "🎉 Tour Concluído!" : "✅ Tudo Pronto!";
+      bubbleText.innerHTML = completed 
+        ? "Excelente! Agora você já sabe como o Skalee funciona. Sempre que precisar, eu estou disponível nas <b>Configurações</b>."
+        : "Sem problemas! O tour foi cancelado, mas você pode me chamar a qualquer hora nas <b>Configurações</b>.";
+
+      bubbleCounter.textContent = "Finalizado";
+      bubbleActions.innerHTML = `
+        <button class="mini-btn mini-btn-primary" id="btn-tour-dock">Entendi, obrigado!</button>
+      `;
+      openBubble();
+
+      document.getElementById("btn-tour-dock").onclick = () => {
+        localStorage.setItem(TOUR_STORAGE_KEY, "concluido");
+        closeBubble();
+        setTimeout(() => {
+          mascotShell.classList.add("hidden");
+        }, 300);
+      };
+    }
+
+    // Clique direto no mascote flutuante
+    mascotClickable.addEventListener("click", () => {
+      if (tourMode === "tour") return;
+      if (bubble.classList.contains("open")) {
+        closeBubble();
+      } else {
+        showIntroDialog();
+      }
+    });
+
+    // Abrir configurações
+    function openPersonalPanel() {
+      panelOverlay.classList.add("show");
+      personalPanel.classList.add("show");
+    }
+    function closePersonalPanel() {
+      panelOverlay.classList.remove("show");
+      personalPanel.classList.remove("show");
+    }
+    btnOpenSettings.addEventListener("click", openPersonalPanel);
+    btnClosePanel.addEventListener("click", closePersonalPanel);
+    panelOverlay.addEventListener("click", closePersonalPanel);
+
+    // Botão de refazer tour dentro das configurações
+    btnRelaunchTour.addEventListener("click", () => {
+      closePersonalPanel();
+      setTimeout(() => {
+        mascotShell.classList.remove("hidden");
+        startTour();
+      }, 250);
+    });
+
+    // Alternar tema
+    btnThemeDark.addEventListener("click", () => {
+      document.documentElement.dataset.theme = "dark";
+      btnThemeDark.classList.add("active");
+      btnThemeLight.classList.remove("active");
+    });
+    btnThemeLight.addEventListener("click", () => {
+      document.documentElement.dataset.theme = "light";
+      btnThemeLight.classList.add("active");
+      btnThemeDark.classList.remove("active");
+    });
+
+    // Botões da barra de teste (Dock)
+    document.getElementById("dock-btn-intro").addEventListener("click", () => {
+      mascotShell.classList.remove("hidden");
+      showIntroDialog();
+    });
+    document.getElementById("dock-btn-start").addEventListener("click", () => {
+      mascotShell.classList.remove("hidden");
+      startTour();
+    });
+    document.getElementById("dock-btn-happy").addEventListener("click", () => {
+      mascotShell.classList.remove("hidden");
+      setMascotGesture("happy");
+      bubbleTitle.innerHTML = "✨ Skalito Comemorando!";
+      bubbleText.innerHTML = "Modo de celebração ativado! Olhos brilhando e asas animadas.";
+      openBubble();
+    });
+    document.getElementById("dock-btn-reset").addEventListener("click", () => {
+      localStorage.removeItem(TOUR_STORAGE_KEY);
+      alert("LocalStorage do Skalito resetado com sucesso!");
+      showIntroDialog();
+    });
+
+    // Inicialização ao carregar a página
+    window.addEventListener("DOMContentLoaded", () => {
+      const status = localStorage.getItem(TOUR_STORAGE_KEY);
+      if (status === "concluido") {
+        mascotShell.classList.add("hidden");
+      } else {
+        setTimeout(showIntroDialog, 700);
+      }
+    });
+
+    window.addEventListener("resize", () => {
+      if (tourMode === "tour" && currentStepIndex >= 0) {
+        const step = tourSteps[currentStepIndex];
+        const el = document.getElementById(step.elementId);
+        if (el) positionMascotNear(el);
+      }
+    });
+  </script>
+</body>
+</html>
+
