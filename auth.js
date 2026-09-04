@@ -226,7 +226,9 @@ function applyProductQueryCriteria(query, criteria = {}) {
  const search = sanitizePostgrestSearchTerm(criteria.search);
  const store = String(criteria.store || "").trim();
  const supplier = String(criteria.supplier || "").trim();
- const filter = String(criteria.filter || "all");
+ const structuredFilters = criteria.filters || criteria.activeFilters || null;
+ const legacyFilter = typeof criteria.filter === "string" ? criteria.filter : null;
+
  if (store) query = query.eq("store", store);
  if (supplier && !criteria.skipSupplierFilter) {
   const suppliers = supplier.split(/[\s,;|/]+/).map((item) => item.trim()).filter(Boolean);
@@ -244,19 +246,44 @@ function applyProductQueryCriteria(query, criteria = {}) {
    `store.ilike.${pattern}`
   ].join(","));
  }
+
  const today = localDateKeyFromOffset(0);
- if (filter === "today") {
+
+ let expiryRange = structuredFilters ? structuredFilters.expiryRange : null;
+ let offerStatus = structuredFilters ? structuredFilters.offerStatus : null;
+ let highQuantity = structuredFilters ? Boolean(structuredFilters.highQuantity) : false;
+
+ if (!structuredFilters && legacyFilter && legacyFilter !== "all") {
+  if (legacyFilter === "today" || /^\d+$/.test(legacyFilter)) {
+   expiryRange = legacyFilter;
+  } else if (legacyFilter === "offer") {
+   offerStatus = "offer";
+  } else if (legacyFilter === "no_offer") {
+   offerStatus = "no_offer";
+  } else if (legacyFilter === "high") {
+   highQuantity = true;
+  }
+ }
+
+ if (expiryRange === "today") {
   query = query.eq("expiry_date", today);
- } else if (/^\d+$/.test(filter)) {
-  const days = Number(filter);
+ } else if (/^\d+$/.test(String(expiryRange))) {
+  const days = Number(expiryRange);
   query = query.gte("expiry_date", today).lte("expiry_date", localDateKeyFromOffset(days));
- } else if (filter === "offer") {
-  query = query.gte("expiry_date", today).eq("offer", true);
- } else if (filter === "high") {
-  query = query.gte("expiry_date", today).gte("quantity", 100);
  } else {
   query = query.gte("expiry_date", today);
  }
+
+ if (offerStatus === "offer") {
+  query = query.eq("offer", true);
+ } else if (offerStatus === "no_offer") {
+  query = query.eq("offer", false);
+ }
+
+ if (highQuantity) {
+  query = query.gte("quantity", 100);
+ }
+
  return query;
 }
 
@@ -462,7 +489,7 @@ window.skaleeDb = {
  },
  subscribeValidityProducts(onChange, onStatus) {
   const channel = supabase
-   .channel("validity-products-ui")
+   .channel("validity-products-realtime")
    .on("postgres_changes", { event: "*", schema: "public", table: "validity_products" }, onChange)
    .subscribe((status, error) => {
     if (typeof onStatus === "function") onStatus(status, error);
@@ -533,10 +560,12 @@ window.skaleeDb = {
   const accessPromise = this.currentPromoterAccess();
   const access = await accessPromise;
   const supplierFilter = String(options.supplier || "").trim();
-  if (supplierFilter) {
+  const needsClientSupplierFiltering = Boolean(supplierFilter || access?.supplierCodes?.length);
+  if (needsClientSupplierFiltering) {
    const filteredProducts = [];
    let rawRowsRead = 0;
-   for (let from = 0; ; from += 1000) {
+   const rawPageSize = limit > 0 ? limit : 1000;
+   for (let from = offset; ; from += rawPageSize) {
     let pageQuery = applyProductSort(
      applyProductQueryCriteria(
       applyProductAccessFilters(
@@ -544,12 +573,12 @@ window.skaleeDb = {
         .from("validity_products")
         .select(VALIDITY_PRODUCT_BASE_SELECT)
         .is("completed_at", null),
-       access
+       access?.supplierCodes?.length ? null : access
       ),
       { ...options, supplier: "", skipSupplierFilter: true }
      ),
      options.sort || "expiry"
-    ).range(from, from + 999);
+    ).range(from, from + rawPageSize - 1);
     const { data, error } = await pageQuery;
     if (error) throw error;
     const rows = data || [];
@@ -560,10 +589,11 @@ window.skaleeDb = {
      else pageProducts = pageProducts.filter((product) => product.brandId && access.brandIds.includes(product.brandId));
     }
     filteredProducts.push(...pageProducts.filter((product) => productHasSupplier(product, supplierFilter)));
-    if (!rows.length || rows.length < 1000) break;
+    if (limit > 0 && filteredProducts.length >= limit) break;
+    if (!rows.length || rows.length < rawPageSize) break;
    }
-   const page = limit > 0 ? filteredProducts.slice(offset, offset + limit) : filteredProducts;
-   const rawPageLength = limit > 0 ? page.length : rawRowsRead;
+   const page = limit > 0 ? filteredProducts.slice(0, limit) : filteredProducts;
+   const rawPageLength = rawRowsRead;
    Object.defineProperty(page, "rawPageLength", { value: rawPageLength });
    return page;
   }
@@ -713,9 +743,7 @@ window.skaleeDb = {
     days: Math.ceil((new Date(`${expiry}T00:00:00`) - new Date(`${today}T00:00:00`)) / 86400000),
     offer: Boolean(row.offer),
     barcode: String(row.barcode || "").trim(),
-    code: String(row.product_code || "").trim(),
-    catalogProductId: row.catalog_product_id || "",
-    hasCatalogCategory: Boolean(row.catalog_products?.category)
+    code: String(row.product_code || "").trim()
    };
   });
   const store3DepartmentFallback = new Map();

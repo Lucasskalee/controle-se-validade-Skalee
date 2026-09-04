@@ -10,6 +10,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="auth.css">
 <link rel="stylesheet" href="admin-cadastros.css">
+<link rel="stylesheet" href="components/tour/skalitoTour.css">
 <script>
 (() => {
  const preference = localStorage.getItem("skalee.theme") || "auto";
@@ -22,6 +23,7 @@
 :root{
  --bg:#f4f6fa;--card:#fff;--text:#172033;--muted:#7a8499;--line:#e4e8ef;
  --blue:#2563eb;--blue2:#eff6ff;--red:#dc2626;--orange:#ea580c;--yellow:#ca8a04;--green:#16a34a;
+ --violet:#7c3aed;--violet-hover:#6d28d9;--violet-glow:rgba(124,58,237,.28);
  --sk-bg:#070b12;--sk-surface:#101827;--sk-surface-hover:#18243a;--sk-primary:#0756d8;--sk-cyan:#00d9ff;--sk-text:#e8edf5;--sk-muted:#94a3b8;--sk-danger:#ff4057;--sk-warning:#ffb020;--sk-success:#22c77a;
 }
 *{box-sizing:border-box}
@@ -50,6 +52,7 @@ button{font:inherit}
 .personal-menu-list{display:grid;gap:0;margin-top:8px}.personal-menu-item{display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:10px;padding:15px 0;border-bottom:1px solid rgba(148,163,184,.15);color:inherit}.personal-menu-icon{display:grid;place-items:center;color:#dbe7f7}.personal-menu-icon svg{width:20px;height:20px;stroke:currentColor}.personal-menu-arrow{color:#94a3b8;font-size:22px}.personal-menu-item strong{font-size:15px;font-weight:750}.personal-menu-item span{display:block;margin-top:2px;color:var(--muted);font-size:12px}
 .personal-about-button{border:0;background:transparent;text-align:left;cursor:pointer}.personal-about-button:hover{background:rgba(148,163,184,.08)}.personal-about-modal .update-panel{display:grid;gap:14px}.personal-about-text{display:grid;gap:10px}.personal-about-text p{margin:0;color:var(--muted);font-size:14px;line-height:1.5}.personal-about-link{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:11px 13px;border-radius:9px;background:#16a34a;color:#fff;text-decoration:none;font-size:14px;font-weight:850}.personal-about-link:hover{background:#15803d}
 .notification-settings-modal .update-panel{display:grid;gap:15px}.notification-toggle{display:grid;gap:4px;padding:14px;border:1px solid var(--line);border-radius:12px;background:#f8fafc}.notification-toggle strong{display:block}.notification-toggle span{display:block;color:var(--muted);font-size:12px}.notification-enable-button{width:100%;min-height:44px;border:0;border-radius:11px;background:var(--blue);color:#fff;font-weight:850;cursor:pointer}.notification-enable-button.is-off{background:#e9edf4;color:#39465c}.notification-enable-button:disabled{opacity:.58}.notification-days,.notification-store{display:grid;gap:10px;padding:14px;border:1px solid var(--line);border-radius:12px;background:#f8fafc}.notification-days-head,.notification-store-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.notification-days-head strong,.notification-store-head strong{font-size:13px}.notification-days-value{padding:6px 10px;border-radius:999px;background:var(--blue2);color:var(--blue);font-size:13px;font-weight:850;white-space:nowrap}.notification-days input{width:100%;padding:0;border:0;accent-color:var(--blue);box-shadow:none}.notification-days input:disabled{opacity:.55}.notification-store select{padding:11px;border-radius:10px;font-weight:750}.notification-status{min-height:18px;color:var(--muted);font-size:13px;line-height:1.35}
+.ios-install-modal .update-panel{display:grid;gap:14px;max-width:440px}.ios-install-header{display:flex;align-items:center;gap:12px;position:relative;padding-right:36px}.ios-install-logo{width:44px;height:44px;border-radius:11px;object-fit:cover;box-shadow:0 4px 12px rgba(15,23,42,.12)}.ios-install-title-wrap{flex:1;min-width:0}.ios-install-title-wrap h2{margin:0;font-size:18px;font-weight:850;line-height:1.2}.ios-install-title-wrap span{display:block;margin-top:2px;color:var(--muted);font-size:12px}.ios-install-close-btn{position:absolute;right:0;top:0;display:grid;place-items:center;width:32px;height:32px;border:0;border-radius:999px;background:#e9edf4;color:#39465c;font-size:20px;font-weight:700;line-height:1;cursor:pointer}.ios-install-close-btn:hover{background:#dbe4f0;color:#0f172a}.ios-browser-warning{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:12px;background:#fffbeb;border:1px solid #fef3c7;color:#92400e;font-size:13px;line-height:1.4}.ios-browser-warning[hidden]{display:none}.ios-warning-icon{font-size:18px;line-height:1}.ios-browser-warning strong{display:block;margin-bottom:2px;color:#78350f}.ios-browser-warning p{margin:0;font-size:12.5px}.ios-install-intro{margin:0;font-size:14px;font-weight:750;color:var(--text)}.ios-install-steps{display:grid;gap:9px;margin:0;padding:0;list-style:none}.ios-step-item{display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:13px;background:#f8fafc;border:1px solid var(--line)}.ios-step-num{display:grid;place-items:center;width:26px;height:26px;border-radius:999px;background:var(--blue2);color:var(--blue);font-size:13px;font-weight:850;flex-shrink:0}.ios-step-body{flex:1;display:flex;align-items:center;justify-content:space-between;gap:10px}.ios-step-text{font-size:13px;line-height:1.35;color:var(--text)}.ios-step-text strong{font-weight:800}.ios-step-icon{display:grid;place-items:center;width:36px;height:36px;border-radius:9px;background:#fff;border:1px solid var(--line);color:var(--blue);flex-shrink:0;box-shadow:0 2px 6px rgba(15,23,42,.04)}.ios-step-icon svg{width:20px;height:20px}
 .page{display:none}.page.active{display:block}
 .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px}
 .stat{position:relative;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;overflow:hidden;transition:background .25s ease,border-color .25s ease,box-shadow .25s ease}
@@ -58,9 +61,22 @@ button{font:inherit}
 input,select{width:100%;padding:12px;border:1px solid var(--line);border-radius:11px;background:#fff;color:var(--text);font-size:14px;outline:none}
 input:focus,select:focus{border-color:#9dbbf9;box-shadow:0 0 0 3px #e8f0ff}
 .clearable-field{position:relative;min-width:0}.clearable-field input{padding-right:40px}.clear-input{position:absolute;top:50%;right:7px;display:grid;place-items:center;width:28px;height:28px;border:0;border-radius:8px;background:transparent;color:#7a8499;font-size:20px;font-weight:700;line-height:1;cursor:pointer;transform:translateY(-50%)}.clear-input:hover{background:#eef2f7;color:#172033}.clear-input[hidden]{display:none}
-.filters{display:flex;gap:8px;overflow:auto;padding:2px 0 14px;scrollbar-width:none}
-.chip{white-space:nowrap;border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 11px;color:#59657a;cursor:pointer;font-weight:700;font-size:13px}
-.chip.active{background:#172033;color:#fff;border-color:#172033}
+.filters-container{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.filters-header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 2px;min-height:22px}
+.filters-header[hidden]{display:none}
+.active-filters-count{font-size:12px;font-weight:800;color:var(--violet);display:inline-flex;align-items:center;gap:4px}
+.clear-filters-btn{display:inline-flex;align-items:center;gap:5px;border:0;background:transparent;color:var(--muted);font-size:12px;font-weight:750;cursor:pointer;padding:4px 8px;border-radius:8px;transition:color .18s ease,background .18s ease}
+.clear-filters-btn:hover{color:var(--red);background:rgba(220,38,38,.08)}
+.clear-filters-btn svg{width:13px;height:13px;stroke-width:2.5}
+.clear-filters-btn[hidden]{display:none}
+.filters{display:flex;gap:8px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.filters::-webkit-scrollbar{display:none}
+.chip{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 14px;min-height:38px;color:#59657a;cursor:pointer;font-weight:750;font-size:13px;user-select:none;transition:background .2s cubic-bezier(.4,0,.2,1),color .2s cubic-bezier(.4,0,.2,1),border-color .2s cubic-bezier(.4,0,.2,1),box-shadow .2s cubic-bezier(.4,0,.2,1),transform .15s ease}
+.chip:hover{border-color:var(--violet);color:var(--text)}
+.chip:active{transform:scale(.96)}
+.chip.active{background:var(--violet);color:#fff;border-color:var(--violet);box-shadow:0 3px 12px var(--violet-glow)}
+.chip.active:hover{background:var(--violet-hover);border-color:var(--violet-hover)}
+.chip .chip-check{display:inline-block;font-weight:900;font-size:12px;margin-right:2px}
 .grid{display:grid;grid-template-columns:repeat(var(--product-columns,3),minmax(0,1fr));gap:14px}
 .card{background:#fff;border:1px solid var(--line);border-radius:17px;overflow:hidden;box-shadow:0 4px 16px rgba(20,30,50,.04)}
 .photo{height:160px;background:#edf0f5;display:flex;align-items:center;justify-content:center;color:var(--muted);overflow:hidden}
@@ -90,7 +106,7 @@ input:focus,select:focus{border-color:#9dbbf9;box-shadow:0 0 0 3px #e8f0ff}
 .report{max-width:900px;margin:auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px}.report-head{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;margin-bottom:16px}.report-head h2{margin:0 0 5px}.report-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.report-controls select{min-width:150px}.report-date{display:grid;gap:3px;color:var(--muted);font-size:11px;font-weight:750}.report-date input{min-width:145px;padding:10px}.report-primary-actions{display:flex;gap:8px;flex-wrap:wrap}.report-selection-actions{display:flex;gap:8px;margin:0 0 10px}.layout-picker{display:flex;gap:5px;padding:4px;border:1px solid var(--line);border-radius:11px;background:#f1f5f9}.layout-button{display:grid;place-items:center;width:38px;height:36px;padding:7px;border:0;border-radius:8px;background:transparent;color:#7a8499;cursor:pointer}.layout-button.active{background:var(--blue);color:#fff;box-shadow:0 3px 9px rgba(37,99,235,.25)}.layout-icon{display:grid;grid-template-columns:repeat(var(--icon-columns),1fr);grid-template-rows:repeat(3,4px);gap:2px;width:100%;height:16px}.layout-icon span{border-radius:1px;background:currentColor}.report-grid{display:grid;grid-template-columns:repeat(var(--report-columns,1),minmax(0,1fr));gap:10px;min-height:260px;padding:12px;border:1px solid var(--line);border-radius:13px;background:#f8fafc}.report-item{position:relative;min-width:0;padding:14px 14px 14px 44px;border:1px solid #dbe1ea;border-radius:10px;background:#fff;color:#111827;white-space:pre-wrap;overflow-wrap:anywhere;font:700 15px/1.45 "Courier New",monospace;cursor:pointer}.report-item.selected{border-color:#60a5fa;box-shadow:0 0 0 2px rgba(37,99,235,.12)}.report-item input{position:absolute;top:15px;left:14px;width:18px;height:18px;cursor:pointer}.report-grid[data-columns="2"] .report-item{font-size:13px;padding:12px 12px 12px 39px}.report-grid[data-columns="3"] .report-item{font-size:11px;padding:9px 9px 9px 34px}.report-grid[data-columns="4"] .report-item{font-size:9px;padding:7px 7px 7px 31px}.report-empty{grid-column:1/-1;align-self:start;padding:30px;text-align:center;color:var(--muted)}.report-status{margin-top:10px;color:var(--muted);font-size:13px}
 .settings h2{margin:0 0 5px}.settings-note{margin:0 0 18px;color:var(--muted);font-size:14px;line-height:1.5}
 .settings-tabs{display:flex;gap:7px;overflow-x:auto;margin:0 0 18px;padding-bottom:3px}.settings-tab{white-space:nowrap;border:1px solid var(--line);border-radius:999px;padding:9px 13px;background:#f8fafc;color:var(--muted);font-weight:800;cursor:pointer}.settings-tab.active{border-color:var(--blue);background:var(--blue);color:#fff}.settings-tab[hidden]{display:none}.settings-panel{display:none}.settings-panel.active{display:block}
-.management-toolbar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) auto;gap:10px;align-items:end;margin-bottom:16px}.management-toolbar label{display:grid;gap:6px;color:var(--admin-muted);font-size:12px;font-weight:800}.management-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:16px}.management-card{min-height:96px;padding:15px;border:1px solid var(--admin-border);border-radius:8px;background:linear-gradient(135deg,rgba(17,30,48,.94),rgba(8,15,26,.94))}.management-card small{display:block;color:var(--admin-muted);font-weight:850}.management-card b{display:block;margin-top:7px;color:#60a5fa;font-size:28px;line-height:1}.management-card span{display:block;margin-top:6px;color:#cbd5e1;font-size:12px;line-height:1.35}.management-panels{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}.management-panel{padding:16px;border:1px solid var(--admin-border);border-radius:10px;background:rgba(13,23,38,.78)}.management-panel h3{margin:0 0 12px;color:var(--admin-text)}.management-list{display:grid;gap:10px}.management-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center}.management-row strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.management-row small{display:block;margin-top:3px;color:var(--admin-muted)}.management-bar{grid-column:1/-1;height:7px;border-radius:999px;background:#0b1322;overflow:hidden}.management-bar span{display:block;width:var(--bar,0%);height:100%;border-radius:inherit;background:linear-gradient(90deg,#22c55e,#38bdf8)}.management-table{grid-column:1/-1;overflow:auto}.management-table table{width:100%;border-collapse:collapse;min-width:760px}.management-table th,.management-table td{padding:11px 10px;border-bottom:1px solid var(--admin-border);text-align:left}.management-table th{color:var(--admin-muted);font-size:12px}.management-status{min-height:20px;margin:0 0 12px;color:var(--admin-muted);font-size:13px}.department-products-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,.85fr);gap:14px}.department-list{display:grid;gap:9px}.department-product-row{display:grid;gap:4px;padding:12px;border:1px solid var(--admin-border);border-radius:8px;background:#0b1322}.department-product-row strong{color:var(--admin-text);line-height:1.25}.department-product-row span{color:var(--admin-muted);font-size:12px;line-height:1.35}.department-warning{border-color:rgba(255,176,32,.35);background:rgba(255,176,32,.08)}
+.management-toolbar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) auto;gap:10px;align-items:end;margin-bottom:16px}.management-toolbar label{display:grid;gap:6px;color:var(--admin-muted);font-size:12px;font-weight:800}.management-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:16px}.management-card{min-height:96px;padding:15px;border:1px solid var(--admin-border);border-radius:8px;background:linear-gradient(135deg,rgba(17,30,48,.94),rgba(8,15,26,.94))}.management-card small{display:block;color:var(--admin-muted);font-weight:850}.management-card b{display:block;margin-top:7px;color:#60a5fa;font-size:28px;line-height:1}.management-card span{display:block;margin-top:6px;color:#cbd5e1;font-size:12px;line-height:1.35}.management-panels{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}.management-panel{padding:16px;border:1px solid var(--admin-border);border-radius:10px;background:rgba(13,23,38,.78)}.management-panel h3{margin:0 0 12px;color:var(--admin-text)}.management-list{display:grid;gap:10px}.management-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center}.management-row strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.management-row small{display:block;margin-top:3px;color:var(--admin-muted)}.management-bar{grid-column:1/-1;height:7px;border-radius:999px;background:#0b1322;overflow:hidden}.management-bar span{display:block;width:var(--bar,0%);height:100%;border-radius:inherit;background:linear-gradient(90deg,#22c55e,#38bdf8)}.management-table{grid-column:1/-1;overflow:auto}.management-table table{width:100%;border-collapse:collapse;min-width:760px}.management-table th,.management-table td{padding:11px 10px;border-bottom:1px solid var(--admin-border);text-align:left}.management-table th{color:var(--admin-muted);font-size:12px}.management-status{min-height:20px;margin:0 0 12px;color:var(--admin-muted);font-size:13px}
 .admin-central .admin-brand h2,.admin-central .admin-page-title,.admin-central .admin-card h3{color:var(--admin-text);letter-spacing:0;line-height:1.16}.admin-central .admin-badge{vertical-align:middle;color:#dbeafe;background:rgba(37,99,235,.16)}.admin-central .admin-page-subtitle,.admin-central .settings-note{color:var(--admin-muted)}.admin-sidebar .settings-tab.admin-nav-item{border-radius:8px;background:transparent;color:#cbd5e1;line-height:1.2;white-space:nowrap}.admin-sidebar .settings-tab.admin-nav-item.active,.admin-sidebar .settings-tab.admin-nav-item[aria-current="page"]{background:linear-gradient(135deg,rgba(7,86,216,.36),rgba(0,217,255,.08));color:#fff;border-color:#1475ff}.admin-central .admin-metric{align-items:center}.admin-central .admin-metric small{line-height:1.2}.admin-central .admin-metric b{line-height:1}.admin-content .settings-section{padding:18px;border:1px solid var(--admin-border);border-radius:10px}.admin-content .user-row,.admin-content .registry-row{align-items:center;min-height:64px;line-height:1.32}.admin-content .user-info strong,.admin-content .registry-info strong{line-height:1.25}.admin-content .user-actions,.admin-content .registry-actions{align-items:center}.admin-content .registry-tabs{align-items:center;gap:8px}.admin-content .registry-tab{border-radius:8px;line-height:1.15}.admin-content .registry-form{gap:12px;padding:16px}.admin-content .registry-form .label{margin:0 0 6px}.admin-content .registry-submit{margin-top:0}
 .settings-section+.settings-section{margin-top:24px;padding-top:22px;border-top:1px solid var(--line)}.theme-options{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}.theme-button{display:flex;align-items:center;gap:10px;padding:13px;border:1px solid var(--line);border-radius:13px;background:#f8fafc;color:var(--text);font-weight:800;cursor:pointer;text-align:left}.theme-button.active{border-color:var(--blue);background:var(--blue2);color:#1d4ed8;box-shadow:0 0 0 2px rgba(37,99,235,.1)}.theme-icon{display:grid;place-items:center;width:31px;height:31px;border-radius:9px;background:#fff;font-size:18px;box-shadow:0 2px 7px rgba(15,23,42,.1)}.theme-status{margin-top:10px;color:var(--muted);font-size:13px}
 .settings-section[hidden]{display:none}.user-create{display:grid;grid-template-columns:1fr 1fr auto;gap:9px;align-items:end;margin-top:14px}.user-list{display:grid;gap:9px;margin-top:16px}.user-card{border:1px solid var(--line);border-radius:12px;background:#f8fafc;overflow:hidden}.user-card.expanded .user-locations{display:block}.user-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px}.user-info{min-width:0}.user-info strong{display:block;overflow:hidden;text-overflow:ellipsis}.user-info small{display:block;margin-top:4px;color:var(--muted)}.user-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}.user-role-select{min-width:150px;padding:10px;font-weight:750}.user-state{display:inline-block;margin-top:6px;padding:4px 7px;border-radius:999px;font-size:11px;font-weight:850}.user-state.active{background:#dcfce7;color:#166534}.user-state.inactive{background:#fee2e2;color:#b91c1c}.user-locations{display:none;padding:0 13px 13px;border-top:1px solid var(--line)}.user-locations-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 9px}.user-locations-head strong{font-size:13px}.user-location-actions{display:flex;gap:7px;flex-wrap:wrap}.user-location-checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.user-location-check{display:flex;align-items:center;gap:8px;padding:9px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:13px;font-weight:700}.user-location-check input{width:auto}.user-location-empty{padding:13px;border:1px dashed var(--line);border-radius:10px;color:var(--muted);font-size:13px;text-align:center}.user-message{min-height:19px;margin-top:10px;color:var(--muted);font-size:13px}.user-message.error{color:var(--red)}.user-message.success{color:var(--green)}
@@ -123,13 +139,12 @@ input:focus,select:focus{border-color:#9dbbf9;box-shadow:0 0 0 3px #e8f0ff}
 .confetti-layer{position:fixed;inset:0;z-index:2000;overflow:hidden;pointer-events:none}
 .confetti-piece{position:absolute;left:50%;top:48%;width:10px;height:16px;border-radius:3px;background:var(--confetti-color);opacity:0;animation:confetti-burst 1.7s cubic-bezier(.15,.7,.25,1) forwards;animation-delay:var(--confetti-delay);transform:translate(-50%,-50%) rotate(0deg)}
 .firework-spark{position:absolute;left:var(--firework-left);top:var(--firework-top);width:8px;height:8px;border-radius:999px;background:var(--firework-color);box-shadow:0 0 16px var(--firework-color),0 0 28px rgba(255,255,255,.22);opacity:0;animation:firework-burst 1.18s ease-out forwards;animation-delay:var(--firework-delay);transform:translate(-50%,-50%) scale(.8)}
-.confetti-test-button{position:fixed;right:16px;bottom:86px;z-index:2200;min-height:42px;padding:11px 14px;border:0;border-radius:999px;background:#111827;color:#fff;font-size:13px;font-weight:850;box-shadow:0 12px 30px rgba(15,23,42,.28);cursor:pointer}.confetti-test-button:hover{background:#2563eb}.confetti-test-button[hidden]{display:none}
 @keyframes confetti-burst{0%{opacity:1;transform:translate(-50%,-50%) rotate(0deg)}70%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--confetti-x)),calc(-50% + var(--confetti-y))) rotate(var(--confetti-rotation))}}
 @keyframes firework-burst{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}12%{opacity:1}72%{opacity:.95}100%{opacity:0;transform:translate(calc(-50% + var(--firework-x)),calc(-50% + var(--firework-y))) scale(.08)}}
 @media(prefers-reduced-motion:reduce){.confetti-piece,.firework-spark{display:none}.save-toast{transition:none}}
 @media(prefers-reduced-motion:reduce){.saving-spinner{animation-duration:1.5s}}
 .hidden{display:none !important}
-html[data-theme="dark"]{color-scheme:dark;--bg:#0b1220;--card:#111b2e;--text:#e5edf9;--muted:#94a3b8;--line:#29364b;--blue:#3b82f6;--blue2:#172a49}
+html[data-theme="dark"]{color-scheme:dark;--bg:#0b1220;--card:#111b2e;--text:#e5edf9;--muted:#94a3b8;--line:#29364b;--blue:#3b82f6;--blue2:#172a49;--violet:#8b5cf6;--violet-hover:#7c3aed;--violet-glow:rgba(139,92,246,.38)}
 html[data-theme="dark"] body{background:var(--bg);color:var(--text)}
 html[data-theme="dark"] :is(.stat,.card,.form,.settings,.report,.update-panel,.scanner-panel,.saving-box){background:var(--card);border-color:var(--line)}
 html[data-theme="dark"] .stat.stat-up{background:#102a1d;border-color:#22c55e;box-shadow:0 10px 24px rgba(34,197,94,.18)}
@@ -141,11 +156,15 @@ html[data-theme="dark"] .header-admin-button:hover{background:rgba(37,99,235,.24
 html[data-theme="dark"] nav .tab{background:transparent;color:#c5cfdd}
 html[data-theme="dark"] nav .tab:hover{background:var(--sk-surface-hover);color:#fff}
 html[data-theme="dark"] nav .tab.active,html[data-theme="dark"] nav .tab[aria-current="page"]{background:linear-gradient(135deg,var(--sk-primary),#0a3f9f);color:#fff}
-html[data-theme="dark"] :is(.chip,.theme-button,.settings-tab,.report-item){background:#121e31;border-color:var(--line);color:var(--text)}
+html[data-theme="dark"] :is(.theme-button,.settings-tab,.report-item){background:#121e31;border-color:var(--line);color:var(--text)}
+html[data-theme="dark"] .chip{background:#121e31;border-color:var(--line);color:var(--text)}
+html[data-theme="dark"] .chip:hover{border-color:var(--violet);color:#fff}
+html[data-theme="dark"] .chip.active{background:var(--violet);color:#fff;border-color:var(--violet);box-shadow:0 3px 14px var(--violet-glow)}
+html[data-theme="dark"] .chip.active:hover{background:var(--violet-hover);border-color:var(--violet-hover)}
+html[data-theme="dark"] .clear-filters-btn:hover{color:#f87171;background:rgba(239,68,68,.14)}
 html[data-theme="dark"] :is(.user-card,.user-location-check){background:#121e31;border-color:var(--line)}
 html[data-theme="dark"] .install-banner{background:var(--card);border-color:#31558a}
 html[data-theme="dark"] .product-load-toast{background:var(--card);border-color:#31558a}
-html[data-theme="dark"] .chip.active{background:#e5edf9;color:#111827;border-color:#e5edf9}
 html[data-theme="dark"] :is(.photo,.layout-picker,.report-grid,.import-box){background:#0d1727;border-color:var(--line)}
 html[data-theme="dark"] :is(.info,.settings-section+.settings-section){border-color:var(--line)}
 html[data-theme="dark"] .code{color:#7db1ff}
@@ -162,6 +181,15 @@ html[data-theme="dark"] .notification-store select{background:#0b1322;border-col
 html[data-theme="dark"] .notification-enable-button{background:#2f6df6;color:#fff}
 html[data-theme="dark"] .notification-enable-button.is-off{background:#223047;color:#dbe7f7}
 html[data-theme="dark"] :is(.catalog-info,.found){background:#132b4b;border-color:#25466f}
+html[data-theme="dark"] .ios-install-modal .update-panel{background:#0f1a2d;border:1px solid #37517a;box-shadow:0 28px 80px rgba(0,0,0,.52)}
+html[data-theme="dark"] .ios-install-header h2{color:#f8fafc}
+html[data-theme="dark"] .ios-install-close-btn{background:#223047;color:#dbe7f7}
+html[data-theme="dark"] .ios-install-close-btn:hover{background:#314361;color:#fff}
+html[data-theme="dark"] .ios-browser-warning{background:#2a1f0f;border-color:#633e08;color:#fde68a}
+html[data-theme="dark"] .ios-browser-warning strong{color:#fef08a}
+html[data-theme="dark"] .ios-step-item{background:#17243a;border-color:#37517a}
+html[data-theme="dark"] .ios-step-num{background:#0b1322;color:#93c5fd}
+html[data-theme="dark"] .ios-step-icon{background:#0f1a2d;border-color:#37517a;color:#93c5fd}
 html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
 @media(max-width:768px){nav{gap:5px;padding:6px;border-radius:14px}.tab{flex:1 1 0;min-width:0;gap:0;padding:10px 0}.tab.active,.tab[aria-current="page"]{flex:2.65 1 0;gap:7px;padding-inline:9px}.tab-label{display:block;max-width:0;opacity:0;transition:max-width .2s ease,opacity .18s ease}.tab.active .tab-label,.tab[aria-current="page"] .tab-label{max-width:90px;opacity:1}.label-desktop{display:none}.label-mobile{display:inline}}
 @media(max-width:768px){.app-brand{gap:9px}.app-header-logo{width:36px;height:36px}.app-brand h1{font-size:16px}.app-brand .sub{display:none}header{margin-bottom:10px;padding:4px 2px}nav{top:0;margin-inline:-2px;margin-bottom:14px;border-radius:0;border-inline:0;background:rgba(5,12,24,.92);box-shadow:none}.personal-overlay{background:rgba(2,6,14,.6);backdrop-filter:blur(6px)}.personal-panel{top:0;width:min(300px,76vw);height:100dvh}.personal-header{padding-top:58px}.personal-header::before{content:"";width:48px;height:5px;border-radius:999px;background:rgba(255,255,255,.22);position:absolute;top:18px}.personal-title span{white-space:normal}.personal-body{padding-inline:20px}.personal-menu-list{margin-top:10px}.personal-menu-item{grid-template-columns:28px 1fr 20px;padding:17px 0;border-bottom-color:rgba(255,255,255,.08)}.personal-menu-item strong{font-size:15px}.personal-menu-item span{color:#cbd5e1}.personal-menu-arrow{color:#e5e7eb}}
@@ -230,26 +258,7 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
     <button class="personal-theme-button" type="button" data-personal-theme-choice="dark">🌙 Escuro</button>
    </div>
   </section>
-  <section id="personalNotificationSection" class="personal-section personal-notification-section" aria-labelledby="personalNotificationTitle" hidden>
-   <button id="personalNotificationBack" class="personal-notification-back" type="button">← Voltar às configurações</button>
-   <h3 id="personalNotificationTitle">Notificações de vencimento</h3>
-   <div class="personal-notification-form">
-    <label>Loja<select id="notificationStore"><option value="">Carregando lojas...</option></select></label>
-    <div class="personal-notification-fields">
-     <label>A partir de<input id="notificationMinDays" type="number" min="0" max="365" value="7"></label>
-     <label>Até<input id="notificationMaxDays" type="number" min="0" max="365" value="15"></label>
-    </div>
-    <button id="saveNotificationRule" class="btn2" type="button">Salvar prazo da loja</button>
-    <button id="enableNotifications" class="btn2" type="button">Ativar notificações</button>
-    <p id="notificationStatus" class="personal-notification-status" aria-live="polite"></p>
-   </div>
-  </section>
   <div class="personal-menu-list">
-    <button id="personalNotificationsButton" class="personal-menu-item personal-about-button" type="button" aria-controls="personalNotificationSection">
-     <span class="personal-menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z"/><path d="M10 21h4"/></svg></span>
-     <div><strong>Notificações</strong><span>Alertas de vencimento por loja</span></div>
-     <span class="personal-menu-arrow" aria-hidden="true">›</span>
-    </button>
    <section class="personal-menu-item" aria-labelledby="personalProfileTitle">
     <span class="personal-menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span>
     <div><strong id="personalProfileTitle">Meu perfil</strong><span id="personalProfileEmail">--</span></div>
@@ -265,7 +274,12 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
    <div><strong id="personalNotificationsTitle">Notificações</strong><span id="personalNotificationsSummary">Alertas de vencimento</span></div>
    <span class="personal-menu-arrow" aria-hidden="true">›</span>
   </button>
-  <button id="personalAboutButton" class="personal-menu-item personal-about-button" type="button" aria-labelledby="personalAboutTitle">
+     <button id="personalTourButton" class="personal-menu-item personal-about-button" type="button" data-skalito-tour-start aria-labelledby="personalTourTitle">
+    <span class="personal-menu-icon" aria-hidden="true" style="color: #00d9ff;"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span>
+    <div><strong id="personalTourTitle">Como usar o sistema</strong><span>Fazer tour guiado com o Skalito</span></div>
+    <span class="personal-menu-arrow" aria-hidden="true">›</span>
+   </button>
+   <button id="personalAboutButton" class="personal-menu-item personal-about-button" type="button" aria-labelledby="personalAboutTitle">
    <span class="personal-menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span>
    <div><strong id="personalAboutTitle">Sobre o aplicativo</strong><span>Termos, disponibilidade e suporte</span></div>
     <span class="personal-menu-arrow" aria-hidden="true">›</span>
@@ -304,14 +318,24 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
   </div>
  </div>
 
- <div class="filters" id="chips">
-  <button class="chip active" data-filter="all">Todos</button>
-  <button class="chip" data-filter="today">Vence hoje</button>
-  <button class="chip" data-filter="3">Até 3 dias</button>
-  <button class="chip" data-filter="7">Até 7 dias</button>
-  <button class="chip" data-filter="15">Até 15 dias</button>
-  <button class="chip" data-filter="offer">Em oferta</button>
-  <button class="chip" data-filter="high">Quantidade alta</button>
+ <div class="filters-container">
+  <div class="filters-header" id="filtersHeader" hidden>
+   <span class="active-filters-count" id="activeFiltersCount"></span>
+   <button class="clear-filters-btn" id="clearFiltersBtn" type="button" aria-label="Limpar todos os filtros" title="Limpar todos os filtros">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    <span>Limpar filtros</span>
+   </button>
+  </div>
+  <div class="filters" id="chips" role="group" aria-label="Filtros de produtos">
+   <button class="chip active" type="button" data-filter="all">Todos</button>
+   <button class="chip" type="button" data-filter="today" data-filter-group="expiry">Vence hoje</button>
+   <button class="chip" type="button" data-filter="3" data-filter-group="expiry">Até 3 dias</button>
+   <button class="chip" type="button" data-filter="7" data-filter-group="expiry">Até 7 dias</button>
+   <button class="chip" type="button" data-filter="15" data-filter-group="expiry">Até 15 dias</button>
+   <button class="chip" type="button" data-filter="offer" data-filter-group="offer">Em oferta</button>
+   <button class="chip" type="button" data-filter="no_offer" data-filter-group="offer">Sem oferta</button>
+   <button class="chip" type="button" data-filter="high" data-filter-group="quantity">Quantidade alta</button>
+  </div>
  </div>
 
  <div class="searchrow">
@@ -408,7 +432,6 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
    <aside class="admin-sidebar" aria-label="Navegação administrativa">
     <button class="settings-tab admin-nav-item active" type="button" data-settings="overview" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M4 4h7v7H4z"/><path d="M13 4h7v7h-7z"/><path d="M4 13h7v7H4z"/><path d="M13 13h7v7h-7z"/></svg><span>Visão geral</span></button>
     <button id="settingsManagementTab" class="settings-tab admin-nav-item" type="button" data-settings="management" hidden><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M4 19V5"/><path d="M8 17v-6"/><path d="M13 17V7"/><path d="M18 17v-3"/><path d="M4 19h17"/></svg><span>Dashboard gerencial</span></button>
-    <button id="settingsDepartmentsTab" class="settings-tab admin-nav-item" type="button" data-settings="departments" hidden><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M3 7h18"/><path d="M6 7v13"/><path d="M18 7v13"/><path d="M9 11h6"/><path d="M9 15h6"/></svg><span>Produtos por departamento</span></button>
     <button id="settingsUsersTab" class="settings-tab admin-nav-item" type="button" data-settings="users" hidden><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M17 11a4 4 0 0 1 0 8"/></svg><span>Usuários</span></button>
     <button id="settingsRegistriesTab" class="settings-tab admin-nav-item" type="button" data-settings="registries" hidden><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M4 21V7l8-4 8 4v14"/><path d="M9 21v-6h6v6"/></svg><span>Cadastros e vínculos</span></button>
    </aside>
@@ -477,43 +500,6 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
      <table>
       <thead><tr><th>Departamento</th><th>Loja</th><th>Produtos</th><th>Unidades</th><th>Hoje</th><th>7 dias</th><th>Vencidos</th></tr></thead>
       <tbody id="managementTableBody"></tbody>
-     </table>
-    </section>
-   </div>
-  </section>
-
-  <section class="settings-panel" data-settings-panel="departments">
-   <h2 class="admin-page-title">Produtos por departamento</h2>
-   <p class="admin-page-subtitle">Visão detalhada dos produtos cadastrados, agrupados pelo departamento do catálogo.</p>
-   <div class="management-toolbar">
-    <label>Loja<select id="departmentProductsStore"><option value="">Todas as lojas</option></select></label>
-    <label>Departamento<select id="departmentProductsDepartment"><option value="">Todos os departamentos</option></select></label>
-    <label>Período<select id="departmentProductsPeriod"><option value="all">Todos ativos</option><option value="expired">Vencidos</option><option value="7">Até 7 dias</option><option value="15">Até 15 dias</option><option value="30">Até 30 dias</option></select></label>
-    <label>Busca<input id="departmentProductsSearch" maxlength="80" placeholder="Produto, código ou barras"></label>
-    <button id="refreshDepartmentProducts" class="btn2" type="button">Atualizar</button>
-   </div>
-   <div id="departmentProductsStatus" class="management-status" aria-live="polite">Abra a aba para carregar os dados.</div>
-   <div class="management-grid" aria-live="polite">
-    <div class="management-card"><small>Departamentos</small><b id="departmentProductsDepartmentCount">--</b><span>Com produtos no filtro</span></div>
-    <div class="management-card"><small>Produtos</small><b id="departmentProductsTotal">--</b><span>Itens cadastrados</span></div>
-    <div class="management-card"><small>Unidades</small><b id="departmentProductsUnits">--</b><span>Soma das quantidades</span></div>
-    <div class="management-card"><small>Sem departamento</small><b id="departmentProductsMissing">--</b><span>Sem match no catálogo</span></div>
-    <div class="management-card"><small>Vencidos</small><b id="departmentProductsExpired">--</b><span>Data menor que hoje</span></div>
-   </div>
-   <div class="department-products-layout">
-    <section class="management-panel">
-     <h3>Resumo por departamento</h3>
-     <div id="departmentProductsSummary" class="management-list"></div>
-    </section>
-    <section class="management-panel department-warning">
-     <h3>Produtos sem departamento</h3>
-     <div id="departmentProductsMissingList" class="department-list"></div>
-    </section>
-    <section class="management-panel management-table">
-     <h3>Produtos do filtro</h3>
-     <table>
-      <thead><tr><th>Produto</th><th>Departamento</th><th>Loja</th><th>Qtd.</th><th>Validade</th><th>Código</th></tr></thead>
-      <tbody id="departmentProductsTableBody"></tbody>
      </table>
     </section>
    </div>
@@ -742,6 +728,85 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
  </div>
 </div>
 
+<div id="iosInstallModal" class="update-modal ios-install-modal" role="dialog" aria-modal="true" aria-labelledby="iosInstallTitle">
+ <div class="update-panel">
+  <div class="ios-install-header">
+   <img class="ios-install-logo" src="skalee-icon-192.png" alt="Skalee">
+   <div class="ios-install-title-wrap">
+    <h2 id="iosInstallTitle">Instalar no iPhone</h2>
+    <span id="iosInstallSubtitle">Controle de Validade Skalee</span>
+   </div>
+   <button id="iosInstallCloseX" class="ios-install-close-btn" type="button" aria-label="Fechar tutorial">×</button>
+  </div>
+
+  <div id="iosBrowserNotice" class="ios-browser-warning" hidden>
+   <span class="ios-warning-icon" aria-hidden="true">⚠️</span>
+   <div>
+    <strong>Atenção ao navegador</strong>
+    <p>Para instalar o aplicativo no iPhone, abra esta página no <b>Safari</b> e use <b>Compartilhar → Adicionar à Tela de Início</b>.</p>
+   </div>
+  </div>
+
+  <p class="ios-install-intro" id="iosInstallIntro">Para instalar o Controle de Validade no seu iPhone:</p>
+
+  <ol class="ios-install-steps">
+   <li class="ios-step-item">
+    <span class="ios-step-num">1</span>
+    <div class="ios-step-body">
+     <span class="ios-step-text">Abra esta página no <strong>Safari</strong>.</span>
+     <div class="ios-step-icon" title="Safari" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+       <circle cx="12" cy="12" r="10"></circle>
+       <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" fill="currentColor"></polygon>
+      </svg>
+     </div>
+    </div>
+   </li>
+   <li class="ios-step-item">
+    <span class="ios-step-num">2</span>
+    <div class="ios-step-body">
+     <span class="ios-step-text">Toque no botão <strong>Compartilhar</strong>.</span>
+     <div class="ios-step-icon" title="Compartilhar" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+       <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+       <polyline points="16 6 12 2 8 6"></polyline>
+       <line x1="12" y1="2" x2="12" y2="15"></line>
+      </svg>
+     </div>
+    </div>
+   </li>
+   <li class="ios-step-item">
+    <span class="ios-step-num">3</span>
+    <div class="ios-step-body">
+     <span class="ios-step-text">Role as opções e escolha <strong>'Adicionar à Tela de Início'</strong>.</span>
+     <div class="ios-step-icon" title="Adicionar à Tela de Início" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+       <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
+       <line x1="12" y1="8" x2="12" y2="16"></line>
+       <line x1="8" y1="12" x2="16" y2="12"></line>
+      </svg>
+     </div>
+    </div>
+   </li>
+   <li class="ios-step-item">
+    <span class="ios-step-num">4</span>
+    <div class="ios-step-body">
+     <span class="ios-step-text">Toque em <strong>'Adicionar'</strong>.</span>
+     <div class="ios-step-icon" title="Adicionar" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+       <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+     </div>
+    </div>
+   </li>
+  </ol>
+
+  <div class="actions">
+   <button id="iosInstallClose" class="btn" type="button" style="width:100%">Entendi</button>
+  </div>
+ </div>
+</div>
+
 <div id="saveToast" class="save-toast" role="status" aria-live="polite">
  <span class="save-toast-icon" aria-hidden="true">✓</span>
  <span id="saveToastText">Produto salvo com sucesso!</span>
@@ -754,7 +819,6 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
  </div>
 </div>
 <div id="confettiLayer" class="confetti-layer" aria-hidden="true"></div>
-<button id="testConfetti" class="confetti-test-button" type="button" hidden>Teste confetes</button>
 
 <script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js" integrity="sha512-r6rDA7W6ZeQhvl8S7yRVQUKVHdexq+GAlNkNNqVC7YyIV+NwqCTJe2hDWCiffTyRNOeGEzRRJ9ifvRm/HCzGYg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -781,6 +845,9 @@ const els = {
  grid: document.getElementById('grid'),
  result: document.getElementById('result'),
  chips: document.querySelectorAll('.chip'),
+ filtersHeader: document.getElementById('filtersHeader'),
+ activeFiltersCount: document.getElementById('activeFiltersCount'),
+ clearFiltersBtn: document.getElementById('clearFiltersBtn'),
  sProducts: document.getElementById('sProducts'),
  sUnits: document.getElementById('sUnits'),
  sToday: document.getElementById('sToday'),
@@ -840,7 +907,6 @@ const els = {
  settingsTabs: document.querySelectorAll('.settings-tab'),
  settingsPanels: document.querySelectorAll('.settings-panel'),
  settingsManagementTab: document.getElementById('settingsManagementTab'),
- settingsDepartmentsTab: document.getElementById('settingsDepartmentsTab'),
  managementStore: document.getElementById('managementStore'),
  managementDepartment: document.getElementById('managementDepartment'),
  managementPeriod: document.getElementById('managementPeriod'),
@@ -857,20 +923,6 @@ const els = {
  managementStoreRanking: document.getElementById('managementStoreRanking'),
  managementExpiredRanking: document.getElementById('managementExpiredRanking'),
  managementTableBody: document.getElementById('managementTableBody'),
- departmentProductsStore: document.getElementById('departmentProductsStore'),
- departmentProductsDepartment: document.getElementById('departmentProductsDepartment'),
- departmentProductsPeriod: document.getElementById('departmentProductsPeriod'),
- departmentProductsSearch: document.getElementById('departmentProductsSearch'),
- refreshDepartmentProducts: document.getElementById('refreshDepartmentProducts'),
- departmentProductsStatus: document.getElementById('departmentProductsStatus'),
- departmentProductsDepartmentCount: document.getElementById('departmentProductsDepartmentCount'),
- departmentProductsTotal: document.getElementById('departmentProductsTotal'),
- departmentProductsUnits: document.getElementById('departmentProductsUnits'),
- departmentProductsMissing: document.getElementById('departmentProductsMissing'),
- departmentProductsExpired: document.getElementById('departmentProductsExpired'),
- departmentProductsSummary: document.getElementById('departmentProductsSummary'),
- departmentProductsMissingList: document.getElementById('departmentProductsMissingList'),
- departmentProductsTableBody: document.getElementById('departmentProductsTableBody'),
  settingsUsersTab: document.getElementById('settingsUsersTab'),
  settingsRegistriesTab: document.getElementById('settingsRegistriesTab'),
  adminCentral: document.getElementById('adminCentral'),
@@ -911,19 +963,10 @@ const els = {
  productLayoutButtons: document.querySelectorAll('.product-layout-button'),
  themeButtons: document.querySelectorAll('.theme-button'),
  personalThemeButtons: document.querySelectorAll('.personal-theme-button'),
- personalNotificationsButton: document.getElementById('personalNotificationsButton'),
- personalNotificationSection: document.getElementById('personalNotificationSection'),
- personalNotificationBack: document.getElementById('personalNotificationBack'),
  personalMenuList: document.querySelector('.personal-menu-list'),
- notificationStore: document.getElementById('notificationStore'),
- notificationMinDays: document.getElementById('notificationMinDays'),
- notificationMaxDays: document.getElementById('notificationMaxDays'),
- saveNotificationRule: document.getElementById('saveNotificationRule'),
- enableNotifications: document.getElementById('enableNotifications'),
- notificationStatus: document.getElementById('notificationStatus'),
  themeStatus: document.getElementById('themeStatus'),
  adminUsersSection: document.getElementById('adminUsersSection'),
- newUserEmail: document.getElementById('newUserEmail'),
+newUserEmail: document.getElementById('newUserEmail'),
  newUserPassword: document.getElementById('newUserPassword'),
  createUser: document.getElementById('createUser'),
  userMessage: document.getElementById('userMessage'),
@@ -933,13 +976,18 @@ const els = {
  installMessage: document.getElementById('installMessage'),
  installApp: document.getElementById('installApp'),
  dismissInstall: document.getElementById('dismissInstall'),
+ iosInstallModal: document.getElementById('iosInstallModal'),
+ iosInstallTitle: document.getElementById('iosInstallTitle'),
+ iosInstallIntro: document.getElementById('iosInstallIntro'),
+ iosBrowserNotice: document.getElementById('iosBrowserNotice'),
+ iosInstallClose: document.getElementById('iosInstallClose'),
+ iosInstallCloseX: document.getElementById('iosInstallCloseX'),
  productLoadToast: document.getElementById('productLoadToast'),
  productLoadTitle: document.getElementById('productLoadTitle'),
  productLoadDetail: document.getElementById('productLoadDetail'),
  saveToast: document.getElementById('saveToast'),
  saveToastText: document.getElementById('saveToastText'),
- confettiLayer: document.getElementById('confettiLayer'),
- testConfetti: document.getElementById('testConfetti')
+ confettiLayer: document.getElementById('confettiLayer')
 };
 
 let selected = null;
@@ -947,6 +995,11 @@ let updatingProductId = null;
 let photoFile = null;
 let photoData = null;
 let photoPreviewUrl = "";
+let activeFilters = {
+ expiryRange: null,
+ offerStatus: null,
+ highQuantity: false
+};
 let activeFilter = "all";
 let isViewer = false;
 let isSkaleeAdmin = false;
@@ -958,7 +1011,6 @@ let adminUsersLoadPromise = null;
 let managementDashboardLoaded = false;
 let managementDashboardLoading = false;
 let managementDashboardData = null;
-let managementDashboardReloadTimer = null;
 let signOutConfirmedFromPanel = false;
 let productPhotoObserver = null;
 let productPageObserver = null;
@@ -972,10 +1024,8 @@ let dashboardStatsReloadTimer = null;
 let dashboardStatsGeneration = 0;
 let dashboardStats = null;
 let dashboardStatsDelta = null;
-let dashboardSyncTimer = null;
 let lastDashboardSyncAt = 0;
 let lastRealtimeRestartAt = 0;
-const DASHBOARD_MONITOR_INTERVAL_MS = 8000;
 const requestedProductPhotoIds = new Set();
 const selectedReportProductIds = new Set();
 const expandedProductIds = new Set();
@@ -1016,8 +1066,6 @@ const PRODUCT_COLUMNS_KEY = "skalee.products.columns";
 let productColumns = Number(localStorage.getItem(PRODUCT_COLUMNS_KEY)) || (window.matchMedia("(max-width: 620px)").matches ? 1 : 3);
 if (![1, 2, 3, 4].includes(productColumns)) productColumns = 1;
 const THEME_KEY = "skalee.theme";
-const NOTIFICATION_RULES_KEY = "skalee.expiryNotificationRules";
-const NOTIFICATION_DISPATCH_KEY = "skalee.expiryNotificationDispatch";
 const themeMedia = window.matchMedia("(prefers-color-scheme: dark)");
 let themePreference = localStorage.getItem(THEME_KEY) || "auto";
 if (!["light", "dark", "auto"].includes(themePreference)) themePreference = "auto";
@@ -1063,94 +1111,16 @@ themeMedia.addEventListener("change", () => {
 
 applyThemePreference(themePreference);
 
-function notificationStorageKey(base) {
- return `${base}.${activeUserEmail || "anonymous"}`;
-}
-
-function readNotificationRules() {
- try { return JSON.parse(localStorage.getItem(notificationStorageKey(NOTIFICATION_RULES_KEY)) || "{}"); }
- catch { return {}; }
-}
-
-function updateNotificationStatus(text) {
- els.notificationStatus.textContent = text;
-}
-
-function loadNotificationRule() {
- const rule = readNotificationRules()[els.notificationStore.value];
- els.notificationMinDays.value = rule?.min ?? 7;
- els.notificationMaxDays.value = rule?.max ?? 15;
-}
-
 function syncNotificationStores() {
  if (!els.notificationStore) return;
- const selected = els.notificationStore.value;
- const locations = (allowedLocations || []).filter((location) => location.active !== false);
- els.notificationStore.replaceChildren(new Option(locations.length ? "Selecione a loja" : "Nenhuma loja disponível", ""));
- locations.forEach((location) => els.notificationStore.add(new Option(location.name, location.id)));
- if (locations.some((location) => location.id === selected)) els.notificationStore.value = selected;
- loadNotificationRule();
+ const settings = readNotificationSettings();
+ const activeLocations = (allowedLocations || []).filter((location) => location.active !== false);
+ els.notificationStore.replaceChildren(new Option("Todas as lojas", ""));
+ activeLocations.forEach((location) => els.notificationStore.add(new Option(location.name, location.name)));
+ els.notificationStore.value = [...els.notificationStore.options].some((option) => option.value === settings.store) ? settings.store : "";
+ if (els.notificationStore.value !== settings.store) writeNotificationSettings({ ...settings, store: "" });
+ else updateNotificationSettingsUI();
 }
-
-function updateNotificationControls() {
- if (!("Notification" in window)) {
-  els.enableNotifications.hidden = true;
-  updateNotificationStatus("Este navegador não oferece notificações.");
-  return;
- }
- els.enableNotifications.hidden = false;
- els.enableNotifications.disabled = Notification.permission === "granted";
- els.enableNotifications.textContent = Notification.permission === "granted" ? "Notificações ativadas" : "Ativar notificações";
- if (Notification.permission === "granted") updateNotificationStatus("Notificações ativadas neste dispositivo.");
- else if (Notification.permission === "denied") updateNotificationStatus("Notificações bloqueadas nas configurações do navegador.");
- else updateNotificationStatus("Escolha a loja, defina o prazo e ative as notificações.");
-}
-
-function saveNotificationRule() {
- const storeId = els.notificationStore.value;
- const min = Number(els.notificationMinDays.value);
- const max = Number(els.notificationMaxDays.value);
- if (!storeId) return updateNotificationStatus("Selecione uma loja.");
- if (!Number.isInteger(min) || !Number.isInteger(max) || min < 0 || max < min) return updateNotificationStatus("Informe um intervalo válido.");
- const rules = readNotificationRules();
- rules[storeId] = { min, max };
- localStorage.setItem(notificationStorageKey(NOTIFICATION_RULES_KEY), JSON.stringify(rules));
- updateNotificationStatus(`Avisos configurados de ${min} a ${max} dias.`);
- checkExpiryNotifications();
-}
-
-async function requestExpiryNotifications() {
- if (!("Notification" in window)) return;
- const permission = await Notification.requestPermission();
- updateNotificationControls();
- if (permission === "granted") checkExpiryNotifications();
-}
-
-function checkExpiryNotifications() {
- if (!("Notification" in window) || Notification.permission !== "granted") return;
- const rules = readNotificationRules();
- const today = new Date().toISOString().slice(0, 10);
- let dispatched = {};
- try { dispatched = JSON.parse(localStorage.getItem(notificationStorageKey(NOTIFICATION_DISPATCH_KEY)) || "{}"); } catch {}
- products.filter((product) => {
-  const rule = rules[product.retailLocationId];
-  const days = remaining(product.expiry);
-  return rule && days >= rule.min && days <= rule.max;
- }).forEach((product) => {
-  const key = `${today}:${product.id}:${product.expiry}`;
-  if (dispatched[key]) return;
-  const days = remaining(product.expiry);
-  const when = days === 0 ? "vence hoje" : `vence em ${days} dia${days === 1 ? "" : "s"}`;
-  const notification = new Notification("Alerta de validade", { body: `${product.name} ${when} em ${product.store}.`, icon: "skalee-icon-192.png", tag: key });
-  notification.onclick = () => { window.focus(); notification.close(); };
-  dispatched[key] = true;
- });
- localStorage.setItem(notificationStorageKey(NOTIFICATION_DISPATCH_KEY), JSON.stringify(dispatched));
-}
-
-els.notificationStore.addEventListener("change", loadNotificationRule);
-els.saveNotificationRule.addEventListener("click", saveNotificationRule);
-els.enableNotifications.addEventListener("click", requestExpiryNotifications);
 
 let personalPanelPreviousFocus = null;
 
@@ -1286,17 +1256,6 @@ els.headerProfileButton.addEventListener("click", () => {
 });
 els.personalClose.addEventListener("click", () => setPersonalPanelOpen(false));
 els.personalOverlay.addEventListener("click", () => setPersonalPanelOpen(false));
-function setNotificationSettingsOpen(open) {
- els.personalNotificationSection.hidden = !open;
- els.personalMenuList.hidden = open;
- els.personalNotificationsButton.setAttribute("aria-expanded", String(open));
- if (open) {
-  loadNotificationRule();
-  els.notificationStore.focus();
- }
-}
-els.personalNotificationsButton.addEventListener("click", () => setNotificationSettingsOpen(true));
-els.personalNotificationBack.addEventListener("click", () => setNotificationSettingsOpen(false));
 function setAboutModalOpen(open) {
  els.aboutModal.classList.toggle("show", open);
  if (open) els.aboutClose.focus();
@@ -1307,6 +1266,21 @@ function setNotificationsModalOpen(open) {
  if (open) {
   updateNotificationSettingsUI();
   els.notificationsClose.focus();
+ }
+}
+
+function setIosInstallModalOpen(open) {
+ if (!els.iosInstallModal) return;
+ if (open && isAppInstalled()) return;
+ els.iosInstallModal.classList.toggle("show", open);
+ if (open) {
+  const deviceName = getIosDeviceName();
+  if (els.iosInstallTitle) els.iosInstallTitle.textContent = `Instalar no ${deviceName}`;
+  if (els.iosInstallIntro) els.iosInstallIntro.textContent = `Para instalar o Controle de Validade no seu ${deviceName}:`;
+  if (els.iosBrowserNotice) {
+   els.iosBrowserNotice.hidden = isIosSafari();
+  }
+  if (els.iosInstallClose) els.iosInstallClose.focus();
  }
 }
 
@@ -1328,6 +1302,17 @@ els.notificationStore.addEventListener("change", () => {
  writeNotificationSettings({ ...current, store: els.notificationStore.value });
  maybeShowValidityNotification(true);
 });
+const personalTourBtn = document.getElementById("personalTourButton");
+if (personalTourBtn) {
+ personalTourBtn.addEventListener("click", () => {
+  setPersonalPanelOpen(false);
+  if (window.skaleeSkalitoTour) {
+   window.skaleeSkalitoTour.start();
+  } else if (typeof window.startSkalitoTour === "function") {
+   window.startSkalitoTour();
+  }
+ });
+}
 els.personalAboutButton.addEventListener("click", () => setAboutModalOpen(true));
 els.aboutClose.addEventListener("click", () => setAboutModalOpen(false));
 els.aboutModal.addEventListener("click", (event) => {
@@ -1346,6 +1331,10 @@ document.addEventListener("keydown", (event) => {
  }
  if (event.key === "Escape" && els.notificationsModal.classList.contains("show")) {
   setNotificationsModalOpen(false);
+  return;
+ }
+ if (event.key === "Escape" && els.iosInstallModal && els.iosInstallModal.classList.contains("show")) {
+  setIosInstallModalOpen(false);
   return;
  }
  if (els.personalPanel.hidden) return;
@@ -1381,32 +1370,58 @@ function isAppInstalled() {
 }
 
 function isIosDevice() {
- return /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+ const ua = navigator.userAgent || "";
+ return /iphone|ipad|ipod/i.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+}
+
+function isIosSafari() {
+ if (!isIosDevice()) return false;
+ const ua = navigator.userAgent || "";
+ const isOtherBrowser = /CriOS|FxiOS|EdgiOS|OPiOS|Focus|DuckDuckGo/i.test(ua);
+ return /Safari/i.test(ua) && !isOtherBrowser;
+}
+
+function getIosDeviceName() {
+ const ua = navigator.userAgent || "";
+ if (/ipad/i.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)) {
+  return "iPad";
+ }
+ return "iPhone";
 }
 
 function showInstallBannerWhenAvailable() {
  if (!appAuthenticated || isAppInstalled()) {
   els.installBanner.hidden = true;
+  setIosInstallModalOpen(false);
   return;
  }
  const dismissedAt = Number(localStorage.getItem(INSTALL_DISMISSED_KEY) || 0);
- if (Date.now() - dismissedAt < INSTALL_REMINDER_DELAY) return;
+ if (Date.now() - dismissedAt < INSTALL_REMINDER_DELAY) {
+  els.installBanner.hidden = true;
+  return;
+ }
  if (isIosDevice()) {
-  els.installTitle.textContent = "Adicionar Skalee à tela inicial";
-  els.installMessage.textContent = "No iPhone, toque em Compartilhar e depois em Adicionar à Tela de Início.";
-  els.installApp.hidden = true;
+  const deviceName = getIosDeviceName();
+  els.installTitle.textContent = `Instalar no ${deviceName}`;
+  els.installMessage.textContent = "Adicione à tela de início para ter acesso rápido como aplicativo.";
+  els.installApp.textContent = `Instalar no ${deviceName}`;
+  els.installApp.hidden = false;
   els.installBanner.hidden = false;
   return;
  }
  if (deferredInstallPrompt) {
   els.installTitle.textContent = "Instalar o app Skalee";
   els.installMessage.textContent = "Tenha acesso rápido pela tela inicial do seu aparelho.";
+  els.installApp.textContent = "Instalar aplicativo";
   els.installApp.hidden = false;
   els.installBanner.hidden = false;
+  return;
  }
+ els.installBanner.hidden = true;
 }
 
 window.addEventListener("beforeinstallprompt", (event) => {
+ if (isIosDevice()) return;
  event.preventDefault();
  deferredInstallPrompt = event;
  showInstallBannerWhenAvailable();
@@ -1415,6 +1430,15 @@ window.addEventListener("beforeinstallprompt", (event) => {
 window.addEventListener("appinstalled", () => {
  deferredInstallPrompt = null;
  els.installBanner.hidden = true;
+ setIosInstallModalOpen(false);
+});
+
+window.matchMedia("(display-mode: standalone)").addEventListener?.("change", (e) => {
+ if (e.matches) {
+  deferredInstallPrompt = null;
+  els.installBanner.hidden = true;
+  setIosInstallModalOpen(false);
+ }
 });
 
 els.dismissInstall.addEventListener("click", () => {
@@ -1423,15 +1447,42 @@ els.dismissInstall.addEventListener("click", () => {
 });
 
 els.installApp.addEventListener("click", async () => {
+ if (isAppInstalled()) {
+  els.installBanner.hidden = true;
+  return;
+ }
+ if (isIosDevice()) {
+  setIosInstallModalOpen(true);
+  return;
+ }
  if (!deferredInstallPrompt) return;
  els.installApp.disabled = true;
- await deferredInstallPrompt.prompt();
- const choice = await deferredInstallPrompt.userChoice;
- deferredInstallPrompt = null;
- els.installApp.disabled = false;
- els.installBanner.hidden = true;
- if (choice.outcome !== "accepted") localStorage.setItem(INSTALL_DISMISSED_KEY, String(Date.now()));
+ try {
+  await deferredInstallPrompt.prompt();
+  const choice = await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+  els.installBanner.hidden = true;
+  if (choice && choice.outcome !== "accepted") {
+   localStorage.setItem(INSTALL_DISMISSED_KEY, String(Date.now()));
+  }
+ } catch (err) {
+  console.warn("Erro ao acionar prompt de instalação:", err);
+ } finally {
+  els.installApp.disabled = false;
+ }
 });
+
+if (els.iosInstallClose) {
+ els.iosInstallClose.addEventListener("click", () => setIosInstallModalOpen(false));
+}
+if (els.iosInstallCloseX) {
+ els.iosInstallCloseX.addEventListener("click", () => setIosInstallModalOpen(false));
+}
+if (els.iosInstallModal) {
+ els.iosInstallModal.addEventListener("click", (event) => {
+  if (event.target === els.iosInstallModal) setIosInstallModalOpen(false);
+ });
+}
 
 if ("serviceWorker" in navigator) {
  window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch((error) => console.error("Falha ao registrar PWA.", error)));
@@ -1618,7 +1669,7 @@ let reportProductsLoadGeneration = 0;
 let allowedLocations = null;
 let allowedSuppliers = null;
 syncNotificationStores();
-updateNotificationControls();
+updateNotificationSettingsUI();
 
 function pageRawLength(page) {
  return Number(page?.rawPageLength ?? page?.length ?? 0);
@@ -1652,18 +1703,35 @@ function appendUniqueProducts(nextProducts) {
  return uniqueProducts.length;
 }
 
+function countActiveFilters(filters = activeFilters) {
+ let count = 0;
+ if (filters.expiryRange) count += 1;
+ if (filters.offerStatus) count += 1;
+ if (filters.highQuantity) count += 1;
+ return count;
+}
+
+function hasActiveFilters(filters = activeFilters) {
+ return countActiveFilters(filters) > 0;
+}
+
 function getProductQueryCriteria() {
+ const count = countActiveFilters(activeFilters);
  return {
   search: els.search.value.trim(),
   store: els.storeFilter.value,
   supplier: els.supplierFilter.value.trim(),
-  filter: activeFilter,
+  filters: { ...activeFilters },
+  activeFilters: { ...activeFilters },
+  filter: count === 0 ? "all" : (activeFilters.expiryRange || activeFilters.offerStatus || (activeFilters.highQuantity ? "high" : "all")),
   sort: els.sort.value || "expiry"
  };
 }
 
 function hasServerSideCriteria(criteria = getProductQueryCriteria()) {
- return Boolean(criteria.search || criteria.store || criteria.supplier || criteria.filter !== "all" || criteria.sort !== "expiry");
+ const filters = criteria.filters || criteria.activeFilters || {};
+ const hasActive = Boolean(filters.expiryRange || filters.offerStatus || filters.highQuantity);
+ return Boolean(criteria.search || criteria.store || criteria.supplier || hasActive || criteria.sort !== "expiry");
 }
 
 function productMatchesCurrentCriteria(product) {
@@ -1677,13 +1745,20 @@ function productMatchesCurrentCriteria(product) {
   if (!haystack.includes(term)) return false;
  }
  const days = remaining(product.expiry);
- if (criteria.filter === "today") return days === 0;
- if (criteria.filter === "3") return days <= 3;
- if (criteria.filter === "7") return days <= 7;
- if (criteria.filter === "15") return days <= 15;
- if (criteria.filter === "offer") return product.offer;
- if (criteria.filter === "high") return product.qty >= 100;
- return days >= 0;
+ if (days < 0) return false;
+
+ const { expiryRange, offerStatus, highQuantity } = activeFilters;
+ if (expiryRange === "today" && days !== 0) return false;
+ if (expiryRange === "3" && days > 3) return false;
+ if (expiryRange === "7" && days > 7) return false;
+ if (expiryRange === "15" && days > 15) return false;
+
+ if (offerStatus === "offer" && !product.offer) return false;
+ if (offerStatus === "no_offer" && product.offer) return false;
+
+ if (highQuantity && product.qty < 100) return false;
+
+ return true;
 }
 
 function sortProductsForCurrentCriteria(items) {
@@ -1853,6 +1928,7 @@ function applyDashboardStatsDelta(beforeProduct, afterProduct) {
  };
  renderDashboardStats();
  lastDashboardSyncAt = Date.now();
+ console.debug("[DASHBOARD] recalculated");
 }
 
 function scheduleProductQueryReload(delay = 300) {
@@ -1969,16 +2045,16 @@ function handleValidityProductsRealtime(payload) {
    realtimeStats.ignored += 1;
    return;
   }
+  console.debug("[REALTIME] DELETE", id);
   const existing = products.find((product) => String(product.id) === id);
+  const deletedProduct = normalizeRealtimeProduct(payload?.old) || existing || null;
   if (existing?.photoPath && typeof window.skaleeDb?.invalidateProductPhotoUrl === "function") window.skaleeDb.invalidateProductPhotoUrl(existing.photoPath);
-  applyDashboardStatsDelta(existing || null, null);
+  applyDashboardStatsDelta(deletedProduct, null);
   products = products.filter((product) => String(product.id) !== id);
   removeReportProduct(id);
   requestedProductPhotoIds.delete(id);
   queuedProductPhotoIdSet.delete(id);
   realtimeStats.incrementalUpdates += 1;
-  scheduleDashboardStatsReload();
-  scheduleManagementDashboardReload();
   render();
   return;
  }
@@ -1986,12 +2062,14 @@ function handleValidityProductsRealtime(payload) {
  const nextProduct = normalizeRealtimeProduct(payload?.new);
  if (!nextProduct?.id) {
   realtimeStats.ignored += 1;
- return;
-}
-const existingProduct = products.find((product) => String(product.id) === String(nextProduct.id));
+  return;
+ }
+ const id = String(nextProduct.id);
+ const existingProduct = products.find((product) => String(product.id) === id);
  const oldRow = payload?.old || {};
  const oldProduct = oldRow.expiry_date || oldRow.expiry ? normalizeRealtimeProduct(oldRow) : null;
  const previousProduct = existingProduct || oldProduct;
+ console.debug(`[REALTIME] ${eventType}`, id);
  if (eventType === "INSERT" && locallyCountedRealtimeIds.has(String(nextProduct.id))) {
   locallyCountedRealtimeIds.delete(String(nextProduct.id));
  } else if (eventType === "INSERT") {
@@ -1999,14 +2077,12 @@ const existingProduct = products.find((product) => String(product.id) === String
  } else if (eventType === "UPDATE" && previousProduct?.id) {
   applyDashboardStatsDelta(previousProduct, nextProduct);
  } else if (eventType === "UPDATE") {
-  scheduleDashboardStatsReload();
+  console.debug("[DASHBOARD] update skipped: previous row unavailable", id);
  }
  mergeReportProduct(nextProduct);
  if (mergeRealtimeProduct(nextProduct)) {
   realtimeStats.incrementalUpdates += 1;
   preencherFornecedorPelosProdutos();
-  scheduleDashboardStatsReload();
-  scheduleManagementDashboardReload();
   render();
  } else {
   realtimeStats.ignored += 1;
@@ -2017,14 +2093,16 @@ function startValidityProductsRealtime() {
  if (validityProductsRealtimeChannel || !window.skaleeDb?.subscribeValidityProducts) return;
  validityProductsRealtimeChannel = window.skaleeDb.subscribeValidityProducts(handleValidityProductsRealtime, (status, error) => {
   realtimeStats.status = status;
-  if (error) console.debug("[REALTIME STATUS]", status, error);
+  if (status === "SUBSCRIBED") console.debug("[REALTIME] CONNECTED");
+  if (status === "CLOSED") console.debug("[REALTIME] CHANNEL CLOSED");
+  if (error) console.debug("[REALTIME]", status, error);
   if ((status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") && appAuthenticated) {
    validityProductsRealtimeChannel = null;
    setTimeout(() => {
     if (!appAuthenticated || document.hidden || validityProductsRealtimeChannel) return;
     realtimeStats.reconnects += 1;
+    console.debug("[REALTIME] RECONNECT");
     startValidityProductsRealtime();
-    scheduleDashboardStatsReload(0);
    }, 1500);
   }
  });
@@ -2035,6 +2113,7 @@ function restartValidityProductsRealtime() {
  lastRealtimeRestartAt = Date.now();
  stopValidityProductsRealtime();
  realtimeStats.reconnects += 1;
+ console.debug("[REALTIME] RECONNECT");
  startValidityProductsRealtime();
 }
 
@@ -2049,32 +2128,11 @@ function stopValidityProductsRealtime() {
 function syncDashboardAfterAppResume(reason = "resume") {
  if (!appAuthenticated || document.hidden) return;
  realtimeStats.fallbackRefreshes += 1;
- console.debug("[DASHBOARD SYNC]", reason);
+ console.debug("[REALTIME] RECONNECT", reason);
  restartValidityProductsRealtime();
  scheduleDashboardStatsReload(0);
 }
 
-function startDashboardSyncFallback() {
- if (dashboardSyncTimer) clearInterval(dashboardSyncTimer);
- dashboardSyncTimer = setInterval(() => {
-  if (!appAuthenticated || document.hidden) return;
-  if (Date.now() - lastDashboardSyncAt < DASHBOARD_MONITOR_INTERVAL_MS - 1000) return;
-  realtimeStats.fallbackRefreshes += 1;
-  scheduleDashboardStatsReload(0);
- }, DASHBOARD_MONITOR_INTERVAL_MS);
-}
-
-function stopDashboardSyncFallback() {
- if (!dashboardSyncTimer) return;
- clearInterval(dashboardSyncTimer);
- dashboardSyncTimer = null;
-}
-
-document.addEventListener("visibilitychange", () => {
- if (!document.hidden) syncDashboardAfterAppResume("visible");
-});
-window.addEventListener("focus", () => syncDashboardAfterAppResume("focus"));
-window.addEventListener("pageshow", () => syncDashboardAfterAppResume("pageshow"));
 window.addEventListener("online", () => syncDashboardAfterAppResume("online"));
 
 async function carregarProdutosOnline() {
@@ -2092,6 +2150,7 @@ async function carregarProdutosOnline() {
  setProductLoadToast("Carregando produtos...", "Buscando os primeiros produtos.");
  try {
   const firstPage = await window.skaleeDb.loadProducts({ ...criteria, offset: productPageOffset, limit: PRODUCT_PAGE_SIZE });
+  if (generation !== productLoadGeneration) return;
   products = firstPage;
   const rawLength = pageRawLength(firstPage);
   queryStats.rowsReceived += firstPage.length;
@@ -2100,11 +2159,11 @@ async function carregarProdutosOnline() {
   preencherFornecedorPelosProdutos();
   productPageLoading = false;
   render();
-  checkExpiryNotifications();
-  setProductLoadToast("Carregando produtos...", `${products.length} produto(s) encontrados. Continuando em segundo plano.`);
-  void carregarProdutosRestantesOnline(generation);
+  maybeShowValidityNotification(true);
+  setProductLoadToast("Produtos carregados", `${products.length} produto(s) exibidos no primeiro lote.`, false);
  } catch (error) {
   console.error("Não foi possível carregar os produtos online.", error);
+  if (generation !== productLoadGeneration) return;
   products = [];
   productHasMorePages = false;
   productPageLoading = false;
@@ -2115,11 +2174,13 @@ async function carregarProdutosOnline() {
 
 async function carregarMaisProdutosOnline() {
  if (!window.skaleeDb || productPageLoading || !productHasMorePages) return;
+ const generation = productLoadGeneration;
  const criteria = getProductQueryCriteria();
  productPageLoading = true;
  queryStats.paginationLoads += 1;
  try {
   const nextProducts = await window.skaleeDb.loadProducts({ ...criteria, offset: productPageOffset, limit: PRODUCT_PAGE_SIZE });
+  if (generation !== productLoadGeneration) return;
   const rawLength = pageRawLength(nextProducts);
   queryStats.rowsReceived += nextProducts.length;
   productPageOffset += rawLength;
@@ -2129,6 +2190,7 @@ async function carregarMaisProdutosOnline() {
   render();
  } catch (error) {
   console.error("Não foi possível carregar mais produtos.", error);
+  if (generation !== productLoadGeneration) return;
   productPageLoading = false;
  }
 }
@@ -2162,38 +2224,6 @@ async function carregarProdutosRelatorio(force = false) {
   els.reportStatus.textContent = error.message || "Não foi possível carregar todos os textos do relatório.";
  } finally {
   reportProductsLoading = false;
- }
-}
-
-async function carregarProdutosRestantesOnline(generation) {
- let scannedPages = 1;
- const criteria = getProductQueryCriteria();
- try {
-  while (generation === productLoadGeneration && productHasMorePages) {
-   productPageLoading = true;
-   const nextProducts = await window.skaleeDb.loadProducts({ ...criteria, offset: productPageOffset, limit: PRODUCT_PAGE_SIZE });
-   const rawLength = pageRawLength(nextProducts);
-   queryStats.rowsReceived += nextProducts.length;
-   productPageOffset += rawLength;
-   scannedPages += 1;
-   appendUniqueProducts(nextProducts);
-   productHasMorePages = rawLength === PRODUCT_PAGE_SIZE;
-   productPageLoading = false;
-   preencherFornecedorPelosProdutos();
-   render();
-   setProductLoadToast("Carregando produtos...", `${products.length} produto(s) encontrados em ${scannedPages} página(s).`);
-   if (rawLength === 0) break;
-  }
-  if (generation !== productLoadGeneration) return;
-  productPageLoading = false;
-  productHasMorePages = false;
-  render();
-  checkExpiryNotifications();
-  await carregarFotosPendentesEmSegundoPlano(generation);
- } catch (error) {
-  productPageLoading = false;
-  console.error("Não foi possível concluir o carregamento dos produtos.", error);
-  setProductLoadToast("Carregamento incompleto", formatProductLoadError(error), true);
  }
 }
 
@@ -2605,7 +2635,6 @@ window.addEventListener("skalee:authenticated", (event) => {
  isSkaleeAdmin = isAdminEmail(event.detail?.email);
  const isPlatformAdmin = event.detail?.accessRole === "platform_admin";
  canManageAdminUsers = isSkaleeAdmin || isPlatformAdmin;
- els.testConfetti.hidden = !canManageAdminUsers;
  syncNotificationStores();
  updatePersonalPanelIdentity(event.detail || {});
  catalogLoadPromise = null;
@@ -2624,7 +2653,6 @@ window.addEventListener("skalee:authenticated", (event) => {
  void carregarProdutosOnline();
  void carregarDashboardStats();
  startValidityProductsRealtime();
- startDashboardSyncFallback();
  const isAdmin = canManageAdminUsers;
  const canUsePoster = isAdmin || isPlatformAdmin;
  const canOpenAdminSettings = isAdmin || isPlatformAdmin;
@@ -2634,7 +2662,6 @@ window.addEventListener("skalee:authenticated", (event) => {
  els.reportTab.hidden = false;
  els.posterTab.hidden = !canUsePoster;
  els.settingsManagementTab.hidden = !canOpenAdminSettings;
- els.settingsDepartmentsTab.hidden = !canOpenAdminSettings;
  els.settingsUsersTab.hidden = !isAdmin;
  els.settingsRegistriesTab.hidden = !isPlatformAdmin;
  if (document.querySelector(".settings-tab.active")?.hidden) showSettingsPanel("overview");
@@ -2655,16 +2682,13 @@ window.addEventListener("skalee:signed-out", () => {
  managementDashboardLoaded = false;
  managementDashboardLoading = false;
  managementDashboardData = null;
- if (managementDashboardReloadTimer) clearTimeout(managementDashboardReloadTimer);
- managementDashboardReloadTimer = null;
  allowedLocations = null;
  allowedSuppliers = null;
  els.installBanner.hidden = true;
+ setIosInstallModalOpen(false);
  els.productLoadToast.hidden = true;
  els.catalogStatus.hidden = true;
- els.testConfetti.hidden = true;
  stopValidityProductsRealtime();
- stopDashboardSyncFallback();
  dashboardStats = null;
  dashboardStatsDelta = null;
  products = [];
@@ -2674,7 +2698,6 @@ window.addEventListener("skalee:signed-out", () => {
  reportSelectionInitialized = false;
  els.settingsUsersTab.hidden = true;
  els.settingsManagementTab.hidden = true;
- els.settingsDepartmentsTab.hidden = true;
  els.settingsRegistriesTab.hidden = true;
  els.reportTab.hidden = true;
  els.posterTab.hidden = true;
@@ -2887,105 +2910,11 @@ function renderManagementDashboard() {
  els.managementStatusText.textContent = `${formatManagementNumber(rows.length)} produto(s) no filtro atual. Base carregada: ${formatManagementNumber(data.rows.length)} produto(s). ${store3Filled ? `${formatManagementNumber(store3Filled)} departamento(s) preenchido(s) pela referência da loja 3.` : ""}`;
 }
 
-function departmentProductsReason(row) {
- if (row.department !== "Sem departamento") return "";
- if (!row.barcode && !row.code) return "Sem código de barras ou código interno para cruzar com o catálogo.";
- if (!row.catalogProductId) return "Produto registrado sem vínculo direto ao catálogo e sem match por código.";
- return "Produto vinculado ou localizado, mas o catálogo está sem categoria/departamento.";
-}
-
-function renderDepartmentProducts() {
- const data = managementDashboardData;
- if (!data) return;
- fillManagementFilter(els.departmentProductsStore, data.filters.stores, "Todas as lojas");
- fillManagementFilter(els.departmentProductsDepartment, data.filters.departments, "Todos os departamentos");
- const store = els.departmentProductsStore.value;
- const department = els.departmentProductsDepartment.value;
- const period = els.departmentProductsPeriod.value;
- const search = normalizeText(els.departmentProductsSearch.value);
- let rows = data.rows.filter((row) => {
-  if (store && row.store !== store) return false;
-  if (department && row.department !== department) return false;
-  if (period === "expired" && row.days >= 0) return false;
-  if (!["all", "expired"].includes(period)) {
-   const days = Number(period);
-   if (row.days < 0 || row.days > days) return false;
-  }
-  if (search) {
-   const haystack = normalizeText([row.name, row.department, row.store, row.barcode, row.code].join(" "));
-   if (!haystack.includes(search)) return false;
-  }
-  return true;
- }).sort((a, b) => a.department.localeCompare(b.department) || a.days - b.days || a.name.localeCompare(b.name));
- const byDepartment = new Map();
- rows.forEach((row) => {
-  const key = row.department || "Sem departamento";
-  const current = byDepartment.get(key) || { name: key, products: 0, units: 0, today: 0, seven: 0, expired: 0 };
-  current.products += 1;
-  current.units += row.quantity;
-  if (row.expiry === data.today) current.today += 1;
-  if (row.days >= 0 && row.days <= 7) current.seven += 1;
-  if (row.days < 0) current.expired += 1;
-  byDepartment.set(key, current);
- });
- const summary = [...byDepartment.values()].sort((a, b) => b.products - a.products || b.units - a.units);
- const missing = rows.filter((row) => row.department === "Sem departamento").slice(0, 20);
- els.departmentProductsDepartmentCount.textContent = formatManagementNumber(summary.length);
- els.departmentProductsTotal.textContent = formatManagementNumber(rows.length);
- els.departmentProductsUnits.textContent = formatManagementNumber(rows.reduce((sum, row) => sum + row.quantity, 0));
- els.departmentProductsMissing.textContent = formatManagementNumber(rows.filter((row) => row.department === "Sem departamento").length);
- els.departmentProductsExpired.textContent = formatManagementNumber(rows.filter((row) => row.days < 0).length);
- els.departmentProductsSummary.replaceChildren(...summary.slice(0, 20).map((item) => managementRow(item, summary[0]?.products || 1, (row) => `${formatManagementNumber(row.units)} unidade(s) · ${formatManagementNumber(row.seven)} em 7 dias · ${formatManagementNumber(row.expired)} vencido(s)`)));
- if (!summary.length) {
-  const empty = document.createElement("div");
-  empty.className = "management-status";
-  empty.textContent = "Nenhum departamento encontrado para os filtros.";
-  els.departmentProductsSummary.appendChild(empty);
- }
- els.departmentProductsMissingList.replaceChildren(...missing.map((row) => {
-  const item = document.createElement("div");
-  item.className = "department-product-row";
-  const title = document.createElement("strong");
-  title.textContent = row.name;
-  const detail = document.createElement("span");
-  detail.textContent = `${row.store} · ${row.expiry} · código ${row.code || "--"} · barras ${row.barcode || "--"}`;
-  const reason = document.createElement("span");
-  reason.textContent = departmentProductsReason(row);
-  item.append(title, detail, reason);
-  return item;
- }));
- if (!missing.length) {
-  const empty = document.createElement("div");
-  empty.className = "management-status";
-  empty.textContent = "Nenhum produto sem departamento nos filtros atuais.";
-  els.departmentProductsMissingList.appendChild(empty);
- }
- els.departmentProductsTableBody.replaceChildren(...rows.slice(0, 120).map((row) => {
-  const tr = document.createElement("tr");
-  [row.name, row.department, row.store, row.quantity, row.expiry, row.barcode || row.code || "--"].forEach((value, index) => {
-   const td = document.createElement("td");
-   td.textContent = index === 3 ? formatManagementNumber(value) : value;
-   tr.appendChild(td);
-  });
-  return tr;
- }));
- if (!rows.length) {
-  const empty = document.createElement("tr");
-  const td = document.createElement("td");
-  td.colSpan = 6;
-  td.textContent = "Nenhum produto encontrado para os filtros selecionados.";
-  empty.appendChild(td);
-  els.departmentProductsTableBody.appendChild(empty);
- }
- els.departmentProductsStatus.textContent = `${formatManagementNumber(rows.length)} produto(s) listados. A tabela mostra até 120 itens para manter a tela leve.`;
-}
-
 async function loadManagementDashboard(force = false) {
  if (!canManageAdminUsers || !window.skaleeDb?.loadManagementDashboard) return;
  if (managementDashboardLoading) return;
  if (managementDashboardLoaded && !force) {
   renderManagementDashboard();
-  renderDepartmentProducts();
   return;
  }
  managementDashboardLoading = true;
@@ -2995,7 +2924,6 @@ async function loadManagementDashboard(force = false) {
   managementDashboardData = await window.skaleeDb.loadManagementDashboard();
   managementDashboardLoaded = true;
   renderManagementDashboard();
-  renderDepartmentProducts();
  } catch (error) {
   console.error("Falha ao carregar dashboard gerencial.", error);
   els.managementStatusText.textContent = error.message || "Não foi possível carregar o dashboard gerencial.";
@@ -3005,26 +2933,10 @@ async function loadManagementDashboard(force = false) {
  }
 }
 
-function scheduleManagementDashboardReload(delay = 500) {
- if (!managementDashboardLoaded || !canManageAdminUsers) return;
- if (managementDashboardReloadTimer) clearTimeout(managementDashboardReloadTimer);
- managementDashboardReloadTimer = setTimeout(() => {
-  managementDashboardReloadTimer = null;
-  const activePanel = document.querySelector('.settings-panel.active');
-  if (activePanel?.dataset.settingsPanel === "management") void loadManagementDashboard(true);
-  else managementDashboardLoaded = false;
- }, delay);
-}
-
 async function loadSettingsPanelData(panelName) {
  if (!appAuthenticated) return;
  if (panelName === "management") {
   await loadManagementDashboard();
-  return;
- }
- if (panelName === "departments") {
-  await loadManagementDashboard();
-  renderDepartmentProducts();
   return;
  }
  if (panelName === "users") {
@@ -3052,12 +2964,8 @@ els.settingsTabs.forEach((button) => {
  [els.managementStore, els.managementDepartment, els.managementPeriod, els.managementStatus].forEach((select) => {
   select.addEventListener(eventName, renderManagementDashboard);
  });
- [els.departmentProductsStore, els.departmentProductsDepartment, els.departmentProductsPeriod, els.departmentProductsSearch].forEach((field) => {
-  field.addEventListener(eventName, renderDepartmentProducts);
- });
 });
 els.refreshManagementDashboard.addEventListener("click", () => loadManagementDashboard(true));
-els.refreshDepartmentProducts.addEventListener("click", () => loadManagementDashboard(true));
 els.adminCentralButton.addEventListener("click", () => openAdminCentral("overview"));
 els.adminBackToApp.addEventListener("click", closeAdminCentral);
 
@@ -3475,12 +3383,19 @@ function render() {
 
  items = items.filter((product) => {
   const days = remaining(product.expiry);
-  if (activeFilter === "today") return days === 0;
-  if (activeFilter === "3") return days <= 3;
-  if (activeFilter === "7") return days <= 7;
-  if (activeFilter === "15") return days <= 15;
-  if (activeFilter === "offer") return product.offer;
-  if (activeFilter === "high") return product.qty >= 100;
+  if (days < 0) return false;
+
+  const { expiryRange, offerStatus, highQuantity } = activeFilters;
+  if (expiryRange === "today" && days !== 0) return false;
+  if (expiryRange === "3" && days > 3) return false;
+  if (expiryRange === "7" && days > 7) return false;
+  if (expiryRange === "15" && days > 15) return false;
+
+  if (offerStatus === "offer" && !product.offer) return false;
+  if (offerStatus === "no_offer" && product.offer) return false;
+
+  if (highQuantity && product.qty < 100) return false;
+
   return true;
  });
 
@@ -3628,14 +3543,89 @@ els.supplierFilter.addEventListener("input", () => {
 els.clearSupplierFilter.addEventListener("click", () => clearFilterInput(els.supplierFilter, els.clearSupplierFilter));
 els.sort.addEventListener("change", () => scheduleProductQueryReload(0));
 
+function syncFilterUI() {
+ const count = countActiveFilters(activeFilters);
+ const hasFilters = count > 0;
+
+ if (els.filtersHeader) els.filtersHeader.hidden = !hasFilters;
+ if (els.activeFiltersCount) {
+  els.activeFiltersCount.textContent = hasFilters
+   ? `${count} ${count === 1 ? "filtro ativo" : "filtros ativos"}`
+   : "";
+ }
+ if (els.clearFiltersBtn) {
+  els.clearFiltersBtn.hidden = !hasFilters;
+ }
+
+ els.chips.forEach((chip) => {
+  const filterKey = chip.dataset.filter;
+  let isActive = false;
+
+  if (filterKey === "all") {
+   isActive = !hasFilters;
+  } else if (filterKey === "today" || filterKey === "3" || filterKey === "7" || filterKey === "15") {
+   isActive = activeFilters.expiryRange === filterKey;
+  } else if (filterKey === "offer") {
+   isActive = activeFilters.offerStatus === "offer";
+  } else if (filterKey === "no_offer") {
+   isActive = activeFilters.offerStatus === "no_offer";
+  } else if (filterKey === "high") {
+   isActive = Boolean(activeFilters.highQuantity);
+  }
+
+  chip.classList.toggle("active", isActive);
+  chip.setAttribute("aria-pressed", isActive ? "true" : "false");
+
+  const baseLabel = chip.dataset.label || chip.textContent.replace(/^✓\s*/, "").trim();
+  chip.dataset.label = baseLabel;
+  if (isActive && filterKey !== "all") {
+   chip.innerHTML = `<span class="chip-check" aria-hidden="true">✓</span>${escapeHtml(baseLabel)}`;
+  } else {
+   chip.textContent = baseLabel;
+  }
+ });
+}
+
+function toggleFilterChip(filterKey) {
+ if (filterKey === "all") {
+  resetActiveFilters();
+  return;
+ }
+
+ if (filterKey === "today" || filterKey === "3" || filterKey === "7" || filterKey === "15") {
+  activeFilters.expiryRange = activeFilters.expiryRange === filterKey ? null : filterKey;
+ } else if (filterKey === "offer") {
+  activeFilters.offerStatus = activeFilters.offerStatus === "offer" ? null : "offer";
+ } else if (filterKey === "no_offer") {
+  activeFilters.offerStatus = activeFilters.offerStatus === "no_offer" ? null : "no_offer";
+ } else if (filterKey === "high") {
+  activeFilters.highQuantity = !activeFilters.highQuantity;
+ }
+
+ syncFilterUI();
+ scheduleProductQueryReload(0);
+}
+
+function resetActiveFilters() {
+ activeFilters.expiryRange = null;
+ activeFilters.offerStatus = null;
+ activeFilters.highQuantity = false;
+ syncFilterUI();
+ scheduleProductQueryReload(0);
+}
+
 els.chips.forEach((chip) => {
+ chip.dataset.label = chip.textContent.trim();
  chip.addEventListener("click", () => {
-  els.chips.forEach((item) => item.classList.remove("active"));
-  chip.classList.add("active");
-  activeFilter = chip.dataset.filter;
-  scheduleProductQueryReload(0);
+  toggleFilterChip(chip.dataset.filter);
  });
 });
+
+if (els.clearFiltersBtn) {
+ els.clearFiltersBtn.addEventListener("click", resetActiveFilters);
+}
+
+syncFilterUI();
 
 function findProduct() {
  void buscarProdutoPorCodigo(els.barcode.value.trim());
@@ -3944,11 +3934,11 @@ els.confirmUpdate.addEventListener("click", async () => {
   .catch((error) => {
    console.error("Falha ao atualizar produto.", error);
    products = products.map((product) => product.id === productId ? previousProduct : product);
+   applyDashboardStatsDelta(optimisticProduct, previousProduct);
    showToast(`Não foi possível atualizar ${productName}.`, "error", "!");
   })
   .finally(() => {
    pendingProductUpdateIds.delete(String(productId));
-   scheduleDashboardStatsReload();
    render();
   });
 });
@@ -3970,7 +3960,6 @@ els.completeProduct.addEventListener("click", async () => {
   applyDashboardStatsDelta(product, null);
   removeReportProduct(product.id);
   products = products.filter((item) => item.id !== product.id);
-  scheduleDashboardStatsReload(120);
   closeUpdateModal();
   render();
   celebrarMissaoCumprida();
@@ -3992,7 +3981,6 @@ els.deleteProduct.addEventListener("click", async () => {
   applyDashboardStatsDelta(product, null);
   removeReportProduct(product.id);
   products = products.filter((item) => item.id !== product.id);
-  scheduleDashboardStatsReload();
   closeUpdateModal();
   render();
  } catch (error) {
@@ -5185,7 +5173,6 @@ function celebrarMissaoCumprida() {
  lancarFogosLaterais();
 }
 
-els.testConfetti.addEventListener("click", celebrarMissaoCumprida);
 
 function setSavingProduct(saving) {
  els.save.disabled = saving;
@@ -5262,7 +5249,6 @@ els.save.addEventListener("click", async () => {
  }
  setSavingProduct(false);
  resetForm();
- scheduleDashboardStatsReload(120);
  render();
  document.querySelector('[data-page="products"]').click();
  celebrarProdutoSalvo();
@@ -5291,6 +5277,7 @@ els.clear.addEventListener("click", resetForm);
 render();
 </script>
 <script type="module" src="auth.js"></script>
+<script type="module" src="components/tour/SkalitoTour.js"></script>
 <script src="admin-cadastros.js" defer></script>
 </body>
 </html>

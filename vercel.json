@@ -1,9 +1,6 @@
 {
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/skaleedemo", "destination": "/skalito-demo.html" },
-    { "source": "/demo", "destination": "/skalito-demo.html" },
-    { "source": "/skalito", "destination": "/skalito-demo.html" }
+    { "source": "/skalito-svg", "destination": "/skalito-svg.html" }
   ]
 }
-

@@ -1,12 +1,17 @@
-const CACHE_NAME = "skalee-pwa-v114-mascot-demo";
+const CACHE_NAME = "skalee-pwa-v133-multi-filters";
 const APP_SHELL = [
  "/",
  "/index.html",
- "/skalito-demo.html",
  "/auth.css",
  "/auth.js",
  "/admin-cadastros.css",
  "/admin-cadastros.js",
+ "/components/tour/SkalitoTour.js",
+ "/components/tour/skalitoTourSteps.js",
+ "/components/tour/skalitoTour.css",
+ "/components/skalito/SkalitoMascot.js",
+ "/components/skalito/skalito.css",
+ "/components/skalito/skalitoAnimations.css",
  "/manifest.webmanifest",
  "/skalee-icon-64.png",
  "/skalee-icon-192.png",

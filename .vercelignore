@@ -6,6 +6,13 @@ deploy-*.log
 .vscode
 .npm-cache
 docs
+dev
 reports
 supabase
 tools
+skaleedemo.html
+skalito-animation.html
+skalito-demo.html
+skalito-standalone.html
+assets/skalito-animation
+assets/mascot-svg

@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 720" width="100%" height="100%" role="img" aria-label="Mascote Skalito Chama">
+  <defs>
+    <filter id="skalito-spirit-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#00d9ff" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <g id="skalito" class="skalito-root" style="transform-origin: 250px 420px; filter: url(#skalito-spirit-glow);">
+    <!-- Asa Esquerda -->
+    <g id="wing-left" class="skalito-piece piece-wing-left" data-pivot-x="162" data-pivot-y="388" style="transform-origin: 162px 388px;">
+      <image href="assets/mascot/left-wing.png" x="3" y="362" width="172" height="170" preserveAspectRatio="xMidYMid meet" />
+      <circle class="skalito-pivot-marker" cx="162" cy="388" r="4" fill="#ff4057" stroke="#fff" stroke-width="1.5"></circle>
+    </g>
+    <!-- Asa Direita -->
+    <g id="wing-right" class="skalito-piece piece-wing-right" data-pivot-x="338" data-pivot-y="388" style="transform-origin: 338px 388px;">
+      <image href="assets/mascot/right-wing.png" x="325" y="362" width="172" height="170" preserveAspectRatio="xMidYMid meet" />
+      <circle class="skalito-pivot-marker" cx="338" cy="388" r="4" fill="#ff4057" stroke="#fff" stroke-width="1.5"></circle>
+    </g>
+    <!-- Corpo e Cauda Fantasma -->
+    <g id="body" class="skalito-piece piece-body" data-pivot-x="250" data-pivot-y="460" style="transform-origin: 250px 460px;">
+      <image href="assets/mascot/body.png" x="132" y="335" width="236" height="350" preserveAspectRatio="xMidYMid meet" />
+      <circle class="skalito-pivot-marker" cx="250" cy="460" r="4" fill="#ff4057" stroke="#fff" stroke-width="1.5"></circle>
+    </g>
+    <!-- Braço Esquerdo -->
+    <g id="arm-left" class="skalito-piece piece-arm-left" data-pivot-x="180" data-pivot-y="390" style="transform-origin: 180px 390px;">
+      <image href="assets/mascot/left-arm.png" x="112" y="375" width="98" height="128" preserveAspectRatio="xMidYMid meet" />
+      <circle class="skalito-pivot-marker" cx="180" cy="390" r="4" fill="#ff4057" stroke="#fff" stroke-width="1.5"></circle>
+    </g>
+    <!-- Braço Direito -->
+    <g id="arm-right" class="skalito-piece piece-arm-right" data-pivot-x="320" data-pivot-y="390" style="transform-origin: 320px 390px;">
+      <image href="assets/mascot/right-arm.png" x="290" y="375" width="98" height="128" preserveAspectRatio="xMidYMid meet" />
+      <circle class="skalito-pivot-marker" cx="320" cy="390" r="4" fill="#ff4057" stroke="#fff" stroke-width="1.5"></circle>
+    </g>
+    <!-- Cabeça Chama -->
+    <g id="head" class="skalito-piece piece-head" data-pivot-x="250" data-pivot-y="370" style="transform-origin: 250px 370px;">
+      <image href="assets/mascot/head.png" x="108" y="15" width="284" height="422" preserveAspectRatio="xMidYMid meet" />
+      <circle class="skalito-pivot-marker" cx="250" cy="370" r="4" fill="#ff4057" stroke="#fff" stroke-width="1.5"></circle>
+    </g>
+    <!-- Olho Esquerdo -->
+    <g id="eye-left" class="skalito-piece piece-eye-left" data-pivot-x="190" data-pivot-y="291" style="transform-origin: 190px 291px;">
+      <image href="assets/mascot/left-eye.png" x="154" y="242" width="72" height="98" preserveAspectRatio="xMidYMid meet" />
+      <circle class="skalito-pivot-marker" cx="190" cy="291" r="4" fill="#ff4057" stroke="#fff" stroke-width="1.5"></circle>
+    </g>
+    <!-- Olho Direito -->
+    <g id="eye-right" class="skalito-piece piece-eye-right" data-pivot-x="310" data-pivot-y="289" style="transform-origin: 310px 289px;">
+      <image href="assets/mascot/right-eye.png" x="274" y="240" width="72" height="98" preserveAspectRatio="xMidYMid meet" />
+      <circle class="skalito-pivot-marker" cx="310" cy="289" r="4" fill="#ff4057" stroke="#fff" stroke-width="1.5"></circle>
+    </g>
+  </g>
+</svg>

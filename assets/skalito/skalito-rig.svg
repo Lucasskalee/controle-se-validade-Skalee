@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" width="100%" height="100%" role="img" aria-label="Mascote Skalito">
+  <g id="skalito-root" class="skalito-root" style="transform-origin: 500px 790px;">
+    <!-- Asa Esquerda -->
+    <g id="wing-left" class="skalito-piece piece-wing-left" data-pivot-x="386" data-pivot-y="570" style="transform-origin: 386px 570px;">
+      <image href="wing-right.png" x="96" y="430" width="320" height="225" preserveAspectRatio="xMidYMid meet" />
+      <rect class="skalito-debug-box" x="96" y="430" width="320" height="225" rx="0" ry="0" fill="none" display="none" />
+      <text class="skalito-debug-label" x="102" y="446" display="none">wing-left</text>
+      <circle class="skalito-pivot-marker" cx="386" cy="570" r="7" fill="#ff4057" stroke="#fff" stroke-width="2" display="none" />
+    </g>
+    <!-- Asa Direita -->
+    <g id="wing-right" class="skalito-piece piece-wing-right" data-pivot-x="616" data-pivot-y="570" style="transform-origin: 616px 570px;">
+      <image href="wing-left.png" x="548" y="420" width="388" height="244" preserveAspectRatio="xMidYMid meet" />
+      <rect class="skalito-debug-box" x="548" y="420" width="388" height="244" rx="0" ry="0" fill="none" display="none" />
+      <text class="skalito-debug-label" x="554" y="436" display="none">wing-right</text>
+      <circle class="skalito-pivot-marker" cx="616" cy="570" r="7" fill="#ff4057" stroke="#fff" stroke-width="2" display="none" />
+    </g>
+    <!-- Corpo, Pernas e Cauda -->
+    <g id="body-lower" class="skalito-piece piece-body-lower" data-pivot-x="500" data-pivot-y="908" style="transform-origin: 500px 908px;">
+      <image href="body-lower.png" x="240" y="498" width="620" height="450" preserveAspectRatio="xMidYMid meet" />
+      <rect class="skalito-debug-box" x="240" y="498" width="620" height="450" rx="0" ry="0" fill="none" display="none" />
+      <text class="skalito-debug-label" x="246" y="514" display="none">body-lower</text>
+      <circle class="skalito-pivot-marker" cx="500" cy="908" r="7" fill="#ff4057" stroke="#fff" stroke-width="2" display="none" />
+    </g>
+    <!-- Bandana / Jaleco Skalee (Atrás da Cabeça) -->
+    <g id="collar" class="skalito-piece piece-collar" data-pivot-x="488" data-pivot-y="572" style="transform-origin: 488px 572px;">
+      <image href="collar.png" x="318" y="488" width="340" height="270" preserveAspectRatio="xMidYMid meet" />
+      <rect class="skalito-debug-box" x="318" y="488" width="340" height="270" rx="0" ry="0" fill="none" display="none" />
+      <text class="skalito-debug-label" x="324" y="504" display="none">collar</text>
+      <circle class="skalito-pivot-marker" cx="488" cy="572" r="7" fill="#ff4057" stroke="#fff" stroke-width="2" display="none" />
+    </g>
+    <!-- Braço Direito (Ajustado ao Tronco) -->
+    <g id="arm-right" class="skalito-piece piece-arm-right" data-pivot-x="616" data-pivot-y="576" style="transform-origin: 616px 576px;">
+      <image href="arm-right.png" x="580" y="548" width="120" height="230" preserveAspectRatio="xMidYMid meet" />
+      <rect class="skalito-debug-box" x="580" y="548" width="120" height="230" rx="0" ry="0" fill="none" display="none" />
+      <text class="skalito-debug-label" x="586" y="564" display="none">arm-right</text>
+      <circle class="skalito-pivot-marker" cx="616" cy="576" r="7" fill="#ff4057" stroke="#fff" stroke-width="2" display="none" />
+    </g>
+    <!-- Braço Esquerdo (Ajustado ao Ombro) -->
+    <g id="arm-left" class="skalito-piece piece-arm-left" data-pivot-x="382" data-pivot-y="566" style="transform-origin: 382px 566px;">
+      <image href="arm-left.png" x="126" y="462" width="292" height="190" preserveAspectRatio="xMidYMid meet" />
+      <rect class="skalito-debug-box" x="126" y="462" width="292" height="190" rx="0" ry="0" fill="none" display="none" />
+      <text class="skalito-debug-label" x="132" y="478" display="none">arm-left</text>
+      <circle class="skalito-pivot-marker" cx="382" cy="566" r="7" fill="#ff4057" stroke="#fff" stroke-width="2" display="none" />
+    </g>
+    <!-- Cabeça (Na Frente do Jaleco) -->
+    <g id="head" class="skalito-piece piece-head" data-pivot-x="500" data-pivot-y="570" style="transform-origin: 500px 570px;">
+      <image href="head.png" x="305" y="66" width="390" height="585" preserveAspectRatio="xMidYMid meet" />
+      <rect class="skalito-debug-box" x="305" y="66" width="390" height="585" rx="0" ry="0" fill="none" display="none" />
+      <text class="skalito-debug-label" x="311" y="82" display="none">head</text>
+      <circle class="skalito-pivot-marker" cx="500" cy="570" r="7" fill="#ff4057" stroke="#fff" stroke-width="2" display="none" />
+    </g>
+    <!-- Olho Esquerdo -->
+    <g id="eye-left" class="skalito-piece piece-eye-left" data-pivot-x="402" data-pivot-y="401" style="transform-origin: 402px 401px;">
+      <image href="eye-left.png" x="358" y="334" width="88" height="134" preserveAspectRatio="xMidYMid meet" />
+      <rect class="skalito-debug-box" x="358" y="334" width="88" height="134" rx="0" ry="0" fill="none" display="none" />
+      <text class="skalito-debug-label" x="364" y="350" display="none">eye-left</text>
+      <circle class="skalito-pivot-marker" cx="402" cy="401" r="5" fill="#00d9ff" stroke="#fff" stroke-width="1.5" display="none" />
+    </g>
+    <!-- Olho Direito -->
+    <g id="eye-right" class="skalito-piece piece-eye-right" data-pivot-x="546" data-pivot-y="405" style="transform-origin: 546px 405px;">
+      <image href="eye-right.png" x="496" y="338" width="100" height="134" preserveAspectRatio="xMidYMid meet" />
+      <rect class="skalito-debug-box" x="496" y="338" width="100" height="134" rx="0" ry="0" fill="none" display="none" />
+      <text class="skalito-debug-label" x="502" y="354" display="none">eye-right</text>
+      <circle class="skalito-pivot-marker" cx="546" cy="405" r="5" fill="#00d9ff" stroke="#fff" stroke-width="1.5" display="none" />
+    </g>
+    <g class="skalito-validation-guide" aria-hidden="true">
+      <rect class="skalito-debug-box" x="332" y="66" width="335" height="150" rx="0" ry="0" fill="none" display="none" />
+      <text class="skalito-debug-label" x="338" y="82" display="none">horns</text>
+    </g>
+    <g class="skalito-validation-guide" aria-hidden="true">
+      <rect class="skalito-debug-box" x="318" y="488" width="340" height="94" rx="0" ry="0" fill="none" display="none" />
+      <text class="skalito-debug-label" x="324" y="504" display="none">neck/scarf</text>
+    </g>
+    <g class="skalito-validation-guide" aria-hidden="true">
+      <rect class="skalito-debug-box" x="330" y="580" width="330" height="210" rx="0" ry="0" fill="none" display="none" />
+      <text class="skalito-debug-label" x="336" y="596" display="none">torso</text>
+    </g>
+    <g class="skalito-validation-guide" aria-hidden="true">
+      <rect class="skalito-debug-box" x="280" y="710" width="390" height="170" rx="0" ry="0" fill="none" display="none" />
+      <text class="skalito-debug-label" x="286" y="726" display="none">legs</text>
+    </g>
+    <g class="skalito-validation-guide" aria-hidden="true">
+      <rect class="skalito-debug-box" x="258" y="844" width="430" height="104" rx="0" ry="0" fill="none" display="none" />
+      <text class="skalito-debug-label" x="264" y="860" display="none">feet</text>
+    </g>
+    <g class="skalito-validation-guide" aria-hidden="true">
+      <rect class="skalito-debug-box" x="630" y="652" width="230" height="210" rx="0" ry="0" fill="none" display="none" />
+      <text class="skalito-debug-label" x="636" y="668" display="none">tail</text>
+    </g>
+  </g>
+</svg>

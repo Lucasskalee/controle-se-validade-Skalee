@@ -1,0 +1,356 @@
+/**
+ * SKALITO MASCOT — ANIMATIONS CSS (60 FPS, GPU-Accelerated)
+ * Cyber Spirit / Chama Skalito com pivôs calibrados e interpolações suaves.
+ */
+
+/* ==========================================================================
+   0. MODO ESTÁTICO (ANATOMIA PURA)
+   ========================================================================== */
+skalito-mascot[state="static"]:not(.skalito-event-wave):not(.skalito-event-blink):not(.skalito-event-wings):not(.skalito-event-point):not(.skalito-event-celebrate) *,
+.skalito-state-static:not(.skalito-event-wave):not(.skalito-event-blink):not(.skalito-event-wings):not(.skalito-event-point):not(.skalito-event-celebrate) *,
+skalito-mascot[paused] *,
+.skalito-paused * {
+  animation: none !important;
+}
+
+/* ==========================================================================
+   1. PIVÔS DE TRANSFORMAÇÃO
+   ========================================================================== */
+.skalito-root,
+#skalito {
+  transform-box: view-box;
+  transform-origin: 250px 420px;
+}
+
+#head,
+.piece-head {
+  transform-box: view-box;
+  transform-origin: 250px 370px;
+}
+
+#wing-left,
+.piece-wing-left {
+  transform-box: view-box;
+  transform-origin: 162px 388px;
+}
+
+#wing-right,
+.piece-wing-right {
+  transform-box: view-box;
+  transform-origin: 338px 388px;
+}
+
+#arm-left,
+.piece-arm-left {
+  transform-box: view-box;
+  transform-origin: 180px 390px;
+}
+
+#arm-right,
+.piece-arm-right {
+  transform-box: view-box;
+  transform-origin: 320px 390px;
+}
+
+#eye-left,
+.piece-eye-left {
+  transform-box: view-box;
+  transform-origin: 190px 291px;
+}
+
+#eye-right,
+.piece-eye-right {
+  transform-box: view-box;
+  transform-origin: 310px 289px;
+}
+
+#body,
+.piece-body {
+  transform-box: view-box;
+  transform-origin: 250px 460px;
+}
+
+/* ==========================================================================
+   2. ANIMAÇÃO IDLE (FLUTUAÇÃO CÓSMICA)
+   ========================================================================== */
+skalito-mascot[state="idle"] .skalito-root,
+.skalito-state-idle .skalito-root {
+  animation: skalitoSpiritFloat 3.8s ease-in-out infinite;
+}
+
+@keyframes skalitoSpiritFloat {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.015);
+  }
+}
+
+skalito-mascot[state="idle"] #head,
+.skalito-state-idle #head {
+  animation: skalitoSpiritHead 3.8s ease-in-out infinite;
+}
+
+@keyframes skalitoSpiritHead {
+  0%, 100% {
+    transform: rotate(0deg) translateY(0);
+  }
+  50% {
+    transform: rotate(-1.5deg) translateY(-2px);
+  }
+}
+
+skalito-mascot[state="idle"] #body,
+.skalito-state-idle #body {
+  animation: skalitoSpiritTail 2.4s ease-in-out infinite alternate;
+}
+
+@keyframes skalitoSpiritTail {
+  0% {
+    transform: skewX(-1deg) rotate(-0.5deg);
+  }
+  100% {
+    transform: skewX(1.5deg) rotate(1deg);
+  }
+}
+
+skalito-mascot[state="idle"] #wing-left,
+.skalito-state-idle #wing-left {
+  animation: skalitoWingLeftFloat 3.8s ease-in-out infinite;
+}
+
+@keyframes skalitoWingLeftFloat {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(-3.5deg) scale(1.03);
+  }
+}
+
+skalito-mascot[state="idle"] #wing-right,
+.skalito-state-idle #wing-right {
+  animation: skalitoWingRightFloat 3.8s ease-in-out infinite;
+}
+
+@keyframes skalitoWingRightFloat {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(3.5deg) scale(1.03);
+  }
+}
+
+skalito-mascot[state="idle"] #arm-left,
+.skalito-state-idle #arm-left {
+  animation: skalitoArmLeftFloat 3.8s ease-in-out infinite;
+}
+
+@keyframes skalitoArmLeftFloat {
+  0%, 100% {
+    transform: rotate(0deg) translateY(0);
+  }
+  50% {
+    transform: rotate(-2deg) translateY(-1px);
+  }
+}
+
+skalito-mascot[state="idle"] #arm-right,
+.skalito-state-idle #arm-right {
+  animation: skalitoArmRightFloat 3.8s ease-in-out infinite;
+}
+
+@keyframes skalitoArmRightFloat {
+  0%, 100% {
+    transform: rotate(0deg) translateY(0);
+  }
+  50% {
+    transform: rotate(2deg) translateY(-1px);
+  }
+}
+
+/* ==========================================================================
+   3. ESTADOS DE HUMOR (TALKING, THINKING, HAPPY, ALERT)
+   ========================================================================== */
+
+/* Talking */
+skalito-mascot[state="talking"] #head,
+.skalito-state-talking #head {
+  animation: skalitoSpiritTalking 1.6s ease-in-out infinite;
+}
+
+@keyframes skalitoSpiritTalking {
+  0%, 100% {
+    transform: rotate(0deg) translateY(0);
+  }
+  25% {
+    transform: rotate(-2deg) translateY(-3px);
+  }
+  75% {
+    transform: rotate(1.5deg) translateY(-1px);
+  }
+}
+
+skalito-mascot[state="talking"] #arm-left,
+.skalito-state-talking #arm-left {
+  animation: skalitoArmTalking 1.6s ease-in-out infinite;
+}
+
+@keyframes skalitoArmTalking {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-8deg); }
+}
+
+/* Thinking */
+skalito-mascot[state="thinking"] #head,
+.skalito-state-thinking #head {
+  transform: rotate(4deg) translateY(-2px);
+  transition: transform 0.4s ease;
+}
+
+/* Happy */
+skalito-mascot[state="happy"] .skalito-root,
+.skalito-state-happy .skalito-root {
+  animation: skalitoHappyHop 1.2s ease-in-out infinite;
+}
+
+@keyframes skalitoHappyHop {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+/* Alert */
+skalito-mascot[state="alert"] #head,
+.skalito-state-alert #head {
+  animation: skalitoAlertPulse 1.4s ease-in-out infinite;
+}
+
+@keyframes skalitoAlertPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02) translateY(-3px); }
+}
+
+/* ==========================================================================
+   4. EVENTOS (WAVE, WINGS, POINT, CELEBRATE)
+   ========================================================================== */
+
+/* Wave (Aceno com Braço Esquerdo) */
+.skalito-event-wave #arm-left {
+  animation: skalitoWaveAnim 1.3s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards;
+}
+
+@keyframes skalitoWaveAnim {
+  0% { transform: rotate(0deg); }
+  20% { transform: rotate(-35deg); }
+  40% { transform: rotate(-15deg); }
+  60% { transform: rotate(-35deg); }
+  80% { transform: rotate(-15deg); }
+  100% { transform: rotate(0deg); }
+}
+
+/* Point (Apontar para o Alvo) */
+.skalito-event-point #arm-left {
+  animation: skalitoPointAnim 1.5s ease forwards;
+}
+
+@keyframes skalitoPointAnim {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(-30deg) translateX(-4px); }
+  75% { transform: rotate(-30deg) translateX(-4px); }
+  100% { transform: rotate(0deg); }
+}
+
+/* Wings (Batimento de Asas) */
+.skalito-event-wings #wing-left {
+  animation: skalitoFlapLeft 1.0s ease-in-out forwards;
+}
+
+.skalito-event-wings #wing-right {
+  animation: skalitoFlapRight 1.0s ease-in-out forwards;
+}
+
+@keyframes skalitoFlapLeft {
+  0%, 100% { transform: rotate(0deg); }
+  30%, 70% { transform: rotate(-14deg) scale(1.08); }
+  50% { transform: rotate(5deg) scale(0.95); }
+}
+
+@keyframes skalitoFlapRight {
+  0%, 100% { transform: rotate(0deg); }
+  30%, 70% { transform: rotate(14deg) scale(1.08); }
+  50% { transform: rotate(-5deg) scale(0.95); }
+}
+
+/* Celebrate (Comemoração e Salto) */
+.skalito-event-celebrate .skalito-root {
+  animation: skalitoCelebrateAnim 2.0s cubic-bezier(0.2, 0.8, 0.25, 1) forwards;
+}
+
+@keyframes skalitoCelebrateAnim {
+  0% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(-24px) scale(1.06); }
+  60% { transform: translateY(-10px) scale(1.02); }
+  80% { transform: translateY(-18px) scale(1.04); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+/* ==========================================================================
+   5. DIREÇÃO DO OLHAR (LOOK AT)
+   ========================================================================== */
+skalito-mascot.skalito-look-left #eye-left,
+skalito-mascot.skalito-look-left #eye-right {
+  transform: translateX(-5px);
+  transition: transform 0.2s ease;
+}
+
+skalito-mascot.skalito-look-right #eye-left,
+skalito-mascot.skalito-look-right #eye-right {
+  transform: translateX(5px);
+  transition: transform 0.2s ease;
+}
+
+skalito-mascot.skalito-look-up #eye-left,
+skalito-mascot.skalito-look-up #eye-right {
+  transform: translateY(-4px);
+  transition: transform 0.2s ease;
+}
+
+skalito-mascot.skalito-look-down #eye-left,
+skalito-mascot.skalito-look-down #eye-right {
+  transform: translateY(4px);
+  transition: transform 0.2s ease;
+}
+
+skalito-mascot.skalito-look-center #eye-left,
+skalito-mascot.skalito-look-center #eye-right {
+  transform: translate(0, 0);
+  transition: transform 0.2s ease;
+}
+
+/* ==========================================================================
+   6. DEBUG MARKERS & PREFERS-REDUCED-MOTION
+   ========================================================================== */
+.skalito-pivot-marker {
+  display: none;
+}
+
+.skalito-debug-mode .skalito-pivot-marker {
+  display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skalito-root,
+  #head,
+  #body,
+  #wing-left,
+  #wing-right,
+  #arm-left,
+  #arm-right,
+  #eye-left,
+  #eye-right {
+    animation: none !important;
+    transition: none !important;
+  }
+}

@@ -1,0 +1,795 @@
+@import "../skalito-lab/mascot-lab.css";
+
+/**
+ * SKALITO TOUR STYLES
+ * Estilos visuais do sistema de Onboarding e Tour Guiado com o Skalito.
+ */
+
+/* Prompt de Primeiro Acesso no Cabeçalho ao lado do perfil */
+.skalito-tour-prompt {
+  position: relative;
+  z-index: 820;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: auto;
+  margin: 0 4px 0 auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text, #172033);
+  box-shadow: none;
+  animation: skalitoPromptSlideIn 0.35s cubic-bezier(0.18, 0.9, 0.3, 1.2) both;
+}
+
+.user-area .skalito-tour-prompt {
+  margin-left: auto;
+}
+
+.skalito-tour-prompt[hidden] {
+  display: none !important;
+}
+
+.skalito-prompt-avatar {
+  position: relative;
+  width: 35px;
+  height: 50px;
+  overflow: visible;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.skalito-prompt-avatar .mascot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 430px;
+  height: 621px;
+  transform: scale(0.08);
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+
+.skalito-prompt-copy {
+  position: relative;
+  min-width: 0;
+  padding: 4px 8px;
+  border: 1px solid rgba(0, 217, 255, 0.45);
+  border-radius: 9px;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+  cursor: pointer;
+}
+
+html[data-theme="dark"] .skalito-prompt-copy {
+  background: #111b2e;
+  border-color: rgba(0, 217, 255, 0.4);
+}
+
+.skalito-prompt-copy::before {
+  content: "";
+  position: absolute;
+  right: -5px;
+  top: 10px;
+  width: 8px;
+  height: 8px;
+  border-top: 1px solid rgba(0, 217, 255, 0.45);
+  border-right: 1px solid rgba(0, 217, 255, 0.45);
+  background: inherit;
+  transform: rotate(45deg);
+}
+
+.skalito-prompt-copy strong {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.15;
+  color: #0f172a;
+  white-space: nowrap;
+}
+
+html[data-theme="dark"] .skalito-prompt-copy strong {
+  color: #f8fafc;
+}
+
+.skalito-prompt-copy p {
+  margin: 0;
+  color: #0088cc;
+  font-size: 9.5px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+html[data-theme="dark"] .skalito-prompt-copy p {
+  color: #38bdf8;
+}
+
+.skalito-prompt-close {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  display: grid;
+  place-items: center;
+  width: 15px;
+  height: 15px;
+  border: 0;
+  border-radius: 999px;
+  background: #475569;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.skalito-prompt-close:hover {
+  background: #ef4444;
+  transform: scale(1.15);
+  opacity: 1;
+}
+
+@keyframes skalitoPromptSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(12px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* Container Raiz do Tour */
+.skalito-tour-root {
+  position: fixed;
+  inset: 0;
+  z-index: 3400;
+  pointer-events: none;
+}
+
+.skalito-tour-root[hidden] {
+  display: none;
+}
+
+/* Scrim / Overlay Suave */
+.skalito-tour-scrim {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  pointer-events: auto;
+}
+
+/* Spotlight com Recorte e Glow Ciano */
+.skalito-tour-spotlight {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 120px;
+  height: 80px;
+  border: 2px solid rgba(0, 217, 255, 0.85);
+  border-radius: 14px;
+  box-shadow: 0 0 0 9999px rgba(5, 11, 22, 0.55), 0 0 35px rgba(0, 217, 255, 0.45);
+  transform: translate3d(-200vw, -200vh, 0);
+  transition: transform 0.42s cubic-bezier(0.2, 0.8, 0.25, 1),
+              width 0.42s cubic-bezier(0.2, 0.8, 0.25, 1),
+              height 0.42s cubic-bezier(0.2, 0.8, 0.25, 1),
+              border-radius 0.3s ease;
+  pointer-events: none;
+  z-index: 3410;
+}
+
+/* Guia do Skalito + Balão de Fala */
+.skalito-tour-guide {
+  position: fixed;
+  left: 0;
+  top: 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  width: max-content;
+  max-width: calc(100vw - 24px);
+  pointer-events: none;
+  transform: translate3d(var(--skalito-tour-x, 24px), var(--skalito-tour-y, 24px), 0);
+  transition: transform 0.58s cubic-bezier(0.18, 0.88, 0.26, 1);
+  will-change: transform;
+  z-index: 3450;
+}
+
+.skalito-tour-guide.is-entering {
+  animation: skalitoTourEnter 0.48s cubic-bezier(0.18, 0.89, 0.32, 1.28) both;
+}
+
+.skalito-tour-guide.is-routing {
+  opacity: 0.85;
+}
+
+.skalito-mascot-container {
+  position: relative;
+  width: 140px;
+  height: 200px;
+  flex: 0 0 auto;
+  overflow: visible;
+  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.45));
+}
+
+.skalito-mascot-container .mascot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 430px;
+  height: 621px;
+  transform: scale(0.32);
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+
+.skalito-tour-guide.is-flying-to-logo {
+  pointer-events: none !important;
+  transition: transform 1.15s cubic-bezier(0.2, 0.9, 0.28, 1),
+              opacity 0.4s ease 0.75s,
+              filter 0.9s ease !important;
+}
+
+.skalito-tour-guide.is-flying-to-logo .skalito-tour-speech {
+  opacity: 0 !important;
+  transform: scale(0.7) translateY(20px) !important;
+  transition: all 0.3s ease !important;
+  pointer-events: none !important;
+}
+
+.app-header-logo.logo-absorbed-sparkle,
+.app-brand img.logo-absorbed-sparkle {
+  animation: logoSparkleBurst 0.95s ease-out forwards;
+}
+
+@keyframes logoSparkleBurst {
+  0% { transform: scale(1); filter: brightness(1); }
+  40% { transform: scale(1.28); filter: brightness(1.8) drop-shadow(0 0 20px #00d9ff); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+
+/* Balão de Fala - Tema Escuro & Tema Claro */
+.skalito-tour-speech {
+  position: relative;
+  width: min(380px, calc(100vw - 32px));
+  border: 1.5px solid rgba(0, 217, 255, 0.45);
+  border-radius: 18px;
+  background: #ffffff;
+  color: #0f172a;
+  padding: 18px 16px 14px;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25), 0 0 24px rgba(0, 217, 255, 0.18);
+  pointer-events: auto;
+  transition: opacity 0.24s ease, transform 0.24s ease;
+}
+
+[data-theme="dark"] .skalito-tour-speech,
+html[data-theme="dark"] .skalito-tour-speech {
+  background: linear-gradient(135deg, rgba(13, 23, 38, 0.98), rgba(8, 14, 25, 0.98)) !important;
+  border: 1.5px solid rgba(0, 217, 255, 0.5) !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75), 0 0 28px rgba(0, 217, 255, 0.25) !important;
+  color: #f8fafc !important;
+}
+
+.skalito-tour-close {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(100, 116, 139, 0.12);
+  color: #64748b;
+  font-size: 16px;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  line-height: 1;
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  padding: 0;
+  z-index: 10;
+}
+
+.skalito-tour-close:hover {
+  background: rgba(239, 68, 68, 0.16);
+  color: #ef4444;
+  transform: scale(1.1);
+}
+
+[data-theme="dark"] .skalito-tour-close,
+html[data-theme="dark"] .skalito-tour-close {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .skalito-tour-close:hover,
+html[data-theme="dark"] .skalito-tour-close:hover {
+  background: rgba(239, 68, 68, 0.35) !important;
+  color: #f87171 !important;
+}
+
+.skalito-prompt-close {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 18px;
+  height: 18px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(100, 116, 139, 0.15);
+  color: #475569;
+  font-size: 13px;
+  font-weight: 850;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  line-height: 1;
+  transition: all 0.2s ease;
+  padding: 0;
+  z-index: 20;
+}
+
+.skalito-prompt-close:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  transform: scale(1.15);
+}
+
+.skalito-tour-speech[data-position="left"] {
+  order: -1;
+}
+
+.skalito-tour-speech[data-position="top"] {
+  order: -1;
+  margin-bottom: 110px;
+  margin-right: -140px;
+}
+
+.skalito-speech-text {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 700;
+  line-height: 1.5;
+  color: #0f172a;
+}
+
+[data-theme="dark"] .skalito-speech-text,
+html[data-theme="dark"] .skalito-speech-text {
+  color: #f8fafc !important;
+}
+
+.skalito-tour-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] .skalito-tour-meta,
+html[data-theme="dark"] .skalito-tour-meta {
+  border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+.skalito-tour-progress {
+  display: inline-block;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+[data-theme="dark"] .skalito-tour-progress,
+html[data-theme="dark"] .skalito-tour-progress {
+  color: #94a3b8 !important;
+}
+
+.skalito-tour-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.skalito-tour-actions button {
+  border: 0;
+  border-radius: 10px;
+  padding: 9px 14px;
+  font-weight: 850;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.skalito-tour-actions .ghost {
+  border: 1px solid rgba(100, 116, 139, 0.2);
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.skalito-tour-actions .ghost:hover:not(:disabled) {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+[data-theme="dark"] .skalito-tour-actions .ghost,
+html[data-theme="dark"] .skalito-tour-actions .ghost {
+  background: #1e293b !important;
+  color: #cbd5e1 !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+}
+
+[data-theme="dark"] .skalito-tour-actions .ghost:hover:not(:disabled),
+html[data-theme="dark"] .skalito-tour-actions .ghost:hover:not(:disabled) {
+  background: #334155 !important;
+  color: #ffffff !important;
+  border-color: rgba(0, 217, 255, 0.4) !important;
+}
+
+.skalito-tour-actions .primary {
+  background: linear-gradient(135deg, #0756d8, #00b4d8);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(7, 86, 216, 0.35);
+}
+
+.skalito-tour-actions .primary:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+[data-theme="dark"] .skalito-tour-actions .primary,
+html[data-theme="dark"] .skalito-tour-actions .primary {
+  background: linear-gradient(135deg, #0066ff, #00d9ff) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(0, 217, 255, 0.4) !important;
+}
+
+.skalito-tour-actions button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Destaque no Componente Alvo */
+.skalito-tour-highlight {
+  position: relative !important;
+  box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.45), 0 0 32px rgba(0, 217, 255, 0.32) !important;
+  border-radius: 12px;
+  transition: box-shadow 0.3s ease;
+}
+
+.skalito-tour-demo-found {
+  display: block !important;
+}
+
+/* Animações de Entrada */
+@keyframes skalitoPromptSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes skalitoTourEnter {
+  from {
+    opacity: 0;
+    transform: translate3d(calc(var(--skalito-tour-x, 24px) + 60px), calc(var(--skalito-tour-y, 24px) + 20px), 0) scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(var(--skalito-tour-x, 24px), var(--skalito-tour-y, 24px), 0) scale(1);
+  }
+}
+
+@keyframes skalitoSpiritFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+
+@keyframes skalito-light-spark {
+  0%, 100% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(0.35);
+  }
+  12% {
+    opacity: 0.95;
+  }
+  44% {
+    opacity: 0.82;
+    transform: translate3d(calc(var(--spark-drift-x) * 0.48), calc(var(--spark-drift-y) * 0.48), 0) rotate(32deg) scale(1);
+  }
+  78% {
+    opacity: 0.18;
+    transform: translate3d(var(--spark-drift-x), var(--spark-drift-y), 0) rotate(90deg) scale(0.58);
+  }
+}
+
+@keyframes skalito-spirit-sparkle-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 5px rgba(0, 217, 255, 0.16));
+    transform: translateY(0) scale(1);
+  }
+  30%, 70% {
+    filter: drop-shadow(0 0 18px rgba(0, 229, 255, 0.92)) drop-shadow(0 0 34px rgba(0, 102, 255, 0.58));
+    transform: translateY(-5px) scale(1.035);
+  }
+}
+
+@keyframes skalito-eye-sparkle-pulse {
+  0%, 100% {
+    transform: translate(var(--look-eye-x), var(--look-eye-y)) scale(1);
+    filter: brightness(1);
+  }
+  25%, 50%, 75% {
+    transform: translate(var(--look-eye-x), var(--look-eye-y)) scale(1.16);
+    filter: brightness(1.65) drop-shadow(0 0 9px #00d9ff);
+  }
+}
+
+@keyframes skalitoSpiritTail {
+  0% {
+    transform: skewX(-2.5deg) rotate(-1.5deg) scaleY(0.99);
+  }
+  50% {
+    transform: skewX(1.8deg) rotate(1.2deg) scaleY(1.01);
+  }
+  100% {
+    transform: skewX(2.8deg) rotate(2deg) scaleY(1.02);
+  }
+}
+
+@keyframes skalitoSpiritHead {
+  0%, 100% {
+    transform: translate(var(--look-head-x), var(--look-head-y)) rotate(var(--look-head-rot));
+  }
+  50% {
+    transform: translate(var(--look-head-x), calc(var(--look-head-y) - 2px)) rotate(calc(var(--look-head-rot) - 1.5deg));
+  }
+}
+
+@keyframes skalitoWingLeftFloat {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(-5deg) scale(1.04);
+  }
+}
+
+@keyframes skalitoWingRightFloat {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(5deg) scale(1.04);
+  }
+}
+
+@keyframes skalitoArmLeftFloat {
+  0%, 100% {
+    transform: rotate(-1deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+@keyframes skalitoArmRightFloat {
+  0%, 100% {
+    transform: rotate(1deg);
+  }
+  50% {
+    transform: rotate(-3deg);
+  }
+}
+
+@keyframes skalitoSpiritTalkHead {
+  0% {
+    transform: translate(var(--look-head-x), var(--look-head-y)) rotate(var(--look-head-rot));
+  }
+  100% {
+    transform: translate(var(--look-head-x), calc(var(--look-head-y) - 2.5px)) rotate(calc(var(--look-head-rot) + 1.6deg));
+  }
+}
+
+@keyframes skalitoArmTalking {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(-18deg) translateY(-2px);
+  }
+}
+
+@keyframes skalito-spirit-thinking-head {
+  0%, 100% { transform: translate(var(--look-head-x), var(--look-head-y)) rotate(calc(var(--look-head-rot) - 0.8deg)); }
+  50% { transform: translate(var(--look-head-x), calc(var(--look-head-y) - 1.2px)) rotate(calc(var(--look-head-rot) + 1.2deg)); }
+}
+
+@keyframes skalitoPointRight {
+  from { transform: rotate(0deg) translateX(0); }
+  to { transform: rotate(-28deg) translateY(-4px) translateX(3px); }
+}
+
+@keyframes skalitoWaveArm {
+  from { transform: rotate(-10deg); }
+  to { transform: rotate(26deg); }
+}
+
+@keyframes skalito-spirit-wave {
+  0%, 100% { transform: rotate(0deg); }
+  25%, 75% { transform: rotate(-72deg); }
+  50% { transform: rotate(-92deg); }
+}
+
+@keyframes skalito-spirit-flap-left {
+  0% { transform: rotate(-4deg) translate3d(0, 0, 0) scale(1, 1); }
+  38% { transform: rotate(-22deg) translate3d(-2px, -3px, 0) scale(0.9, 1.18); }
+  72% { transform: rotate(20deg) translate3d(3px, 4px, 0) scale(1.13, 0.86); }
+  100% { transform: rotate(-3deg) translate3d(0, 0, 0) scale(1, 1); }
+}
+
+@keyframes skalito-spirit-flap-right {
+  0% { transform: rotate(4deg) translate3d(0, 0, 0) scale(1, 1); }
+  38% { transform: rotate(22deg) translate3d(2px, -3px, 0) scale(0.9, 1.18); }
+  72% { transform: rotate(-20deg) translate3d(-3px, 4px, 0) scale(1.13, 0.86); }
+  100% { transform: rotate(3deg) translate3d(0, 0, 0) scale(1, 1); }
+}
+
+@keyframes skalito-spirit-celebrate {
+  0%, 100% { transform: translateY(0) scale(1); }
+  22% { transform: translateY(8px) scale(1.05, 0.95); }
+  46% { transform: translateY(-26px) scale(0.96, 1.06); }
+  72% { transform: translateY(-7px) scale(1.02); }
+}
+
+@keyframes skalito-spirit-blink {
+  0%, 100% { transform: translate(var(--look-eye-x), var(--look-eye-y)) scaleY(1); }
+  50% { transform: translate(var(--look-eye-x), var(--look-eye-y)) scaleY(0.12); }
+}
+
+/* Responsividade Mobile e Tablet */
+@media (max-width: 620px) {
+  .skalito-tour-prompt {
+    order: initial;
+    grid-template-columns: 44px 31px;
+    gap: 4px;
+    margin-top: -9px;
+    margin-right: -4px;
+  }
+
+  .skalito-prompt-avatar .mascot,
+  .skalito-prompt-avatar .skalito-spirit {
+    width: 31px;
+    height: 45px;
+    transform: scale(0.072);
+  }
+
+  .skalito-prompt-copy {
+    display: grid;
+    place-items: center;
+    min-height: 30px;
+    padding: 5px 8px;
+  }
+
+  .skalito-prompt-copy::after {
+    content: "(...)";
+    color: #0f172a;
+    font-size: 13px;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .skalito-prompt-copy strong,
+  .skalito-prompt-copy p {
+    display: none;
+  }
+
+  .skalito-tour-prompt-actions {
+    display: none;
+    grid-column: 1;
+    justify-content: flex-end;
+  }
+
+  .skalito-tour-prompt.is-expanded {
+    grid-template-columns: 104px 31px;
+  }
+
+  .skalito-tour-prompt.is-expanded .skalito-prompt-copy {
+    display: block;
+    place-items: initial;
+    min-height: 0;
+    padding: 6px 8px;
+  }
+
+  .skalito-tour-prompt.is-expanded .skalito-prompt-copy::after {
+    content: none;
+  }
+
+  .skalito-tour-prompt.is-expanded .skalito-prompt-copy strong {
+    display: block;
+    font-size: 11px;
+  }
+
+  .skalito-tour-prompt.is-expanded .skalito-prompt-copy p {
+    display: block;
+    font-size: 10px;
+    color: #1e293b;
+  }
+
+  .skalito-tour-prompt.is-expanded .skalito-tour-prompt-actions {
+    display: flex;
+  }
+
+  .skalito-tour-prompt-actions [data-tour-prompt="dismiss"] {
+    display: none;
+  }
+
+  .skalito-tour-guide {
+    gap: 8px;
+  }
+
+  .skalito-mascot-container {
+    width: 86px;
+    height: 124px;
+  }
+
+  .skalito-mascot-container .mascot {
+    transform: scale(0.2);
+  }
+
+  .skalito-spirit {
+    width: 86px;
+    height: 124px;
+  }
+
+  .skalito-tour-speech {
+    width: min(290px, calc(100vw - 110px));
+    padding: 13px;
+  }
+
+  .skalito-speech-text {
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .skalito-tour-actions {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .skalito-tour-actions button {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+}
+
+/* Acessibilidade — Redução de Movimento */
+@media (prefers-reduced-motion: reduce) {
+  .skalito-tour-guide,
+  .skalito-tour-spotlight,
+  .skalito-tour-scrim,
+  .skalito-tour-speech,
+  .skalito-spirit-float,
+  .skalito-spirit-part,
+  .spirit-body-tail,
+  .spirit-head-flame,
+  .spirit-head {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .skalito-tour-guide.is-entering,
+  .skalito-tour-prompt {
+    animation: none !important;
+  }
+}

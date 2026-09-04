@@ -591,10 +591,18 @@
       transform-origin: center bottom;
     }
 
-    .mascot-svg-box svg {
+    .mascot-photo-animation {
       width: 100%;
       height: 100%;
       display: block;
+      object-fit: contain;
+      filter: drop-shadow(0 0 16px rgba(0, 217, 255, 0.45));
+    }
+
+    .mascot-svg-box svg {
+      width: 100%;
+      height: 100%;
+      display: none;
       overflow: visible;
     }
 
@@ -1079,6 +1087,7 @@
       
       <!-- SVG INLINE OFICIAL DO SKALITO -->
       <div class="mascot-svg-box mascot" id="mascot">
+        <img class="mascot-photo-animation" src="assets/skalito-animation/skalito-photo-idle.svg" alt="Skalito animado com a arte enviada">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 380 430"
@@ -1449,7 +1458,7 @@
       </div>
 
       <!-- ILUSTRAÇÃO HD RASTER (OPCIONAL) -->
-      <img class="mascot-raster-img mascot" src="assets/skalito.png" alt="Skalito HD" id="mascot-raster">
+      <img class="mascot-raster-img mascot" src="assets/skalito-animation/frame-09-full.jpg" alt="Skalito HD com a arte enviada" id="mascot-raster">
     </div>
 
     <!-- BALÃO DE DIÁLOGO -->
