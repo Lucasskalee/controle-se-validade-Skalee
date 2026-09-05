@@ -94,6 +94,7 @@ function fromDatabase(row) {
   brandName: row.brands?.name || "",
   catalogProductName: row.catalog_products?.name || "",
   retailLocationName: row.retail_locations?.name || row.store,
+  stockMovement: null,
   canEdit: true,
   canDelete: row.user_id === activeUserId
  };
@@ -622,6 +623,93 @@ window.skaleeDb = {
   }
   Object.defineProperty(products, "rawPageLength", { value: rawPageLength });
   return products;
+ },
+ async loadStockMovementsForValidityProducts(productIds = []) {
+  const ids = [...new Set((productIds || []).map((id) => String(id || "").trim()).filter(Boolean))];
+  if (!ids.length) return [];
+  const rows = [];
+  for (let index = 0; index < ids.length; index += 100) {
+   const { data, error } = await supabase.rpc("get_validity_product_stock_movements", {
+    p_validity_product_ids: ids.slice(index, index + 100)
+   });
+   if (error) throw error;
+   rows.push(...(data || []));
+  }
+  return rows;
+ },
+ async loadStockImportBatches(snapshotDate) {
+  if (!snapshotDate) return [];
+  const rows = [];
+  for (let offset = 0; ; offset += 500) {
+   const { data, error } = await supabase.from("stock_import_batches")
+    .select("id,retail_location_id,snapshot_date,status,valid_rows,invalid_rows,original_filename,imported_at")
+    .eq("snapshot_date", snapshotDate).order("imported_at", { ascending: false })
+    .order("id", { ascending: false }).range(offset, offset + 499);
+   if (error) throw error;
+   rows.push(...(data || []));
+   if (!data || data.length < 500) return rows;
+  }
+ },
+ async loadMonitoredStockProducts(retailLocationId, locationName = "") {
+  if (!retailLocationId) return [];
+  const rows = [];
+  const normalizedLocationName = String(locationName || "").trim();
+  for (let offset = 0; ; offset += 500) {
+   let query = supabase
+    .from("validity_products")
+    .select("id,catalog_product_id,product_code,barcode,name,store,retail_location_id,catalog_products(id,internal_code,barcode,name)")
+    .is("completed_at", null);
+   if (normalizedLocationName) {
+    query = query.or(`retail_location_id.eq.${retailLocationId},store.eq."${normalizedLocationName}"`);
+   } else {
+    query = query.eq("retail_location_id", retailLocationId);
+   }
+   const { data, error } = await query
+    .order("created_at", { ascending: false })
+    .range(offset, offset + 499);
+   if (error) throw error;
+   rows.push(...(data || []));
+   if (!data || data.length < 500) break;
+  }
+  return rows;
+ },
+ async importProductStockSnapshots({
+  snapshotDate,
+  retailLocationId,
+  sourceName = "sg_stock",
+  originalFilename = "",
+  totalFileRows = 0,
+  monitoredCount = 0,
+  unlocatedCount = 0,
+  rows = []
+ } = {}) {
+  if (!snapshotDate) throw new Error("Informe a data da carga.");
+  if (!retailLocationId) throw new Error("Selecione a loja da carga.");
+  if (!Array.isArray(rows) || !rows.length) throw new Error("Nenhum produto monitorado foi localizado no arquivo da carga SG.");
+
+  let response = await supabase.rpc("import_product_stock_snapshots", {
+   p_snapshot_date: snapshotDate,
+   p_retail_location_id: retailLocationId,
+   p_source_name: sourceName,
+   p_original_filename: originalFilename,
+   p_rows: rows,
+   p_total_file_rows: totalFileRows || rows.length,
+   p_monitored_count: monitoredCount || rows.length,
+   p_unlocated_count: unlocatedCount || 0
+  });
+
+  if (response.error && String(response.error.message || "").toLowerCase().includes("schema cache")) {
+   response = await supabase.rpc("import_product_stock_snapshots", {
+    p_snapshot_date: snapshotDate,
+    p_retail_location_id: retailLocationId,
+    p_source_name: sourceName,
+    p_original_filename: originalFilename,
+    p_rows: rows
+   });
+  }
+  if (response.error) throw response.error;
+  if (response.data?.status === "failed") throw new Error(response.data.error_message || "A carga falhou e não foi marcada como concluída.");
+  return response.data;
  },
  async loadProductDashboardStats(options = {}) {
   const access = await this.currentPromoterAccess();
@@ -1195,15 +1283,20 @@ async listCatalogProducts(options = {}) {
   return data;
  },
  async listRetailLocations() {
-  const { data, error } = await supabase.from("retail_locations").select("id,retailer_organization_id,code,name,address_line,city,state,postal_code,active,created_at,organizations(name)").order("name");
+  try {
+   const { data, error } = await supabase.from("retail_locations").select("id,retailer_organization_id,code,name,address_line,city,state,postal_code,active,created_at,organizations(name)").order("name");
+   if (!error && Array.isArray(data)) return data;
+  } catch (_) {}
+  const { data, error } = await supabase.from("retail_locations").select("id,retailer_organization_id,code,name,address_line,city,state,postal_code,active,created_at").order("name");
   if (error) throw error;
-  return data;
+  return data || [];
  },
  async listAllowedRetailLocationsForCurrentUser() {
   const { data: { user }, error: userError } = await supabase.auth.getUser();
   if (userError) throw userError;
   if (!user) return [];
-  if (user.app_metadata?.access_role === "platform_admin" || isSkaleeAdminEmail(activeUserEmail)) return this.listRetailLocations();
+  const email = user.email || activeUserEmail || "";
+  if (user.app_metadata?.access_role === "platform_admin" || isSkaleeAdminEmail(email)) return this.listRetailLocations();
   const access = await this.currentPromoterAccess();
   if (!access) return this.listRetailLocations();
   const { data: assignments, error: assignmentsError } = await supabase
@@ -1214,14 +1307,23 @@ async listCatalogProducts(options = {}) {
   if (assignmentsError) throw assignmentsError;
   const locationIds = [...new Set((assignments || []).map((item) => item.location_id).filter(Boolean))];
   if (!locationIds.length) return [];
+  try {
+   const { data, error } = await supabase
+    .from("retail_locations")
+    .select("id,retailer_organization_id,code,name,address_line,city,state,postal_code,active,created_at,organizations(name)")
+    .in("id", locationIds)
+    .eq("active", true)
+    .order("name");
+   if (!error && Array.isArray(data)) return data;
+  } catch (_) {}
   const { data, error } = await supabase
    .from("retail_locations")
-   .select("id,retailer_organization_id,code,name,address_line,city,state,postal_code,active,created_at,organizations(name)")
+   .select("id,retailer_organization_id,code,name,address_line,city,state,postal_code,active,created_at")
    .in("id", locationIds)
    .eq("active", true)
    .order("name");
   if (error) throw error;
-  return data;
+  return data || [];
  },
  async listPromoterLocationAssignments() {
   const { data, error } = await supabase.from("promoter_location_assignments").select("promoter_user_id,location_id,active");

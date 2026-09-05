@@ -97,6 +97,7 @@ input:focus,select:focus{border-color:#9dbbf9;box-shadow:0 0 0 3px #e8f0ff}
 .scan{display:grid;grid-template-columns:1fr auto auto;gap:8px}.btn{background:var(--blue);color:#fff}.btn2{border:0;border-radius:11px;background:#e9edf4;color:#39465c;padding:11px 14px;font-weight:750;cursor:pointer}.btn2.active{background:var(--blue);color:#fff}
 .found{display:none;margin-top:10px;padding:13px;border-radius:11px;background:var(--blue2);border:1px solid #d8e6ff}.found.show{display:block}.manual-product-form{display:grid;gap:8px;margin-top:10px}.manual-product-form input{background:#fff}.manual-product-actions{display:flex;gap:8px;flex-wrap:wrap}
 .catalog-status{margin-top:7px;color:var(--muted);font-size:12px}.catalog-status[hidden]{display:none}.catalog-status.ready{color:var(--green)}.catalog-status.error{color:var(--red)}
+.stock-import-grid{display:grid;grid-template-columns:160px minmax(180px,1fr) minmax(220px,1.2fr);gap:10px;margin-top:12px}.stock-import-grid label{display:grid;gap:6px;color:var(--muted);font-size:12px;font-weight:800}.stock-import-file{min-width:0}.stock-movement{margin-top:10px;padding-top:9px;border-top:1px solid #f0f2f5}.stock-movement .info{border-top:0}.stock-movement-badge{display:inline-flex;align-items:center;gap:6px;margin-top:7px;padding:7px 9px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:12px;font-weight:850}.stock-movement-badge.decrease{background:#ecfdf5;color:#166534}.stock-movement-badge.increase{background:#fff7ed;color:#c2410c}.stock-movement-badge.stable{background:#f1f5f9;color:#475569}.stock-movement-badge.no_previous_snapshot{background:#f8fafc;color:#64748b;border:1px solid var(--line)}
 .preview{height:145px;margin-top:8px;border:1px dashed #cbd3df;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--muted);overflow:hidden}.preview img{width:100%;height:100%;object-fit:cover}
 .check{display:flex;gap:9px;align-items:center;margin-top:16px;font-size:14px;font-weight:700}.check input{width:auto}
 .actions{display:flex;gap:8px;margin-top:19px}
@@ -197,7 +198,7 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
 @media(max-width:620px){.scan{grid-template-columns:1fr}}
 @media(max-width:850px){.stats{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:900px){.admin-topbar{align-items:flex-start;flex-direction:column}.admin-actions{width:100%;justify-content:space-between}.admin-layout{grid-template-columns:1fr}.admin-sidebar{position:sticky;top:0;z-index:5;flex-direction:row;overflow:auto;border-right:0;border-bottom:1px solid var(--admin-border)}.admin-sidebar .settings-tab.admin-nav-item{flex:1 0 48px;justify-content:center;gap:0;min-height:48px;padding:12px 10px;border-radius:8px}.admin-nav-item span{max-width:0;opacity:0;overflow:hidden;white-space:nowrap;transition:max-width .2s ease,opacity .18s ease}.admin-sidebar .settings-tab.admin-nav-item.active,.admin-sidebar .settings-tab.admin-nav-item[aria-current="page"]{flex:2.8 0 132px;gap:8px}.admin-nav-item.active span,.admin-nav-item[aria-current="page"] span{max-width:118px;opacity:1;text-overflow:ellipsis}.admin-content{padding:18px 14px 26px}.admin-metrics,.management-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.management-toolbar,.management-panels{grid-template-columns:1fr}.admin-metric{min-height:82px;padding:13px}.admin-metric-icon{width:42px;height:42px}.admin-metric b,.management-card b{font-size:24px}}
-@media(max-width:620px){.app{padding:14px}.searchrow,.searchrow.with-layout{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}header{align-items:flex-start;flex-direction:column;gap:5px}.photo{height:180px}.report-head{align-items:stretch;flex-direction:column}.report-controls{align-items:stretch;flex-direction:column}.product-layout-picker{justify-self:start}.theme-options,.user-create,.user-location-checks{grid-template-columns:1fr}.user-row,.user-locations-head,.user-actions,.user-location-actions{align-items:stretch;flex-direction:column}.user-row .btn2,.user-locations-head .btn2{width:100%}.install-banner{align-items:flex-start;flex-wrap:wrap}.install-copy{flex:1 1 calc(100% - 65px)}.install-actions{width:100%;justify-content:flex-end}.grid[data-columns="2"] .photo{height:120px}.grid[data-columns="3"] .photo{height:90px}.grid[data-columns="4"] .photo{height:70px}.grid[data-columns="3"] .content,.grid[data-columns="4"] .content{padding:7px}.grid[data-columns="3"] .name,.grid[data-columns="4"] .name{min-height:0;font-size:10px}.grid[data-columns="3"] .code,.grid[data-columns="4"] .code{font-size:8px}.grid[data-columns="3"] .info,.grid[data-columns="4"] .info{display:block;font-size:8px}.grid[data-columns="3"] .badge,.grid[data-columns="4"] .badge{font-size:7px;padding:4px}.grid[data-columns="3"] .card-actions .btn2,.grid[data-columns="4"] .card-actions .btn2{width:100%;padding:6px 3px;font-size:8px}}
+@media(max-width:620px){.app{padding:14px}.searchrow,.searchrow.with-layout,.stock-import-grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}header{align-items:flex-start;flex-direction:column;gap:5px}.photo{height:180px}.report-head{align-items:stretch;flex-direction:column}.report-controls{align-items:stretch;flex-direction:column}.product-layout-picker{justify-self:start}.theme-options,.user-create,.user-location-checks{grid-template-columns:1fr}.user-row,.user-locations-head,.user-actions,.user-location-actions{align-items:stretch;flex-direction:column}.user-row .btn2,.user-locations-head .btn2{width:100%}.install-banner{align-items:flex-start;flex-wrap:wrap}.install-copy{flex:1 1 calc(100% - 65px)}.install-actions{width:100%;justify-content:flex-end}.grid[data-columns="2"] .photo{height:120px}.grid[data-columns="3"] .photo{height:90px}.grid[data-columns="4"] .photo{height:70px}.grid[data-columns="3"] .content,.grid[data-columns="4"] .content{padding:7px}.grid[data-columns="3"] .name,.grid[data-columns="4"] .name{min-height:0;font-size:10px}.grid[data-columns="3"] .code,.grid[data-columns="4"] .code{font-size:8px}.grid[data-columns="3"] .info,.grid[data-columns="4"] .info{display:block;font-size:8px}.grid[data-columns="3"] .badge,.grid[data-columns="4"] .badge{font-size:7px;padding:4px}.grid[data-columns="3"] .card-actions .btn2,.grid[data-columns="4"] .card-actions .btn2{width:100%;padding:6px 3px;font-size:8px}}
 </style>
 </head>
 <body class="auth-loading">
@@ -461,6 +462,25 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
    <div class="settings-actions">
     <button id="importDbf" class="btn" type="button">Enviar catálogo</button>
    </div>
+  </div>
+  <div id="stockImportSettingsSection" class="settings-section" hidden>
+   <h2>Estoque diário por loja</h2>
+   <p class="settings-note">Envie um arquivo separado para cada loja. Escolha a loja de destino e a data: a carga atualiza somente o estoque dessa loja. Um novo envio para a mesma loja e data atualiza os produtos presentes no arquivo, sem somar as quantidades.</p>
+   <div class="import-box stock-import-box">
+    <strong>Enviar estoque da loja</strong>
+    <div class="stock-import-grid">
+     <label>Data da carga<input id="stockSnapshotDate" type="date"></label>
+     <label>Loja<select id="stockImportLocation"><option value="">Selecione a loja</option></select></label>
+     <label class="stock-import-file">Arquivo<input id="stockSnapshotFile" type="file" accept=".xls,.txt,.csv,.dbf,application/vnd.ms-excel,text/plain,text/csv,application/octet-stream"></label>
+    </div>
+    <div class="settings-actions">
+     <button id="importStockSnapshot" class="btn" type="button">Enviar carga para a loja selecionada</button>
+    </div>
+   </div>
+   <div id="stockImportInfo" class="catalog-info" aria-live="polite">
+    <b>Nenhuma carga diária enviada nesta sessão.</b>
+   </div>
+   <div id="stockImportStatus" class="catalog-info" aria-live="polite"></div>
   </div>
   </section>
 
@@ -884,6 +904,13 @@ const els = {
  importDbf: document.getElementById('importDbf'),
  catalogInfo: document.getElementById('catalogInfo'),
  catalogSettingsSection: document.getElementById('catalogSettingsSection'),
+ stockImportSettingsSection: document.getElementById('stockImportSettingsSection'),
+ stockSnapshotDate: document.getElementById('stockSnapshotDate'),
+ stockImportLocation: document.getElementById('stockImportLocation'),
+ stockSnapshotFile: document.getElementById('stockSnapshotFile'),
+ importStockSnapshot: document.getElementById('importStockSnapshot'),
+ stockImportInfo: document.getElementById('stockImportInfo'),
+ stockImportStatus: document.getElementById('stockImportStatus'),
  updateModal: document.getElementById('updateModal'),
  updateProductName: document.getElementById('updateProductName'),
  updateQty: document.getElementById('updateQty'),
@@ -1018,6 +1045,7 @@ let productPageLoading = false;
 let productHasMorePages = false;
 let productPageOffset = 0;
 let productLoadGeneration = 0;
+let stockMovementLoadGeneration = 0;
 let validityProductsRealtimeChannel = null;
 let productQueryReloadTimer = null;
 let dashboardStatsReloadTimer = null;
@@ -2135,9 +2163,36 @@ function syncDashboardAfterAppResume(reason = "resume") {
 
 window.addEventListener("online", () => syncDashboardAfterAppResume("online"));
 
+function aplicarMovimentacoesEstoque(rows = []) {
+ const movementById = new Map((rows || []).map((row) => [String(row.validity_product_id), row]));
+ products = products.map((product) => {
+  const movement = movementById.get(String(product.id));
+  return movement ? { ...product, stockMovement: movement } : product;
+ });
+}
+
+async function carregarMovimentacaoEstoqueDosProdutos(targetProducts = products, options = {}) {
+ if (!window.skaleeDb?.loadStockMovementsForValidityProducts) return;
+ const ids = [...new Set((targetProducts || [])
+  .filter((product) => product.catalogProductId && product.retailLocationId)
+  .map((product) => product.id)
+  .filter(Boolean))];
+ if (!ids.length) return;
+ const generation = options.force ? ++stockMovementLoadGeneration : stockMovementLoadGeneration;
+ try {
+  const rows = await window.skaleeDb.loadStockMovementsForValidityProducts(ids);
+  if (generation !== stockMovementLoadGeneration) return;
+  aplicarMovimentacoesEstoque(rows);
+  render();
+ } catch (error) {
+  console.error("Não foi possível carregar movimentação estimada de estoque.", error);
+ }
+}
+
 async function carregarProdutosOnline() {
  if (!window.skaleeDb) return;
  const generation = ++productLoadGeneration;
+ stockMovementLoadGeneration += 1;
  const criteria = getProductQueryCriteria();
  realtimeStats.fullReloads += 1;
  queryStats.initialLoads += 1;
@@ -2159,6 +2214,7 @@ async function carregarProdutosOnline() {
   preencherFornecedorPelosProdutos();
   productPageLoading = false;
   render();
+  void carregarMovimentacaoEstoqueDosProdutos(firstPage);
   maybeShowValidityNotification(true);
   setProductLoadToast("Produtos carregados", `${products.length} produto(s) exibidos no primeiro lote.`, false);
  } catch (error) {
@@ -2188,6 +2244,7 @@ async function carregarMaisProdutosOnline() {
   productHasMorePages = rawLength === PRODUCT_PAGE_SIZE;
   productPageLoading = false;
   render();
+  void carregarMovimentacaoEstoqueDosProdutos(nextProducts);
  } catch (error) {
   console.error("Não foi possível carregar mais produtos.", error);
   if (generation !== productLoadGeneration) return;
@@ -2231,7 +2288,12 @@ async function carregarOpcoesPermitidas() {
  if (!window.skaleeDb) return;
  try {
   if (typeof window.skaleeDb.listAllowedRetailLocationsForCurrentUser === "function") {
-   const locations = await window.skaleeDb.listAllowedRetailLocationsForCurrentUser();
+   let locations = await window.skaleeDb.listAllowedRetailLocationsForCurrentUser();
+   if ((!locations || !locations.length) && isSkaleeAdmin && typeof window.skaleeDb.listRetailLocations === "function") {
+    try {
+     locations = await window.skaleeDb.listRetailLocations();
+    } catch (_) {}
+   }
    popularLojasPermitidas(locations || []);
   }
   if (typeof window.skaleeDb.listAllowedSuppliersForCurrentUser === "function") {
@@ -2253,12 +2315,27 @@ function popularLojasPermitidas(locations) {
   option.dataset.name = location.name;
   els.store.add(option);
  });
- if ([...els.store.options].some((option) => option.value === selectedStore)) els.store.value = selectedStore;
+ if ([...els.store.options].some((option) => option.value === selectedStore)) {
+  els.store.value = selectedStore;
+ } else if (activeLocations.length === 1) {
+  els.store.value = activeLocations[0].id;
+ }
 
  const selectedFilter = els.storeFilter.value;
  els.storeFilter.replaceChildren(new Option("Todas as lojas", ""));
  activeLocations.forEach((location) => els.storeFilter.add(new Option(location.name, location.name)));
  if ([...els.storeFilter.options].some((option) => option.value === selectedFilter)) els.storeFilter.value = selectedFilter;
+ if (els.stockImportLocation) {
+  const selectedStockLocation = els.stockImportLocation.value;
+  els.stockImportLocation.replaceChildren(new Option(activeLocations.length ? "Selecione a loja" : "Nenhuma loja ativa", ""));
+  activeLocations.forEach((location) => els.stockImportLocation.add(new Option(location.name, location.id)));
+  if ([...els.stockImportLocation.options].some((option) => option.value === selectedStockLocation)) {
+   els.stockImportLocation.value = selectedStockLocation;
+  } else if (activeLocations.length === 1) {
+   els.stockImportLocation.value = activeLocations[0].id;
+  }
+  void carregarSituacaoCargasEstoque();
+ }
  if (els.notificationStore) {
   const settings = readNotificationSettings();
   els.notificationStore.replaceChildren(new Option("Todas as lojas", ""));
@@ -2669,6 +2746,9 @@ window.addEventListener("skalee:authenticated", (event) => {
  if (isViewer || activeTab?.hidden) document.querySelector('[data-page="products"]').click();
  els.adminUsersSection.hidden = !isAdmin;
  els.catalogSettingsSection.hidden = !isSkaleeAdmin;
+ els.stockImportSettingsSection.hidden = !isSkaleeAdmin;
+ if (els.stockSnapshotDate && !els.stockSnapshotDate.value) els.stockSnapshotDate.value = localDateKey(new Date());
+ void carregarSituacaoCargasEstoque();
 });
 window.addEventListener("skalee:signed-out", () => {
  appAuthenticated = false;
@@ -2708,6 +2788,7 @@ window.addEventListener("skalee:signed-out", () => {
  showSettingsPanel("overview");
  els.adminUsersSection.hidden = true;
  els.catalogSettingsSection.hidden = true;
+ els.stockImportSettingsSection.hidden = true;
  els.userList.replaceChildren();
  render();
 });
@@ -3047,6 +3128,36 @@ function supplierCardText(product) {
  const labels = supplierLabel(product).split(" / ").filter(Boolean);
  if (labels.length <= 1) return { text: labels[0] || "", title: "" };
  return { text: `${labels[0]} + outros`, title: labels.join(" / ") };
+}
+
+function formatStockNumber(value) {
+ const number = Number(value);
+ if (!Number.isFinite(number)) return "--";
+ return number.toLocaleString("pt-BR", { maximumFractionDigits: 3 });
+}
+
+function stockMovementBadge(movement) {
+ if (!movement || !movement.snapshot_date) return '<span class="stock-movement-badge no_previous_snapshot">Sem carga SG</span>';
+ const type = movement.movement_type || "no_previous_snapshot";
+ if (type === "decrease") return `<span class="stock-movement-badge decrease">↓ ${formatStockNumber(movement.estimated_outflow)} un. desde a última carga</span>`;
+ if (type === "increase") return `<span class="stock-movement-badge increase">↑ Estoque aumentou ${formatStockNumber(Math.abs(Number(movement.stock_change || 0)))} un.</span>`;
+ if (type === "stable") return '<span class="stock-movement-badge stable">Estável desde a última carga</span>';
+ return '<span class="stock-movement-badge no_previous_snapshot">Sem histórico anterior</span>';
+}
+
+function renderStockMovement(product) {
+ const movement = product.stockMovement;
+ if (!movement) return "";
+ const snapshotDate = movement.snapshot_date ? new Date(`${movement.snapshot_date}T00:00:00`).toLocaleDateString("pt-BR") : "--";
+ const previousDate = movement.previous_snapshot_date ? new Date(`${movement.previous_snapshot_date}T00:00:00`).toLocaleDateString("pt-BR") : "--";
+ const interval = movement.interval_days ? ` (${movement.interval_days} dia${Number(movement.interval_days) === 1 ? "" : "s"})` : "";
+ return `
+      <div class="stock-movement">
+       <div class="info"><span>Estoque SG</span><b>${formatStockNumber(movement.stock_quantity)} un.</b></div>
+       <div class="info"><span>Última carga</span><b>${snapshotDate}</b></div>
+       <div class="info"><span>Estoque anterior</span><b>${movement.previous_stock_quantity === null || movement.previous_stock_quantity === undefined ? "--" : `${formatStockNumber(movement.previous_stock_quantity)} un.`}${previousDate !== "--" ? ` em ${previousDate}${interval}` : ""}</b></div>
+       ${stockMovementBadge(movement)}
+      </div>`;
 }
 
 function formatReportProduct(product) {
@@ -3431,6 +3542,7 @@ function render() {
       <div class="info"><span>Faltam</span><b>${days === 0 ? "Vence hoje" : `${days} dias`}</b></div>
       <div class="info"><span>Atualizado em</span><b>${formatDateTime(product.updatedAt || product.createdAt)}</b></div>
       <div class="info"><span>Último usuário</span><b>${displayUserName(product.updatedByEmail)}</b></div>
+      ${renderStockMovement(product)}
       <div class="badges">
         <span class="badge ${tone}">${label}</span>
         ${product.offer ? '<span class="badge offer">EM OFERTA</span>' : ''}
@@ -4146,6 +4258,101 @@ function indiceColunaCatalogo(cabecalho, nomes) {
  });
 }
 
+function parseNumeroSg(value) {
+ const original = String(value || "").trim();
+ if (!original) return null;
+ let cleaned = original.replace(/[^0-9,.\-]/g, "");
+ if (!cleaned || cleaned === "-") return null;
+ if (cleaned.includes(",") && cleaned.includes(".")) cleaned = cleaned.replace(/\./g, "").replace(",", ".");
+ else if (cleaned.includes(",")) cleaned = cleaned.replace(",", ".");
+ const number = Number(cleaned);
+ return Number.isFinite(number) ? number : null;
+}
+
+function carregarSnapshotsEstoqueDbf(buffer) {
+ const bytes = new Uint8Array(buffer);
+ if (bytes.length < 32 || bytes[0] !== 0x03) throw new Error("DBF inválido.");
+ const view = new DataView(buffer);
+ const totalRegistros = view.getUint32(4, true);
+ const tamanhoCabecalho = view.getUint16(8, true);
+ const tamanhoRegistro = view.getUint16(10, true);
+ const campos = [];
+ for (let offset = 32; offset < tamanhoCabecalho - 1; offset += 32) {
+  if (bytes[offset] === 0x0d) break;
+  const nome = textoDbf(bytes.subarray(offset, offset + 11)).replace(/\0/g, "").trim().toUpperCase();
+  campos.push({ nome, tipo: String.fromCharCode(bytes[offset + 11]), tamanho: bytes[offset + 16] });
+ }
+ const codeField = campos.find((campo) => ["CODPROD", "CODIGO", "COD_PROD", "CODITEM", "PRODUTO"].includes(campo.nome))?.nome;
+ const stockField = campos.find((campo) => ["ESTOQUE", "ESTOQ", "SALDO", "QTDEST", "QTESTOQUE", "EST_ATUAL", "DISPONIVEL"].includes(campo.nome))?.nome;
+ const saleField = campos.find((campo) => ["PRECO", "PRECOVENDA", "PRVENDA", "VLRVENDA"].includes(campo.nome))?.nome;
+ const costField = campos.find((campo) => ["CUSTO", "PRECOCUSTO", "PRCUSTO", "VLRCUSTO"].includes(campo.nome))?.nome;
+ if (!codeField || !stockField) throw new Error("DBF de estoque precisa conter código interno e estoque.");
+ const rows = [];
+ for (let indice = 0; indice < totalRegistros; indice += 1) {
+  const inicio = tamanhoCabecalho + indice * tamanhoRegistro;
+  if (inicio + tamanhoRegistro > bytes.length || bytes[inicio] === 0x2a) continue;
+  let posicao = inicio + 1;
+  const registro = {};
+  campos.forEach((campo) => {
+   registro[campo.nome] = textoDbf(bytes.subarray(posicao, posicao + campo.tamanho));
+   posicao += campo.tamanho;
+  });
+  rows.push({
+   internal_code: String(registro[codeField] || "").replace(/\D/g, ""),
+   stock_quantity: parseNumeroSg(registro[stockField]),
+   sale_price: saleField ? parseNumeroSg(registro[saleField]) : null,
+   cost_price: costField ? parseNumeroSg(registro[costField]) : null
+  });
+ }
+ if (!rows.length) throw new Error("Nenhuma linha de estoque foi encontrada no DBF.");
+ return rows;
+}
+
+function detectarSeparadorEstoque(linha) {
+ if (linha.includes("\t")) return "\t";
+ if (linha.includes(";")) return ";";
+ return ",";
+}
+
+function carregarSnapshotsEstoqueTexto(buffer) {
+ const texto = new TextDecoder("windows-1252").decode(buffer).replace(/\0/g, "");
+ const linhas = texto.split(/\r?\n/).map((linha) => linha.trim()).filter(Boolean);
+ let mapa = null;
+ const rows = [];
+ for (const linha of linhas) {
+  const separador = detectarSeparadorEstoque(linha);
+  const colunas = linha.split(separador).map((coluna) => normalizarEspacos(coluna));
+  if (!mapa) {
+   const codigoIndex = indiceColunaCatalogo(colunas, ["CODIGO", "CODPROD", "COD. PRODUTO", "COD PRODUTO", "CODIGO INTERNO", "COD INTERNO"]);
+   const estoqueIndex = indiceColunaCatalogo(colunas, ["ESTOQUE", "SALDO", "SALDO ESTOQUE", "QTD ESTOQUE", "QTDE ESTOQUE", "DISPONIVEL"]);
+   const vendaIndex = indiceColunaCatalogo(colunas, ["PRECO", "PRECO VENDA", "PREÇO VENDA", "VALOR VENDA"]);
+   const custoIndex = indiceColunaCatalogo(colunas, ["CUSTO", "PRECO CUSTO", "PREÇO CUSTO", "VALOR CUSTO"]);
+   if (codigoIndex >= 0 && estoqueIndex >= 0) {
+    mapa = { codigoIndex, estoqueIndex, vendaIndex, custoIndex };
+   }
+   continue;
+  }
+  const internalCode = String(colunas[mapa.codigoIndex] || "").replace(/\D/g, "");
+  if (!internalCode) continue;
+  rows.push({
+   internal_code: internalCode,
+   stock_quantity: parseNumeroSg(colunas[mapa.estoqueIndex]),
+   sale_price: mapa.vendaIndex >= 0 ? parseNumeroSg(colunas[mapa.vendaIndex]) : null,
+   cost_price: mapa.custoIndex >= 0 ? parseNumeroSg(colunas[mapa.custoIndex]) : null
+  });
+ }
+ if (!mapa) throw new Error("Arquivo de estoque precisa conter colunas de código interno e estoque.");
+ if (!rows.length) throw new Error("Nenhuma linha de estoque foi encontrada no arquivo.");
+ return rows;
+}
+
+function carregarSnapshotsArquivoEstoque(file, buffer) {
+ const nome = String(file?.name || "").toLowerCase();
+ if (nome.endsWith(".dbf")) return carregarSnapshotsEstoqueDbf(buffer);
+ if (nome.endsWith(".xls") || nome.endsWith(".txt") || nome.endsWith(".csv")) return carregarSnapshotsEstoqueTexto(buffer);
+ throw new Error("Selecione um arquivo .dbf, .xls, .txt ou .csv.");
+}
+
 function extrairDepartamentoRelatorioCatalogo(linha) {
  const departamento = String(linha || "").match(/^\s*DEPARTAMENTO:\s*(\d+)\s*-\s*(.+?)\s*$/i);
  if (!departamento) return "";
@@ -4326,7 +4533,176 @@ els.importDbf.addEventListener("click", async () => {
   definirInfoCatalogo("Não foi possível importar o catálogo", error.message || "Erro desconhecido.");
   alert(error.message || "Não foi possível importar o catálogo.");
  } finally {
-  els.importDbf.disabled = false;
+ els.importDbf.disabled = false;
+ }
+});
+
+let stockImportStatusGeneration = 0;
+async function carregarSituacaoCargasEstoque() {
+ const generation = ++stockImportStatusGeneration;
+ if (!els.stockImportStatus) return;
+ els.stockImportStatus.textContent = "";
+ if (!isSkaleeAdmin || !els.stockSnapshotDate.value || !window.skaleeDb?.loadStockImportBatches) return;
+ const date = els.stockSnapshotDate.value;
+ els.stockImportStatus.textContent = "Consultando cargas por loja...";
+ try {
+  const batches = await window.skaleeDb.loadStockImportBatches(date);
+  if (generation !== stockImportStatusGeneration || !isSkaleeAdmin) return;
+  const latest = new Map();
+  batches.forEach((batch) => { if (!latest.has(batch.retail_location_id)) latest.set(batch.retail_location_id, batch); });
+  const labels = { completed: "Carga concluída", completed_with_errors: "Carga com pendências", failed: "Última tentativa falhou", processing: "Em processamento" };
+  els.stockImportStatus.innerHTML = `<b>Cargas de ${escapeHtml(new Date(`${date}T00:00:00`).toLocaleDateString("pt-BR"))}</b>` +
+   (allowedLocations.length ? allowedLocations.map((location) => {
+    const batch = latest.get(location.id);
+    const detail = batch ? `${labels[batch.status] || "Situação desconhecida"} · ${Number(batch.valid_rows || 0).toLocaleString("pt-BR")} produtos · ${Number(batch.invalid_rows || 0).toLocaleString("pt-BR")} pendências · ${batch.original_filename || "Arquivo sem nome"}` : "Carga pendente";
+    return `<div class="stock-movement"><b>${escapeHtml(location.name)}</b><div>${escapeHtml(detail)}</div></div>`;
+   }).join("") : "<div>Nenhuma loja ativa disponível.</div>");
+ } catch (error) {
+  if (generation !== stockImportStatusGeneration || !isSkaleeAdmin) return;
+  els.stockImportStatus.innerHTML = `<span style="color:#e11d48">Não foi possível consultar as cargas do dia (${escapeHtml(error.message || "tabela de cargas indisponível")}). Altere a data ou confirme a aplicação da migration no Supabase.</span>`;
+  console.error("Falha ao consultar cargas por loja.", error);
+ }
+}
+els.stockSnapshotDate.addEventListener("change", carregarSituacaoCargasEstoque);
+els.stockImportLocation.addEventListener("change", () => {
+ els.stockSnapshotFile.value = "";
+});
+
+function definirInfoEstoque(titulo, detalhe = "", options = {}) {
+ if (!els.stockImportInfo) return;
+ const progress = Number.isFinite(options.progress)
+  ? `<div class="catalog-progress"><span style="width:${Math.max(0, Math.min(100, options.progress))}%"></span></div>`
+  : "";
+ els.stockImportInfo.innerHTML = `<b>${escapeHtml(titulo)}</b>${detalhe ? `<div>${escapeHtml(detalhe)}</div>` : ""}${progress}`;
+}
+
+els.importStockSnapshot.addEventListener("click", async () => {
+ if (els.importStockSnapshot.disabled) return;
+ const file = els.stockSnapshotFile.files && els.stockSnapshotFile.files[0] ? els.stockSnapshotFile.files[0] : null;
+ const snapshotDate = els.stockSnapshotDate.value;
+ const retailLocationId = els.stockImportLocation.value;
+ if (!snapshotDate) return alert("Informe a data da carga.");
+ if (!retailLocationId) return alert("Selecione a loja da carga.");
+ if (!file) return alert("Selecione o arquivo da carga SG.");
+ const selectedLocation = allowedLocations.find((location) => location.id === retailLocationId);
+ if (!selectedLocation) return alert("Selecione uma loja ativa permitida.");
+ const selectedLocationName = selectedLocation.name;
+
+ els.importStockSnapshot.disabled = true;
+ [els.stockImportLocation, els.stockSnapshotDate, els.stockSnapshotFile].forEach((field) => { field.disabled = true; });
+ definirInfoEstoque(`Lendo carga de ${selectedLocationName}...`, file.name, { progress: 10 });
+ try {
+  await new Promise((resolve) => setTimeout(resolve, 40));
+  const rawRows = carregarSnapshotsArquivoEstoque(file, await file.arrayBuffer());
+  const totalFileRows = rawRows.length;
+  definirInfoEstoque("Buscando produtos monitorados...", `${totalFileRows.toLocaleString("pt-BR")} linha(s) lida(s) do arquivo.`, { progress: 30 });
+
+  const activeProducts = await window.skaleeDb.loadMonitoredStockProducts(retailLocationId, selectedLocationName);
+  if (!activeProducts || !activeProducts.length) {
+   definirInfoEstoque(
+    "Nenhum produto monitorado",
+    `Não há produtos ativos cadastrados em validade para a loja ${selectedLocationName}. Cadastre validades primeiro.`
+   );
+   alert(`Não há produtos de validade ativos cadastrados para ${selectedLocationName}. O arquivo de ${totalFileRows.toLocaleString("pt-BR")} linhas não precisa ser enviado.`);
+   return;
+  }
+
+  const monitoredLookup = new Map();
+  const monitoredUniqueIds = new Set();
+  activeProducts.forEach((product) => {
+   const catalogId = product.catalog_product_id || product.catalog_products?.id || null;
+   const codes = [
+    String(product.product_code || "").replace(/\D/g, ""),
+    String(product.catalog_products?.internal_code || "").replace(/\D/g, "")
+   ].filter(Boolean);
+   codes.forEach((code) => {
+    if (!monitoredLookup.has(code)) {
+     monitoredLookup.set(code, {
+      catalogProductId: catalogId,
+      productCode: code,
+      name: product.name || product.catalog_products?.name || "Produto monitorado"
+     });
+    }
+   });
+   if (catalogId) monitoredUniqueIds.add(catalogId);
+  });
+
+  const totalMonitoredCount = monitoredUniqueIds.size || monitoredLookup.size;
+  definirInfoEstoque("Filtrando produtos monitorados...", `${totalFileRows.toLocaleString("pt-BR")} linhas lidas · ${totalMonitoredCount} produtos monitorados na loja.`, { progress: 50 });
+
+  const monitoredRows = [];
+  const foundCodes = new Set();
+  const seenRowKeys = new Set();
+
+  rawRows.forEach((row) => {
+   const code = String(row.internal_code || "").replace(/\D/g, "");
+   if (!code || !monitoredLookup.has(code)) return;
+   const lookup = monitoredLookup.get(code);
+   const catalogProductId = lookup.catalogProductId;
+   const key = `${catalogProductId || code}`;
+   if (seenRowKeys.has(key)) return;
+   seenRowKeys.add(key);
+   foundCodes.add(code);
+   monitoredRows.push({
+    catalog_product_id: catalogProductId,
+    internal_code: code,
+    stock_quantity: row.stock_quantity,
+    sale_price: row.sale_price,
+    cost_price: row.cost_price
+   });
+  });
+
+  const unlocatedCount = Math.max(0, totalMonitoredCount - monitoredRows.length);
+  const unlocatedMessage = unlocatedCount > 0 ? ` (${unlocatedCount} não localizado(s) na carga)` : "";
+
+  if (monitoredRows.length === 0) {
+   definirInfoEstoque(
+    "Nenhum produto monitorado encontrado",
+    `${totalFileRows.toLocaleString("pt-BR")} linhas lidas do arquivo, mas nenhum dos ${totalMonitoredCount} produtos monitorados da loja foi encontrado na carga.`
+   );
+   alert(`Nenhum dos ${totalMonitoredCount} produtos monitorados foi localizado no arquivo da carga SG.`);
+   return;
+  }
+
+  definirInfoEstoque(
+   "Enviando snapshots monitorados...",
+   `${monitoredRows.length} produto(s) monitorado(s) preparado(s)${unlocatedMessage} a partir de ${totalFileRows.toLocaleString("pt-BR")} linhas do arquivo.`,
+   { progress: 75 }
+  );
+
+  const result = await window.skaleeDb.importProductStockSnapshots({
+   snapshotDate,
+   retailLocationId,
+   sourceName: "sg_stock",
+   originalFilename: file.name,
+   totalFileRows,
+   monitoredCount: totalMonitoredCount,
+   unlocatedCount,
+   rows: monitoredRows
+  });
+
+  const summary = [
+   `${Number(totalFileRows).toLocaleString("pt-BR")} linhas lidas do arquivo`,
+   `${totalMonitoredCount} produto(s) monitorado(s) na loja`,
+   `${monitoredRows.length} encontrado(s)${unlocatedMessage}`,
+   `${Number(result.valid_rows || monitoredRows.length).toLocaleString("pt-BR")} snapshots gravados`
+  ].join(" · ");
+
+  definirInfoEstoque(
+   `Carga SG - ${selectedLocationName} - ${new Date(`${snapshotDate}T00:00:00`).toLocaleDateString("pt-BR")}`,
+   `${summary}. Snapshot diário salvo com status ${result.status}.`,
+   { progress: 100 }
+  );
+  els.stockSnapshotFile.value = "";
+  await carregarMovimentacaoEstoqueDosProdutos(products, { force: true });
+ } catch (error) {
+  console.error("Falha ao importar snapshot de estoque.", error);
+  definirInfoEstoque("Não foi possível importar a carga SG", error.message || "Erro desconhecido.");
+  alert(error.message || "Não foi possível importar a carga SG.");
+ } finally {
+  els.importStockSnapshot.disabled = false;
+  [els.stockImportLocation, els.stockSnapshotDate, els.stockSnapshotFile].forEach((field) => { field.disabled = false; });
+  void carregarSituacaoCargasEstoque();
  }
 });
 

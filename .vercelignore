@@ -8,6 +8,7 @@ deploy-*.log
 docs
 dev
 reports
+test-results
 supabase
 tools
 skaleedemo.html

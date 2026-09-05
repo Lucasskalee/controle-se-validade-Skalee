@@ -1,4 +1,4 @@
-const CACHE_NAME = "skalee-pwa-v133-multi-filters";
+const CACHE_NAME = "skalee-pwa-v138-stock-rpc-compatibility";
 const APP_SHELL = [
  "/",
  "/index.html",
