@@ -624,6 +624,13 @@ window.skaleeDb = {
   Object.defineProperty(products, "rawPageLength", { value: rawPageLength });
   return products;
  },
+ async loadStockMovementsForValidityProducts(productIds = []) {
+  const ids = [...new Set((productIds || []).map((id) => String(id || "").trim()).filter(Boolean))];
+  if (!ids.length) return [];
+  const rows = [];
+  for (let index = 0; index < ids.length; index += 100) {
+   const { data, error } = await supabase.rpc("get_validity_product_stock_movements", {
+    p_validity_product_ids: ids.slice(index, index + 100)
  async loadStockMovementsForValidityProducts(productIds = [], productListHint = []) {
    const ids = [...new Set((productIds || []).map((item) => (typeof item === "object" && item ? item.id : item)).map((id) => String(id || "").trim()).filter(Boolean))];
    if (!ids.length) return [];
@@ -805,6 +812,11 @@ window.skaleeDb = {
     movement_type: "no_previous_snapshot",
     interval_days: null
    });
+   if (error) throw error;
+   rows.push(...(data || []));
+  }
+  return rows;
+ },
   },
  async loadStockImportBatches(snapshotDate) {
   if (!snapshotDate) return [];

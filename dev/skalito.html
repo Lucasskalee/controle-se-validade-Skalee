@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dev Skalito | Skalee</title>
+  <link rel="icon" type="image/png" sizes="64x64" href="../skalee-icon-64.png">
+  <link rel="stylesheet" href="../components/skalito/skalito.css">
+  <link rel="stylesheet" href="../components/skalito/skalitoAnimations.css">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #e8edf5;
+      background: #07111d;
+      display: grid;
+      grid-template-columns: minmax(240px, 320px) 1fr;
+    }
+    aside {
+      padding: 20px;
+      border-right: 1px solid #1f3348;
+      background: #0d1726;
+    }
+    main {
+      display: grid;
+      place-items: center;
+      padding: 28px;
+    }
+    h1 { margin: 0 0 18px; font-size: 20px; }
+    .control-group { display: grid; gap: 8px; margin-bottom: 18px; }
+    label { color: #94a3b8; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+    button {
+      min-height: 38px;
+      border: 1px solid #263a53;
+      border-radius: 8px;
+      color: #e8edf5;
+      background: #101c2d;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button:hover { border-color: #00d9ff; }
+    input { width: 100%; }
+    .stage {
+      width: min(72vw, 560px);
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border: 1px solid #1f3348;
+      border-radius: 12px;
+      background: #070b12;
+    }
+  </style>
+</head>
+<body>
+  <aside>
+    <h1>Skalito Playground</h1>
+    <div class="control-group">
+      <label>Estados</label>
+      <button data-state="idle">Idle</button>
+      <button data-state="thinking">Thinking</button>
+      <button data-state="talking">Talking</button>
+      <button data-state="happy">Happy</button>
+      <button data-state="alert">Alert</button>
+    </div>
+    <div class="control-group">
+      <label>Eventos</label>
+      <button data-event="blink">Blink</button>
+      <button data-event="flapWings">Wings</button>
+      <button data-event="wave">Wave</button>
+      <button data-event="point">Point</button>
+      <button data-event="celebrate">Celebrate</button>
+    </div>
+    <div class="control-group">
+      <label>Olhar</label>
+      <button data-look="center">Look Center</button>
+      <button data-look="left">Look Left</button>
+      <button data-look="right">Look Right</button>
+      <button data-look="up">Look Up</button>
+      <button data-look="down">Look Down</button>
+    </div>
+    <div class="control-group">
+      <label for="size">Tamanho</label>
+      <input id="size" type="range" min="100" max="460" value="280">
+    </div>
+  </aside>
+
+  <main>
+    <div class="stage">
+      <skalito-mascot id="skalito" state="idle" look="center" size="280"></skalito-mascot>
+    </div>
+  </main>
+
+  <script type="module" src="../components/skalito/SkalitoMascot.js"></script>
+  <script type="module">
+    const skalito = document.getElementById("skalito");
+
+    document.querySelectorAll("[data-state]").forEach((button) => {
+      button.addEventListener("click", () => skalito.setState(button.dataset.state));
+    });
+
+    document.querySelectorAll("[data-look]").forEach((button) => {
+      button.addEventListener("click", () => skalito.lookAt(button.dataset.look));
+    });
+
+    document.querySelectorAll("[data-event]").forEach((button) => {
+      button.addEventListener("click", () => {
+        if (typeof skalito[button.dataset.event] === "function") {
+          skalito[button.dataset.event]();
+        }
+      });
+    });
+
+    document.getElementById("size").addEventListener("input", (event) => {
+      skalito.size = event.target.value;
+    });
+  </script>
+</body>
+</html>

@@ -6,3 +6,7 @@ deploy-*.log
 .env.*
 __pycache__/
 *.pyc
+supabase/.temp/
+test-results/
+dev/chrome-tour-profile/
+dev/chrome-tour-profile-mobile/

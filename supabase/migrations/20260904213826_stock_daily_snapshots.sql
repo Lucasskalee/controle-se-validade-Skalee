@@ -331,6 +331,7 @@ returns table (
 )
 language sql
 stable
+security invoker
 security definer
 set search_path = ''
 as $$
@@ -379,6 +380,9 @@ as $$
       and (p_validity_product_ids is null or v.id = any(p_validity_product_ids))
   )
   select
+    validity.id as validity_product_id,
+    validity.catalog_product_id,
+    validity.retail_location_id,
     rv.validity_product_id,
     rv.resolved_catalog_id as catalog_product_id,
     rv.resolved_location_id as retail_location_id,
@@ -407,10 +411,13 @@ as $$
       when current_snapshot.id is null or previous_snapshot.id is null then null
       else current_snapshot.snapshot_date - previous_snapshot.snapshot_date
     end as interval_days
+  from public.validity_products validity
   from resolved_validity rv
   left join lateral (
     select snapshot.*
     from public.product_stock_snapshots snapshot
+    where snapshot.catalog_product_id = validity.catalog_product_id
+      and snapshot.retail_location_id = validity.retail_location_id
     where snapshot.retail_location_id = rv.resolved_location_id
       and (
         (rv.resolved_catalog_id is not null and snapshot.catalog_product_id = rv.resolved_catalog_id)
@@ -422,6 +429,8 @@ as $$
   left join lateral (
     select snapshot.*
     from public.product_stock_snapshots snapshot
+    where snapshot.catalog_product_id = validity.catalog_product_id
+      and snapshot.retail_location_id = validity.retail_location_id
     where snapshot.retail_location_id = rv.resolved_location_id
       and (
         (rv.resolved_catalog_id is not null and snapshot.catalog_product_id = rv.resolved_catalog_id)
@@ -431,6 +440,11 @@ as $$
       and snapshot.snapshot_date < current_snapshot.snapshot_date
     order by snapshot.snapshot_date desc
     limit 1
+  ) previous_snapshot on true
+  where validity.completed_at is null
+    and validity.catalog_product_id is not null
+    and validity.retail_location_id is not null
+    and (p_validity_product_ids is null or validity.id = any(p_validity_product_ids));
   ) previous_snapshot on true;
 $$;
 
