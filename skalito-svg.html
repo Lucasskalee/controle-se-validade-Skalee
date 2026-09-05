@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Skalito SVG | Laboratório Visual e Técnico</title>
+    <link rel="icon" type="image/png" sizes="64x64" href="skalee-icon-64.png">
+    <link rel="stylesheet" href="components/skalito-lab/mascot-lab.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="is-active-idle">
+    <div class="lab-container">
+        <!-- Header -->
+        <header class="lab-header">
+            <div class="brand">
+                <div class="brand-badge">LAB</div>
+                <div class="brand-title">
+                    <h1>SKALEE <span>MASCOT</span></h1>
+                    <span class="brand-subtitle">Visual & Motion Laboratory</span>
+                </div>
+            </div>
+            <div class="header-tools">
+                <div class="status-badge" id="statusBadge">
+                    <span class="status-dot"></span>
+                    <span class="status-text">STATE: IDLE</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Stage / Viewport -->
+        <main class="lab-stage" id="labStage">
+            <div class="stage-grid"></div>
+            <div class="stage-glow"></div>
+
+            <!-- Stage Container Wrapper -->
+            <div class="mascot-stage-wrapper" id="stageWrapper">
+                <!-- Reference Overlay (Debug Comparison) -->
+                <img class="reference-overlay" id="referenceOverlay" src="assets/mascot/full-reference.png" alt="Reference Mascot Overlay">
+
+                <!-- MASCOT CONTAINER (430px x 621px Native Reference Canvas) -->
+                <div class="mascot is-floating" id="mascot">
+                    <!-- Unified Root Float Container -->
+                    <div class="mascot-float-container" id="mascotFloatContainer">
+
+                        <!-- Kinetic Energy Aura (Faíscas Luminosas Cinéticas) -->
+                        <div class="kinetic-energy-aura" aria-hidden="true">
+                            <span class="kinetic-spark" style="--spark-x: 18%; --spark-y: 52%; --spark-size: 5px; --spark-drift-x: -22px; --spark-drift-y: -36px; --spark-delay: 0s; --spark-duration: 2.8s; --spark-color: #00f0ff;"></span>
+                            <span class="kinetic-spark" style="--spark-x: 82%; --spark-y: 48%; --spark-size: 6px; --spark-drift-x: 24px; --spark-drift-y: -40px; --spark-delay: 0.7s; --spark-duration: 3.1s; --spark-color: #00d9ff;"></span>
+                            <span class="kinetic-spark" style="--spark-x: 48%; --spark-y: 82%; --spark-size: 4px; --spark-drift-x: -12px; --spark-drift-y: -48px; --spark-delay: 1.3s; --spark-duration: 2.6s; --spark-color: #0088ff;"></span>
+                            <span class="kinetic-spark" style="--spark-x: 54%; --spark-y: 75%; --spark-size: 5px; --spark-drift-x: 16px; --spark-drift-y: -44px; --spark-delay: 1.9s; --spark-duration: 3.3s; --spark-color: #b44aff;"></span>
+                            <span class="kinetic-spark" style="--spark-x: 26%; --spark-y: 35%; --spark-size: 4px; --spark-drift-x: -18px; --spark-drift-y: -32px; --spark-delay: 0.4s; --spark-duration: 2.9s; --spark-color: #00f0ff;"></span>
+                            <span class="kinetic-spark" style="--spark-x: 74%; --spark-y: 32%; --spark-size: 5px; --spark-drift-x: 20px; --spark-drift-y: -34px; --spark-delay: 2.2s; --spark-duration: 3.0s; --spark-color: #00e5ff;"></span>
+                            <span class="kinetic-spark" style="--spark-x: 50%; --spark-y: 92%; --spark-size: 7px; --spark-drift-x: 8px; --spark-drift-y: -52px; --spark-delay: 2.7s; --spark-duration: 3.4s; --spark-color: #00ffff;"></span>
+                            <span class="kinetic-spark" style="--spark-x: 35%; --spark-y: 65%; --spark-size: 3.5px; --spark-drift-x: -14px; --spark-drift-y: -28px; --spark-delay: 1.0s; --spark-duration: 2.5s; --spark-color: #7b61ff;"></span>
+                        </div>
+
+                        <!-- Layer 1: Holographic Wings (Behind Body) -->
+                        <div class="mascot-part part-wing-left" id="slotWingLeft" data-part="leftWing">
+                            <div class="part-hud-badge" id="hudWingLeft">ASA ESQ • X: -51, Y: 325</div>
+                            <div class="anim-wrapper anim-wing-left">
+                                <img class="wing wing-left" id="wingLeft" src="assets/mascot/left-wing.png" alt="Left Wing">
+                            </div>
+                        </div>
+
+                        <div class="mascot-part part-wing-right" id="slotWingRight" data-part="rightWing">
+                            <div class="part-hud-badge" id="hudWingRight">ASA DIR • X: 268, Y: 326</div>
+                            <div class="anim-wrapper anim-wing-right">
+                                <img class="wing wing-right" id="wingRight" src="assets/mascot/right-wing.png" alt="Right Wing">
+                            </div>
+                        </div>
+
+                        <!-- Layer 2: Arms (Behind Body) -->
+                        <div class="mascot-part part-arm-left" id="slotArmLeft" data-part="leftArm">
+                            <div class="part-hud-badge" id="hudArmLeft">BRAÇO ESQ • X: 72, Y: 351</div>
+                            <div class="anim-wrapper anim-arm-left">
+                                <img class="arm arm-left" id="armLeft" src="assets/mascot/left-arm.png" alt="Left Arm">
+                            </div>
+                        </div>
+
+                        <div class="mascot-part part-arm-right" id="slotArmRight" data-part="rightArm">
+                            <div class="part-hud-badge" id="hudArmRight">BRAÇO DIR • X: 230, Y: 341</div>
+                            <div class="anim-wrapper anim-arm-right">
+                                <img class="arm arm-right" id="armRight" src="assets/mascot/right-arm.png" alt="Right Arm">
+                            </div>
+                        </div>
+
+                        <!-- Layer 3: Main Torso & Ghost Tail -->
+                        <div class="mascot-part part-body" id="slotBody" data-part="body">
+                            <div class="part-hud-badge" id="hudBody">CORPO • X: 87, Y: 316</div>
+                            <div class="anim-wrapper anim-body">
+                                <img class="body" id="mascotBody" src="assets/mascot/body.png" alt="Main Body">
+                            </div>
+                        </div>
+
+                        <!-- Layer 4: Flame Head -->
+                        <div class="mascot-part part-head" id="slotHead" data-part="head">
+                            <div class="part-hud-badge" id="hudHead">CABEÇA • X: 66, Y: -45</div>
+                            <div class="anim-wrapper anim-head">
+                                <img class="head" id="mascotHead" src="assets/mascot/head.png" alt="Flame Head">
+                            </div>
+                        </div>
+
+                        <!-- Layer 5: Luminescent Eyes -->
+                        <div class="mascot-part part-eye-left" id="slotEyeLeft" data-part="leftEye">
+                            <div class="part-hud-badge" id="hudEyeLeft">OLHO ESQ • X: 111, Y: 223</div>
+                            <div class="anim-wrapper anim-eye-left">
+                                <img class="eye eye-left" id="eyeLeft" src="assets/mascot/eyes-neutral-left.png" alt="Left Eye">
+                            </div>
+                        </div>
+
+                        <div class="mascot-part part-eye-right" id="slotEyeRight" data-part="rightEye">
+                            <div class="part-hud-badge" id="hudEyeRight">OLHO DIR • X: 222, Y: 221</div>
+                            <div class="anim-wrapper anim-eye-right">
+                                <img class="eye eye-right" id="eyeRight" src="assets/mascot/eyes-neutral-right.png" alt="Right Eye">
+                            </div>
+                        </div>
+
+                        <!-- Precision Pivot Markers (Debug View) -->
+                        <div class="pivot-dot" id="pivotDotWingLeft"></div>
+                        <div class="pivot-dot" id="pivotDotWingRight"></div>
+                        <div class="pivot-dot" id="pivotDotArmLeft"></div>
+                        <div class="pivot-dot" id="pivotDotArmRight"></div>
+                        <div class="pivot-dot" id="pivotDotHead"></div>
+                        <div class="pivot-dot" id="pivotDotBody"></div>
+
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Bottom Controls Strip & Toolbar -->
+        <footer class="lab-controls">
+            <!-- Top Strip: Part Selector Tabs + Sliders -->
+            <div class="inspector-strip">
+                <div class="part-selector-tabs">
+                    <button class="part-tab active" data-part="head">CABEÇA</button>
+                    <button class="part-tab" data-part="body">CORPO</button>
+                    <button class="part-tab" data-part="leftWing">ASA ESQ</button>
+                    <button class="part-tab" data-part="rightWing">ASA DIR</button>
+                    <button class="part-tab" data-part="leftArm">BRAÇO ESQ</button>
+                    <button class="part-tab" data-part="rightArm">BRAÇO DIR</button>
+                    <button class="part-tab" data-part="leftEye">OLHO ESQ</button>
+                    <button class="part-tab" data-part="rightEye">OLHO DIR</button>
+                </div>
+
+                <div class="inspector-controls-row">
+                    <div class="inspector-param">
+                        <span class="param-label">X: <b id="inspValX">82</b>px</span>
+                        <input type="range" id="inspSliderX" min="-100" max="350" value="82">
+                    </div>
+                    <div class="inspector-param">
+                        <span class="param-label">Y: <b id="inspValY">-52</b>px</span>
+                        <input type="range" id="inspSliderY" min="-100" max="450" value="-52">
+                    </div>
+                    <div class="inspector-param">
+                        <span class="param-label">ROT: <b id="inspValRot">-1</b>°</span>
+                        <input type="range" id="inspSliderRot" min="-45" max="45" value="-1">
+                    </div>
+                    <div class="inspector-param">
+                        <span class="param-label">SCALE: <b id="inspValScale">1.00</b></span>
+                        <input type="range" id="inspSliderScale" min="0.5" max="1.5" step="0.01" value="1.0">
+                    </div>
+                    <div class="inspector-actions">
+                        <button class="btn btn-sm" id="btnCopyLayout">📋 JSON</button>
+                        <button class="btn btn-sm" id="btnResetAssembly">🔄 RESET</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Toolbar: Actions, Eyes, Wings, Sizes, Tools -->
+            <div class="controls-toolbar">
+                <!-- Group 1: Actions & States -->
+                <div class="control-group">
+                    <span class="group-label">AÇÕES & ESTADOS</span>
+                    <div class="btn-row">
+                        <button class="btn btn-primary active" id="btnIdle" title="Estado Padrão / Flutuação">
+                            <span class="btn-icon">✨</span> IDLE
+                        </button>
+                        <button class="btn btn-action" id="btnWave" title="Acenar com o Braço">
+                            <span class="btn-icon">👋</span> WAVE
+                        </button>
+                        <button class="btn btn-action" id="btnCelebrate" title="Comemoração & Salto">
+                            <span class="btn-icon">🎉</span> CELEBRATE
+                        </button>
+                        <button class="btn btn-action" id="btnSparkle" title="Pulso de Energia Cósmica">
+                            <span class="btn-icon">⚡</span> SPARKLE
+                        </button>
+                        <button class="btn btn-action" id="btnBlink" title="Disparar Piscar de Olhos">
+                            <span class="btn-icon">👁</span> BLINK
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Group 2: Eye Expressions -->
+                <div class="control-group">
+                    <span class="group-label">OLHOS</span>
+                    <div class="btn-row">
+                        <button class="btn btn-eye active" id="btnEyeNeutral">NEUTRAL</button>
+                        <button class="btn btn-eye" id="btnEyeBlink">BLINK</button>
+                        <button class="btn btn-eye" id="btnEyeAlert">ALERT</button>
+                    </div>
+                </div>
+
+                <!-- Group 3: Wings Position -->
+                <div class="control-group">
+                    <span class="group-label">ASAS</span>
+                    <div class="btn-row">
+                        <button class="btn btn-toggle" id="btnWingRest">REST</button>
+                        <button class="btn btn-toggle active" id="btnWingOpen">OPEN</button>
+                        <button class="btn btn-toggle" id="btnWingRaised">RAISED</button>
+                    </div>
+                </div>
+
+                <!-- Group 4: Sizes -->
+                <div class="control-group">
+                    <span class="group-label">TAMANHO</span>
+                    <div class="btn-row">
+                        <button class="btn btn-size" id="btnSizeSmall">SMALL</button>
+                        <button class="btn btn-size active" id="btnSizeMedium">MEDIUM</button>
+                        <button class="btn btn-size" id="btnSizeLarge">LARGE</button>
+                    </div>
+                </div>
+
+                <!-- Group 5: Tools & Interactivity -->
+                <div class="control-group">
+                    <span class="group-label">INTERAÇÃO & LAB</span>
+                    <div class="btn-row">
+                        <button class="btn btn-tool active" id="btnLookAtMouse">
+                            <span class="tool-led"></span> LOOK AT MOUSE <span>👀</span>
+                        </button>
+                        <button class="btn btn-tool" id="btnPivots">
+                            <span class="tool-led"></span> SHOW PIVOTS
+                        </button>
+                        <button class="btn btn-tool" id="btnOverlay">
+                            <span class="tool-led"></span> OVERLAY REF
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Core Controller Script -->
+    <script src="components/skalito-lab/mascot-lab.js"></script>
+</body>
+</html>

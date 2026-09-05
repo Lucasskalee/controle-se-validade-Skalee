@@ -1,4 +1,4 @@
-const CACHE_NAME = "skalee-pwa-v114-mascot-demo";
+const CACHE_NAME = "skalee-pwa-v138-stock-rpc-compatibility";
 const APP_SHELL = [
  "/",
  "/index.html",
@@ -7,6 +7,12 @@ const APP_SHELL = [
  "/auth.js",
  "/admin-cadastros.css",
  "/admin-cadastros.js",
+ "/components/tour/SkalitoTour.js",
+ "/components/tour/skalitoTourSteps.js",
+ "/components/tour/skalitoTour.css",
+ "/components/skalito/SkalitoMascot.js",
+ "/components/skalito/skalito.css",
+ "/components/skalito/skalitoAnimations.css",
  "/manifest.webmanifest",
  "/skalee-icon-64.png",
  "/skalee-icon-192.png",
@@ -60,5 +66,17 @@ self.addEventListener("fetch", (event) => {
     return response;
    })
    .catch(() => caches.match(request))
+ );
+});
+
+self.addEventListener("notificationclick", (event) => {
+ event.notification.close();
+ const targetUrl = new URL(event.notification.data?.url || "/", self.location.origin).href;
+ event.waitUntil(
+  self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
+   const existing = clients.find((client) => client.url.startsWith(self.location.origin));
+   if (existing) return existing.focus();
+   return self.clients.openWindow(targetUrl);
+  })
  );
 });

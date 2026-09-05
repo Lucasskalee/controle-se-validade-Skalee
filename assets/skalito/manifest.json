@@ -1,0 +1,182 @@
+[
+  {
+    "id": "wing-left",
+    "name": "Asa Esquerda",
+    "targetFile": "wing-left.png",
+    "fullTargetFile": "full-wing-left.png",
+    "bbox": {
+      "left": 91,
+      "top": 239,
+      "width": 1091,
+      "height": 646,
+      "rawMinX": 95,
+      "rawMinY": 243,
+      "rawMaxX": 1177,
+      "rawMaxY": 880,
+      "pixels": 308832,
+      "canvasWidth": 1254,
+      "canvasHeight": 1254
+    },
+    "srcFile": "ChatGPT Image 30 de ago. de 2026, 12_16_03 (5).png"
+  },
+  {
+    "id": "wing-right",
+    "name": "Asa Direita",
+    "targetFile": "wing-right.png",
+    "fullTargetFile": "full-wing-right.png",
+    "bbox": {
+      "left": 75,
+      "top": 242,
+      "width": 1127,
+      "height": 669,
+      "rawMinX": 79,
+      "rawMinY": 246,
+      "rawMaxX": 1197,
+      "rawMaxY": 906,
+      "pixels": 310309,
+      "canvasWidth": 1254,
+      "canvasHeight": 1254
+    },
+    "srcFile": "ChatGPT Image 30 de ago. de 2026, 12_16_03 (4).png"
+  },
+  {
+    "id": "body-lower",
+    "name": "Corpo Inferior, Pernas e Cauda",
+    "targetFile": "body-lower.png",
+    "fullTargetFile": "full-body-lower.png",
+    "bbox": {
+      "left": 104,
+      "top": 305,
+      "width": 1139,
+      "height": 653,
+      "rawMinX": 108,
+      "rawMinY": 309,
+      "rawMaxX": 1238,
+      "rawMaxY": 953,
+      "pixels": 435135,
+      "canvasWidth": 1254,
+      "canvasHeight": 1254
+    },
+    "srcFile": "ChatGPT Image 30 de ago. de 2026, 12_44_40.png"
+  },
+  {
+    "id": "arm-right",
+    "name": "Braco Direito (Repouso)",
+    "targetFile": "arm-right.png",
+    "fullTargetFile": "full-arm-right.png",
+    "bbox": {
+      "left": 338,
+      "top": 87,
+      "width": 668,
+      "height": 981,
+      "rawMinX": 342,
+      "rawMinY": 91,
+      "rawMaxX": 1001,
+      "rawMaxY": 1063,
+      "pixels": 322331,
+      "canvasWidth": 1254,
+      "canvasHeight": 1254
+    },
+    "srcFile": "ChatGPT Image 30 de ago. de 2026, 12_16_03 (3).png"
+  },
+  {
+    "id": "head",
+    "name": "Cabeca",
+    "targetFile": "head.png",
+    "fullTargetFile": "full-head.png",
+    "bbox": {
+      "left": 139,
+      "top": 47,
+      "width": 1017,
+      "height": 1124,
+      "rawMinX": 143,
+      "rawMinY": 51,
+      "rawMaxX": 1151,
+      "rawMaxY": 1166,
+      "pixels": 760928,
+      "canvasWidth": 1254,
+      "canvasHeight": 1254
+    },
+    "srcFile": "ChatGPT Image 30 de ago. de 2026, 12_16_03 (1).png"
+  },
+  {
+    "id": "eye-left",
+    "name": "Olho Esquerdo",
+    "targetFile": "eye-left.png",
+    "fullTargetFile": "full-eye-left.png",
+    "bbox": {
+      "left": 242,
+      "top": 177,
+      "width": 817,
+      "height": 916,
+      "rawMinX": 246,
+      "rawMinY": 181,
+      "rawMaxX": 1054,
+      "rawMaxY": 1088,
+      "pixels": 549302,
+      "canvasWidth": 1254,
+      "canvasHeight": 1254
+    },
+    "srcFile": "ChatGPT Image 30 de ago. de 2026, 12_16_04 (7).png"
+  },
+  {
+    "id": "eye-right",
+    "name": "Olho Direito",
+    "targetFile": "eye-right.png",
+    "fullTargetFile": "full-eye-right.png",
+    "bbox": {
+      "left": 316,
+      "top": 174,
+      "width": 602,
+      "height": 864,
+      "rawMinX": 320,
+      "rawMinY": 178,
+      "rawMaxX": 913,
+      "rawMaxY": 1033,
+      "pixels": 386971,
+      "canvasWidth": 1254,
+      "canvasHeight": 1254
+    },
+    "srcFile": "ChatGPT Image 30 de ago. de 2026, 12_16_04 (6).png"
+  },
+  {
+    "id": "collar",
+    "name": "Bandana / Colar Skalee",
+    "targetFile": "collar.png",
+    "fullTargetFile": "full-collar.png",
+    "bbox": {
+      "left": 233,
+      "top": 193,
+      "width": 840,
+      "height": 805,
+      "rawMinX": 237,
+      "rawMinY": 197,
+      "rawMaxX": 1068,
+      "rawMaxY": 993,
+      "pixels": 433363,
+      "canvasWidth": 1254,
+      "canvasHeight": 1254
+    },
+    "srcFile": "ChatGPT Image 30 de ago. de 2026, 12_44_52.png"
+  },
+  {
+    "id": "arm-left",
+    "name": "Braco Esquerdo (Acenando)",
+    "targetFile": "arm-left.png",
+    "fullTargetFile": "full-arm-left.png",
+    "bbox": {
+      "left": 86,
+      "top": 248,
+      "width": 1065,
+      "height": 702,
+      "rawMinX": 90,
+      "rawMinY": 252,
+      "rawMaxX": 1146,
+      "rawMaxY": 945,
+      "pixels": 369069,
+      "canvasWidth": 1254,
+      "canvasHeight": 1254
+    },
+    "srcFile": "ChatGPT Image 30 de ago. de 2026, 12_16_03 (2).png"
+  }
+]
