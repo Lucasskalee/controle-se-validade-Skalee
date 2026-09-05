@@ -2173,14 +2173,14 @@ function aplicarMovimentacoesEstoque(rows = []) {
 
 async function carregarMovimentacaoEstoqueDosProdutos(targetProducts = products, options = {}) {
  if (!window.skaleeDb?.loadStockMovementsForValidityProducts) return;
- const ids = [...new Set((targetProducts || [])
-  .filter((product) => product.catalogProductId && product.retailLocationId)
+ const list = targetProducts || [];
+ const ids = [...new Set(list
   .map((product) => product.id)
   .filter(Boolean))];
  if (!ids.length) return;
  const generation = options.force ? ++stockMovementLoadGeneration : stockMovementLoadGeneration;
  try {
-  const rows = await window.skaleeDb.loadStockMovementsForValidityProducts(ids);
+  const rows = await window.skaleeDb.loadStockMovementsForValidityProducts(ids, list);
   if (generation !== stockMovementLoadGeneration) return;
   aplicarMovimentacoesEstoque(rows);
   render();
@@ -3131,6 +3131,7 @@ function supplierCardText(product) {
 }
 
 function formatStockNumber(value) {
+ if (value === null || value === undefined || value === "") return "--";
  const number = Number(value);
  if (!Number.isFinite(number)) return "--";
  return number.toLocaleString("pt-BR", { maximumFractionDigits: 3 });
@@ -3147,15 +3148,22 @@ function stockMovementBadge(movement) {
 
 function renderStockMovement(product) {
  const movement = product.stockMovement;
- if (!movement) return "";
- const snapshotDate = movement.snapshot_date ? new Date(`${movement.snapshot_date}T00:00:00`).toLocaleDateString("pt-BR") : "--";
- const previousDate = movement.previous_snapshot_date ? new Date(`${movement.previous_snapshot_date}T00:00:00`).toLocaleDateString("pt-BR") : "--";
- const interval = movement.interval_days ? ` (${movement.interval_days} dia${Number(movement.interval_days) === 1 ? "" : "s"})` : "";
+ const hasSnapshot = Boolean(movement && movement.snapshot_date);
+ const stockQuantity = hasSnapshot && movement.stock_quantity !== null && movement.stock_quantity !== undefined
+  ? `${formatStockNumber(movement.stock_quantity)} un.`
+  : "--";
+ const snapshotDate = hasSnapshot ? new Date(`${movement.snapshot_date}T00:00:00`).toLocaleDateString("pt-BR") : "--";
+ const previousDate = movement?.previous_snapshot_date ? new Date(`${movement.previous_snapshot_date}T00:00:00`).toLocaleDateString("pt-BR") : "--";
+ const interval = movement?.interval_days ? ` (${movement.interval_days} dia${Number(movement.interval_days) === 1 ? "" : "s"})` : "";
+ const previousStock = movement?.previous_stock_quantity !== null && movement?.previous_stock_quantity !== undefined
+  ? `${formatStockNumber(movement.previous_stock_quantity)} un.`
+  : "--";
+
  return `
       <div class="stock-movement">
-       <div class="info"><span>Estoque SG</span><b>${formatStockNumber(movement.stock_quantity)} un.</b></div>
+       <div class="info"><span>Estoque SG</span><b>${stockQuantity}</b></div>
        <div class="info"><span>Última carga</span><b>${snapshotDate}</b></div>
-       <div class="info"><span>Estoque anterior</span><b>${movement.previous_stock_quantity === null || movement.previous_stock_quantity === undefined ? "--" : `${formatStockNumber(movement.previous_stock_quantity)} un.`}${previousDate !== "--" ? ` em ${previousDate}${interval}` : ""}</b></div>
+       <div class="info"><span>Estoque anterior</span><b>${previousStock !== "--" && previousDate !== "--" ? `${previousStock} em ${previousDate}${interval}` : previousStock}</b></div>
        ${stockMovementBadge(movement)}
       </div>`;
 }

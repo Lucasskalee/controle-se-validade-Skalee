@@ -331,13 +331,57 @@ returns table (
 )
 language sql
 stable
-security invoker
+security definer
 set search_path = ''
 as $$
+  with resolved_validity as (
+    select
+      v.id as validity_product_id,
+      coalesce(
+        v.retail_location_id,
+        loc.id
+      ) as resolved_location_id,
+      coalesce(
+        v.catalog_product_id,
+        cat.id,
+        cat_barcode.id
+      ) as resolved_catalog_id,
+      nullif(btrim(coalesce(v.product_code, '')), '') as resolved_internal_code
+    from public.validity_products v
+    left join lateral (
+      select l.id
+      from public.retail_locations l
+      where lower(btrim(l.name)) = lower(btrim(v.store))
+      limit 1
+    ) loc on true
+    left join lateral (
+      select cp.id
+      from public.catalog_products cp
+      where cp.active is true
+        and nullif(btrim(coalesce(v.product_code, '')), '') is not null
+        and (
+          cp.internal_code = btrim(v.product_code)
+          or regexp_replace(cp.internal_code, '^0+', '') = regexp_replace(btrim(v.product_code), '^0+', '')
+        )
+      order by cp.source_updated_at desc nulls last, cp.updated_at desc nulls last
+      limit 1
+    ) cat on true
+    left join lateral (
+      select cp.id
+      from public.catalog_products cp
+      where cp.active is true
+        and nullif(btrim(coalesce(v.barcode, '')), '') is not null
+        and cp.barcode = btrim(v.barcode)
+      order by cp.source_updated_at desc nulls last, cp.updated_at desc nulls last
+      limit 1
+    ) cat_barcode on true
+    where v.completed_at is null
+      and (p_validity_product_ids is null or v.id = any(p_validity_product_ids))
+  )
   select
-    validity.id as validity_product_id,
-    validity.catalog_product_id,
-    validity.retail_location_id,
+    rv.validity_product_id,
+    rv.resolved_catalog_id as catalog_product_id,
+    rv.resolved_location_id as retail_location_id,
     current_snapshot.snapshot_date,
     current_snapshot.stock_quantity,
     previous_snapshot.snapshot_date as previous_snapshot_date,
@@ -363,32 +407,53 @@ as $$
       when current_snapshot.id is null or previous_snapshot.id is null then null
       else current_snapshot.snapshot_date - previous_snapshot.snapshot_date
     end as interval_days
-  from public.validity_products validity
+  from resolved_validity rv
   left join lateral (
     select snapshot.*
     from public.product_stock_snapshots snapshot
-    where snapshot.catalog_product_id = validity.catalog_product_id
-      and snapshot.retail_location_id = validity.retail_location_id
+    where snapshot.retail_location_id = rv.resolved_location_id
+      and (
+        (rv.resolved_catalog_id is not null and snapshot.catalog_product_id = rv.resolved_catalog_id)
+        or (rv.resolved_internal_code is not null and (snapshot.internal_code = rv.resolved_internal_code or regexp_replace(snapshot.internal_code, '^0+', '') = regexp_replace(rv.resolved_internal_code, '^0+', '')))
+      )
     order by snapshot.snapshot_date desc
     limit 1
   ) current_snapshot on true
   left join lateral (
     select snapshot.*
     from public.product_stock_snapshots snapshot
-    where snapshot.catalog_product_id = validity.catalog_product_id
-      and snapshot.retail_location_id = validity.retail_location_id
+    where snapshot.retail_location_id = rv.resolved_location_id
+      and (
+        (rv.resolved_catalog_id is not null and snapshot.catalog_product_id = rv.resolved_catalog_id)
+        or (rv.resolved_internal_code is not null and (snapshot.internal_code = rv.resolved_internal_code or regexp_replace(snapshot.internal_code, '^0+', '') = regexp_replace(rv.resolved_internal_code, '^0+', '')))
+      )
       and current_snapshot.snapshot_date is not null
       and snapshot.snapshot_date < current_snapshot.snapshot_date
     order by snapshot.snapshot_date desc
     limit 1
-  ) previous_snapshot on true
-  where validity.completed_at is null
-    and validity.catalog_product_id is not null
-    and validity.retail_location_id is not null
-    and (p_validity_product_ids is null or validity.id = any(p_validity_product_ids));
+  ) previous_snapshot on true;
 $$;
 
 grant execute on function public.get_validity_product_stock_movements(uuid[]) to authenticated;
+
+-- Backfill de retail_location_id e catalog_product_id em validity_products existentes
+update public.validity_products vp
+set retail_location_id = loc.id
+from public.retail_locations loc
+where vp.retail_location_id is null
+  and lower(btrim(coalesce(vp.store, ''))) = lower(btrim(loc.name));
+
+update public.validity_products vp
+set catalog_product_id = cp.id
+from (
+  select distinct on (internal_code) id, internal_code
+  from public.catalog_products
+  where active is true and internal_code is not null and btrim(internal_code) <> ''
+  order by internal_code, source_updated_at desc nulls last, updated_at desc nulls last
+) cp
+where vp.catalog_product_id is null
+  and vp.product_code is not null
+  and btrim(vp.product_code) = cp.internal_code;
 
 drop function if exists public.import_product_stock_snapshots(date, uuid, text, text, jsonb);
 drop function if exists public.import_product_stock_snapshots(date, uuid, text, text, jsonb, integer, integer, integer);

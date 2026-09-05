@@ -624,19 +624,188 @@ window.skaleeDb = {
   Object.defineProperty(products, "rawPageLength", { value: rawPageLength });
   return products;
  },
- async loadStockMovementsForValidityProducts(productIds = []) {
-  const ids = [...new Set((productIds || []).map((id) => String(id || "").trim()).filter(Boolean))];
-  if (!ids.length) return [];
-  const rows = [];
-  for (let index = 0; index < ids.length; index += 100) {
-   const { data, error } = await supabase.rpc("get_validity_product_stock_movements", {
-    p_validity_product_ids: ids.slice(index, index + 100)
+ async loadStockMovementsForValidityProducts(productIds = [], productListHint = []) {
+   const ids = [...new Set((productIds || []).map((item) => (typeof item === "object" && item ? item.id : item)).map((id) => String(id || "").trim()).filter(Boolean))];
+   if (!ids.length) return [];
+
+   let rows = [];
+   let rpcSuccess = true;
+   try {
+    for (let index = 0; index < ids.length; index += 100) {
+     const { data, error } = await supabase.rpc("get_validity_product_stock_movements", {
+      p_validity_product_ids: ids.slice(index, index + 100)
+     });
+     if (error) {
+      console.warn("RPC get_validity_product_stock_movements warning:", error);
+      rpcSuccess = false;
+      break;
+     }
+     rows.push(...(data || []));
+    }
+   } catch (err) {
+    console.warn("RPC get_validity_product_stock_movements failed:", err);
+    rpcSuccess = false;
+   }
+
+   const resolvedMap = new Map(rows.filter((r) => r && r.snapshot_date).map((r) => [String(r.validity_product_id), r]));
+   const unresolvedIds = ids.filter((id) => !resolvedMap.has(String(id)));
+
+   if (unresolvedIds.length > 0) {
+    try {
+     const hintsById = new Map((Array.isArray(productListHint) ? productListHint : []).map((p) => [String(p.id), p]));
+     let missingProducts = unresolvedIds.map((id) => hintsById.get(String(id))).filter(Boolean);
+     const missingIdsToQuery = unresolvedIds.filter((id) => !hintsById.has(String(id)));
+
+     if (missingIdsToQuery.length > 0) {
+      for (let i = 0; i < missingIdsToQuery.length; i += 100) {
+       const { data: vpData } = await supabase
+        .from("validity_products")
+        .select("id,product_code,barcode,store,retail_location_id,catalog_product_id")
+        .in("id", missingIdsToQuery.slice(i, i + 100));
+       if (vpData && vpData.length) missingProducts.push(...vpData);
+      }
+     }
+
+     if (missingProducts.length > 0) {
+      const locationMap = new Map();
+      const { data: locs } = await supabase.from("retail_locations").select("id,name").eq("active", true);
+      (locs || []).forEach((loc) => {
+       if (loc.id) locationMap.set(loc.id, loc.id);
+       if (loc.name) locationMap.set(loc.name.trim().toLowerCase(), loc.id);
+      });
+
+      const queryCodesByLocation = new Map();
+      const queryCatalogIdsByLocation = new Map();
+
+      missingProducts.forEach((vp) => {
+       const locId = vp.retail_location_id || vp.retailLocationId || locationMap.get(String(vp.store || "").trim().toLowerCase()) || null;
+       const code = String(vp.product_code || vp.code || "").replace(/\D/g, "");
+       const catId = vp.catalog_product_id || vp.catalogProductId || null;
+       if (!locId) return;
+
+       if (code) {
+        if (!queryCodesByLocation.has(locId)) queryCodesByLocation.set(locId, new Set());
+        queryCodesByLocation.get(locId).add(code);
+       }
+       if (catId) {
+        if (!queryCatalogIdsByLocation.has(locId)) queryCatalogIdsByLocation.set(locId, new Set());
+        queryCatalogIdsByLocation.get(locId).add(catId);
+       }
+      });
+
+      const snapshots = [];
+      for (const [locId, codeSet] of queryCodesByLocation.entries()) {
+       const codes = [...codeSet];
+       for (let i = 0; i < codes.length; i += 100) {
+        const { data: sData } = await supabase
+         .from("product_stock_snapshots")
+         .select("id,catalog_product_id,retail_location_id,snapshot_date,stock_quantity,sale_price,cost_price,internal_code")
+         .eq("retail_location_id", locId)
+         .in("internal_code", codes.slice(i, i + 100))
+         .order("snapshot_date", { ascending: false });
+        if (sData && sData.length) snapshots.push(...sData);
+       }
+      }
+
+      for (const [locId, catSet] of queryCatalogIdsByLocation.entries()) {
+       const catIds = [...catSet];
+       for (let i = 0; i < catIds.length; i += 100) {
+        const { data: sData } = await supabase
+         .from("product_stock_snapshots")
+         .select("id,catalog_product_id,retail_location_id,snapshot_date,stock_quantity,sale_price,cost_price,internal_code")
+         .eq("retail_location_id", locId)
+         .in("catalog_product_id", catIds.slice(i, i + 100))
+         .order("snapshot_date", { ascending: false });
+        if (sData && sData.length) snapshots.push(...sData);
+       }
+      }
+
+      const snapshotsByKey = new Map();
+      snapshots.forEach((snap) => {
+       const codeKey = snap.internal_code ? `${snap.retail_location_id}:code:${String(snap.internal_code).replace(/\D/g, "")}` : null;
+       const catKey = snap.catalog_product_id ? `${snap.retail_location_id}:cat:${snap.catalog_product_id}` : null;
+       if (codeKey) {
+        if (!snapshotsByKey.has(codeKey)) snapshotsByKey.set(codeKey, []);
+        snapshotsByKey.get(codeKey).push(snap);
+       }
+       if (catKey) {
+        if (!snapshotsByKey.has(catKey)) snapshotsByKey.set(catKey, []);
+        snapshotsByKey.get(catKey).push(snap);
+       }
+      });
+
+      missingProducts.forEach((vp) => {
+       const vpId = String(vp.id);
+       const locId = vp.retail_location_id || vp.retailLocationId || locationMap.get(String(vp.store || "").trim().toLowerCase()) || null;
+       const code = String(vp.product_code || vp.code || "").replace(/\D/g, "");
+       const catId = vp.catalog_product_id || vp.catalogProductId || null;
+
+       let snaps = [];
+       if (locId && code && snapshotsByKey.has(`${locId}:code:${code}`)) {
+        snaps = snapshotsByKey.get(`${locId}:code:${code}`);
+       } else if (locId && catId && snapshotsByKey.has(`${locId}:cat:${catId}`)) {
+        snaps = snapshotsByKey.get(`${locId}:cat:${catId}`);
+       }
+
+       snaps.sort((a, b) => b.snapshot_date.localeCompare(a.snapshot_date));
+       const current = snaps[0] || null;
+       const previous = snaps.length > 1 ? snaps[1] : null;
+
+       let movementType = "no_previous_snapshot";
+       let stockChange = null;
+       let estimatedOutflow = null;
+       let intervalDays = null;
+
+       if (current && previous) {
+        stockChange = Number(current.stock_quantity) - Number(previous.stock_quantity);
+        intervalDays = Math.round((new Date(`${current.snapshot_date}T00:00:00`) - new Date(`${previous.snapshot_date}T00:00:00`)) / (1000 * 60 * 60 * 24));
+        if (Number(current.stock_quantity) < Number(previous.stock_quantity)) {
+         movementType = "decrease";
+         estimatedOutflow = Number(previous.stock_quantity) - Number(current.stock_quantity);
+        } else if (Number(current.stock_quantity) === Number(previous.stock_quantity)) {
+         movementType = "stable";
+         estimatedOutflow = 0;
+        } else {
+         movementType = "increase";
+        }
+       }
+
+       const movementObj = {
+        validity_product_id: vpId,
+        catalog_product_id: current?.catalog_product_id || catId || null,
+        retail_location_id: current?.retail_location_id || locId || null,
+        snapshot_date: current?.snapshot_date || null,
+        stock_quantity: current ? Number(current.stock_quantity) : null,
+        previous_snapshot_date: previous?.snapshot_date || null,
+        previous_stock_quantity: previous ? Number(previous.stock_quantity) : null,
+        stock_change: stockChange,
+        estimated_outflow: estimatedOutflow,
+        movement_type: movementType,
+        interval_days: intervalDays
+       };
+
+       resolvedMap.set(vpId, movementObj);
+      });
+     }
+    } catch (fallbackErr) {
+     console.error("Erro no fallback de movimentação de estoque:", fallbackErr);
+    }
+   }
+
+   return ids.map((id) => resolvedMap.get(String(id)) || {
+    validity_product_id: id,
+    catalog_product_id: null,
+    retail_location_id: null,
+    snapshot_date: null,
+    stock_quantity: null,
+    previous_snapshot_date: null,
+    previous_stock_quantity: null,
+    stock_change: null,
+    estimated_outflow: null,
+    movement_type: "no_previous_snapshot",
+    interval_days: null
    });
-   if (error) throw error;
-   rows.push(...(data || []));
-  }
-  return rows;
- },
+  },
  async loadStockImportBatches(snapshotDate) {
   if (!snapshotDate) return [];
   const rows = [];
