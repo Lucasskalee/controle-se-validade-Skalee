@@ -77,23 +77,227 @@ input:focus,select:focus{border-color:#9dbbf9;box-shadow:0 0 0 3px #e8f0ff}
 .chip.active{background:var(--violet);color:#fff;border-color:var(--violet);box-shadow:0 3px 12px var(--violet-glow)}
 .chip.active:hover{background:var(--violet-hover);border-color:var(--violet-hover)}
 .chip .chip-check{display:inline-block;font-weight:900;font-size:12px;margin-right:2px}
-.grid{display:grid;grid-template-columns:repeat(var(--product-columns,3),minmax(0,1fr));gap:14px}
-.card{background:#fff;border:1px solid var(--line);border-radius:17px;overflow:hidden;box-shadow:0 4px 16px rgba(20,30,50,.04);cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;transition:transform .14s cubic-bezier(.2,0,.2,1),box-shadow .18s ease,border-color .18s ease;will-change:transform}
+.grid{display:grid;grid-template-columns:repeat(var(--product-columns,3),minmax(0,1fr));gap:14px;align-items:stretch}
+.product-card-slot{position:relative;height:100%;min-height:405px;display:flex;flex-direction:column}
+.product-card-glow{position:relative;border-radius:19px;padding:2px;background:transparent;transition:background .3s ease,box-shadow .3s ease,transform .22s ease;will-change:transform,box-shadow;z-index:1;display:flex;flex-direction:column;height:100%}
+.card{position:relative;z-index:1;height:100%;background:#fff;border:1px solid var(--line);border-radius:17px;overflow:hidden;box-shadow:0 4px 16px rgba(20,30,50,.04);cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:pan-y;-webkit-tap-highlight-color:transparent;display:flex;flex-direction:column;transition:transform 220ms ease,box-shadow 220ms ease,border-color 220ms ease;will-change:transform,box-shadow}
 .card:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+
 @media (hover:hover) and (pointer:fine){
- .card:hover{transform:translateY(-2px);border-color:rgba(37,99,235,.4);box-shadow:0 10px 24px rgba(20,30,50,.08)}
+ .product-card-glow:hover{z-index:10}
+ .product-card-glow:hover .card{transform:translateY(-4px) scale(1.015);box-shadow:0 14px 30px rgba(0,0,0,.22)}
+ .product-card-glow:hover .photo img{transform:scale(1.05)}
 }
+.product-card-glow:focus-within{z-index:10}
+.product-card-glow:focus-within .card{transform:translateY(-4px) scale(1.015);box-shadow:0 14px 30px rgba(0,0,0,.22)}
+
+/* STATUS CRÍTICO (Vence hoje) */
+.product-card-glow.status-critical:is(:hover,:focus-within){
+ background:linear-gradient(135deg,#ff3b30,#ff6b5f);
+ box-shadow:0 0 24px rgba(255,59,48,.25);
+}
+
+/* ATÉ 3 DIAS */
+.product-card-glow.status-warning:is(:hover,:focus-within){
+ background:linear-gradient(135deg,#ff9500,#ffcc00);
+ box-shadow:0 0 24px rgba(255,149,0,.25);
+}
+
+/* ATÉ 7 DIAS */
+.product-card-glow.status-attention:is(:hover,:focus-within){
+ background:linear-gradient(135deg,#ffd60a,#ffe66d);
+ box-shadow:0 0 24px rgba(255,214,10,.20);
+}
+
+/* NORMAL */
+.product-card-glow.status-normal:is(:hover,:focus-within){
+ background:linear-gradient(135deg,#00c853,#00e676);
+ box-shadow:0 0 24px rgba(0,200,83,.20);
+}
+
+/* OFERTA */
+.product-card-glow.status-offer:is(:hover,:focus-within){
+ background:linear-gradient(135deg,#2196f3,#00bcd4);
+ box-shadow:0 0 24px rgba(33,150,243,.22);
+}
+
 @keyframes cardPress{0%{transform:scale(1)}50%{transform:scale(.98)}100%{transform:scale(1)}}
 .card.card-pressed{animation:cardPress .14s cubic-bezier(.2,0,.2,1)}
 .card:active{transform:scale(.98)}
-.photo{height:160px;background:#edf0f5;display:flex;align-items:center;justify-content:center;color:var(--muted);overflow:hidden}
-.photo img{width:100%;height:100%;object-fit:cover}
-.content{padding:15px}.name{font-weight:850;min-height:40px}.code{font-size:13px;color:var(--blue);margin:5px 0 10px}
-.info{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid #f0f2f5;font-size:14px}.info span{color:var(--muted)}
-.badges{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
+
+.photo{height:160px;background:#edf0f5;display:flex;align-items:center;justify-content:center;color:var(--muted);overflow:hidden;flex-shrink:0;position:relative}
+.photo img{width:100%;height:100%;object-fit:cover;transition:transform .4s cubic-bezier(.2,0,.2,1)}
+.content{flex:1;display:flex;flex-direction:column;padding:14px 15px;min-width:0}
+.name{font-weight:850;font-size:14.5px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:calc(1.35em * 2);max-height:calc(1.35em * 2);margin-bottom:6px;word-break:break-word;color:var(--text)}
+.card-codes{display:flex;flex-direction:column;gap:2px;font-size:12.5px;color:var(--blue);margin-bottom:8px;min-height:34px}
+.card-codes .code-line{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+.card-codes .code-supplier{font-size:12px;color:var(--muted)}
+.card-codes .code-supplier b{color:var(--blue);font-weight:750}
+.code{font-size:13px;color:var(--blue);margin:5px 0 10px}
+.card-bottom{margin-top:auto;display:flex;flex-direction:column}
+.card-summary{margin-top:6px}
+.info{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-top:1px solid #f0f2f5;font-size:13.5px}
+.info span{color:var(--muted)}
+.badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;min-height:26px;align-items:center}
 .badge{font-size:12px;font-weight:800;padding:6px 9px;border-radius:999px}
 .card-actions{display:flex;justify-content:flex-end;margin-top:13px}.card-actions .btn2{padding:9px 13px}
-.card-details{display:none;margin-top:7px}.card.expanded .card-details{display:block}.card-summary{margin-top:7px}.toggle-details{color:var(--blue);background:var(--blue2)}
+.card-details{display:none;margin-top:7px}.card.expanded .card-details{display:block}.toggle-details{color:var(--blue);background:var(--blue2)}
+
+/* BACKDROP & PREVIEW EXPANDIDO DO LONG PRESS */
+.card-preview-backdrop{
+ position:fixed;
+ inset:0;
+ z-index:1999;
+ background:rgba(7,11,18,.5);
+ backdrop-filter:blur(3px);
+ -webkit-backdrop-filter:blur(3px);
+ opacity:0;
+ pointer-events:none;
+ transition:opacity 180ms ease;
+}
+.card-preview-backdrop.show{
+ opacity:1;
+}
+
+.card-preview-expanded{
+ position:fixed;
+ z-index:2000;
+ border-radius:20px;
+ overflow:hidden;
+ box-shadow:0 25px 65px rgba(0,0,0,.45);
+ display:flex;
+ flex-direction:column;
+ pointer-events:none;
+ opacity:0;
+ transform:scale(.92);
+ transition:opacity 200ms cubic-bezier(.2,0,.2,1),transform 200ms cubic-bezier(.2,0,.2,1);
+ will-change:transform,opacity;
+ padding:2px;
+ background:#fff;
+}
+html[data-theme="dark"] .card-preview-expanded{
+ background:var(--card);
+}
+.card-preview-expanded.show{
+ opacity:1;
+ transform:scale(1);
+}
+.card-preview-expanded.closing{
+ opacity:0;
+ transform:scale(.96);
+ transition:opacity 140ms ease,transform 140ms ease;
+}
+
+.card-preview-expanded.status-critical{
+ background:linear-gradient(135deg,#ff3b30,#ff6b5f);
+ box-shadow:0 0 30px rgba(255,59,48,.35),0 25px 65px rgba(0,0,0,.45);
+}
+.card-preview-expanded.status-warning{
+ background:linear-gradient(135deg,#ff9500,#ffcc00);
+ box-shadow:0 0 30px rgba(255,149,0,.35),0 25px 65px rgba(0,0,0,.45);
+}
+.card-preview-expanded.status-attention{
+ background:linear-gradient(135deg,#ffd60a,#ffe66d);
+ box-shadow:0 0 30px rgba(255,214,10,.30),0 25px 65px rgba(0,0,0,.45);
+}
+.card-preview-expanded.status-normal{
+ background:linear-gradient(135deg,#00c853,#00e676);
+ box-shadow:0 0 30px rgba(0,200,83,.30),0 25px 65px rgba(0,0,0,.45);
+}
+.card-preview-expanded.status-offer{
+ background:linear-gradient(135deg,#2196f3,#00bcd4);
+ box-shadow:0 0 30px rgba(33,150,243,.32),0 25px 65px rgba(0,0,0,.45);
+}
+
+.card-preview-inner{
+ background:#fff;
+ border-radius:18px;
+ overflow:hidden;
+ display:flex;
+ flex-direction:column;
+ height:100%;
+}
+html[data-theme="dark"] .card-preview-inner{
+ background:var(--card);
+}
+
+.preview-photo{
+ height:170px;
+ background:#edf0f5;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ overflow:hidden;
+ flex-shrink:0;
+ position:relative;
+}
+html[data-theme="dark"] .preview-photo{
+ background:#0d1727;
+}
+.preview-photo img{
+ width:100%;
+ height:100%;
+ object-fit:contain;
+ background:rgba(15,23,42,.03);
+}
+
+.preview-content{
+ padding:13px 15px;
+ display:flex;
+ flex-direction:column;
+ gap:6px;
+}
+.preview-name{
+ font-size:15px;
+ font-weight:850;
+ line-height:1.3;
+ color:var(--text);
+ word-break:break-word;
+}
+.preview-codes{
+ display:flex;
+ flex-direction:column;
+ gap:2px;
+ font-size:12px;
+ color:var(--blue);
+ line-height:1.35;
+ margin-bottom:2px;
+}
+html[data-theme="dark"] .preview-codes{
+ color:#7db1ff;
+}
+
+.preview-rows{
+ display:grid;
+ gap:0;
+ border:1px solid var(--line);
+ border-radius:12px;
+ background:#f8fafc;
+ overflow:hidden;
+}
+html[data-theme="dark"] .preview-rows{
+ background:#0f192a;
+}
+.preview-row{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ gap:10px;
+ padding:5px 9px;
+ font-size:12px;
+ border-bottom:1px solid var(--line);
+}
+.preview-row:last-child{
+ border-bottom:0;
+}
+.preview-row span{
+ color:var(--muted);
+}
+.preview-row strong{
+ font-weight:750;
+ color:var(--text);
+ text-align:right;
+}
 .product-detail-modal{position:fixed;inset:0;z-index:2100;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(7,11,18,.65);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .2s cubic-bezier(.2,0,.2,1),visibility .2s cubic-bezier(.2,0,.2,1)}
 .product-detail-modal.show{opacity:1;visibility:visible;pointer-events:auto}
 .product-detail-panel{position:relative;width:min(720px,95vw);max-height:min(90vh,850px);background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:0 25px 70px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow:hidden;transform:scale(.96);transition:transform .2s cubic-bezier(.2,0,.2,1);outline:0}
@@ -112,8 +316,7 @@ input:focus,select:focus{border-color:#9dbbf9;box-shadow:0 0 0 3px #e8f0ff}
 .detail-no-photo{display:grid;place-items:center;height:100%;color:var(--muted);font-weight:750;font-size:14px}
 .detail-info-wrap{display:flex;flex-direction:column;gap:10px;min-width:0}
 .detail-title{font-size:18px;font-weight:850;line-height:1.3;margin:0;color:var(--text);word-break:break-word}
-.detail-codes{font-size:13px;color:var(--blue);margin:0;line-height:1.4}
-.detail-supplier{font-size:13px;color:var(--muted);line-height:1.4}
+.detail-codes{display:flex;flex-direction:column;gap:3px;font-size:13px;color:var(--blue);margin:0;line-height:1.4}
 .detail-rows{display:grid;gap:0;margin-top:4px;border:1px solid var(--line);border-radius:12px;background:#f8fafc;overflow:hidden}
 .detail-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 12px;font-size:13.5px;border-bottom:1px solid var(--line)}
 .detail-row:last-child{border-bottom:0}
@@ -122,7 +325,7 @@ input:focus,select:focus{border-color:#9dbbf9;box-shadow:0 0 0 3px #e8f0ff}
 .detail-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:6px;padding-top:14px;border-top:1px solid var(--line)}
 @media (max-width:640px){.detail-actions{flex-direction:column-reverse}.detail-actions .btn,.detail-actions .btn2{width:100%;text-align:center}}
 @media (prefers-reduced-motion:reduce){
- .card,.card:active,.card.card-pressed,.product-detail-modal,.product-detail-panel{animation:none!important;transition:none!important}
+ .product-card-glow,.product-card-glow .card,.card,.card:active,.card.card-pressed,.product-detail-modal,.product-detail-panel{animation:none!important;transition:none!important;transform:none!important}
 }
 .btn-success{border:0;border-radius:11px;background:#dcfce7;color:#166534;padding:11px 14px;font-weight:800;cursor:pointer}.btn-danger{border:0;border-radius:11px;background:#fee2e2;color:#b91c1c;padding:11px 14px;font-weight:800;cursor:pointer}.danger-actions{display:flex;gap:8px;margin-top:10px;padding-top:14px;border-top:1px solid var(--line)}button:disabled{opacity:.6;cursor:not-allowed}
 .update-modal{position:fixed;inset:0;z-index:1900;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(15,23,42,.52);backdrop-filter:blur(6px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .14s ease,visibility .14s ease}.update-modal.show{opacity:1;visibility:visible;pointer-events:auto}
@@ -245,7 +448,7 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
 @media(max-width:620px){.scan{grid-template-columns:1fr}}
 @media(max-width:850px){.stats{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:900px){.admin-topbar{align-items:flex-start;flex-direction:column}.admin-actions{width:100%;justify-content:space-between}.admin-layout{grid-template-columns:1fr}.admin-sidebar{position:sticky;top:0;z-index:5;flex-direction:row;overflow:auto;border-right:0;border-bottom:1px solid var(--admin-border)}.admin-sidebar .settings-tab.admin-nav-item{flex:1 0 48px;justify-content:center;gap:0;min-height:48px;padding:12px 10px;border-radius:8px}.admin-nav-item span{max-width:0;opacity:0;overflow:hidden;white-space:nowrap;transition:max-width .2s ease,opacity .18s ease}.admin-sidebar .settings-tab.admin-nav-item.active,.admin-sidebar .settings-tab.admin-nav-item[aria-current="page"]{flex:2.8 0 132px;gap:8px}.admin-nav-item.active span,.admin-nav-item[aria-current="page"] span{max-width:118px;opacity:1;text-overflow:ellipsis}.admin-content{padding:18px 14px 26px}.admin-metrics,.management-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.management-toolbar,.management-panels{grid-template-columns:1fr}.admin-metric{min-height:82px;padding:13px}.admin-metric-icon{width:42px;height:42px}.admin-metric b,.management-card b{font-size:24px}}
-@media(max-width:620px){.app{padding:14px}.searchrow,.searchrow.with-layout,.stock-import-grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}header{align-items:flex-start;flex-direction:column;gap:5px}.photo{height:180px}.report-head{align-items:stretch;flex-direction:column}.report-controls{align-items:stretch;flex-direction:column}.product-layout-picker{justify-self:start}.theme-options,.user-create,.user-location-checks{grid-template-columns:1fr}.user-row,.user-locations-head,.user-actions,.user-location-actions{align-items:stretch;flex-direction:column}.user-row .btn2,.user-locations-head .btn2{width:100%}.install-banner{align-items:flex-start;flex-wrap:wrap}.install-copy{flex:1 1 calc(100% - 65px)}.install-actions{width:100%;justify-content:flex-end}.grid[data-columns="2"] .photo{height:120px}.grid[data-columns="3"] .photo{height:90px}.grid[data-columns="4"] .photo{height:70px}.grid[data-columns="3"] .content,.grid[data-columns="4"] .content{padding:7px}.grid[data-columns="3"] .name,.grid[data-columns="4"] .name{min-height:0;font-size:10px}.grid[data-columns="3"] .code,.grid[data-columns="4"] .code{font-size:8px}.grid[data-columns="3"] .info,.grid[data-columns="4"] .info{display:block;font-size:8px}.grid[data-columns="3"] .badge,.grid[data-columns="4"] .badge{font-size:7px;padding:4px}.grid[data-columns="3"] .card-actions .btn2,.grid[data-columns="4"] .card-actions .btn2{width:100%;padding:6px 3px;font-size:8px}}
+@media(max-width:620px){.app{padding:14px}.searchrow,.searchrow.with-layout,.stock-import-grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}header{align-items:flex-start;flex-direction:column;gap:5px}.photo{height:180px}.report-head{align-items:stretch;flex-direction:column}.report-controls{align-items:stretch;flex-direction:column}.product-layout-picker{justify-self:start}.theme-options,.user-create,.user-location-checks{grid-template-columns:1fr}.user-row,.user-locations-head,.user-actions,.user-location-actions{align-items:stretch;flex-direction:column}.user-row .btn2,.user-locations-head .btn2{width:100%}.install-banner{align-items:flex-start;flex-wrap:wrap}.install-copy{flex:1 1 calc(100% - 65px)}.install-actions{width:100%;justify-content:flex-end}.grid[data-columns="2"] .product-card-slot{min-height:330px}.grid[data-columns="3"] .product-card-slot{min-height:240px}.grid[data-columns="4"] .product-card-slot{min-height:190px}.grid[data-columns="2"] .photo{height:120px}.grid[data-columns="3"] .photo{height:90px}.grid[data-columns="4"] .photo{height:70px}.grid[data-columns="3"] .content,.grid[data-columns="4"] .content{padding:7px}.grid[data-columns="3"] .name,.grid[data-columns="4"] .name{min-height:0;font-size:10px}.grid[data-columns="3"] .code,.grid[data-columns="4"] .code{font-size:8px}.grid[data-columns="3"] .info,.grid[data-columns="4"] .info{display:block;font-size:8px}.grid[data-columns="3"] .badge,.grid[data-columns="4"] .badge{font-size:7px;padding:4px}.grid[data-columns="3"] .card-actions .btn2,.grid[data-columns="4"] .card-actions .btn2{width:100%;padding:6px 3px;font-size:8px}}
 </style>
 </head>
 <body class="auth-loading">
@@ -3123,6 +3326,55 @@ function status(days) {
  return ["Controlado", "green"];
 }
 
+function getProductGlowStatus(days, isOffer) {
+ if (days === 0) return "status-critical";
+ if (days <= 3) return "status-warning";
+ if (days <= 7) return "status-attention";
+ if (isOffer) return "status-offer";
+ return "status-normal";
+}
+
+function renderCardExtraInfo(product) {
+ const days = remaining(product.expiry);
+ const movement = product.stockMovement;
+ const hasSnapshot = Boolean(movement && movement.snapshot_date);
+ const stockQuantity = hasSnapshot && movement.stock_quantity !== null && movement.stock_quantity !== undefined
+  ? `${formatStockNumber(movement.stock_quantity)} un.`
+  : "--";
+
+ const lastSnapshotDate = hasSnapshot ? new Date(`${movement.snapshot_date}T00:00:00`).toLocaleDateString("pt-BR") : "--";
+ const prevStock = hasSnapshot && movement.previous_stock_quantity !== null && movement.previous_stock_quantity !== undefined
+  ? `${formatStockNumber(movement.previous_stock_quantity)} un.`
+  : "--";
+
+ const daysRemainingText = days === 0 ? "Vence hoje" : (days === 1 ? "1 dia restante" : (days > 1 ? `${days} dias restantes` : "Vencido"));
+ const offerText = product.offer ? "Em oferta" : "Sem oferta";
+
+ return `
+  <div class="product-card-extra card-extra-info">
+   <div class="product-card-extra-row">
+    <span class="product-card-extra-label">Estoque SG</span>
+    <span class="product-card-extra-value">${stockQuantity}</span>
+   </div>
+   <div class="product-card-extra-row">
+    <span class="product-card-extra-label">Última carga</span>
+    <span class="product-card-extra-value">${lastSnapshotDate}</span>
+   </div>
+   <div class="product-card-extra-row">
+    <span class="product-card-extra-label">Estoque anterior</span>
+    <span class="product-card-extra-value">${prevStock}</span>
+   </div>
+   <div class="product-card-extra-row">
+    <span class="product-card-extra-label">Dias restantes</span>
+    <span class="product-card-extra-value">${daysRemainingText}</span>
+   </div>
+   <div class="product-card-extra-row">
+    <span class="product-card-extra-label">Status de oferta</span>
+    <span class="product-card-extra-value">${offerText}</span>
+   </div>
+  </div>`;
+}
+
 function activeProducts() {
  return products.filter((product) => remaining(product.expiry) >= 0);
 }
@@ -3586,39 +3838,51 @@ function render() {
  const supplierFilterText = supplierFilterCodes.length > 1 ? ` em ${supplierFilterCodes.length} fornecedores` : "";
  els.result.textContent = `${items.length} produto(s) encontrado(s)${supplierFilterText}`;
 
- const activeCards = items.map((product) => {
-  const days = remaining(product.expiry);
-  const [label, tone] = status(days);
-  const expiryText = new Date(product.expiry + "T00:00:00").toLocaleDateString("pt-BR");
-  const photoContent = product.photo ? `<img src="${product.photo}" loading="lazy" decoding="async" alt="">` : (product.photoLoaded ? "Sem foto" : "Carregando foto...");
-  const photoAttrs = (!product.photo && !product.photoLoaded) ? ` data-photo-id="${escapeHtml(product.id)}"` : "";
-  const fornecedor = supplierCardText(product);
-  return `
-   <article class="card" data-product-id="${escapeHtml(product.id)}" role="button" tabindex="0" aria-label="Ver detalhes de ${escapeHtml(product.name)}">
-    <div class="photo"${photoAttrs}>${photoContent}</div>
-    <div class="content">
-     <div class="name">${escapeHtml(product.name)}</div>
-     <div class="code">Cód. interno ${escapeHtml(product.code || "sem código")} · Barras ${escapeHtml(product.barcode || "sem barras")}</div>
-     ${fornecedor.text ? `<div class="code" ${fornecedor.title ? `title="${escapeHtml(fornecedor.title)}"` : ""}>Fornecedor ${escapeHtml(fornecedor.text)}</div>` : ""}
-     <div class="card-summary">
-      <div class="info"><span>Quantidade</span><b>${product.qty} un.</b></div>
-      <div class="info"><span>Validade</span><b>${expiryText}</b></div>
-     </div>
-     <div class="badges">
-       <span class="badge ${tone}">${days === 0 ? "Vence hoje" : label}</span>
-       ${product.offer ? '<span class="badge offer">EM OFERTA</span>' : ''}
-       ${product.qty >= 100 ? '<span class="badge high">QUANTIDADE ALTA</span>' : ''}
-     </div>
-    </div>
-   </article>`;
- }).join("");
- console.debug("[PHOTO CACHE] LIST", {
-  products: items.length,
-  withPhotoPath: items.filter((product) => Boolean(product.photoPath)).length,
-  requested: requestedProductPhotoIds.size
- });
- const moreProducts = productHasMorePages ? '<div class="empty" data-load-more-products>Carregando mais produtos...</div>' : "";
- els.grid.innerHTML = activeCards ? activeCards + moreProducts : '<div class="empty">Nenhum produto encontrado com esses filtros.</div>';
+  const activeCards = items.map((product) => {
+   const days = remaining(product.expiry);
+   const [label, tone] = status(days);
+   const expiryText = new Date(product.expiry + "T00:00:00").toLocaleDateString("pt-BR");
+   const photoContent = product.photo ? `<img src="${product.photo}" loading="lazy" decoding="async" alt="">` : (product.photoLoaded ? "Sem foto" : "Carregando foto...");
+   const photoAttrs = (!product.photo && !product.photoLoaded) ? ` data-photo-id="${escapeHtml(product.id)}"` : "";
+   const firstCode = extractFirstInternalCode(product.code) || "sem código";
+   const firstBarcode = extractFirstBarcode(product.barcode) || "sem barras";
+   const firstSupplierCode = extractFirstSupplierCode(product);
+   const glowStatus = getProductGlowStatus(days, Boolean(product.offer));
+    return `
+     <div class="product-card-slot">
+      <div class="product-card-glow ${glowStatus}">
+       <article class="card" data-product-id="${escapeHtml(product.id)}" role="button" tabindex="0" aria-label="Ver detalhes de ${escapeHtml(product.name)}">
+        <div class="photo"${photoAttrs}>${photoContent}</div>
+        <div class="content">
+         <div class="name" title="${escapeHtml(product.name)}">${escapeHtml(product.name)}</div>
+         <div class="card-codes">
+          <div class="code-line">Cód. interno ${escapeHtml(firstCode)} · Barras ${escapeHtml(firstBarcode)}</div>
+          ${firstSupplierCode ? `<div class="code-line code-supplier" title="Cód. fornecedor: ${escapeHtml(firstSupplierCode)}">Cód. fornecedor: <b>${escapeHtml(firstSupplierCode)}</b></div>` : `<div class="code-line code-supplier">&nbsp;</div>`}
+         </div>
+         <div class="card-bottom">
+          <div class="card-summary">
+           <div class="info"><span>Quantidade</span><b>${product.qty} un.</b></div>
+           <div class="info"><span>Validade</span><b>${expiryText}</b></div>
+          </div>
+          <div class="badges">
+            <span class="badge ${tone}">${days === 0 ? "Vence hoje" : label}</span>
+            ${product.offer ? '<span class="badge offer">EM OFERTA</span>' : ''}
+            ${product.qty >= 100 ? '<span class="badge high">QUANTIDADE ALTA</span>' : ''}
+          </div>
+         </div>
+        </div>
+       </article>
+      </div>
+     </div>`;
+   }).join("");
+  console.debug("[PHOTO CACHE] LIST", {
+   products: items.length,
+   withPhotoPath: items.filter((product) => Boolean(product.photoPath)).length,
+   requested: requestedProductPhotoIds.size
+  });
+  const moreProducts = productHasMorePages ? '<div class="empty" data-load-more-products>Carregando mais produtos...</div>' : "";
+  closeExpandedPreview(true);
+  els.grid.innerHTML = activeCards ? activeCards + moreProducts : '<div class="empty">Nenhum produto encontrado com esses filtros.</div>';
  agendarCargaFotosVisiveis();
  agendarCargaMaisProdutos();
 }
@@ -4046,13 +4310,55 @@ function openUpdateModalForProduct(product) {
  els.updateQty.focus();
 }
 
+function extractFirstSupplierCode(product) {
+ if (!product) return "";
+ const aliases = Array.isArray(product.supplierAliases) ? product.supplierAliases : [];
+ for (const alias of aliases) {
+  const raw = String(alias && typeof alias === "object" ? alias.code : alias || "").trim();
+  if (raw && raw.toLowerCase() !== "null" && raw.toLowerCase() !== "undefined") {
+   const firstEntry = raw.split(/\s*[/;,|]\s*|\s{2,}/)[0].trim();
+   const codeOnly = firstEntry.split(/\s+[-:]\s+/)[0].trim();
+   if (codeOnly) return codeOnly;
+  }
+ }
+ const rawCode = String(product.supplierCode || "").trim();
+ if (rawCode && rawCode.toLowerCase() !== "null" && rawCode.toLowerCase() !== "undefined") {
+  const firstEntry = rawCode.split(/\s*[/;,|]\s*|\s{2,}/)[0].trim();
+  const codeOnly = firstEntry.split(/\s+[-:]\s+/)[0].trim();
+  if (codeOnly) return codeOnly;
+ }
+ const rawSupplier = String(product.supplierName || product.supplier || "").trim();
+ if (rawSupplier && rawSupplier.toLowerCase() !== "null" && rawSupplier.toLowerCase() !== "undefined") {
+  const firstEntry = rawSupplier.split(/\s*[/;,|]\s*|\s{2,}/)[0].trim();
+  const match = firstEntry.match(/^([A-Za-z0-9_-]+)\s*[-:]/);
+  if (match && match[1]) return match[1].trim();
+ }
+ return "";
+}
+
+function extractFirstBarcode(barcodeValue) {
+ const raw = String(barcodeValue || "").trim();
+ if (!raw || raw.toLowerCase() === "null" || raw.toLowerCase() === "undefined" || raw.toLowerCase() === "sem barras") return "";
+ const first = raw.split(/[\s,;/|]+/)[0] || "";
+ return first.trim();
+}
+
+function extractFirstInternalCode(codeValue) {
+ const raw = String(codeValue || "").trim();
+ if (!raw || raw.toLowerCase() === "null" || raw.toLowerCase() === "undefined" || raw.toLowerCase() === "sem código") return "";
+ const first = raw.split(/[\s,;/|]+/)[0] || "";
+ return first.trim();
+}
+
 function openProductDetailModal(product, sourceCard) {
  if (!product || !els.productDetailModal || !els.productDetailBody) return;
  lastFocusedProductCard = sourceCard || document.querySelector(`.card[data-product-id="${product.id}"]`);
  const days = remaining(product.expiry);
  const [label, tone] = status(days);
  const expiryText = new Date(product.expiry + "T00:00:00").toLocaleDateString("pt-BR");
- const fornecedorFull = supplierLabel(product) || "Não informado";
+ const firstCode = extractFirstInternalCode(product.code) || "sem código";
+ const firstBarcode = extractFirstBarcode(product.barcode) || "sem barras";
+ const firstSupplierCode = extractFirstSupplierCode(product) || "sem código";
  const photoMarkup = product.photo
   ? `<img src="${product.photo}" alt="${escapeHtml(product.name)}">`
   : `<div class="detail-no-photo"><span>Sem foto</span></div>`;
@@ -4071,12 +4377,10 @@ function openProductDetailModal(product, sourceCard) {
    <div class="detail-info-wrap">
     <h2 id="productDetailTitle" class="detail-title">${escapeHtml(product.name)}</h2>
     <div class="detail-codes">
-     <span>Cód. interno: <b>${escapeHtml(product.code || "sem código")}</b></span> · 
-     <span>Barras: <b>${escapeHtml(product.barcode || "sem barras")}</b></span>
-     ${product.brandName ? ` · <span>Marca: <b>${escapeHtml(product.brandName)}</b></span>` : ""}
-    </div>
-    <div class="detail-supplier">
-     <span>Fornecedor: <b>${escapeHtml(fornecedorFull)}</b></span>
+     <div><span>Cód. interno: <b>${escapeHtml(firstCode)}</b></span></div>
+     <div><span>Cód. barras: <b>${escapeHtml(firstBarcode)}</b></span></div>
+     <div><span>Cód. fornecedor: <b>${escapeHtml(firstSupplierCode)}</b></span></div>
+     ${product.brandName ? `<div><span>Marca: <b>${escapeHtml(product.brandName)}</b></span></div>` : ""}
     </div>
     <div class="detail-rows">
      <div class="detail-row">
@@ -4133,33 +4437,273 @@ function closeProductDetailModal() {
  lastFocusedProductCard = null;
 }
 
-els.grid.addEventListener("click", (event) => {
- const card = event.target.closest(".card");
+const LONG_PRESS_TIME = 500;
+const MOVE_TOLERANCE = 12;
+
+let longPressTimer = null;
+let longPressTriggered = false;
+let startX = 0;
+let startY = 0;
+let activePreviewBackdrop = null;
+let activePreviewElement = null;
+let previewCloseTimeout = null;
+
+function clearLongPressTimer() {
+ if (longPressTimer) {
+  clearTimeout(longPressTimer);
+  longPressTimer = null;
+ }
+}
+
+function closeExpandedPreview(immediate = false) {
+ if (previewCloseTimeout) {
+  clearTimeout(previewCloseTimeout);
+  previewCloseTimeout = null;
+ }
+ if (!activePreviewElement && !activePreviewBackdrop) return;
+
+ const prevEl = activePreviewElement;
+ const prevBackdrop = activePreviewBackdrop;
+ activePreviewElement = null;
+ activePreviewBackdrop = null;
+
+ if (immediate) {
+  if (prevEl && prevEl.parentNode) prevEl.remove();
+  if (prevBackdrop && prevBackdrop.parentNode) prevBackdrop.remove();
+ } else {
+  if (prevEl) prevEl.classList.add("closing");
+  if (prevBackdrop) prevBackdrop.classList.remove("show");
+  previewCloseTimeout = setTimeout(() => {
+   if (prevEl && prevEl.parentNode) prevEl.remove();
+   if (prevBackdrop && prevBackdrop.parentNode) prevBackdrop.remove();
+   previewCloseTimeout = null;
+  }, 150);
+ }
+}
+
+function openExpandedPreview(card, product) {
+ if (!card || !product) return;
+ closeExpandedPreview(true);
+
+ const rect = card.getBoundingClientRect();
+ const days = remaining(product.expiry);
+ const [label, tone] = status(days);
+ const expiryText = new Date(product.expiry + "T00:00:00").toLocaleDateString("pt-BR");
+ const firstCode = extractFirstInternalCode(product.code) || "sem código";
+ const firstBarcode = extractFirstBarcode(product.barcode) || "sem barras";
+ const firstSupplierCode = extractFirstSupplierCode(product);
+ const glowStatus = getProductGlowStatus(days, Boolean(product.offer));
+
+ const movement = product.stockMovement;
+ const hasSnapshot = Boolean(movement && movement.snapshot_date);
+ const stockQuantity = hasSnapshot && movement.stock_quantity !== null && movement.stock_quantity !== undefined
+  ? `${formatStockNumber(movement.stock_quantity)} un.`
+  : "--";
+ const lastSnapshotDate = hasSnapshot ? new Date(`${movement.snapshot_date}T00:00:00`).toLocaleDateString("pt-BR") : "--";
+ const prevStock = hasSnapshot && movement.previous_stock_quantity !== null && movement.previous_stock_quantity !== undefined
+  ? `${formatStockNumber(movement.previous_stock_quantity)} un.`
+  : "--";
+ const daysRemainingText = days === 0 ? "Vence hoje" : (days === 1 ? "1 dia" : `${days} dias`);
+ const offerText = product.offer ? "Em oferta" : "Sem oferta";
+
+ const photoMarkup = product.photo
+  ? `<img src="${product.photo}" alt="${escapeHtml(product.name)}">`
+  : `<div class="detail-no-photo"><span>Sem foto</span></div>`;
+
+ const backdrop = document.createElement("div");
+ backdrop.className = "card-preview-backdrop";
+ document.body.appendChild(backdrop);
+ activePreviewBackdrop = backdrop;
+
+ const preview = document.createElement("div");
+ preview.className = `card-preview-expanded ${glowStatus}`;
+ preview.setAttribute("role", "dialog");
+ preview.setAttribute("aria-label", `Pré-visualização de ${product.name}`);
+
+ const previewWidth = Math.min(340, window.innerWidth - 24);
+ let left = rect.left + (rect.width / 2) - (previewWidth / 2);
+ left = Math.max(12, Math.min(left, window.innerWidth - previewWidth - 12));
+
+ let top = rect.top - 10;
+ if (top + 460 > window.innerHeight - 12) {
+  top = Math.max(12, window.innerHeight - 470);
+ }
+ if (top < 12) top = 12;
+
+ const originX = Math.round(rect.left + rect.width / 2 - left);
+ const originY = Math.round(rect.top + rect.height / 2 - top);
+
+ preview.style.width = `${previewWidth}px`;
+ preview.style.left = `${left}px`;
+ preview.style.top = `${top}px`;
+ preview.style.transformOrigin = `${originX}px ${originY}px`;
+
+ preview.innerHTML = `
+  <div class="card-preview-inner">
+   <div class="preview-photo">
+    ${photoMarkup}
+   </div>
+   <div class="preview-content">
+    <div class="preview-name">${escapeHtml(product.name)}</div>
+    <div class="preview-codes">
+     <div>Cód. interno <b>${escapeHtml(firstCode)}</b> · Barras <b>${escapeHtml(firstBarcode)}</b></div>
+     ${firstSupplierCode ? `<div>Cód. fornecedor: <b>${escapeHtml(firstSupplierCode)}</b></div>` : ""}
+    </div>
+    <div class="badges" style="margin-top:2px;margin-bottom:4px">
+     <span class="badge ${tone}">${days === 0 ? "Vence hoje" : label}</span>
+     ${product.offer ? '<span class="badge offer">EM OFERTA</span>' : ''}
+     ${product.qty >= 100 ? '<span class="badge high">QUANTIDADE ALTA</span>' : ''}
+    </div>
+    <div class="preview-rows">
+     <div class="preview-row"><span>Quantidade</span><strong>${product.qty} un.</strong></div>
+     <div class="preview-row"><span>Validade</span><strong>${expiryText}</strong></div>
+     <div class="preview-row"><span>Dias restantes</span><strong>${daysRemainingText}</strong></div>
+     <div class="preview-row"><span>Estoque SG</span><strong>${stockQuantity}</strong></div>
+     <div class="preview-row"><span>Última carga</span><strong>${lastSnapshotDate}</strong></div>
+     <div class="preview-row"><span>Estoque anterior</span><strong>${prevStock}</strong></div>
+     <div class="preview-row"><span>Oferta</span><strong>${offerText}</strong></div>
+    </div>
+   </div>
+  </div>
+ `;
+
+ document.body.appendChild(preview);
+ activePreviewElement = preview;
+
+ requestAnimationFrame(() => {
+  backdrop.classList.add("show");
+  preview.classList.add("show");
+ });
+}
+
+els.grid.addEventListener('pointerdown', (event) => {
+ if (event.pointerType === 'mouse') return;
+
+ const card = event.target.closest('.card');
+ if (!card) return;
+
+ clearLongPressTimer();
+ longPressTriggered = false;
+
+ startX = event.clientX;
+ startY = event.clientY;
+
+ longPressTimer = setTimeout(() => {
+  longPressTriggered = true;
+  const productId = card.dataset.productId;
+  const product = products.find((item) => String(item.id) === productId);
+  if (product) {
+   openExpandedPreview(card, product);
+  }
+  if (navigator.vibrate) {
+   try { navigator.vibrate(25); } catch (_) {}
+  }
+ }, LONG_PRESS_TIME);
+});
+
+els.grid.addEventListener('pointermove', (event) => {
+ if (event.pointerType === 'mouse') return;
+ if (!longPressTimer && !longPressTriggered) return;
+
+ const deltaX = Math.abs(event.clientX - startX);
+ const deltaY = Math.abs(event.clientY - startY);
+
+ if (deltaX > MOVE_TOLERANCE || deltaY > MOVE_TOLERANCE) {
+  clearLongPressTimer();
+  if (longPressTriggered) {
+   closeExpandedPreview();
+  }
+ }
+});
+
+els.grid.addEventListener('pointerup', (event) => {
+ if (event.pointerType === 'mouse') return;
+
+ clearLongPressTimer();
+
+ if (longPressTriggered) {
+  event.preventDefault();
+  event.stopPropagation();
+  closeExpandedPreview();
+  setTimeout(() => {
+   longPressTriggered = false;
+  }, 140);
+ }
+});
+
+els.grid.addEventListener('pointercancel', () => {
+ clearLongPressTimer();
+ if (longPressTriggered) {
+  closeExpandedPreview();
+  setTimeout(() => {
+   longPressTriggered = false;
+  }, 140);
+ }
+});
+
+document.addEventListener('pointerup', () => {
+ if (longPressTriggered) {
+  closeExpandedPreview();
+  setTimeout(() => {
+   longPressTriggered = false;
+  }, 140);
+ }
+});
+
+els.grid.addEventListener('contextmenu', (event) => {
+ if (event.target.closest('.card')) {
+  event.preventDefault();
+ }
+});
+
+window.addEventListener('scroll', () => {
+ clearLongPressTimer();
+ if (longPressTriggered) {
+  closeExpandedPreview(true);
+  setTimeout(() => {
+   longPressTriggered = false;
+  }, 140);
+ }
+}, { passive: true });
+
+els.grid.addEventListener('click', (event) => {
+ if (longPressTriggered) {
+  event.preventDefault();
+  event.stopPropagation();
+  longPressTriggered = false;
+  return;
+ }
+
+ const card = event.target.closest('.card');
  if (!card) return;
  const productId = card.dataset.productId;
  const product = products.find((item) => String(item.id) === productId);
  if (!product) return;
 
- card.classList.remove("card-pressed");
+ card.classList.remove('card-pressed');
  void card.offsetWidth;
- card.classList.add("card-pressed");
+ card.classList.add('card-pressed');
  setTimeout(() => {
-  card.classList.remove("card-pressed");
+  card.classList.remove('card-pressed');
+  closeExpandedPreview(true);
   openProductDetailModal(product, card);
  }, 130);
 });
 
-els.grid.addEventListener("keydown", (event) => {
- if (event.key === "Enter" || event.key === " ") {
-  const card = event.target.closest(".card");
+els.grid.addEventListener('keydown', (event) => {
+ if (event.key === 'Enter' || event.key === ' ') {
+  const card = event.target.closest('.card');
   if (card && event.target === card) {
    event.preventDefault();
    const productId = card.dataset.productId;
    const product = products.find((item) => String(item.id) === productId);
    if (product) {
-    card.classList.add("card-pressed");
+    card.classList.remove('card-pressed');
+    void card.offsetWidth;
+    card.classList.add('card-pressed');
     setTimeout(() => {
-     card.classList.remove("card-pressed");
+     card.classList.remove('card-pressed');
+     closeExpandedPreview(true);
      openProductDetailModal(product, card);
     }, 130);
    }
