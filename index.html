@@ -78,7 +78,14 @@ input:focus,select:focus{border-color:#9dbbf9;box-shadow:0 0 0 3px #e8f0ff}
 .chip.active:hover{background:var(--violet-hover);border-color:var(--violet-hover)}
 .chip .chip-check{display:inline-block;font-weight:900;font-size:12px;margin-right:2px}
 .grid{display:grid;grid-template-columns:repeat(var(--product-columns,3),minmax(0,1fr));gap:14px}
-.card{background:#fff;border:1px solid var(--line);border-radius:17px;overflow:hidden;box-shadow:0 4px 16px rgba(20,30,50,.04)}
+.card{background:#fff;border:1px solid var(--line);border-radius:17px;overflow:hidden;box-shadow:0 4px 16px rgba(20,30,50,.04);cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;transition:transform .14s cubic-bezier(.2,0,.2,1),box-shadow .18s ease,border-color .18s ease;will-change:transform}
+.card:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+@media (hover:hover) and (pointer:fine){
+ .card:hover{transform:translateY(-2px);border-color:rgba(37,99,235,.4);box-shadow:0 10px 24px rgba(20,30,50,.08)}
+}
+@keyframes cardPress{0%{transform:scale(1)}50%{transform:scale(.98)}100%{transform:scale(1)}}
+.card.card-pressed{animation:cardPress .14s cubic-bezier(.2,0,.2,1)}
+.card:active{transform:scale(.98)}
 .photo{height:160px;background:#edf0f5;display:flex;align-items:center;justify-content:center;color:var(--muted);overflow:hidden}
 .photo img{width:100%;height:100%;object-fit:cover}
 .content{padding:15px}.name{font-weight:850;min-height:40px}.code{font-size:13px;color:var(--blue);margin:5px 0 10px}
@@ -87,6 +94,36 @@ input:focus,select:focus{border-color:#9dbbf9;box-shadow:0 0 0 3px #e8f0ff}
 .badge{font-size:12px;font-weight:800;padding:6px 9px;border-radius:999px}
 .card-actions{display:flex;justify-content:flex-end;margin-top:13px}.card-actions .btn2{padding:9px 13px}
 .card-details{display:none;margin-top:7px}.card.expanded .card-details{display:block}.card-summary{margin-top:7px}.toggle-details{color:var(--blue);background:var(--blue2)}
+.product-detail-modal{position:fixed;inset:0;z-index:2100;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(7,11,18,.65);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .2s cubic-bezier(.2,0,.2,1),visibility .2s cubic-bezier(.2,0,.2,1)}
+.product-detail-modal.show{opacity:1;visibility:visible;pointer-events:auto}
+.product-detail-panel{position:relative;width:min(720px,95vw);max-height:min(90vh,850px);background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:0 25px 70px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow:hidden;transform:scale(.96);transition:transform .2s cubic-bezier(.2,0,.2,1);outline:0}
+.product-detail-modal.show .product-detail-panel{transform:scale(1)}
+.product-detail-close{position:absolute;top:14px;right:14px;z-index:10;display:grid;place-items:center;width:36px;height:36px;border:0;border-radius:10px;background:rgba(148,163,184,.14);color:var(--text);cursor:pointer;transition:background .15s ease,transform .15s ease}
+.product-detail-close:hover{background:rgba(148,163,184,.26)}
+.product-detail-close:active{transform:scale(.92)}
+.product-detail-close svg{width:18px;height:18px}
+.product-detail-body{display:flex;flex-direction:column;overflow-y:auto;padding:22px;gap:16px;max-height:100%;overscroll-behavior:contain}
+.detail-badges{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.detail-grid{display:grid;grid-template-columns:240px 1fr;gap:20px;align-items:start}
+@media (max-width:640px){.detail-grid{grid-template-columns:1fr;gap:14px}}
+.detail-photo{width:100%;height:240px;background:#edf0f5;border-radius:14px;overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--muted);border:1px solid var(--line)}
+@media (max-width:640px){.detail-photo{height:200px}}
+.detail-photo img{width:100%;height:100%;object-fit:contain;background:rgba(15,23,42,.03)}
+.detail-no-photo{display:grid;place-items:center;height:100%;color:var(--muted);font-weight:750;font-size:14px}
+.detail-info-wrap{display:flex;flex-direction:column;gap:10px;min-width:0}
+.detail-title{font-size:18px;font-weight:850;line-height:1.3;margin:0;color:var(--text);word-break:break-word}
+.detail-codes{font-size:13px;color:var(--blue);margin:0;line-height:1.4}
+.detail-supplier{font-size:13px;color:var(--muted);line-height:1.4}
+.detail-rows{display:grid;gap:0;margin-top:4px;border:1px solid var(--line);border-radius:12px;background:#f8fafc;overflow:hidden}
+.detail-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 12px;font-size:13.5px;border-bottom:1px solid var(--line)}
+.detail-row:last-child{border-bottom:0}
+.detail-row span{color:var(--muted)}
+.detail-row strong{font-weight:750;color:var(--text);text-align:right}
+.detail-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:6px;padding-top:14px;border-top:1px solid var(--line)}
+@media (max-width:640px){.detail-actions{flex-direction:column-reverse}.detail-actions .btn,.detail-actions .btn2{width:100%;text-align:center}}
+@media (prefers-reduced-motion:reduce){
+ .card,.card:active,.card.card-pressed,.product-detail-modal,.product-detail-panel{animation:none!important;transition:none!important}
+}
 .btn-success{border:0;border-radius:11px;background:#dcfce7;color:#166534;padding:11px 14px;font-weight:800;cursor:pointer}.btn-danger{border:0;border-radius:11px;background:#fee2e2;color:#b91c1c;padding:11px 14px;font-weight:800;cursor:pointer}.danger-actions{display:flex;gap:8px;margin-top:10px;padding-top:14px;border-top:1px solid var(--line)}button:disabled{opacity:.6;cursor:not-allowed}
 .update-modal{position:fixed;inset:0;z-index:1900;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(15,23,42,.52);backdrop-filter:blur(6px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .14s ease,visibility .14s ease}.update-modal.show{opacity:1;visibility:visible;pointer-events:auto}
 .update-panel{width:min(440px,100%);background:#fff;border-radius:18px;padding:20px;box-shadow:0 24px 70px rgba(15,23,42,.28);transform:translateY(8px) scale(.98);transition:transform .14s ease}.update-modal.show .update-panel{transform:translateY(0) scale(1)}.update-panel h2{margin:0}.update-product-name{margin:5px 0 16px;color:var(--muted);font-size:14px}.update-error{min-height:19px;margin-top:10px;color:var(--red);font-size:13px;font-weight:700}
@@ -192,6 +229,16 @@ html[data-theme="dark"] .ios-step-item{background:#17243a;border-color:#37517a}
 html[data-theme="dark"] .ios-step-num{background:#0b1322;color:#93c5fd}
 html[data-theme="dark"] .ios-step-icon{background:#0f1a2d;border-color:#37517a;color:#93c5fd}
 html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
+html[data-theme="dark"] .card:hover{border-color:rgba(59,130,246,.5);box-shadow:0 10px 28px rgba(0,0,0,.4)}
+html[data-theme="dark"] .product-detail-panel{background:var(--card);border-color:var(--line);box-shadow:0 28px 80px rgba(0,0,0,.6)}
+html[data-theme="dark"] .product-detail-close{background:rgba(148,163,184,.14);color:#f8fafc}
+html[data-theme="dark"] .product-detail-close:hover{background:rgba(148,163,184,.28);color:#fff}
+html[data-theme="dark"] .detail-photo{background:#0d1727;border-color:var(--line)}
+html[data-theme="dark"] .detail-photo img{background:transparent}
+html[data-theme="dark"] .detail-codes{color:#7db1ff}
+html[data-theme="dark"] .detail-rows{background:#0f192a;border-color:var(--line)}
+html[data-theme="dark"] .detail-row{border-color:var(--line)}
+html[data-theme="dark"] .detail-actions{border-color:var(--line)}
 @media(max-width:768px){nav{gap:5px;padding:6px;border-radius:14px}.tab{flex:1 1 0;min-width:0;gap:0;padding:10px 0}.tab.active,.tab[aria-current="page"]{flex:2.65 1 0;gap:7px;padding-inline:9px}.tab-label{display:block;max-width:0;opacity:0;transition:max-width .2s ease,opacity .18s ease}.tab.active .tab-label,.tab[aria-current="page"] .tab-label{max-width:90px;opacity:1}.label-desktop{display:none}.label-mobile{display:inline}}
 @media(max-width:768px){.app-brand{gap:9px}.app-header-logo{width:36px;height:36px}.app-brand h1{font-size:16px}.app-brand .sub{display:none}header{margin-bottom:10px;padding:4px 2px}nav{top:0;margin-inline:-2px;margin-bottom:14px;border-radius:0;border-inline:0;background:rgba(5,12,24,.92);box-shadow:none}.personal-overlay{background:rgba(2,6,14,.6);backdrop-filter:blur(6px)}.personal-panel{top:0;width:min(300px,76vw);height:100dvh}.personal-header{padding-top:58px}.personal-header::before{content:"";width:48px;height:5px;border-radius:999px;background:rgba(255,255,255,.22);position:absolute;top:18px}.personal-title span{white-space:normal}.personal-body{padding-inline:20px}.personal-menu-list{margin-top:10px}.personal-menu-item{grid-template-columns:28px 1fr 20px;padding:17px 0;border-bottom-color:rgba(255,255,255,.08)}.personal-menu-item strong{font-size:15px}.personal-menu-item span{color:#cbd5e1}.personal-menu-arrow{color:#e5e7eb}}
 @media(max-width:480px){.app{max-width:430px}}
@@ -709,6 +756,15 @@ html[data-theme="dark"] .empty{background:var(--card);border-color:#42516a}
  </div>
 </div>
 
+<div id="productDetailModal" class="product-detail-modal" role="dialog" aria-modal="true" aria-labelledby="productDetailTitle" aria-hidden="true">
+ <div class="product-detail-panel" tabindex="-1">
+  <button id="closeProductDetail" class="product-detail-close" type="button" aria-label="Fechar detalhes do produto">
+   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+  </button>
+  <div id="productDetailBody" class="product-detail-body"></div>
+ </div>
+</div>
+
 <div id="notificationsModal" class="update-modal notification-settings-modal" role="dialog" aria-modal="true" aria-labelledby="notificationsTitle">
  <div class="update-panel">
   <h2 id="notificationsTitle">Notificações</h2>
@@ -920,6 +976,9 @@ const els = {
  cancelUpdate: document.getElementById('cancelUpdate'),
  completeProduct: document.getElementById('completeProduct'),
  deleteProduct: document.getElementById('deleteProduct'),
+ productDetailModal: document.getElementById('productDetailModal'),
+ closeProductDetail: document.getElementById('closeProductDetail'),
+ productDetailBody: document.getElementById('productDetailBody'),
  savingOverlay: document.getElementById('savingOverlay'),
  reportStore: document.getElementById('reportStore'),
  reportUpdatedFrom: document.getElementById('reportUpdatedFrom'),
@@ -3528,37 +3587,28 @@ function render() {
  els.result.textContent = `${items.length} produto(s) encontrado(s)${supplierFilterText}`;
 
  const activeCards = items.map((product) => {
- const days = remaining(product.expiry);
- const [label, tone] = status(days);
- const expiryText = new Date(product.expiry + "T00:00:00").toLocaleDateString("pt-BR");
- const photoContent = product.photo ? `<img src="${product.photo}" loading="lazy" decoding="async" alt="">` : (product.photoLoaded ? "Sem foto" : "Carregando foto...");
- const photoAttrs = (!product.photo && !product.photoLoaded) ? ` data-photo-id="${escapeHtml(product.id)}"` : "";
+  const days = remaining(product.expiry);
+  const [label, tone] = status(days);
+  const expiryText = new Date(product.expiry + "T00:00:00").toLocaleDateString("pt-BR");
+  const photoContent = product.photo ? `<img src="${product.photo}" loading="lazy" decoding="async" alt="">` : (product.photoLoaded ? "Sem foto" : "Carregando foto...");
+  const photoAttrs = (!product.photo && !product.photoLoaded) ? ` data-photo-id="${escapeHtml(product.id)}"` : "";
   const fornecedor = supplierCardText(product);
-  const expanded = expandedProductIds.has(String(product.id));
-  const updating = pendingProductUpdateIds.has(String(product.id));
   return `
-   <article class="card${expanded ? " expanded" : ""}" data-product-id="${escapeHtml(product.id)}">
+   <article class="card" data-product-id="${escapeHtml(product.id)}" role="button" tabindex="0" aria-label="Ver detalhes de ${escapeHtml(product.name)}">
     <div class="photo"${photoAttrs}>${photoContent}</div>
     <div class="content">
-    <div class="name">${escapeHtml(product.name)}</div><div class="code">Cód. interno ${escapeHtml(product.code || "sem código")} · Barras ${escapeHtml(product.barcode || "sem barras")}</div>${fornecedor.text ? `<div class="code" ${fornecedor.title ? `title="${escapeHtml(fornecedor.title)}"` : ""}>Fornecedor ${escapeHtml(fornecedor.text)}</div>` : ""}
+     <div class="name">${escapeHtml(product.name)}</div>
+     <div class="code">Cód. interno ${escapeHtml(product.code || "sem código")} · Barras ${escapeHtml(product.barcode || "sem barras")}</div>
+     ${fornecedor.text ? `<div class="code" ${fornecedor.title ? `title="${escapeHtml(fornecedor.title)}"` : ""}>Fornecedor ${escapeHtml(fornecedor.text)}</div>` : ""}
      <div class="card-summary">
       <div class="info"><span>Quantidade</span><b>${product.qty} un.</b></div>
       <div class="info"><span>Validade</span><b>${expiryText}</b></div>
      </div>
-     <div class="card-details">
-      <div class="info"><span>Loja</span><b>${product.store}</b></div>
-      <div class="info"><span>Faltam</span><b>${days === 0 ? "Vence hoje" : `${days} dias`}</b></div>
-      <div class="info"><span>Atualizado em</span><b>${formatDateTime(product.updatedAt || product.createdAt)}</b></div>
-      <div class="info"><span>Último usuário</span><b>${displayUserName(product.updatedByEmail)}</b></div>
-      ${renderStockMovement(product)}
-      <div class="badges">
-        <span class="badge ${tone}">${label}</span>
-        ${product.offer ? '<span class="badge offer">EM OFERTA</span>' : ''}
-        ${product.qty >= 100 ? '<span class="badge high">QUANTIDADE ALTA</span>' : ''}
-      </div>
-      ${isViewer ? "" : `<div class="card-actions"><button class="btn2 update-product" type="button" data-product-id="${product.id}"${updating ? " disabled" : ""}>${updating ? "Atualizando..." : "Atualizar"}</button></div>`}
+     <div class="badges">
+       <span class="badge ${tone}">${days === 0 ? "Vence hoje" : label}</span>
+       ${product.offer ? '<span class="badge offer">EM OFERTA</span>' : ''}
+       ${product.qty >= 100 ? '<span class="badge high">QUANTIDADE ALTA</span>' : ''}
      </div>
-     <div class="card-actions"><button class="btn2 toggle-details" type="button" aria-expanded="${expanded ? "true" : "false"}">${expanded ? "Ver menos" : "Ver mais"}</button></div>
     </div>
    </article>`;
  }).join("");
@@ -3982,23 +4032,10 @@ function closeUpdateModal() {
  els.updateError.textContent = "";
 }
 
-els.grid.addEventListener("click", (event) => {
- const detailsButton = event.target.closest(".toggle-details");
- if (detailsButton) {
-  const card = detailsButton.closest(".card");
-  const productId = card?.dataset.productId;
-  const expanded = card.classList.toggle("expanded");
-  if (productId) {
-   if (expanded) expandedProductIds.add(String(productId));
-   else expandedProductIds.delete(String(productId));
-  }
-  detailsButton.textContent = expanded ? "Ver menos" : "Ver mais";
-  detailsButton.setAttribute("aria-expanded", String(expanded));
-  return;
- }
- const button = event.target.closest(".update-product");
- if (!button) return;
- const product = products.find((item) => String(item.id) === button.dataset.productId);
+let lastFocusedProductCard = null;
+let savedBodyOverflow = "";
+
+function openUpdateModalForProduct(product) {
  if (!product) return;
  updatingProductId = product.id;
  els.updateProductName.textContent = `${product.name} · ${product.store} · validade ${new Date(product.expiry + "T00:00:00").toLocaleDateString("pt-BR")}`;
@@ -4007,6 +4044,156 @@ els.grid.addEventListener("click", (event) => {
  els.deleteProduct.hidden = !product.canDelete;
  els.updateModal.classList.add("show");
  els.updateQty.focus();
+}
+
+function openProductDetailModal(product, sourceCard) {
+ if (!product || !els.productDetailModal || !els.productDetailBody) return;
+ lastFocusedProductCard = sourceCard || document.querySelector(`.card[data-product-id="${product.id}"]`);
+ const days = remaining(product.expiry);
+ const [label, tone] = status(days);
+ const expiryText = new Date(product.expiry + "T00:00:00").toLocaleDateString("pt-BR");
+ const fornecedorFull = supplierLabel(product) || "Não informado";
+ const photoMarkup = product.photo
+  ? `<img src="${product.photo}" alt="${escapeHtml(product.name)}">`
+  : `<div class="detail-no-photo"><span>Sem foto</span></div>`;
+ const updating = pendingProductUpdateIds.has(String(product.id));
+
+ els.productDetailBody.innerHTML = `
+  <div class="detail-badges">
+   <span class="badge ${tone}">${days === 0 ? "Vence hoje" : label}</span>
+   ${product.offer ? '<span class="badge offer">EM OFERTA</span>' : ''}
+   ${product.qty >= 100 ? '<span class="badge high">QUANTIDADE ALTA</span>' : ''}
+  </div>
+  <div class="detail-grid">
+   <div class="detail-photo">
+    ${photoMarkup}
+   </div>
+   <div class="detail-info-wrap">
+    <h2 id="productDetailTitle" class="detail-title">${escapeHtml(product.name)}</h2>
+    <div class="detail-codes">
+     <span>Cód. interno: <b>${escapeHtml(product.code || "sem código")}</b></span> · 
+     <span>Barras: <b>${escapeHtml(product.barcode || "sem barras")}</b></span>
+     ${product.brandName ? ` · <span>Marca: <b>${escapeHtml(product.brandName)}</b></span>` : ""}
+    </div>
+    <div class="detail-supplier">
+     <span>Fornecedor: <b>${escapeHtml(fornecedorFull)}</b></span>
+    </div>
+    <div class="detail-rows">
+     <div class="detail-row">
+      <span>Loja</span>
+      <strong>${escapeHtml(product.store || "--")}</strong>
+     </div>
+     <div class="detail-row">
+      <span>Quantidade</span>
+      <strong>${product.qty} un.</strong>
+     </div>
+     <div class="detail-row">
+      <span>Validade</span>
+      <strong>${expiryText}</strong>
+     </div>
+     <div class="detail-row">
+      <span>Faltam</span>
+      <strong>${days === 0 ? "Vence hoje" : (days === 1 ? "1 dia" : `${days} dias`)}</strong>
+     </div>
+     <div class="detail-row">
+      <span>Atualizado em</span>
+      <strong>${formatDateTime(product.updatedAt || product.createdAt)}</strong>
+     </div>
+     <div class="detail-row">
+      <span>Último usuário</span>
+      <strong>${displayUserName(product.updatedByEmail)}</strong>
+     </div>
+    </div>
+    ${renderStockMovement(product)}
+   </div>
+  </div>
+  <div class="detail-actions">
+   <button id="closeDetailAction" class="btn2" type="button">Fechar</button>
+   ${isViewer ? "" : `<button class="btn update-from-detail" type="button" data-product-id="${product.id}"${updating ? " disabled" : ""}>${updating ? "Atualizando..." : "Atualizar produto"}</button>`}
+  </div>
+ `;
+
+ savedBodyOverflow = document.body.style.overflow;
+ document.body.style.overflow = "hidden";
+ els.productDetailModal.classList.add("show");
+ els.productDetailModal.setAttribute("aria-hidden", "false");
+ requestAnimationFrame(() => {
+  els.closeProductDetail?.focus();
+ });
+}
+
+function closeProductDetailModal() {
+ if (!els.productDetailModal || !els.productDetailModal.classList.contains("show")) return;
+ els.productDetailModal.classList.remove("show");
+ els.productDetailModal.setAttribute("aria-hidden", "true");
+ document.body.style.overflow = savedBodyOverflow || "";
+ if (lastFocusedProductCard && typeof lastFocusedProductCard.focus === "function") {
+  lastFocusedProductCard.focus();
+ }
+ lastFocusedProductCard = null;
+}
+
+els.grid.addEventListener("click", (event) => {
+ const card = event.target.closest(".card");
+ if (!card) return;
+ const productId = card.dataset.productId;
+ const product = products.find((item) => String(item.id) === productId);
+ if (!product) return;
+
+ card.classList.remove("card-pressed");
+ void card.offsetWidth;
+ card.classList.add("card-pressed");
+ setTimeout(() => {
+  card.classList.remove("card-pressed");
+  openProductDetailModal(product, card);
+ }, 130);
+});
+
+els.grid.addEventListener("keydown", (event) => {
+ if (event.key === "Enter" || event.key === " ") {
+  const card = event.target.closest(".card");
+  if (card && event.target === card) {
+   event.preventDefault();
+   const productId = card.dataset.productId;
+   const product = products.find((item) => String(item.id) === productId);
+   if (product) {
+    card.classList.add("card-pressed");
+    setTimeout(() => {
+     card.classList.remove("card-pressed");
+     openProductDetailModal(product, card);
+    }, 130);
+   }
+  }
+ }
+});
+
+if (els.productDetailModal) {
+ els.productDetailModal.addEventListener("click", (event) => {
+  if (
+   event.target === els.productDetailModal ||
+   event.target.closest("#closeProductDetail") ||
+   event.target.closest("#closeDetailAction")
+  ) {
+   closeProductDetailModal();
+   return;
+  }
+  const updateBtn = event.target.closest(".update-from-detail");
+  if (updateBtn) {
+   const product = products.find((item) => String(item.id) === updateBtn.dataset.productId);
+   if (product) {
+    closeProductDetailModal();
+    openUpdateModalForProduct(product);
+   }
+  }
+ });
+}
+
+window.addEventListener("keydown", (event) => {
+ if (event.key === "Escape") {
+  if (els.productDetailModal?.classList.contains("show")) {
+   closeProductDetailModal();
+  }
+ }
 });
 
 els.cancelUpdate.addEventListener("click", closeUpdateModal);
