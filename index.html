@@ -515,6 +515,24 @@ html[data-theme="dark"] .preview-days-val.green{
 .found{display:none;margin-top:10px;padding:13px;border-radius:11px;background:var(--blue2);border:1px solid #d8e6ff}.found.show{display:block}.manual-product-form{display:grid;gap:8px;margin-top:10px}.manual-product-form input{background:#fff}.manual-product-actions{display:flex;gap:8px;flex-wrap:wrap}
 .catalog-status{margin-top:7px;color:var(--muted);font-size:12px}.catalog-status[hidden]{display:none}.catalog-status.ready{color:var(--green)}.catalog-status.error{color:var(--red)}
 .stock-import-grid{display:grid;grid-template-columns:160px minmax(180px,1fr) minmax(220px,1.2fr);gap:10px;margin-top:12px}.stock-import-grid label{display:grid;gap:6px;color:var(--muted);font-size:12px;font-weight:800}.stock-import-file{min-width:0}.stock-movement{margin-top:10px;padding-top:9px;border-top:1px solid #f0f2f5}.stock-movement .info{border-top:0}.stock-movement-badge{display:inline-flex;align-items:center;gap:6px;margin-top:7px;padding:7px 9px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:12px;font-weight:850}.stock-movement-badge.decrease{background:#ecfdf5;color:#166534}.stock-movement-badge.increase{background:#fff7ed;color:#c2410c}.stock-movement-badge.stable{background:#f1f5f9;color:#475569}.stock-movement-badge.no_previous_snapshot{background:#f8fafc;color:#64748b;border:1px solid var(--line)}
+.stock-reference-card{margin-top:14px;margin-bottom:14px;padding:14px 16px;border-radius:14px;background:#f1f5f9;border:1px solid #cbd5e1;display:flex;flex-direction:column;gap:10px}
+html[data-theme="dark"] .stock-reference-card{background:#0d1727;border-color:#24344d}
+.stock-reference-card-header{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11px;font-weight:850;text-transform:uppercase;letter-spacing:.05em;color:#2563eb}
+html[data-theme="dark"] .stock-reference-card-header{color:#60a5fa}
+.stock-reference-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px 14px;align-items:center}
+.stock-reference-item{display:flex;flex-direction:column;gap:2px}
+.stock-reference-item small{font-size:11px;color:var(--muted);font-weight:700}
+.stock-reference-item strong{font-size:13.5px;font-weight:850;color:var(--text)}
+.stock-reference-item .stock-main-val{font-size:16.5px;color:#0284c7;font-weight:900}
+html[data-theme="dark"] .stock-reference-item .stock-main-val{color:#38bdf8}
+.stock-reference-empty{font-size:13px;color:var(--muted);font-weight:600;padding:2px 0}
+.stock-calc-feedback{margin-top:8px;display:flex;flex-direction:column;gap:6px}
+.stock-percentage-pill{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:10px;background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;font-size:12.5px;font-weight:750;line-height:1.35}
+html[data-theme="dark"] .stock-percentage-pill{background:rgba(30,64,175,.2);border-color:rgba(96,165,250,.4);color:#93c5fd}
+.stock-warning-alert{display:flex;align-items:flex-start;gap:8px;padding:10px 12px;border-radius:10px;background:#fffbeb;border:1px solid #fde68a;color:#92400e;font-size:12.5px;font-weight:700;line-height:1.4}
+html[data-theme="dark"] .stock-warning-alert{background:rgba(180,83,9,.2);border-color:rgba(245,158,11,.45);color:#fde68a}
+.stock-warning-alert svg{flex-shrink:0;width:18px;height:18px;color:#d97706;margin-top:1px}
+html[data-theme="dark"] .stock-warning-alert svg{color:#fbbf24}
 .preview{height:145px;margin-top:8px;border:1px dashed #cbd3df;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--muted);overflow:hidden}.preview img{width:100%;height:100%;object-fit:cover}
 .check{display:flex;gap:9px;align-items:center;margin-top:16px;font-size:14px;font-weight:700}.check input{width:auto}
 .actions{display:flex;gap:8px;margin-top:19px}
@@ -796,8 +814,11 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
   <input id="supplierCode" type="hidden">
   <input id="supplierName" type="hidden">
 
-  <label class="label">Quantidade</label>
+  <div id="registerStockContainer" class="register-stock-container" hidden></div>
+
+  <label class="label">Quantidade encontrada com validade curta</label>
   <input id="qty" type="number" min="1" placeholder="Ex.: 40">
+  <div id="registerStockFeedback" class="stock-calc-feedback"></div>
 
   <label class="label">Data de vencimento</label>
   <input id="expiry" type="date">
@@ -1121,8 +1142,10 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
  <div class="update-panel">
   <h2 id="updateTitle">Atualizar produto</h2>
   <p id="updateProductName" class="update-product-name"></p>
-  <label class="label" for="updateQty">Quantidade atual</label>
+  <div id="updateStockContainer" class="register-stock-container"></div>
+  <label class="label" for="updateQty">Quantidade encontrada com validade curta</label>
   <input id="updateQty" type="number" min="1" inputmode="numeric">
+  <div id="updateStockFeedback" class="stock-calc-feedback"></div>
   <label class="check"><input id="updateOffer" type="checkbox"> Produto está em oferta</label>
   <div id="updateError" class="update-error" role="alert"></div>
   <div class="actions">
@@ -1317,6 +1340,8 @@ const els = {
  store: document.getElementById('store'),
  supplierCode: document.getElementById('supplierCode'),
  supplierName: document.getElementById('supplierName'),
+ registerStockContainer: document.getElementById('registerStockContainer'),
+ registerStockFeedback: document.getElementById('registerStockFeedback'),
  qty: document.getElementById('qty'),
  expiry: document.getElementById('expiry'),
  photo: document.getElementById('photo'),
@@ -1349,7 +1374,9 @@ const els = {
  stockImportStatus: document.getElementById('stockImportStatus'),
  updateModal: document.getElementById('updateModal'),
  updateProductName: document.getElementById('updateProductName'),
+ updateStockContainer: document.getElementById('updateStockContainer'),
  updateQty: document.getElementById('updateQty'),
+ updateStockFeedback: document.getElementById('updateStockFeedback'),
  updateOffer: document.getElementById('updateOffer'),
  updateError: document.getElementById('updateError'),
  confirmUpdate: document.getElementById('confirmUpdate'),
@@ -2778,6 +2805,7 @@ function popularLojasPermitidas(locations) {
  } else if (activeLocations.length === 1) {
   els.store.value = activeLocations[0].id;
  }
+ if (selected) void updateRegisterStockInfo();
 
  const selectedFilter = els.storeFilter.value;
  els.storeFilter.replaceChildren(new Option("Todas as lojas", ""));
@@ -3689,6 +3717,285 @@ function renderStockMovement(product) {
       </div>`;
 }
 
+function formatStockDateTime(movement) {
+ if (!movement || (!movement.snapshot_date && !movement.created_at)) return "--";
+ if (movement.created_at) {
+  const d = new Date(movement.created_at);
+  if (!Number.isNaN(d.getTime())) {
+   const datePart = d.toLocaleDateString("pt-BR");
+   const hours = d.getHours();
+   const mins = d.getMinutes();
+   if (hours !== 0 || mins !== 0) {
+    return `${datePart} ${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}`;
+   }
+  }
+ }
+ if (movement.snapshot_date) {
+  return new Date(`${movement.snapshot_date}T00:00:00`).toLocaleDateString("pt-BR");
+ }
+ return "--";
+}
+
+function renderStockReferenceCardMarkup(movement, options = {}) {
+ const title = (typeof options === "string" ? options : options?.title) || "DADOS DO SG";
+
+ if (!movement || movement.status === "no_store" || movement.movement_type === "no_store") {
+  return `
+   <div class="stock-reference-card">
+    <div class="stock-reference-card-header">
+     <span>${escapeHtml(title)}</span>
+     <span style="font-size:10.5px;text-transform:none;color:var(--muted)">Referência informativa</span>
+    </div>
+    <div class="stock-reference-empty">
+     Selecione a loja para consultar o estoque SG.
+    </div>
+   </div>`;
+ }
+
+ const isLoaded = Boolean(movement && movement.snapshot_date && movement.stock_quantity !== null && movement.stock_quantity !== undefined);
+
+ if (!isLoaded) {
+  return `
+   <div class="stock-reference-card">
+    <div class="stock-reference-card-header">
+     <span>${escapeHtml(title)}</span>
+     <span style="font-size:10.5px;text-transform:none;color:var(--muted)">Referência informativa</span>
+    </div>
+    <div class="stock-reference-empty">
+     Produto não localizado na última carga SG desta loja.
+    </div>
+   </div>`;
+ }
+
+ const stockQuantity = `${formatStockNumber(movement.stock_quantity)} un.`;
+ const lastSnapshotDate = formatStockDateTime(movement);
+ const previousDate = movement?.previous_snapshot_date ? new Date(`${movement.previous_snapshot_date}T00:00:00`).toLocaleDateString("pt-BR") : "--";
+ const interval = movement?.interval_days ? ` (${movement.interval_days} dia${Number(movement.interval_days) === 1 ? "" : "s"})` : "";
+ const previousStock = movement?.previous_stock_quantity !== null && movement?.previous_stock_quantity !== undefined
+  ? `${formatStockNumber(movement.previous_stock_quantity)} un.`
+  : "--";
+
+ let variationText = "--";
+ if (movement.previous_stock_quantity !== null && movement.previous_stock_quantity !== undefined) {
+  const diff = Number(movement.stock_quantity) - Number(movement.previous_stock_quantity);
+  if (diff < 0) {
+   variationText = `↓ ${formatStockNumber(Math.abs(diff))} un.`;
+  } else if (diff > 0) {
+   variationText = `↑ ${formatStockNumber(diff)} un.`;
+  } else {
+   variationText = "Estável (0 un.)";
+  }
+ }
+
+ return `
+  <div class="stock-reference-card">
+   <div class="stock-reference-card-header">
+    <span>${escapeHtml(title)}</span>
+    <span style="font-size:10.5px;text-transform:none;color:var(--muted)">Última carga SG</span>
+   </div>
+   <div class="stock-reference-grid">
+    <div class="stock-reference-item">
+     <small>Estoque atual SG</small>
+     <strong class="stock-main-val">${stockQuantity}</strong>
+    </div>
+    <div class="stock-reference-item">
+     <small>Última carga</small>
+     <strong>${lastSnapshotDate}</strong>
+    </div>
+    ${previousStock !== "--" ? `
+    <div class="stock-reference-item">
+     <small>Estoque anterior</small>
+     <strong>${previousStock !== "--" && previousDate !== "--" ? `${previousStock} em ${previousDate}${interval}` : previousStock}</strong>
+    </div>` : ""}
+    ${variationText !== "--" ? `
+    <div class="stock-reference-item">
+     <small>Variação</small>
+     <strong>${variationText}</strong>
+    </div>` : ""}
+   </div>
+   ${stockMovementBadge(movement)}
+  </div>`;
+}
+
+function renderStockFeedbackMarkup(qty, movement) {
+ if (!Number.isFinite(qty) || qty <= 0) return "";
+ if (!movement || !movement.snapshot_date || movement.stock_quantity === null || movement.stock_quantity === undefined) {
+  return "";
+ }
+
+ const stockQty = Number(movement.stock_quantity);
+ const elements = [];
+
+ if (stockQty > 0) {
+  const percentage = Math.round((qty / stockQty) * 100);
+  elements.push(`
+   <div class="stock-percentage-pill">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    <span>${qty} un. representam aproximadamente <b>${percentage}%</b> do estoque atual SG (${formatStockNumber(stockQty)} un.).</span>
+   </div>`);
+ }
+
+ if (qty > stockQty) {
+  elements.push(`
+   <div class="stock-warning-alert" role="status">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <div>
+     <b>Atenção:</b> A quantidade informada (${qty} un.) é maior que o estoque atual registrado na última carga SG (${formatStockNumber(stockQty)} un.). Confira os valores antes de salvar.
+    </div>
+   </div>`);
+ } else if (stockQty === 0 && qty > 0) {
+  elements.push(`
+   <div class="stock-warning-alert" role="status">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <div>
+     <b>Atenção:</b> O estoque atual registrado na última carga SG é 0 un. Confira os valores antes de salvar.
+    </div>
+   </div>`);
+ }
+
+ return elements.join("");
+}
+
+let currentRegisterStockMovement = null;
+let registerStockLoadGeneration = 0;
+
+async function updateRegisterStockInfo() {
+ if (!els.registerStockContainer) return;
+ if (!selected) {
+  currentRegisterStockMovement = null;
+  els.registerStockContainer.hidden = true;
+  els.registerStockContainer.innerHTML = "";
+  if (els.registerStockFeedback) els.registerStockFeedback.innerHTML = "";
+  return;
+ }
+
+ const selectedLocation = els.store?.selectedOptions ? els.store.selectedOptions[0] : null;
+ const rawStoreName = selectedLocation?.dataset?.name || selectedLocation?.textContent || "";
+ const storeId = els.store?.value || "";
+ const lowerStoreName = rawStoreName.trim().toLowerCase();
+ const isStorePlaceholder = !storeId || !rawStoreName || lowerStoreName.startsWith("selecione") || lowerStoreName.startsWith("nenhum") || lowerStoreName === "todas as lojas";
+ const storeName = isStorePlaceholder ? "" : rawStoreName;
+ const productCode = selected.code || selected.internal_code || "";
+ const barcode = selected.barcode || "";
+ const catalogProductId = selected.catalogProductId || selected.catalog_product_id || null;
+
+ if (isStorePlaceholder) {
+  currentRegisterStockMovement = { status: "no_store", movement_type: "no_store", notFound: false };
+  els.registerStockContainer.hidden = false;
+  els.registerStockContainer.innerHTML = renderStockReferenceCardMarkup(currentRegisterStockMovement);
+  if (els.registerStockFeedback) els.registerStockFeedback.innerHTML = "";
+  return;
+ }
+
+ const gen = ++registerStockLoadGeneration;
+ els.registerStockContainer.hidden = false;
+
+ let movement = null;
+ if (typeof window.skaleeDb?.getStockMovement === "function") {
+  movement = window.skaleeDb.getStockMovement(null, { store: storeName, code: productCode, retail_location_id: storeId });
+ }
+
+ if (movement && movement.snapshot_date) {
+  currentRegisterStockMovement = movement;
+  els.registerStockContainer.innerHTML = renderStockReferenceCardMarkup(movement);
+  renderRegisterStockFeedback();
+  return;
+ }
+
+ els.registerStockContainer.innerHTML = `
+  <div class="stock-reference-card">
+   <div class="stock-reference-card-header">
+    <span>DADOS DO SG</span>
+    <span style="font-size:10.5px;text-transform:none;color:var(--muted)">Referência informativa</span>
+   </div>
+   <div class="stock-reference-empty">
+    Consultando estoque da última carga SG...
+   </div>
+  </div>`;
+
+ if (typeof window.skaleeDb?.loadStockMovementForProduct === "function") {
+  try {
+   movement = await window.skaleeDb.loadStockMovementForProduct({
+    store: storeName,
+    retailLocationId: storeId,
+    productCode,
+    barcode,
+    catalogProductId
+   });
+  } catch (e) {
+   console.warn("Erro ao buscar estoque SG para o cadastro:", e);
+  }
+ }
+
+ if (gen !== registerStockLoadGeneration) return;
+
+ currentRegisterStockMovement = movement || { status: "not_found", notFound: true, movement_type: "not_found" };
+ els.registerStockContainer.innerHTML = renderStockReferenceCardMarkup(currentRegisterStockMovement);
+ renderRegisterStockFeedback();
+}
+
+function renderRegisterStockFeedback() {
+ if (!els.registerStockFeedback) return;
+ const qty = Number(els.qty?.value);
+ els.registerStockFeedback.innerHTML = renderStockFeedbackMarkup(qty, currentRegisterStockMovement);
+}
+
+let currentEditStockMovement = null;
+
+async function updateEditStockInfo(product) {
+ if (!els.updateStockContainer) return;
+ if (!product) {
+  currentEditStockMovement = null;
+  els.updateStockContainer.innerHTML = "";
+  if (els.updateStockFeedback) els.updateStockFeedback.innerHTML = "";
+  return;
+ }
+
+ let movement = product.stockMovement || (typeof window.skaleeDb?.getStockMovement === "function" ? window.skaleeDb.getStockMovement(product.id, product) : null) || null;
+
+ if (movement && movement.snapshot_date) {
+  currentEditStockMovement = movement;
+  els.updateStockContainer.innerHTML = renderStockReferenceCardMarkup(movement);
+  renderEditStockFeedback();
+  return;
+ }
+
+ els.updateStockContainer.innerHTML = `
+  <div class="stock-reference-card">
+   <div class="stock-reference-card-header">
+    <span>DADOS DO SG</span>
+    <span style="font-size:10.5px;text-transform:none;color:var(--muted)">Referência informativa</span>
+   </div>
+   <div class="stock-reference-empty">
+    Consultando estoque da última carga SG...
+   </div>
+  </div>`;
+
+ if (typeof window.skaleeDb?.loadStockMovementForProduct === "function") {
+  try {
+   movement = await window.skaleeDb.loadStockMovementForProduct({
+    store: product.store,
+    retailLocationId: product.retail_location_id || product.retailLocationId,
+    productCode: product.code || product.product_code,
+    barcode: product.barcode,
+    catalogProductId: product.catalog_product_id || product.catalogProductId
+   });
+  } catch (e) {
+   console.warn("Erro ao buscar estoque SG para edição:", e);
+  }
+ }
+
+ currentEditStockMovement = movement || { status: "not_found", notFound: true, movement_type: "not_found" };
+ els.updateStockContainer.innerHTML = renderStockReferenceCardMarkup(currentEditStockMovement);
+ renderEditStockFeedback();
+}
+
+function renderEditStockFeedback() {
+ if (!els.updateStockFeedback) return;
+ const qty = Number(els.updateQty?.value);
+ els.updateStockFeedback.innerHTML = renderStockFeedbackMarkup(qty, currentEditStockMovement);
+}
+
 function formatReportProduct(product) {
    const [, month, day] = product.expiry.split("-");
    return `${product.name.trim().toUpperCase()}\nF7:${product.code}\nUND:${product.qty}\nvenc. ${day}/${month}`;
@@ -4344,6 +4651,7 @@ function selecionarProdutoManual(codigoBarras) {
  els.supplierName.value = selected.supplierName;
  els.found.innerHTML = `<b>${escapeHtml(selected.name)}</b><br><span style="color:#2563eb">Cód. interno: ${escapeHtml(selected.code || "sem código interno")}</span><br><span style="color:#39465c">Código de barras: ${escapeHtml(selected.barcode)}</span><br><span style="color:#16a34a">Fonte: cadastro manual</span>`;
  els.qty.focus();
+ void updateRegisterStockInfo();
 }
 
 function nomeOpenFoodFacts(product) {
@@ -4486,6 +4794,7 @@ async function buscarProdutoPorCodigo(codigoBarras) {
 
  if (!selected) {
   renderProdutoNaoEncontrado(codigoBarras);
+  void updateRegisterStockInfo();
   return;
  }
 
@@ -4500,12 +4809,14 @@ async function buscarProdutoPorCodigo(codigoBarras) {
  els.supplierName.value = selected.supplierName || "";
  els.found.innerHTML = `<b>${selected.name}</b><br><span style="color:#2563eb">Cód. interno: ${selected.code || "sem código interno"}</span><br><span style="color:#39465c">Código de barras: ${selected.barcode}</span>${selected.brandName ? `<br><span style="color:#16a34a">Marca: ${selected.brandName}</span>` : ""}${sourceText}`;
  els.qty.focus();
+ void updateRegisterStockInfo();
 }
 
 function closeUpdateModal() {
  updatingProductId = null;
  els.updateModal.classList.remove("show");
  els.updateError.textContent = "";
+ updateEditStockInfo(null);
 }
 
 let lastFocusedProductCard = null;
@@ -4518,6 +4829,7 @@ function openUpdateModalForProduct(product) {
  els.updateQty.value = product.qty;
  els.updateOffer.checked = product.offer;
  els.deleteProduct.hidden = !product.canDelete;
+ updateEditStockInfo(product);
  els.updateModal.classList.add("show");
  els.updateQty.focus();
 }
@@ -6602,9 +6914,15 @@ function resetForm() {
  els.preview.textContent = "Sem foto";
  els.found.classList.remove("show");
  els.found.innerHTML = "";
+ void updateRegisterStockInfo();
 }
 
 els.clear.addEventListener("click", resetForm);
+els.store.addEventListener("change", () => { void updateRegisterStockInfo(); });
+els.qty.addEventListener("input", renderRegisterStockFeedback);
+els.qty.addEventListener("change", renderRegisterStockFeedback);
+els.updateQty.addEventListener("input", renderEditStockFeedback);
+els.updateQty.addEventListener("change", renderEditStockFeedback);
 
 render();
 </script>

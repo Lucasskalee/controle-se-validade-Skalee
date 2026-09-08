@@ -44,6 +44,111 @@ function stockMovementStoreCodeKey(store, code) {
  if (!s || !c) return "";
  return `${s}:${c}`;
 }
+
+let cachedRetailLocationsList = null;
+let cachedRetailLocationsTime = 0;
+
+function normalizeLocationString(val) {
+ return String(val || "")
+  .normalize("NFD")
+  .replace(/[\u0300-\u036f]/g, "")
+  .toLowerCase()
+  .replace(/[^a-z0-9]/g, " ")
+  .replace(/\s+/g, " ")
+  .trim();
+}
+
+async function getActiveRetailLocationsList(forceRefresh = false) {
+ const now = Date.now();
+ if (!forceRefresh && cachedRetailLocationsList && (now - cachedRetailLocationsTime < 60000)) {
+  return cachedRetailLocationsList;
+ }
+ try {
+  const { data, error } = await supabase
+   .from("retail_locations")
+   .select("id,name,code,active")
+   .eq("active", true);
+  if (!error && Array.isArray(data)) {
+   cachedRetailLocationsList = data;
+   cachedRetailLocationsTime = now;
+   return data;
+  }
+ } catch (err) {
+  console.warn("Aviso ao carregar retail_locations:", err);
+ }
+ return cachedRetailLocationsList || [];
+}
+
+async function resolveRetailLocation(input) {
+ if (!input) return null;
+ if (typeof input === "object") {
+  if (input.id && (input.name || input.code)) return input;
+  if (input.id) input = input.id;
+  else if (input.name) input = input.name;
+ }
+ const raw = String(input).trim();
+ if (!raw) return null;
+
+ const lower = raw.toLowerCase();
+ if (lower.startsWith("selecione") || lower.startsWith("nenhum") || lower === "todas as lojas") {
+  return null;
+ }
+
+ const locations = await getActiveRetailLocationsList();
+
+ // 1. Direct ID match (e.g. UUID)
+ const byId = locations.find((l) => String(l.id).toLowerCase() === lower);
+ if (byId) return byId;
+
+ // If it looks like a valid UUID, return as object with that ID
+ if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(raw)) {
+  return { id: raw, name: raw, code: "" };
+ }
+
+ // 2. Exact code match (e.g. "02", "2", "CD")
+ const byCode = locations.find((l) => l.code && String(l.code).trim().toLowerCase() === lower);
+ if (byCode) return byCode;
+
+ // 3. Numeric code match (e.g. "02" vs "2")
+ const inputDigits = raw.replace(/\D/g, "");
+ const inputUnpaddedDigits = inputDigits.replace(/^0+/, "");
+ if (inputUnpaddedDigits) {
+  const byCodeDigits = locations.find((l) => {
+   const locDigits = String(l.code || "").replace(/\D/g, "").replace(/^0+/, "");
+   return locDigits && locDigits === inputUnpaddedDigits;
+  });
+  if (byCodeDigits) return byCodeDigits;
+ }
+
+ // 4. Exact name match (case-insensitive)
+ const byName = locations.find((l) => l.name && String(l.name).trim().toLowerCase() === lower);
+ if (byName) return byName;
+
+ // 5. Normalized name match
+ const normInput = normalizeLocationString(raw);
+ const byNormName = locations.find((l) => l.name && normalizeLocationString(l.name) === normInput);
+ if (byNormName) return byNormName;
+
+ // 6. Name contains input or input contains name
+ const bySubstr = locations.find((l) => {
+  if (!l.name) return false;
+  const normLoc = normalizeLocationString(l.name);
+  return normInput && normLoc && (normLoc.includes(normInput) || normInput.includes(normLoc));
+ });
+ if (bySubstr) return bySubstr;
+
+ // 7. Branch number in name (e.g. input is "02" or "2" or "Filial 02", and location name ends with "2")
+ if (inputUnpaddedDigits) {
+  const byNameDigits = locations.find((l) => {
+   if (!l.name) return false;
+   const nameDigits = String(l.name).replace(/\D/g, "").replace(/^0+/, "");
+   return nameDigits === inputUnpaddedDigits;
+  });
+  if (byNameDigits) return byNameDigits;
+ }
+
+ return null;
+}
 let mode = "sign-in";
 let activeUserId;
 let activeUserEmail = "";
@@ -850,6 +955,268 @@ window.skaleeDb = {
     interval_days: null
    });
   },
+  async resolveRetailLocation(storeOrId) {
+    return resolveRetailLocation(storeOrId);
+  },
+  async loadStockMovementForProduct(params = {}) {
+    const rawInternalCode = String(params.productCode || params.code || params.product_code || "").trim();
+    const barcode = String(params.barcode || "").trim();
+    const catalogProductId = params.catalogProductId || params.catalog_product_id || null;
+    const selectedStore = String(params.store || params.retailLocationId || params.retail_location_id || "").trim();
+
+    const location = await resolveRetailLocation(params.retailLocationId || params.retail_location_id || params.store);
+    const resolvedStoreId = location?.id || null;
+    const resolvedStoreName = location?.name || params.store || "";
+
+    console.log("[SG STOCK LOOKUP]", {
+      internalCode: rawInternalCode,
+      barcode,
+      selectedStore,
+      resolvedStoreId
+    });
+
+    if (!resolvedStoreId) {
+      console.log("[SG STOCK RESULT]", {
+        searchedBy: "none",
+        found: false,
+        stock: null,
+        lastImportAt: null,
+        reason: "store_not_resolved"
+      });
+      return {
+        status: "no_store",
+        notFound: false,
+        snapshot_date: null,
+        stock_quantity: null,
+        movement_type: "no_store",
+        store: selectedStore,
+        retail_location_id: null
+      };
+    }
+
+    const cleanCode = rawInternalCode.replace(/\D/g, "");
+    const unpaddedCode = cleanCode.replace(/^0+/, "");
+    const padded6Code = unpaddedCode ? unpaddedCode.padStart(6, "0") : "";
+    const candidateCodes = [...new Set([rawInternalCode, cleanCode, unpaddedCode, padded6Code].filter(Boolean))];
+
+    // Check memory cache
+    const cacheKeys = [
+      stockMovementStoreCodeKey(resolvedStoreName, rawInternalCode),
+      stockMovementStoreCodeKey(resolvedStoreName, cleanCode),
+      stockMovementStoreCodeKey(resolvedStoreId, rawInternalCode),
+      stockMovementStoreCodeKey(resolvedStoreId, cleanCode),
+      barcode ? stockMovementStoreCodeKey(resolvedStoreId, barcode) : ""
+    ].filter(Boolean);
+
+    for (const key of cacheKeys) {
+      if (stockMovementByCodeStoreCache.has(key)) {
+        const cached = stockMovementByCodeStoreCache.get(key);
+        if (cached && cached.snapshot_date) {
+          console.log("[SG STOCK RESULT]", {
+            searchedBy: "memory_cache",
+            found: true,
+            stock: cached.stock_quantity,
+            lastImportAt: cached.snapshot_date
+          });
+          return cached;
+        }
+      }
+    }
+
+    const buildMovementObject = (current, previous, catId) => {
+      let movementType = "no_previous_snapshot";
+      let stockChange = null;
+      let estimatedOutflow = null;
+      let intervalDays = null;
+
+      if (current && previous) {
+        stockChange = Number(current.stock_quantity) - Number(previous.stock_quantity);
+        intervalDays = Math.round((new Date(`${current.snapshot_date}T00:00:00`) - new Date(`${previous.snapshot_date}T00:00:00`)) / (1000 * 60 * 60 * 24));
+        if (Number(current.stock_quantity) < Number(previous.stock_quantity)) {
+          movementType = "decrease";
+          estimatedOutflow = Number(previous.stock_quantity) - Number(current.stock_quantity);
+        } else if (Number(current.stock_quantity) === Number(previous.stock_quantity)) {
+          movementType = "stable";
+          estimatedOutflow = 0;
+        } else {
+          movementType = "increase";
+        }
+      }
+
+      const movementObj = {
+        status: "found",
+        notFound: false,
+        validity_product_id: null,
+        catalog_product_id: current?.catalog_product_id || catId || null,
+        retail_location_id: current?.retail_location_id || resolvedStoreId,
+        snapshot_date: current.snapshot_date,
+        created_at: current.created_at || null,
+        stock_quantity: Number(current.stock_quantity),
+        previous_snapshot_date: previous?.snapshot_date || null,
+        previous_stock_quantity: previous ? Number(previous.stock_quantity) : null,
+        stock_change: stockChange,
+        estimated_outflow: estimatedOutflow,
+        movement_type: movementType,
+        interval_days: intervalDays
+      };
+
+      cacheKeys.forEach((k) => stockMovementByCodeStoreCache.set(k, movementObj));
+      if (resolvedStoreName && cleanCode) {
+        stockMovementByCodeStoreCache.set(stockMovementStoreCodeKey(resolvedStoreName, cleanCode), movementObj);
+      }
+      return movementObj;
+    };
+
+    try {
+      // 1. Primary search: Internal Code + Store
+      let catId = catalogProductId;
+      if (!catId && candidateCodes.length) {
+        const { data: catRows } = await supabase
+          .from("catalog_products")
+          .select("id,internal_code,barcode")
+          .in("internal_code", candidateCodes)
+          .eq("active", true)
+          .limit(1);
+        if (catRows && catRows[0]) catId = catRows[0].id;
+      }
+
+      if (candidateCodes.length || catId) {
+        let query = supabase
+          .from("product_stock_snapshots")
+          .select("id,catalog_product_id,retail_location_id,snapshot_date,stock_quantity,sale_price,cost_price,internal_code,created_at")
+          .eq("retail_location_id", resolvedStoreId);
+
+        if (candidateCodes.length && catId) {
+          query = query.or(`internal_code.in.(${candidateCodes.join(",")}),catalog_product_id.eq.${catId}`);
+        } else if (candidateCodes.length) {
+          query = query.in("internal_code", candidateCodes);
+        } else if (catId) {
+          query = query.eq("catalog_product_id", catId);
+        }
+
+        const { data: snaps, error } = await query
+          .order("snapshot_date", { ascending: false })
+          .order("created_at", { ascending: false })
+          .limit(2);
+
+        if (!error && snaps && snaps.length) {
+          const current = snaps[0];
+          const previous = snaps.length > 1 ? snaps[1] : null;
+          const movementObj = buildMovementObject(current, previous, catId);
+          console.log("[SG STOCK RESULT]", {
+            searchedBy: "internal_code",
+            found: true,
+            stock: movementObj.stock_quantity,
+            lastImportAt: movementObj.snapshot_date
+          });
+          return movementObj;
+        }
+      }
+
+      // 2. Fallback search: Barcode + Store
+      if (barcode) {
+        console.log("[SG STOCK FALLBACK]", {
+          barcode,
+          resolvedStoreId,
+          found: false
+        });
+
+        // 2a. Catalog lookup by barcode
+        const { data: catBarcodeRows } = await supabase
+          .from("catalog_products")
+          .select("id,internal_code,barcode")
+          .eq("barcode", barcode)
+          .eq("active", true)
+          .limit(1);
+
+        if (catBarcodeRows && catBarcodeRows[0]) {
+          const bCat = catBarcodeRows[0];
+          const bCatCodes = [...new Set([bCat.internal_code, String(bCat.internal_code || "").replace(/\D/g, ""), String(bCat.internal_code || "").replace(/^0+/, "")].filter(Boolean))];
+          
+          let bQuery = supabase
+            .from("product_stock_snapshots")
+            .select("id,catalog_product_id,retail_location_id,snapshot_date,stock_quantity,sale_price,cost_price,internal_code,created_at")
+            .eq("retail_location_id", resolvedStoreId);
+
+          if (bCatCodes.length) {
+            bQuery = bQuery.or(`catalog_product_id.eq.${bCat.id},internal_code.in.(${bCatCodes.join(",")})`);
+          } else {
+            bQuery = bQuery.eq("catalog_product_id", bCat.id);
+          }
+
+          const { data: snaps, error } = await bQuery
+            .order("snapshot_date", { ascending: false })
+            .order("created_at", { ascending: false })
+            .limit(2);
+
+          if (!error && snaps && snaps.length) {
+            const current = snaps[0];
+            const previous = snaps.length > 1 ? snaps[1] : null;
+            const movementObj = buildMovementObject(current, previous, bCat.id);
+            console.log("[SG STOCK RESULT]", {
+              searchedBy: "barcode_catalog",
+              found: true,
+              stock: movementObj.stock_quantity,
+              lastImportAt: movementObj.snapshot_date
+            });
+            return movementObj;
+          }
+        }
+
+        // 2b. Direct search by barcode as internal_code in snapshots
+        const { data: directSnaps, error: directError } = await supabase
+          .from("product_stock_snapshots")
+          .select("id,catalog_product_id,retail_location_id,snapshot_date,stock_quantity,sale_price,cost_price,internal_code,created_at")
+          .eq("retail_location_id", resolvedStoreId)
+          .eq("internal_code", barcode)
+          .order("snapshot_date", { ascending: false })
+          .order("created_at", { ascending: false })
+          .limit(2);
+
+        if (!directError && directSnaps && directSnaps.length) {
+          const current = directSnaps[0];
+          const previous = directSnaps.length > 1 ? directSnaps[1] : null;
+          const movementObj = buildMovementObject(current, previous, null);
+          console.log("[SG STOCK RESULT]", {
+            searchedBy: "barcode_direct",
+            found: true,
+            stock: movementObj.stock_quantity,
+            lastImportAt: movementObj.snapshot_date
+          });
+          return movementObj;
+        }
+      }
+
+      // 3. Not Found in Last SG Load
+      console.log("[SG STOCK RESULT]", {
+        searchedBy: "none",
+        found: false,
+        stock: null,
+        lastImportAt: null
+      });
+
+      return {
+        status: "not_found",
+        notFound: true,
+        snapshot_date: null,
+        stock_quantity: null,
+        movement_type: "not_found",
+        store: resolvedStoreName,
+        retail_location_id: resolvedStoreId
+      };
+    } catch (err) {
+      console.warn("Falha ao buscar movimentação de estoque para produto avulso:", err);
+      return {
+        status: "not_found",
+        notFound: true,
+        snapshot_date: null,
+        stock_quantity: null,
+        movement_type: "not_found",
+        store: resolvedStoreName,
+        retail_location_id: resolvedStoreId
+      };
+    }
+  },
  async loadStockImportBatches(snapshotDate) {
   if (!snapshotDate) return [];
   const rows = [];
@@ -1116,6 +1483,11 @@ window.skaleeDb = {
    throw error;
   }
   console.log("[PHOTO] produto criado", data?.id);
+  const storeCodeKey = stockMovementStoreCodeKey(data?.store, data?.product_code);
+  const existingMovement = (storeCodeKey ? stockMovementByCodeStoreCache.get(storeCodeKey) : null) || null;
+  if (existingMovement && data?.id) {
+   stockMovementCache.set(String(data.id), { ...existingMovement, validity_product_id: data.id });
+  }
   if (!product.processedPhoto) {
    console.warn("[PHOTO] fluxo de foto interrompido: produto criado sem processedPhoto");
    return fromDatabase(data);
