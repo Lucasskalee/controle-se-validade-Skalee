@@ -163,13 +163,30 @@ vm.runInContext(
  assert.match(renderedWithoutSnapshot, /Última carga.*--/);
  assert.match(renderedWithoutSnapshot, /Sem carga SG/);
 
- // 6. Test auth.js implementation
+ // 6. Test auth.js implementation & DB decoupling
  const authJsRaw = fs.readFileSync(path.join(__dirname, '../auth.js'), 'utf8');
  const authJs = authJsRaw
   .replace(/^import\s+[^;]+;\s*/m, '')
   .replace(/const supabase = createClient\([^)]+\);/m, '// mocked supabase');
 
  let rpcReceivedPayload = null;
+ let validityProductsTableData = new Map([
+  ['vp-copacol', {
+   id: 'vp-copacol',
+   name: 'MORT.COPACOL 380G FGO',
+   product_code: '59369',
+   barcode: '7896434400112',
+   store: 'Supermercado sol 2',
+   quantity: 1, // short-expiry quantity
+   expiry_date: '2026-09-12',
+   offer: false,
+   created_at: '2026-09-01T10:00:00Z',
+   updated_at: '2026-09-01T10:00:00Z',
+   catalog_product_id: 'cat-copacol',
+   retail_location_id: 'loc-sol-2'
+  }]
+ ]);
+
  const mockEl = () => ({
   addEventListener: () => {},
   querySelector: () => mockEl(),
@@ -180,85 +197,138 @@ vm.runInContext(
   style: {}
  });
 
-  const authContext = vm.createContext({
-   supabase: {
-    auth: {
-     onAuthStateChange: () => {},
-     getSession: async () => ({ data: { session: null }, error: null })
-    },
-    from: (table) => {
-     if (table === 'retail_locations') {
-      return {
-       select: () => ({
-        eq: async () => ({ data: [{ id: 'loc-sol-2', name: 'Supermercado sol 2' }], error: null })
-       })
-      };
-     }
-     if (table === 'product_stock_snapshots') {
-      return {
-       select: () => ({
-        eq: () => ({
-         in: () => ({
-          order: async () => ({
-           data: [{
-            id: 'snap-1',
-            retail_location_id: 'loc-sol-2',
-            internal_code: '19229',
-            stock_quantity: 62,
-            snapshot_date: '2026-09-05'
-           }],
-           error: null
-          })
+ const authContext = vm.createContext({
+  supabase: {
+   auth: {
+    onAuthStateChange: () => {},
+    getSession: async () => ({ data: { session: null }, error: null })
+   },
+   from: (table) => {
+    if (table === 'retail_locations') {
+     return {
+      select: () => ({
+       eq: async () => ({ data: [{ id: 'loc-sol-2', name: 'Supermercado sol 2' }], error: null })
+      })
+     };
+    }
+    if (table === 'product_stock_snapshots') {
+     return {
+      select: () => ({
+       eq: () => ({
+        in: () => ({
+         order: async () => ({
+          data: [{
+           id: 'snap-1',
+           retail_location_id: 'loc-sol-2',
+           internal_code: '19229',
+           stock_quantity: 62,
+           snapshot_date: '2026-09-05'
+          }],
+          error: null
          })
         })
        })
-      };
-     }
+      })
+     };
+    }
+    if (table === 'validity_products') {
      const createQuery = () => ({
       is: () => createQuery(),
-      eq: () => createQuery(),
+      eq: (key, val) => {
+       if (key === 'id') {
+        return {
+         single: async () => ({ data: validityProductsTableData.get(val) || null, error: null }),
+         select: () => ({
+          single: async () => ({ data: validityProductsTableData.get(val) || null, error: null })
+         })
+        };
+       }
+       return createQuery();
+      },
       or: () => createQuery(),
       order: () => createQuery(),
       in: () => createQuery(),
-      range: async () => ({ data: monitoredProductsFixture, error: null })
+      range: async () => ({ data: Array.from(validityProductsTableData.values()).concat(monitoredProductsFixture), error: null }),
+      single: async () => ({ data: Array.from(validityProductsTableData.values())[0] || null, error: null })
      });
+
      return {
-      select: () => createQuery()
+      select: () => createQuery(),
+      update: (updates) => ({
+       eq: (key, val) => ({
+        select: () => ({
+         single: async () => {
+          const current = validityProductsTableData.get(val) || {};
+          const updated = { ...current, ...updates, updated_at: new Date().toISOString() };
+          validityProductsTableData.set(val, updated);
+          return { data: updated, error: null };
+         }
+        })
+       })
+      })
      };
-    },
-    rpc: async (name, params) => {
-     if (name === 'get_validity_product_stock_movements') {
-      // simulate old RPC that returns empty/null snapshots for unlinked products
-      return {
-       data: params.p_validity_product_ids.map((id) => ({
+    }
+    const createQuery = () => ({
+     is: () => createQuery(),
+     eq: () => createQuery(),
+     or: () => createQuery(),
+     order: () => createQuery(),
+     in: () => createQuery(),
+     range: async () => ({ data: monitoredProductsFixture, error: null })
+    });
+    return {
+     select: () => createQuery()
+    };
+   },
+   rpc: async (name, params) => {
+    if (name === 'get_validity_product_stock_movements') {
+     return {
+      data: params.p_validity_product_ids.map((id) => {
+       if (id === 'vp-copacol') {
+        return {
+         validity_product_id: 'vp-copacol',
+         catalog_product_id: 'cat-copacol',
+         retail_location_id: 'loc-sol-2',
+         snapshot_date: '2026-09-08',
+         stock_quantity: 46,
+         previous_snapshot_date: '2026-09-07',
+         previous_stock_quantity: 53,
+         stock_change: -7,
+         estimated_outflow: 7,
+         movement_type: 'decrease',
+         interval_days: 1
+        };
+       }
+       return {
         validity_product_id: id,
         catalog_product_id: null,
         retail_location_id: null,
         snapshot_date: null,
         stock_quantity: null
-       })),
-       error: null
-      };
-     }
-     if (name === 'import_product_stock_snapshots') {
-      rpcReceivedPayload = params;
-      return {
-       data: {
-        batch_id: 'batch-real-uuid',
-        status: 'completed',
-        total_rows: params.p_total_file_rows,
-        monitored_rows: params.p_monitored_count,
-        valid_rows: params.p_rows.length,
-        unlocated_rows: params.p_unlocated_count,
-        upserted_snapshots: params.p_rows.length
-       },
-       error: null
-      };
-     }
-     throw new Error(`Unexpected RPC: ${name}`);
+       };
+      }),
+      error: null
+     };
     }
-   },
-   window: { dispatchEvent: () => {} },
+    if (name === 'import_product_stock_snapshots') {
+     rpcReceivedPayload = params;
+     return {
+      data: {
+       batch_id: 'batch-real-uuid',
+       status: 'completed',
+       total_rows: params.p_total_file_rows,
+       monitored_rows: params.p_monitored_count,
+       valid_rows: params.p_rows.length,
+       unlocated_rows: params.p_unlocated_count,
+       upserted_snapshots: params.p_rows.length
+      },
+      error: null
+     };
+    }
+    throw new Error(`Unexpected RPC: ${name}`);
+   }
+  },
+  window: { dispatchEvent: () => {} },
   document: { body: mockEl(), querySelector: () => mockEl(), querySelectorAll: () => [], addEventListener: () => {} },
   activeUserId: 'user-1',
   SHARED_CATALOG_OWNER_ID: 'org-1',
@@ -275,41 +345,108 @@ vm.runInContext(
   Math,
   Date
  });
-  await vm.runInContext('(async () => {\n' + authJs + '\n})()', authContext);
+ await vm.runInContext('(async () => {\n' + authJs + '\n})()', authContext);
 
-  // Test loadMonitoredStockProducts in auth.js
-  const loadedMonitored = await authContext.window.skaleeDb.loadMonitoredStockProducts('loc-sol-2');
-  assert.equal(loadedMonitored.length, 32);
+ // Test loadMonitoredStockProducts in auth.js
+ const loadedMonitored = await authContext.window.skaleeDb.loadMonitoredStockProducts('loc-sol-2');
+ assert.equal(loadedMonitored.length, 33);
 
-  // Test importProductStockSnapshots in auth.js
-  const authResult = await authContext.window.skaleeDb.importProductStockSnapshots(submittedPayload);
-  assert.equal(rpcReceivedPayload.p_rows.length, 31, 'RPC no Supabase recebeu exatamente 31 linhas');
-  assert.equal(rpcReceivedPayload.p_total_file_rows, 36901);
-  assert.equal(rpcReceivedPayload.p_monitored_count, 32);
-  assert.equal(rpcReceivedPayload.p_unlocated_count, 1);
-  assert.equal(authResult.status, 'completed');
-  assert.equal(authResult.valid_rows, 31);
-  // Test loadStockMovementsForValidityProducts fallback in auth.js
-  const fallbackMovements = await authContext.window.skaleeDb.loadStockMovementsForValidityProducts(
-   ['vp-vitarella'],
-   [{ id: 'vp-vitarella', code: '19229', store: 'Supermercado sol 2' }]
-  );
-  assert.equal(fallbackMovements.length, 1);
-  assert.equal(fallbackMovements[0].stock_quantity, 62, 'Fallback deve resolver o estoque de 62 un. a partir de product_stock_snapshots');
-  assert.equal(fallbackMovements[0].snapshot_date, '2026-09-05');
-  assert.equal(fallbackMovements[0].movement_type, 'no_previous_snapshot');
+ // Test importProductStockSnapshots in auth.js
+ const authResult = await authContext.window.skaleeDb.importProductStockSnapshots(submittedPayload);
+ assert.equal(rpcReceivedPayload.p_rows.length, 31, 'RPC no Supabase recebeu exatamente 31 linhas');
+ assert.equal(rpcReceivedPayload.p_total_file_rows, 36901);
+ assert.equal(rpcReceivedPayload.p_monitored_count, 32);
+ assert.equal(rpcReceivedPayload.p_unlocated_count, 1);
+ assert.equal(authResult.status, 'completed');
+ assert.equal(authResult.valid_rows, 31);
 
-  console.log('\n=== RESULTADO DO TESTE DE ACEITAÇÃO ===');
-  console.log(`1. Total de linhas do arquivo: ${submittedPayload.totalFileRows.toLocaleString('pt-BR')}`);
-  console.log(`2. Quantidade de produtos monitorados na loja: ${submittedPayload.monitoredCount}`);
-  console.log(`3. Quantidade encontrada: ${submittedPayload.rows.length}`);
-  console.log(`4. Quantidade não localizada: ${submittedPayload.unlocatedCount}`);
-  console.log(`5. Quantidade de snapshots gravados: ${authResult.valid_rows}`);
-  console.log(`6. Tempo total de importação (filtragem + envio): ${totalImportTime}ms`);
-  console.log(`7. Fallback e resolução automática de estoque por código interno: OK (${fallbackMovements[0].stock_quantity} un.)`);
-  console.log(`8. Confirmação de ausência de timeout: CONFIRMADO (Volume enviado à RPC: ${rpcReceivedPayload.p_rows.length} registros vs 36.901 lidos)`);
+ // Test loadStockMovementsForValidityProducts fallback in auth.js
+ const fallbackMovements = await authContext.window.skaleeDb.loadStockMovementsForValidityProducts(
+  ['vp-vitarella'],
+  [{ id: 'vp-vitarella', code: '19229', store: 'Supermercado sol 2' }]
+ );
+ assert.equal(fallbackMovements.length, 1);
+ assert.equal(fallbackMovements[0].stock_quantity, 62, 'Fallback deve resolver o estoque de 62 un. a partir de product_stock_snapshots');
+ assert.equal(fallbackMovements[0].snapshot_date, '2026-09-05');
+ assert.equal(fallbackMovements[0].movement_type, 'no_previous_snapshot');
+
+ console.log('\n==================================================');
+ console.log('EXECUÇÃO DOS 5 TESTES DE ACEITAÇÃO OBRIGATÓRIOS');
+ console.log('==================================================');
+
+ // Initial load of stock movements for vp-copacol
+ const copacolMovements = await authContext.window.skaleeDb.loadStockMovementsForValidityProducts(
+  ['vp-copacol'],
+  [{ id: 'vp-copacol', code: '59369', store: 'Supermercado sol 2' }]
+ );
+ assert.equal(copacolMovements[0].stock_quantity, 46);
+ assert.equal(copacolMovements[0].previous_stock_quantity, 53);
+ assert.equal(copacolMovements[0].snapshot_date, '2026-09-08');
+
+ // TESTE 1: Abrir produto e salvar sem alterar nada
+ const test1Result = await authContext.window.skaleeDb.updateProduct('vp-copacol', {});
+ assert.equal(test1Result.qty, 1, 'Quantidade de validade curta deve permanecer 1');
+ assert.equal(test1Result.stockMovement.stock_quantity, 46, 'Estoque SG deve continuar 46');
+ assert.equal(test1Result.stockMovement.previous_stock_quantity, 53, 'Estoque anterior deve continuar 53');
+ assert.equal(test1Result.stockMovement.snapshot_date, '2026-09-08', 'Última carga deve continuar 2026-09-08');
+ console.log('TESTE 1 (Salvar sem alterar): PASS (46 un. / 53 un. / 08/09/2026 preservados)');
+
+ // TESTE 2: Alterar somente quantidade curta: 1 -> 2
+ const test2Result = await authContext.window.skaleeDb.updateProduct('vp-copacol', { qty: 2 });
+ assert.equal(test2Result.qty, 2, 'Quantidade curta deve mudar para 2');
+ assert.equal(test2Result.stockMovement.stock_quantity, 46, 'Estoque SG deve continuar 46 un.');
+ assert.equal(test2Result.stockMovement.previous_stock_quantity, 53, 'Estoque anterior deve continuar 53 un.');
+ console.log('TESTE 2 (Alterar quantidade curta 1 -> 2): PASS (Quantidade = 2, Estoque SG = 46, Estoque Anterior = 53)');
+
+ // TESTE 3: Alterar validade
+ const test3Result = await authContext.window.skaleeDb.updateProduct('vp-copacol', { expiry: '2026-09-20' });
+ assert.equal(test3Result.expiry, '2026-09-20', 'Validade deve ser atualizada para 2026-09-20');
+ assert.equal(test3Result.stockMovement.stock_quantity, 46, 'Estoque SG permanece 46');
+ assert.equal(test3Result.stockMovement.previous_stock_quantity, 53, 'Estoque anterior permanece 53');
+ console.log('TESTE 3 (Alterar validade): PASS (Validade atualizada, dados SG intactos)');
+
+ // TESTE 4: Nova carga SG chega (anterior: 46, novo: 40, variação: -6)
+ authContext.window.skaleeDb.setStockMovement('vp-copacol', {
+  validity_product_id: 'vp-copacol',
+  catalog_product_id: 'cat-copacol',
+  retail_location_id: 'loc-sol-2',
+  snapshot_date: '2026-09-09',
+  stock_quantity: 40,
+  previous_snapshot_date: '2026-09-08',
+  previous_stock_quantity: 46,
+  stock_change: -6,
+  estimated_outflow: 6,
+  movement_type: 'decrease',
+  interval_days: 1
+ }, 'Supermercado sol 2', '59369');
+
+ const test4Movement = authContext.window.skaleeDb.getStockMovement('vp-copacol');
+ assert.equal(test4Movement.stock_quantity, 40, 'Novo estoque SG deve ser 40');
+ assert.equal(test4Movement.previous_stock_quantity, 46, 'Estoque anterior deve ser 46');
+ assert.equal(test4Movement.stock_change, -6, 'Variação deve ser -6');
+ assert.equal(test4Movement.snapshot_date, '2026-09-09', 'Data da nova carga deve ser 2026-09-09');
+ console.log('TESTE 4 (Nova carga SG 46 -> 40): PASS (Estoque SG = 40, Anterior = 46, Variação = -6, Carga = 09/09/2026)');
+
+ // TESTE 5: Editar novamente o produto após a nova carga
+ const test5Result = await authContext.window.skaleeDb.updateProduct('vp-copacol', { qty: 3, offer: true });
+ assert.equal(test5Result.qty, 3, 'Quantidade deve ser 3');
+ assert.equal(test5Result.offer, true, 'Oferta deve ser true');
+ assert.equal(test5Result.stockMovement.stock_quantity, 40, '40 un. continuam preservadas');
+ assert.equal(test5Result.stockMovement.previous_stock_quantity, 46, '46 un. anteriores continuam preservadas');
+ assert.equal(test5Result.stockMovement.stock_change, -6, 'Variação -6 continua preservada');
+ console.log('TESTE 5 (Editar produto após nova carga): PASS (40 / 46 / -6 un. preservados com sucesso)');
+
+ console.log('\n=== RESULTADO DO TESTE DE IMPORTAÇÃO E PERFORMANCE ===');
+ console.log(`1. Total de linhas do arquivo: ${submittedPayload.totalFileRows.toLocaleString('pt-BR')}`);
+ console.log(`2. Quantidade de produtos monitorados na loja: ${submittedPayload.monitoredCount}`);
+ console.log(`3. Quantidade encontrada: ${submittedPayload.rows.length}`);
+ console.log(`4. Quantidade não localizada: ${submittedPayload.unlocatedCount}`);
+ console.log(`5. Quantidade de snapshots gravados: ${authResult.valid_rows}`);
+ console.log(`6. Tempo total de importação (filtragem + envio): ${totalImportTime}ms`);
+ console.log(`7. Fallback e resolução automática de estoque por código interno: OK (${fallbackMovements[0].stock_quantity} un.)`);
+ console.log(`8. Confirmação de ausência de timeout: CONFIRMADO (Volume enviado à RPC: ${rpcReceivedPayload.p_rows.length} registros vs 36.901 lidos)`);
  console.log('========================================\n');
- console.log('PASS: todos os critérios de aceitação foram validados com sucesso.');
+ console.log('PASS: TODOS OS 5 TESTES E CRITÉRIOS DE ACEITAÇÃO FORAM VALIDADOS COM SUCESSO.');
 })().catch((error) => {
  console.error(error);
  process.exitCode = 1;

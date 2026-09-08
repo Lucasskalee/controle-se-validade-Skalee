@@ -20,6 +20,16 @@
 })();
 </script>
 <style>
+@property --border-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes rotateCardBorder {
+  to {
+    --border-angle: 360deg;
+  }
+}
 :root{
  --bg:#f4f6fa;--card:#fff;--text:#172033;--muted:#7a8499;--line:#e4e8ef;
  --blue:#2563eb;--blue2:#eff6ff;--red:#dc2626;--orange:#ea580c;--yellow:#ca8a04;--green:#16a34a;
@@ -78,47 +88,131 @@ input:focus,select:focus{border-color:#9dbbf9;box-shadow:0 0 0 3px #e8f0ff}
 .chip.active:hover{background:var(--violet-hover);border-color:var(--violet-hover)}
 .chip .chip-check{display:inline-block;font-weight:900;font-size:12px;margin-right:2px}
 .grid{display:grid;grid-template-columns:repeat(var(--product-columns,3),minmax(0,1fr));gap:14px;align-items:stretch}
-.product-card-slot{position:relative;height:100%;min-height:405px;display:flex;flex-direction:column}
-.product-card-glow{position:relative;border-radius:19px;padding:2px;background:transparent;transition:background .3s ease,box-shadow .3s ease,transform .22s ease;will-change:transform,box-shadow;z-index:1;display:flex;flex-direction:column;height:100%}
-.card{position:relative;z-index:1;height:100%;background:#fff;border:1px solid var(--line);border-radius:17px;overflow:hidden;box-shadow:0 4px 16px rgba(20,30,50,.04);cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:pan-y;-webkit-tap-highlight-color:transparent;display:flex;flex-direction:column;transition:transform 220ms ease,box-shadow 220ms ease,border-color 220ms ease;will-change:transform,box-shadow}
+.product-card-slot{position:relative;height:100%;min-height:425px;display:flex;flex-direction:column}
+.product-card-glow{
+ --glow-c1:#10b981;
+ --glow-c2:#00e5a8;
+ --glow-c3:#2684ff;
+ --glow-shadow:rgba(16,185,129,.18);
+ --glow-shadow-hover:rgba(0,229,168,.36);
+ position:relative;
+ border-radius:18px;
+ padding:1.5px;
+ background:linear-gradient(160deg,var(--glow-c1),var(--glow-c2));
+ background:conic-gradient(from var(--border-angle),var(--glow-c1),var(--glow-c2),var(--glow-c3),var(--glow-c1));
+ animation:rotateCardBorder 11s linear infinite;
+ box-shadow:0 0 12px var(--glow-shadow);
+ transition:transform .22s cubic-bezier(.2,0,.2,1),box-shadow .22s cubic-bezier(.2,0,.2,1);
+ will-change:transform,box-shadow;
+ z-index:1;
+ display:flex;
+ flex-direction:column;
+ height:100%;
+}
+.card{
+ position:relative;
+ z-index:1;
+ height:100%;
+ background:#fff;
+ border:0;
+ border-radius:16.5px;
+ overflow:hidden;
+ box-shadow:0 4px 16px rgba(20,30,50,.04);
+ cursor:pointer;
+ user-select:none;
+ -webkit-user-select:none;
+ -webkit-touch-callout:none;
+ touch-action:pan-y;
+ -webkit-tap-highlight-color:transparent;
+ display:flex;
+ flex-direction:column;
+ transition:transform 220ms ease;
+ will-change:transform;
+}
+html[data-theme="dark"] .card{
+ background:var(--card);
+}
 .card:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 
 @media (hover:hover) and (pointer:fine){
- .product-card-glow:hover{z-index:10}
- .product-card-glow:hover .card{transform:translateY(-4px) scale(1.015);box-shadow:0 14px 30px rgba(0,0,0,.22)}
- .product-card-glow:hover .photo img{transform:scale(1.05)}
+ .product-card-glow:hover{
+  z-index:10;
+  transform:translateY(-2px);
+  box-shadow:0 0 20px var(--glow-shadow-hover),0 10px 24px rgba(0,0,0,.25);
+  animation-duration:3.2s;
+ }
+ .product-card-glow:hover .photo img{transform:scale(1.04)}
 }
-.product-card-glow:focus-within{z-index:10}
-.product-card-glow:focus-within .card{transform:translateY(-4px) scale(1.015);box-shadow:0 14px 30px rgba(0,0,0,.22)}
+.product-card-glow:focus-within{
+ z-index:10;
+ transform:translateY(-2px);
+ box-shadow:0 0 20px var(--glow-shadow-hover),0 10px 24px rgba(0,0,0,.25);
+ animation-duration:3.2s;
+}
+.product-card-glow:active{
+ animation-duration:2.5s;
+ transform:scale(0.985);
+}
+
+@media (prefers-reduced-motion: reduce){
+ .product-card-glow,
+ .card-preview-expanded{
+  animation:none !important;
+ }
+}
 
 /* STATUS CRÍTICO (Vence hoje) */
-.product-card-glow.status-critical:is(:hover,:focus-within){
- background:linear-gradient(135deg,#ff3b30,#ff6b5f);
- box-shadow:0 0 24px rgba(255,59,48,.25);
+.product-card-glow.status-critical{
+ --glow-c1:#ff1744;
+ --glow-c2:#f43f5e;
+ --glow-c3:#705cff;
+ --glow-shadow:rgba(255,23,68,.26);
+ --glow-shadow-hover:rgba(255,23,68,.48);
 }
 
-/* ATÉ 3 DIAS */
-.product-card-glow.status-warning:is(:hover,:focus-within){
- background:linear-gradient(135deg,#ff9500,#ffcc00);
- box-shadow:0 0 24px rgba(255,149,0,.25);
+/* VENCIDO */
+.product-card-glow.status-expired{
+ --glow-c1:#b91c1c;
+ --glow-c2:#ef4444;
+ --glow-c3:#7f1d1d;
+ --glow-shadow:rgba(185,28,28,.28);
+ --glow-shadow-hover:rgba(239,68,68,.48);
 }
 
-/* ATÉ 7 DIAS */
-.product-card-glow.status-attention:is(:hover,:focus-within){
- background:linear-gradient(135deg,#ffd60a,#ffe66d);
- box-shadow:0 0 24px rgba(255,214,10,.20);
+/* ATÉ 3 DIAS / MUITO PERTO */
+.product-card-glow.status-warning{
+ --glow-c1:#f97316;
+ --glow-c2:#ef4444;
+ --glow-c3:#ff5c93;
+ --glow-shadow:rgba(249,115,22,.24);
+ --glow-shadow-hover:rgba(249,115,22,.45);
 }
 
-/* NORMAL */
-.product-card-glow.status-normal:is(:hover,:focus-within){
- background:linear-gradient(135deg,#00c853,#00e676);
- box-shadow:0 0 24px rgba(0,200,83,.20);
+/* ATÉ 7 DIAS (Atenção) */
+.product-card-glow.status-attention{
+ --glow-c1:#facc15;
+ --glow-c2:#f97316;
+ --glow-c3:#fb7185;
+ --glow-shadow:rgba(250,204,21,.22);
+ --glow-shadow-hover:rgba(249,115,22,.40);
 }
 
-/* OFERTA */
-.product-card-glow.status-offer:is(:hover,:focus-within){
- background:linear-gradient(135deg,#2196f3,#00bcd4);
- box-shadow:0 0 24px rgba(33,150,243,.22);
+/* ATÉ 15 DIAS (Acompanhar) */
+.product-card-glow.status-tracking{
+ --glow-c1:#84cc16;
+ --glow-c2:#eab308;
+ --glow-c3:#06b6d4;
+ --glow-shadow:rgba(132,204,22,.20);
+ --glow-shadow-hover:rgba(234,179,8,.38);
+}
+
+/* NORMAL (Controlado) */
+.product-card-glow.status-normal{
+ --glow-c1:#10b981;
+ --glow-c2:#00e5a8;
+ --glow-c3:#2684ff;
+ --glow-shadow:rgba(16,185,129,.18);
+ --glow-shadow-hover:rgba(0,229,168,.36);
 }
 
 @keyframes cardPress{0%{transform:scale(1)}50%{transform:scale(.98)}100%{transform:scale(1)}}
@@ -129,10 +223,12 @@ input:focus,select:focus{border-color:#9dbbf9;box-shadow:0 0 0 3px #e8f0ff}
 .photo img{width:100%;height:100%;object-fit:cover;transition:transform .4s cubic-bezier(.2,0,.2,1)}
 .content{flex:1;display:flex;flex-direction:column;padding:14px 15px;min-width:0}
 .name{font-weight:850;font-size:14.5px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:calc(1.35em * 2);max-height:calc(1.35em * 2);margin-bottom:6px;word-break:break-word;color:var(--text)}
-.card-codes{display:flex;flex-direction:column;gap:2px;font-size:12.5px;color:var(--blue);margin-bottom:8px;min-height:34px}
+.card-codes{display:flex;flex-direction:column;gap:2px;font-size:12.5px;color:var(--blue);margin-bottom:8px;min-height:51px}
 .card-codes .code-line{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
 .card-codes .code-supplier{font-size:12px;color:var(--muted)}
 .card-codes .code-supplier b{color:var(--blue);font-weight:750}
+.card-codes .code-store{font-size:11.5px;color:var(--muted)}
+.card-codes .code-store b{color:var(--text);font-weight:700}
 .code{font-size:13px;color:var(--blue);margin:5px 0 10px}
 .card-bottom{margin-top:auto;display:flex;flex-direction:column}
 .card-summary{margin-top:6px}
@@ -148,7 +244,7 @@ input:focus,select:focus{border-color:#9dbbf9;box-shadow:0 0 0 3px #e8f0ff}
  position:fixed;
  inset:0;
  z-index:1999;
- background:rgba(7,11,18,.5);
+ background:rgba(7,11,18,.48);
  backdrop-filter:blur(3px);
  -webkit-backdrop-filter:blur(3px);
  opacity:0;
@@ -160,23 +256,26 @@ input:focus,select:focus{border-color:#9dbbf9;box-shadow:0 0 0 3px #e8f0ff}
 }
 
 .card-preview-expanded{
+ --glow-c1:#10b981;
+ --glow-c2:#00e5a8;
+ --glow-c3:#2684ff;
+ --glow-shadow:rgba(16,185,129,.20);
  position:fixed;
  z-index:2000;
- border-radius:20px;
+ border-radius:18px;
  overflow:hidden;
- box-shadow:0 25px 65px rgba(0,0,0,.45);
+ box-shadow:0 0 22px var(--glow-shadow),0 20px 50px rgba(0,0,0,.4);
  display:flex;
  flex-direction:column;
  pointer-events:none;
  opacity:0;
  transform:scale(.92);
- transition:opacity 200ms cubic-bezier(.2,0,.2,1),transform 200ms cubic-bezier(.2,0,.2,1);
+ transition:opacity 180ms cubic-bezier(.2,0,.2,1),transform 180ms cubic-bezier(.2,0,.2,1);
  will-change:transform,opacity;
  padding:2px;
- background:#fff;
-}
-html[data-theme="dark"] .card-preview-expanded{
- background:var(--card);
+ background:linear-gradient(160deg,var(--glow-c1),var(--glow-c2));
+ background:conic-gradient(from var(--border-angle),var(--glow-c1),var(--glow-c2),var(--glow-c3),var(--glow-c1));
+ animation:rotateCardBorder 4.5s linear infinite;
 }
 .card-preview-expanded.show{
  opacity:1;
@@ -185,33 +284,49 @@ html[data-theme="dark"] .card-preview-expanded{
 .card-preview-expanded.closing{
  opacity:0;
  transform:scale(.96);
- transition:opacity 140ms ease,transform 140ms ease;
+ transition:opacity 130ms ease,transform 130ms ease;
 }
 
 .card-preview-expanded.status-critical{
- background:linear-gradient(135deg,#ff3b30,#ff6b5f);
- box-shadow:0 0 30px rgba(255,59,48,.35),0 25px 65px rgba(0,0,0,.45);
+ --glow-c1:#ff1744;
+ --glow-c2:#f43f5e;
+ --glow-c3:#705cff;
+ --glow-shadow:rgba(255,23,68,.35);
+}
+.card-preview-expanded.status-expired{
+ --glow-c1:#b91c1c;
+ --glow-c2:#ef4444;
+ --glow-c3:#7f1d1d;
+ --glow-shadow:rgba(185,28,28,.35);
 }
 .card-preview-expanded.status-warning{
- background:linear-gradient(135deg,#ff9500,#ffcc00);
- box-shadow:0 0 30px rgba(255,149,0,.35),0 25px 65px rgba(0,0,0,.45);
+ --glow-c1:#f97316;
+ --glow-c2:#ef4444;
+ --glow-c3:#ff5c93;
+ --glow-shadow:rgba(249,115,22,.32);
 }
 .card-preview-expanded.status-attention{
- background:linear-gradient(135deg,#ffd60a,#ffe66d);
- box-shadow:0 0 30px rgba(255,214,10,.30),0 25px 65px rgba(0,0,0,.45);
+ --glow-c1:#facc15;
+ --glow-c2:#f97316;
+ --glow-c3:#fb7185;
+ --glow-shadow:rgba(250,204,21,.30);
+}
+.card-preview-expanded.status-tracking{
+ --glow-c1:#84cc16;
+ --glow-c2:#eab308;
+ --glow-c3:#06b6d4;
+ --glow-shadow:rgba(132,204,22,.28);
 }
 .card-preview-expanded.status-normal{
- background:linear-gradient(135deg,#00c853,#00e676);
- box-shadow:0 0 30px rgba(0,200,83,.30),0 25px 65px rgba(0,0,0,.45);
-}
-.card-preview-expanded.status-offer{
- background:linear-gradient(135deg,#2196f3,#00bcd4);
- box-shadow:0 0 30px rgba(33,150,243,.32),0 25px 65px rgba(0,0,0,.45);
+ --glow-c1:#10b981;
+ --glow-c2:#00e5a8;
+ --glow-c3:#2684ff;
+ --glow-shadow:rgba(16,185,129,.28);
 }
 
 .card-preview-inner{
  background:#fff;
- border-radius:18px;
+ border-radius:16px;
  overflow:hidden;
  display:flex;
  flex-direction:column;
@@ -222,7 +337,7 @@ html[data-theme="dark"] .card-preview-inner{
 }
 
 .preview-photo{
- height:170px;
+ height:136px;
  background:#edf0f5;
  display:flex;
  align-items:center;
@@ -240,28 +355,30 @@ html[data-theme="dark"] .preview-photo{
  object-fit:contain;
  background:rgba(15,23,42,.03);
 }
+.preview-photo .detail-no-photo{
+ font-size:12px;
+}
 
 .preview-content{
- padding:13px 15px;
+ padding:10px 12px;
  display:flex;
  flex-direction:column;
- gap:6px;
+ gap:5px;
 }
 .preview-name{
- font-size:15px;
+ font-size:13.5px;
  font-weight:850;
- line-height:1.3;
+ line-height:1.25;
  color:var(--text);
  word-break:break-word;
 }
 .preview-codes{
  display:flex;
  flex-direction:column;
- gap:2px;
- font-size:12px;
+ gap:1.5px;
+ font-size:11px;
  color:var(--blue);
- line-height:1.35;
- margin-bottom:2px;
+ line-height:1.3;
 }
 html[data-theme="dark"] .preview-codes{
  color:#7db1ff;
@@ -271,7 +388,7 @@ html[data-theme="dark"] .preview-codes{
  display:grid;
  gap:0;
  border:1px solid var(--line);
- border-radius:12px;
+ border-radius:10px;
  background:#f8fafc;
  overflow:hidden;
 }
@@ -282,9 +399,9 @@ html[data-theme="dark"] .preview-rows{
  display:flex;
  justify-content:space-between;
  align-items:center;
- gap:10px;
- padding:5px 9px;
- font-size:12px;
+ gap:8px;
+ padding:4px 8px;
+ font-size:11.5px;
  border-bottom:1px solid var(--line);
 }
 .preview-row:last-child{
@@ -297,6 +414,66 @@ html[data-theme="dark"] .preview-rows{
  font-weight:750;
  color:var(--text);
  text-align:right;
+}
+
+.preview-row.preview-row-highlight{
+ background:rgba(241,245,249,.85);
+}
+html[data-theme="dark"] .preview-row.preview-row-highlight{
+ background:rgba(15,25,42,.85);
+}
+.preview-days-val{
+ font-weight:850;
+ font-size:11.5px;
+ padding:1.5px 7px;
+ border-radius:6px;
+ display:inline-block;
+ letter-spacing:.01em;
+}
+.preview-days-val.red{
+ background:#fee2e2;
+ color:#b91c1c;
+}
+.preview-days-val.orange{
+ background:#ffedd5;
+ color:#c2410c;
+}
+.preview-days-val.yellow{
+ background:#fef9c3;
+ color:#854d0e;
+}
+.preview-days-val.green{
+ background:#dcfce7;
+ color:#15803d;
+}
+html[data-theme="dark"] .preview-days-val.red{
+ background:rgba(239,68,68,.22);
+ color:#fca5a5;
+}
+html[data-theme="dark"] .preview-days-val.orange{
+ background:rgba(249,115,22,.22);
+ color:#fdba74;
+}
+html[data-theme="dark"] .preview-days-val.yellow{
+ background:rgba(234,179,8,.22);
+ color:#fde047;
+}
+html[data-theme="dark"] .preview-days-val.green{
+ background:rgba(34,197,94,.22);
+ color:#86efac;
+}
+
+.preview-row.preview-row-secondary{
+ opacity:.85;
+}
+.preview-row.preview-row-secondary span{
+ font-size:11px;
+ color:var(--muted);
+}
+.preview-row.preview-row-secondary strong{
+ font-size:11px;
+ font-weight:600;
+ color:var(--text);
 }
 .product-detail-modal{position:fixed;inset:0;z-index:2100;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(7,11,18,.65);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .2s cubic-bezier(.2,0,.2,1),visibility .2s cubic-bezier(.2,0,.2,1)}
 .product-detail-modal.show{opacity:1;visibility:visible;pointer-events:auto}
@@ -382,7 +559,7 @@ html[data-theme="dark"] .preview-rows{
 .firework-spark{position:absolute;left:var(--firework-left);top:var(--firework-top);width:8px;height:8px;border-radius:999px;background:var(--firework-color);box-shadow:0 0 16px var(--firework-color),0 0 28px rgba(255,255,255,.22);opacity:0;animation:firework-burst 1.18s ease-out forwards;animation-delay:var(--firework-delay);transform:translate(-50%,-50%) scale(.8)}
 @keyframes confetti-burst{0%{opacity:1;transform:translate(-50%,-50%) rotate(0deg)}70%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--confetti-x)),calc(-50% + var(--confetti-y))) rotate(var(--confetti-rotation))}}
 @keyframes firework-burst{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}12%{opacity:1}72%{opacity:.95}100%{opacity:0;transform:translate(calc(-50% + var(--firework-x)),calc(-50% + var(--firework-y))) scale(.08)}}
-@media(prefers-reduced-motion:reduce){.confetti-piece,.firework-spark{display:none}.save-toast{transition:none}}
+@media(prefers-reduced-motion:reduce){.confetti-piece,.firework-spark{display:none}.save-toast,.product-card-glow,.card,.card-preview-expanded{transition:none !important}}
 @media(prefers-reduced-motion:reduce){.saving-spinner{animation-duration:1.5s}}
 .hidden{display:none !important}
 html[data-theme="dark"]{color-scheme:dark;--bg:#0b1220;--card:#111b2e;--text:#e5edf9;--muted:#94a3b8;--line:#29364b;--blue:#3b82f6;--blue2:#172a49;--violet:#8b5cf6;--violet-hover:#7c3aed;--violet-glow:rgba(139,92,246,.38)}
@@ -448,7 +625,7 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
 @media(max-width:620px){.scan{grid-template-columns:1fr}}
 @media(max-width:850px){.stats{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:900px){.admin-topbar{align-items:flex-start;flex-direction:column}.admin-actions{width:100%;justify-content:space-between}.admin-layout{grid-template-columns:1fr}.admin-sidebar{position:sticky;top:0;z-index:5;flex-direction:row;overflow:auto;border-right:0;border-bottom:1px solid var(--admin-border)}.admin-sidebar .settings-tab.admin-nav-item{flex:1 0 48px;justify-content:center;gap:0;min-height:48px;padding:12px 10px;border-radius:8px}.admin-nav-item span{max-width:0;opacity:0;overflow:hidden;white-space:nowrap;transition:max-width .2s ease,opacity .18s ease}.admin-sidebar .settings-tab.admin-nav-item.active,.admin-sidebar .settings-tab.admin-nav-item[aria-current="page"]{flex:2.8 0 132px;gap:8px}.admin-nav-item.active span,.admin-nav-item[aria-current="page"] span{max-width:118px;opacity:1;text-overflow:ellipsis}.admin-content{padding:18px 14px 26px}.admin-metrics,.management-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.management-toolbar,.management-panels{grid-template-columns:1fr}.admin-metric{min-height:82px;padding:13px}.admin-metric-icon{width:42px;height:42px}.admin-metric b,.management-card b{font-size:24px}}
-@media(max-width:620px){.app{padding:14px}.searchrow,.searchrow.with-layout,.stock-import-grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}header{align-items:flex-start;flex-direction:column;gap:5px}.photo{height:180px}.report-head{align-items:stretch;flex-direction:column}.report-controls{align-items:stretch;flex-direction:column}.product-layout-picker{justify-self:start}.theme-options,.user-create,.user-location-checks{grid-template-columns:1fr}.user-row,.user-locations-head,.user-actions,.user-location-actions{align-items:stretch;flex-direction:column}.user-row .btn2,.user-locations-head .btn2{width:100%}.install-banner{align-items:flex-start;flex-wrap:wrap}.install-copy{flex:1 1 calc(100% - 65px)}.install-actions{width:100%;justify-content:flex-end}.grid[data-columns="2"] .product-card-slot{min-height:330px}.grid[data-columns="3"] .product-card-slot{min-height:240px}.grid[data-columns="4"] .product-card-slot{min-height:190px}.grid[data-columns="2"] .photo{height:120px}.grid[data-columns="3"] .photo{height:90px}.grid[data-columns="4"] .photo{height:70px}.grid[data-columns="3"] .content,.grid[data-columns="4"] .content{padding:7px}.grid[data-columns="3"] .name,.grid[data-columns="4"] .name{min-height:0;font-size:10px}.grid[data-columns="3"] .code,.grid[data-columns="4"] .code{font-size:8px}.grid[data-columns="3"] .info,.grid[data-columns="4"] .info{display:block;font-size:8px}.grid[data-columns="3"] .badge,.grid[data-columns="4"] .badge{font-size:7px;padding:4px}.grid[data-columns="3"] .card-actions .btn2,.grid[data-columns="4"] .card-actions .btn2{width:100%;padding:6px 3px;font-size:8px}}
+@media(max-width:620px){.app{padding:14px}.searchrow,.searchrow.with-layout,.stock-import-grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}header{align-items:flex-start;flex-direction:column;gap:5px}.photo{height:180px}.report-head{align-items:stretch;flex-direction:column}.report-controls{align-items:stretch;flex-direction:column}.product-layout-picker{justify-self:start}.theme-options,.user-create,.user-location-checks{grid-template-columns:1fr}.user-row,.user-locations-head,.user-actions,.user-location-actions{align-items:stretch;flex-direction:column}.user-row .btn2,.user-locations-head .btn2{width:100%}.install-banner{align-items:flex-start;flex-wrap:wrap}.install-copy{flex:1 1 calc(100% - 65px)}.install-actions{width:100%;justify-content:flex-end}.grid[data-columns="2"] .product-card-slot{min-height:350px}.grid[data-columns="3"] .product-card-slot{min-height:255px}.grid[data-columns="4"] .product-card-slot{min-height:200px}.grid[data-columns="2"] .photo{height:120px}.grid[data-columns="3"] .photo{height:90px}.grid[data-columns="4"] .photo{height:70px}.grid[data-columns="3"] .content,.grid[data-columns="4"] .content{padding:7px}.grid[data-columns="3"] .name,.grid[data-columns="4"] .name{min-height:0;font-size:10px}.grid[data-columns="3"] :is(.code,.card-codes),.grid[data-columns="4"] :is(.code,.card-codes){font-size:8px;min-height:0}.grid[data-columns="3"] :is(.code-supplier,.code-store),.grid[data-columns="4"] :is(.code-supplier,.code-store){font-size:7.5px}.grid[data-columns="3"] .info,.grid[data-columns="4"] .info{display:block;font-size:8px}.grid[data-columns="3"] .badge,.grid[data-columns="4"] .badge{font-size:7px;padding:4px}.grid[data-columns="3"] .card-actions .btn2,.grid[data-columns="4"] .card-actions .btn2{width:100%;padding:6px 3px;font-size:8px}}
 </style>
 </head>
 <body class="auth-loading">
@@ -2277,6 +2454,7 @@ function mergeRealtimeProduct(nextProduct) {
   }
   return changed;
  }
+ const movement = (existing && existing.stockMovement) || nextProduct.stockMovement || (typeof window.skaleeDb?.getStockMovement === "function" ? window.skaleeDb.getStockMovement(id, nextProduct) : null) || null;
  if (existing) {
   const samePhotoPath = String(existing.photoPath || "") === String(nextProduct.photoPath || "");
   if (!samePhotoPath && existing.photoPath && typeof window.skaleeDb?.invalidateProductPhotoUrl === "function") {
@@ -2289,12 +2467,23 @@ function mergeRealtimeProduct(nextProduct) {
    photoLoaded: samePhotoPath ? product.photoLoaded : false,
    supplierAliases: nextProduct.supplierAliases?.length ? nextProduct.supplierAliases : product.supplierAliases,
    canEdit: product.canEdit,
-   canDelete: nextProduct.canDelete
+   canDelete: nextProduct.canDelete,
+   stockMovement: movement
   } : product);
   products = sortProductsForCurrentCriteria(products);
+  if (!movement && typeof carregarMovimentacaoEstoqueDosProdutos === "function") {
+   void carregarMovimentacaoEstoqueDosProdutos([nextProduct]);
+  }
   return true;
  }
- products = sortProductsForCurrentCriteria([nextProduct, ...products]);
+ const newProductWithMovement = {
+  ...nextProduct,
+  stockMovement: movement
+ };
+ products = sortProductsForCurrentCriteria([newProductWithMovement, ...products]);
+ if (!movement && typeof carregarMovimentacaoEstoqueDosProdutos === "function") {
+  void carregarMovimentacaoEstoqueDosProdutos([newProductWithMovement]);
+ }
  return true;
 }
 
@@ -2306,10 +2495,17 @@ function mergeReportProduct(nextProduct) {
   selectedReportProductIds.delete(id);
   return;
  }
- if (reportProducts.some((product) => String(product.id) === id)) {
-  reportProducts = reportProducts.map((product) => String(product.id) === id ? { ...nextProduct, photo: product.photo, photoLoaded: product.photoLoaded } : product);
+ const existing = reportProducts.find((product) => String(product.id) === id);
+ const movement = (existing && existing.stockMovement) || nextProduct.stockMovement || (typeof window.skaleeDb?.getStockMovement === "function" ? window.skaleeDb.getStockMovement(id, nextProduct) : null) || null;
+ if (existing) {
+  reportProducts = reportProducts.map((product) => String(product.id) === id ? {
+   ...nextProduct,
+   photo: product.photo,
+   photoLoaded: product.photoLoaded,
+   stockMovement: movement
+  } : product);
  } else {
-  reportProducts = [...reportProducts, nextProduct];
+  reportProducts = [...reportProducts, { ...nextProduct, stockMovement: movement }];
   if (reportSelectionInitialized) selectedReportProductIds.add(id);
  }
  reportProducts.sort((a, b) => a.expiry.localeCompare(b.expiry) || a.name.localeCompare(b.name));
@@ -3326,17 +3522,18 @@ function status(days) {
  return ["Controlado", "green"];
 }
 
-function getProductGlowStatus(days, isOffer) {
+function getProductGlowStatus(days) {
+ if (days < 0) return "status-expired";
  if (days === 0) return "status-critical";
  if (days <= 3) return "status-warning";
  if (days <= 7) return "status-attention";
- if (isOffer) return "status-offer";
+ if (days <= 15) return "status-tracking";
  return "status-normal";
 }
 
 function renderCardExtraInfo(product) {
  const days = remaining(product.expiry);
- const movement = product.stockMovement;
+ const movement = product.stockMovement || (typeof window.skaleeDb?.getStockMovement === "function" ? window.skaleeDb.getStockMovement(product.id, product) : null) || null;
  const hasSnapshot = Boolean(movement && movement.snapshot_date);
  const stockQuantity = hasSnapshot && movement.stock_quantity !== null && movement.stock_quantity !== undefined
   ? `${formatStockNumber(movement.stock_quantity)} un.`
@@ -3458,7 +3655,7 @@ function stockMovementBadge(movement) {
 }
 
 function renderStockMovement(product) {
- const movement = product.stockMovement;
+ const movement = product.stockMovement || (typeof window.skaleeDb?.getStockMovement === "function" ? window.skaleeDb.getStockMovement(product.id, product) : null) || null;
  const hasSnapshot = Boolean(movement && movement.snapshot_date);
  const stockQuantity = hasSnapshot && movement.stock_quantity !== null && movement.stock_quantity !== undefined
   ? `${formatStockNumber(movement.stock_quantity)} un.`
@@ -3470,11 +3667,24 @@ function renderStockMovement(product) {
   ? `${formatStockNumber(movement.previous_stock_quantity)} un.`
   : "--";
 
+ let variationText = "--";
+ if (hasSnapshot && movement.previous_stock_quantity !== null && movement.previous_stock_quantity !== undefined) {
+  const diff = Number(movement.stock_quantity) - Number(movement.previous_stock_quantity);
+  if (diff < 0) {
+   variationText = `↓ ${formatStockNumber(Math.abs(diff))} un.`;
+  } else if (diff > 0) {
+   variationText = `↑ ${formatStockNumber(diff)} un.`;
+  } else {
+   variationText = "Estável (0 un.)";
+  }
+ }
+
  return `
       <div class="stock-movement">
        <div class="info"><span>Estoque SG</span><b>${stockQuantity}</b></div>
        <div class="info"><span>Última carga</span><b>${snapshotDate}</b></div>
        <div class="info"><span>Estoque anterior</span><b>${previousStock !== "--" && previousDate !== "--" ? `${previousStock} em ${previousDate}${interval}` : previousStock}</b></div>
+       ${variationText !== "--" ? `<div class="info"><span>Variação</span><b>${variationText}</b></div>` : ""}
        ${stockMovementBadge(movement)}
       </div>`;
 }
@@ -3847,6 +4057,7 @@ function render() {
    const firstCode = extractFirstInternalCode(product.code) || "sem código";
    const firstBarcode = extractFirstBarcode(product.barcode) || "sem barras";
    const firstSupplierCode = extractFirstSupplierCode(product);
+   const storeName = String(product.store || "").trim();
    const glowStatus = getProductGlowStatus(days, Boolean(product.offer));
     return `
      <div class="product-card-slot">
@@ -3858,6 +4069,7 @@ function render() {
          <div class="card-codes">
           <div class="code-line">Cód. interno ${escapeHtml(firstCode)} · Barras ${escapeHtml(firstBarcode)}</div>
           ${firstSupplierCode ? `<div class="code-line code-supplier" title="Cód. fornecedor: ${escapeHtml(firstSupplierCode)}">Cód. fornecedor: <b>${escapeHtml(firstSupplierCode)}</b></div>` : `<div class="code-line code-supplier">&nbsp;</div>`}
+          ${storeName ? `<div class="code-line code-store" title="Loja: ${escapeHtml(storeName)}">Loja: <b>${escapeHtml(storeName)}</b></div>` : `<div class="code-line code-store">&nbsp;</div>`}
          </div>
          <div class="card-bottom">
           <div class="card-summary">
@@ -4494,7 +4706,7 @@ function openExpandedPreview(card, product) {
  const firstSupplierCode = extractFirstSupplierCode(product);
  const glowStatus = getProductGlowStatus(days, Boolean(product.offer));
 
- const movement = product.stockMovement;
+ const movement = product.stockMovement || (typeof window.skaleeDb?.getStockMovement === "function" ? window.skaleeDb.getStockMovement(product.id, product) : null) || null;
  const hasSnapshot = Boolean(movement && movement.snapshot_date);
  const stockQuantity = hasSnapshot && movement.stock_quantity !== null && movement.stock_quantity !== undefined
   ? `${formatStockNumber(movement.stock_quantity)} un.`
@@ -4520,13 +4732,13 @@ function openExpandedPreview(card, product) {
  preview.setAttribute("role", "dialog");
  preview.setAttribute("aria-label", `Pré-visualização de ${product.name}`);
 
- const previewWidth = Math.min(340, window.innerWidth - 24);
+ const previewWidth = Math.min(296, window.innerWidth - 24);
  let left = rect.left + (rect.width / 2) - (previewWidth / 2);
  left = Math.max(12, Math.min(left, window.innerWidth - previewWidth - 12));
 
- let top = rect.top - 10;
- if (top + 460 > window.innerHeight - 12) {
-  top = Math.max(12, window.innerHeight - 470);
+ let top = rect.top - 8;
+ if (top + 400 > window.innerHeight - 12) {
+  top = Math.max(12, window.innerHeight - 410);
  }
  if (top < 12) top = 12;
 
@@ -4549,7 +4761,7 @@ function openExpandedPreview(card, product) {
      <div>Cód. interno <b>${escapeHtml(firstCode)}</b> · Barras <b>${escapeHtml(firstBarcode)}</b></div>
      ${firstSupplierCode ? `<div>Cód. fornecedor: <b>${escapeHtml(firstSupplierCode)}</b></div>` : ""}
     </div>
-    <div class="badges" style="margin-top:2px;margin-bottom:4px">
+    <div class="badges" style="margin-top:1px;margin-bottom:2px">
      <span class="badge ${tone}">${days === 0 ? "Vence hoje" : label}</span>
      ${product.offer ? '<span class="badge offer">EM OFERTA</span>' : ''}
      ${product.qty >= 100 ? '<span class="badge high">QUANTIDADE ALTA</span>' : ''}
@@ -4557,10 +4769,10 @@ function openExpandedPreview(card, product) {
     <div class="preview-rows">
      <div class="preview-row"><span>Quantidade</span><strong>${product.qty} un.</strong></div>
      <div class="preview-row"><span>Validade</span><strong>${expiryText}</strong></div>
-     <div class="preview-row"><span>Dias restantes</span><strong>${daysRemainingText}</strong></div>
-     <div class="preview-row"><span>Estoque SG</span><strong>${stockQuantity}</strong></div>
-     <div class="preview-row"><span>Última carga</span><strong>${lastSnapshotDate}</strong></div>
-     <div class="preview-row"><span>Estoque anterior</span><strong>${prevStock}</strong></div>
+     <div class="preview-row preview-row-highlight"><span>Dias restantes</span><strong class="preview-days-val ${tone}">${daysRemainingText}</strong></div>
+     <div class="preview-row preview-row-secondary"><span>Estoque SG</span><strong>${stockQuantity}</strong></div>
+     <div class="preview-row preview-row-secondary"><span>Última carga</span><strong>${lastSnapshotDate}</strong></div>
+     <div class="preview-row preview-row-secondary"><span>Estoque anterior</span><strong>${prevStock}</strong></div>
      <div class="preview-row"><span>Oferta</span><strong>${offerText}</strong></div>
     </div>
    </div>
@@ -4759,11 +4971,13 @@ els.confirmUpdate.addEventListener("click", async () => {
  els.updateError.textContent = "";
  pendingProductUpdateIds.add(String(productId));
  expandedProductIds.add(String(productId));
+ const existingStockMovement = previousProduct.stockMovement || (typeof window.skaleeDb?.getStockMovement === "function" ? window.skaleeDb.getStockMovement(productId, previousProduct) : null) || null;
  const optimisticProduct = {
   ...previousProduct,
   qty: quantity,
   offer: els.updateOffer.checked,
-  updatedAt: new Date().toISOString()
+  updatedAt: new Date().toISOString(),
+  stockMovement: existingStockMovement
  };
  products = products.map((product) => product.id === productId ? optimisticProduct : product);
  applyDashboardStatsDelta(previousProduct, optimisticProduct);
@@ -4773,13 +4987,16 @@ els.confirmUpdate.addEventListener("click", async () => {
 
  window.skaleeDb.updateProduct(productId, { qty: quantity, offer: els.updateOffer.checked })
   .then((updatedProduct) => {
-   mergeReportProduct(updatedProduct);
-   products = products.map((product) => product.id === productId ? {
+   const movement = updatedProduct.stockMovement || existingStockMovement || (typeof window.skaleeDb?.getStockMovement === "function" ? window.skaleeDb.getStockMovement(productId, updatedProduct) : null) || null;
+   const finalProduct = {
     ...updatedProduct,
-    photo: updatedProduct.photo || product.photo || "",
-    photoPath: updatedProduct.photoPath || product.photoPath || "",
-    photoLoaded: updatedProduct.photoLoaded || product.photoLoaded
-   } : product);
+    photo: updatedProduct.photo || previousProduct.photo || "",
+    photoPath: updatedProduct.photoPath || previousProduct.photoPath || "",
+    photoLoaded: updatedProduct.photoLoaded || previousProduct.photoLoaded,
+    stockMovement: movement
+   };
+   mergeReportProduct(finalProduct);
+   products = products.map((product) => product.id === productId ? finalProduct : product);
    showToast(`${productName} atualizado.`, "success", "✓");
   })
   .catch((error) => {

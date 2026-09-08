@@ -35,6 +35,15 @@ const signOutButton = document.querySelector("#signOut");
 const authRing = document.querySelector(".auth-ring");
 const VALIDITY_PRODUCT_BASE_SELECT = "id,user_id,barcode,product_code,name,store,quantity,expiry_date,offer,supplier_code,supplier_name,photo_path,created_at,updated_at,completed_at,updated_by_email,catalog_product_id,brand_id,retail_location_id,brands(name),catalog_products(name,supplier_code,supplier_name),retail_locations(name)";
 const VALIDITY_PRODUCT_MANAGEMENT_SELECT = "id,user_id,barcode,product_code,name,store,quantity,expiry_date,offer,supplier_code,supplier_name,catalog_product_id,brand_id,retail_location_id,catalog_products(name,category,supplier_code,supplier_name),retail_locations(name)";
+const stockMovementCache = new Map();
+const stockMovementByCodeStoreCache = new Map();
+
+function stockMovementStoreCodeKey(store, code) {
+ const s = String(store || "").trim().toLowerCase();
+ const c = String(code || "").trim().replace(/\D/g, "");
+ if (!s || !c) return "";
+ return `${s}:${c}`;
+}
 let mode = "sign-in";
 let activeUserId;
 let activeUserEmail = "";
@@ -68,6 +77,9 @@ async function selectAllPages(table, columns, options = {}) {
 function fromDatabase(row) {
  const primarySupplierCode = row.supplier_code || row.catalog_products?.supplier_code || "";
  const primarySupplierName = row.supplier_name || row.catalog_products?.supplier_name || "";
+ const vpId = String(row.id || "");
+ const storeCodeKey = stockMovementStoreCodeKey(row.store, row.product_code);
+ const cachedMovement = (vpId ? stockMovementCache.get(vpId) : null) || (storeCodeKey ? stockMovementByCodeStoreCache.get(storeCodeKey) : null) || null;
  return {
   id: row.id,
   barcode: row.barcode,
@@ -94,7 +106,7 @@ function fromDatabase(row) {
   brandName: row.brands?.name || "",
   catalogProductName: row.catalog_products?.name || "",
   retailLocationName: row.retail_locations?.name || row.store,
-  stockMovement: null,
+  stockMovement: cachedMovement || null,
   canEdit: true,
   canDelete: row.user_id === activeUserId
  };
@@ -485,6 +497,24 @@ async function resolveProductPhoto(row) {
 window.skaleeDb = {
  getProductPhotoUrl,
  invalidateProductPhotoUrl,
+ getStockMovement(productId, fallbackProduct) {
+  const vpId = String(productId || (typeof fallbackProduct === "object" ? fallbackProduct?.id : "") || "");
+  const store = String((typeof fallbackProduct === "object" ? fallbackProduct?.store : "") || "");
+  const code = String((typeof fallbackProduct === "object" ? (fallbackProduct?.code || fallbackProduct?.product_code) : "") || "");
+  const storeCodeKey = stockMovementStoreCodeKey(store, code);
+  return (vpId ? stockMovementCache.get(vpId) : null) || (storeCodeKey ? stockMovementByCodeStoreCache.get(storeCodeKey) : null) || null;
+ },
+ setStockMovement(productId, movement, store = "", code = "") {
+  if (!movement) return;
+  const vpId = String(productId || movement.validity_product_id || "");
+  if (vpId) stockMovementCache.set(vpId, movement);
+  const storeCodeKey = stockMovementStoreCodeKey(store, code);
+  if (storeCodeKey) stockMovementByCodeStoreCache.set(storeCodeKey, movement);
+ },
+ clearStockMovementCache() {
+  stockMovementCache.clear();
+  stockMovementByCodeStoreCache.clear();
+ },
  mapValidityProductRow(row) {
   return fromDatabase(row || {});
  },
@@ -792,6 +822,20 @@ window.skaleeDb = {
     }
    }
 
+   resolvedMap.forEach((movement, vpId) => {
+    if (movement && movement.snapshot_date) {
+     stockMovementCache.set(String(vpId), movement);
+    }
+   });
+   (Array.isArray(productListHint) ? productListHint : []).forEach((hint) => {
+    const vpId = String(hint?.id || "");
+    const movement = resolvedMap.get(vpId);
+    if (movement && movement.snapshot_date && hint?.store && (hint?.code || hint?.product_code)) {
+     const key = stockMovementStoreCodeKey(hint.store, hint.code || hint.product_code);
+     if (key) stockMovementByCodeStoreCache.set(key, movement);
+    }
+   });
+
    return ids.map((id) => resolvedMap.get(String(id)) || {
     validity_product_id: id,
     catalog_product_id: null,
@@ -1097,16 +1141,43 @@ window.skaleeDb = {
    return { ...fromDatabase(data), photoUploadError: "Produto registrado, mas não foi possível enviar a foto." };
   }
  },
- async updateProduct(id, changes) {
-  const { data, error } = await supabase
-   .from("validity_products")
-   .update({ quantity: Number(changes.qty), offer: Boolean(changes.offer) })
-   .eq("id", id)
-   .select(VALIDITY_PRODUCT_BASE_SELECT)
-   .single();
-  if (error) throw error;
-  return fromDatabase(data);
- },
+ async updateProduct(id, changes = {}) {
+   const updatePayload = {};
+   if (changes.qty !== undefined) updatePayload.quantity = Number(changes.qty);
+   if (changes.quantity !== undefined) updatePayload.quantity = Number(changes.quantity);
+   if (changes.offer !== undefined) updatePayload.offer = Boolean(changes.offer);
+   if (changes.expiry !== undefined) updatePayload.expiry_date = changes.expiry;
+   if (changes.expiry_date !== undefined) updatePayload.expiry_date = changes.expiry_date;
+   if (changes.name !== undefined && String(changes.name).trim()) updatePayload.name = String(changes.name).trim();
+   if (changes.code !== undefined) updatePayload.product_code = String(changes.code).trim();
+   if (changes.product_code !== undefined) updatePayload.product_code = String(changes.product_code).trim();
+   if (changes.barcode !== undefined) updatePayload.barcode = String(changes.barcode).trim();
+   if (changes.store !== undefined) updatePayload.store = String(changes.store).trim();
+   if (changes.supplierCode !== undefined) updatePayload.supplier_code = String(changes.supplierCode).trim() || null;
+   if (changes.supplier_code !== undefined) updatePayload.supplier_code = String(changes.supplier_code).trim() || null;
+   if (changes.supplierName !== undefined) updatePayload.supplier_name = String(changes.supplierName).trim() || null;
+   if (changes.supplier_name !== undefined) updatePayload.supplier_name = String(changes.supplier_name).trim() || null;
+   if (changes.notes !== undefined) updatePayload.notes = String(changes.notes).trim() || null;
+
+   if (!Object.keys(updatePayload).length) {
+    const { data: existingData, error: readError } = await supabase
+     .from("validity_products")
+     .select(VALIDITY_PRODUCT_BASE_SELECT)
+     .eq("id", id)
+     .single();
+    if (readError) throw readError;
+    return fromDatabase(existingData);
+   }
+
+   const { data, error } = await supabase
+    .from("validity_products")
+    .update(updatePayload)
+    .eq("id", id)
+    .select(VALIDITY_PRODUCT_BASE_SELECT)
+    .single();
+   if (error) throw error;
+   return fromDatabase(data);
+  },
  async completeProduct(id) {
   const { data, error } = await supabase
    .from("validity_products")
