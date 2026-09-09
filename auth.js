@@ -978,11 +978,20 @@ window.skaleeDb = {
  async loadStockMovementsForValidityProducts(productIds = [], productListHint = []) {
   const ids = [...new Set(productIds.map(p => String(p?.id || p)).filter(Boolean))];
   const rows = [];
+  const hints = new Map(productListHint.map(p => [String(p.id), p]));
+  const legacyRequests = new Map();
   for (let i = 0; i < ids.length; i += 100) {
    const { data, error } = await supabase.rpc("get_validity_sg_stock_v1", { p_validity_product_ids: ids.slice(i, i + 100) });
    if (error) throw error;
    for (const row of data || []) {
-    const movement = { ...(row.movement || {}), validity_product_id: row.validity_product_id };
+    let resolved = row.movement;
+    const hint = hints.get(String(row.validity_product_id));
+    if (!resolved?.retail_location_id && hint) {
+     const key = JSON.stringify([hint.retailLocationId || hint.store, hint.code, hint.catalogProductId]);
+     if (!legacyRequests.has(key)) legacyRequests.set(key, this.loadLegacyStockMovement(hint));
+     resolved = await legacyRequests.get(key);
+    }
+    const movement = { ...(resolved || {}), validity_product_id: row.validity_product_id };
     rows.push(movement);
     stockMovementCache.set(String(row.validity_product_id), movement);
    }
@@ -991,6 +1000,32 @@ window.skaleeDb = {
  },
   async resolveRetailLocation(storeOrId) {
     return resolveRetailLocation(storeOrId);
+  },
+  async loadLegacyStockMovement(params = {}) {
+   const location = await resolveRetailLocation(params.retailLocationId || params.retail_location_id || params.store);
+   if (!location?.id) return null;
+   const rawCode = String(params.productCode || params.code || params.product_code || "").trim();
+   const code = rawCode.replace(/^0+(?=\d)/, "");
+   const catalogId = params.catalogProductId || params.catalog_product_id;
+   if (!code && !catalogId) return null;
+   const query = () => {
+    let q = supabase.from("product_stock_snapshots")
+     .select("catalog_product_id,retail_location_id,snapshot_date,stock_quantity,internal_code")
+     .eq("retail_location_id", location.id);
+    return code ? q.in("internal_code", [...new Set([code, rawCode])]) : q.eq("catalog_product_id", catalogId);
+   };
+   const { data: latest, error } = await query().order("snapshot_date", { ascending: false }).limit(1).maybeSingle();
+   if (error) throw error;
+   if (!latest) return null;
+   const { data: previous, error: previousError } = await query().lt("snapshot_date", latest.snapshot_date)
+    .order("snapshot_date", { ascending: false }).limit(1).maybeSingle();
+   if (previousError) throw previousError;
+   const change = previous && latest.stock_quantity != null && previous.stock_quantity != null
+    ? Number(latest.stock_quantity) - Number(previous.stock_quantity) : null;
+   return { ...latest, stock_source: "legacy", store: location.name,
+    previous_snapshot_date: previous?.snapshot_date || null,
+    previous_stock_quantity: previous?.stock_quantity ?? null,
+    stock_change: change, movement_type: change === null ? "no_previous_snapshot" : change < 0 ? "decrease" : change > 0 ? "increase" : "stable" };
   },
   async loadStockMovementForProduct(params = {}) {
    const location = await resolveRetailLocation(params.retailLocationId || params.retail_location_id || params.store);
@@ -1006,7 +1041,8 @@ window.skaleeDb = {
    }
    const { data, error } = await query.limit(1).maybeSingle();
    if (error) throw error;
-   return { ...(data || { status: "not_found", stock_quantity: null }), store: location.name, retail_location_id: location.id };
+   const resolved = data || await this.loadLegacyStockMovement({ ...params, retailLocationId: location.id });
+   return { ...(resolved || { status: "not_found", stock_quantity: null }), store: location.name, retail_location_id: location.id };
   },
  async loadStockImportBatches(snapshotDate) {
   if (!snapshotDate) return [];

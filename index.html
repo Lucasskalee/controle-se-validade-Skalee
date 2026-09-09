@@ -3805,6 +3805,7 @@ function formatStockNumber(value) {
 }
 
 function stockMovementBadge(movement) {
+ if (movement?.stock_source === "legacy") return '<span class="stock-movement-badge no_previous_snapshot" title="Carga antiga; não compõe a nova base oficial SG">Histórico anterior · SG</span>';
  if (!movement || !movement.snapshot_date) return '<span class="stock-movement-badge no_previous_snapshot">Sem carga SG</span>';
  const type = movement.movement_type || "no_previous_snapshot";
  if (type === "decrease") return `<span class="stock-movement-badge decrease">↓ ${formatStockNumber(Math.abs(Number(movement.stock_change)))} un. desde a última carga</span>`;

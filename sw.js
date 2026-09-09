@@ -1,4 +1,4 @@
-const CACHE_NAME = "skalee-pwa-v142-sg-restored-themes";
+const CACHE_NAME = "skalee-pwa-v143-sg-legacy-history";
 const APP_SHELL = [
  "/",
  "/index.html",
