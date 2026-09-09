@@ -1617,6 +1617,7 @@ let activeFilters = {
  offerStatus: null,
  highQuantity: false
 };
+const SG_STOCK_FEATURE_ENABLED = false;
 let activeFilter = "all";
 let isViewer = false;
 let isSkaleeAdmin = false;
@@ -2781,6 +2782,7 @@ function aplicarMovimentacoesEstoque(rows = []) {
 }
 
 async function carregarMovimentacaoEstoqueDosProdutos(targetProducts = products, options = {}) {
+ if (!SG_STOCK_FEATURE_ENABLED) return;
  if (!window.skaleeDb?.loadStockMovementsForValidityProducts) return;
  const list = targetProducts || [];
  const ids = [...new Set(list
@@ -3362,10 +3364,12 @@ window.addEventListener("skalee:authenticated", (event) => {
  const activeTab = document.querySelector(".tab.active");
  if (isViewer || activeTab?.hidden) document.querySelector('[data-page="products"]').click();
  els.adminUsersSection.hidden = !isAdmin;
- els.catalogSettingsSection.hidden = !isSkaleeAdmin;
- els.stockImportSettingsSection.hidden = !isSkaleeAdmin;
- if (els.stockSnapshotDate && !els.stockSnapshotDate.value) els.stockSnapshotDate.value = localDateKey(new Date());
- void carregarSituacaoCargasEstoque();
+ els.catalogSettingsSection.hidden = !isSkaleeAdmin || !SG_STOCK_FEATURE_ENABLED;
+ els.stockImportSettingsSection.hidden = !isSkaleeAdmin || !SG_STOCK_FEATURE_ENABLED;
+ if (SG_STOCK_FEATURE_ENABLED) {
+  if (els.stockSnapshotDate && !els.stockSnapshotDate.value) els.stockSnapshotDate.value = localDateKey(new Date());
+  void carregarSituacaoCargasEstoque();
+ }
 });
 window.addEventListener("skalee:signed-out", () => {
  appAuthenticated = false;
@@ -3805,6 +3809,7 @@ function formatStockNumber(value) {
 }
 
 function stockMovementBadge(movement) {
+ if (!SG_STOCK_FEATURE_ENABLED) return "";
  if (movement?.stock_source === "legacy") return '<span class="stock-movement-badge no_previous_snapshot" title="Carga antiga; não compõe a nova base oficial SG">Histórico anterior · SG</span>';
  if (!movement || !movement.snapshot_date) return '<span class="stock-movement-badge no_previous_snapshot">Sem carga SG</span>';
  const type = movement.movement_type || "no_previous_snapshot";
@@ -3815,6 +3820,7 @@ function stockMovementBadge(movement) {
 }
 
 function renderStockMovement(product) {
+ if (!SG_STOCK_FEATURE_ENABLED) return "";
  const movement = product.stockMovement || (typeof window.skaleeDb?.getStockMovement === "function" ? window.skaleeDb.getStockMovement(product.id, product) : null) || null;
  const hasSnapshot = Boolean(movement && movement.snapshot_date);
  const stockQuantity = hasSnapshot && movement.stock_quantity !== null && movement.stock_quantity !== undefined
@@ -3850,7 +3856,7 @@ function renderStockMovement(product) {
 }
 
 function formatStockDateTime(movement) {
- if (!movement || (!movement.snapshot_date && !movement.created_at)) return "--";
+ if (!SG_STOCK_FEATURE_ENABLED || !movement || (!movement.snapshot_date && !movement.created_at)) return "--";
  if (movement.created_at) {
   const d = new Date(movement.created_at);
   if (!Number.isNaN(d.getTime())) {
@@ -3869,6 +3875,7 @@ function formatStockDateTime(movement) {
 }
 
 function renderStockReferenceCardMarkup(movement, options = {}) {
+ if (!SG_STOCK_FEATURE_ENABLED) return "";
  const title = (typeof options === "string" ? options : options?.title) || "DADOS DO SG";
 
  if (!movement || movement.status === "no_store" || movement.movement_type === "no_store") {
@@ -3951,7 +3958,7 @@ function renderStockReferenceCardMarkup(movement, options = {}) {
 }
 
 function renderStockFeedbackMarkup(qty, movement) {
- if (!Number.isFinite(qty) || qty <= 0) return "";
+ if (!SG_STOCK_FEATURE_ENABLED || !Number.isFinite(qty) || qty <= 0) return "";
  if (!movement || !movement.snapshot_date || movement.stock_quantity === null || movement.stock_quantity === undefined) {
   return "";
  }
@@ -3994,6 +4001,13 @@ let registerStockLoadGeneration = 0;
 
 async function updateRegisterStockInfo() {
  if (!els.registerStockContainer) return;
+ if (!SG_STOCK_FEATURE_ENABLED) {
+  currentRegisterStockMovement = null;
+  els.registerStockContainer.hidden = true;
+  els.registerStockContainer.innerHTML = "";
+  if (els.registerStockFeedback) els.registerStockFeedback.innerHTML = "";
+  return;
+ }
  const gen = ++registerStockLoadGeneration;
  if (!selected) {
   currentRegisterStockMovement = null;
@@ -6072,7 +6086,8 @@ els.importDbf.addEventListener("click", async () => {
  definirInfoCatalogo("Lendo arquivo...", "Validando campos e preparando envio para o Supabase.", { loading: true });
  try {
   if (files.some(file => /\.dbf$/i.test(file.name))) {
-   if (files.length !== 1) throw new Error("Selecione um único DBF por loja para a base oficial.");
+    if (!SG_STOCK_FEATURE_ENABLED) throw new Error("A importação de catálogo SG está temporariamente desativada.");
+    if (files.length !== 1) throw new Error("Selecione um único DBF por loja para a base oficial.");
    const retailLocationId = els.catalogImportLocation.value;
    const snapshotDate = els.catalogSnapshotDate.value;
    if (!activeLocations.some(location => location.id === retailLocationId) || !snapshotDate) throw new Error("Selecione a loja e a data da base SG.");
@@ -6131,6 +6146,10 @@ els.importDbf.addEventListener("click", async () => {
 
 let stockImportStatusGeneration = 0;
 async function carregarSituacaoCargasEstoque() {
+ if (!SG_STOCK_FEATURE_ENABLED) {
+  if (els.stockImportStatus) els.stockImportStatus.textContent = "";
+  return;
+ }
  const generation = ++stockImportStatusGeneration;
  if (!els.stockImportStatus) return;
  els.stockImportStatus.textContent = "";
@@ -6172,6 +6191,10 @@ let isSgImportRunning = false;
 let activeSgImportSession = null;
 
 async function executarImportacaoSg(isRetry = false) {
+ if (!SG_STOCK_FEATURE_ENABLED) {
+  alert("A importação de estoque SG está temporariamente desativada.");
+  return;
+ }
  if (isSgImportRunning) return;
 
  let file = null;

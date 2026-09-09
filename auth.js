@@ -3,6 +3,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.55.0";
 const SUPABASE_URL = "https://scetuqugfbhozikridaw.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_RUy69LJc14uWrn0H9WgvKQ_ebicHtdN";
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+const SG_STOCK_FEATURE_ENABLED = false;
+window.SG_STOCK_FEATURE_ENABLED = SG_STOCK_FEATURE_ENABLED;
 console.log("[PHOTO] upload flow version: v68-debug");
 const VALIDITY_PHOTO_BUCKET = "validity-photos";
 const SIGNED_PHOTO_URL_TTL_SECONDS = 60 * 60 * 6;
@@ -831,6 +833,7 @@ async function findKnownProductImage(criteria = {}) {
 }
 
 window.skaleeDb = {
+ SG_STOCK_FEATURE_ENABLED,
  getProductPhotoUrl,
  invalidateProductPhotoUrl,
  findKnownProductImage,
@@ -838,6 +841,7 @@ window.skaleeDb = {
  checkIfPhotoPathIsShared,
  resolveProductImage,
  getStockMovement(productId, fallbackProduct) {
+  if (!SG_STOCK_FEATURE_ENABLED) return null;
   const vpId = String(productId || (typeof fallbackProduct === "object" ? fallbackProduct?.id : "") || "");
   const store = String((typeof fallbackProduct === "object" ? fallbackProduct?.store : "") || "");
   const code = String((typeof fallbackProduct === "object" ? (fallbackProduct?.code || fallbackProduct?.product_code) : "") || "");
@@ -845,7 +849,7 @@ window.skaleeDb = {
   return (vpId ? stockMovementCache.get(vpId) : null) || (storeCodeKey ? stockMovementByCodeStoreCache.get(storeCodeKey) : null) || null;
  },
  setStockMovement(productId, movement, store = "", code = "") {
-  if (!movement) return;
+  if (!SG_STOCK_FEATURE_ENABLED || !movement) return;
   const vpId = String(productId || movement.validity_product_id || "");
   if (vpId) stockMovementCache.set(vpId, movement);
   const storeCodeKey = stockMovementStoreCodeKey(store, code);
@@ -989,12 +993,13 @@ window.skaleeDb = {
   let products = await enrichProductsWithCatalogSuppliers(rows.map(fromDatabase));
   if (access) {
    if (access.supplierCodes.length) products = products.filter((product) => product.supplierAliases.some((alias) => access.supplierCodes.includes(alias.code)));
-   else products = products.filter((product) => product.brandId && access.brandIds.includes(product.brandId));
+  else products = products.filter((product) => product.brandId && access.brandIds.includes(product.brandId));
   }
   Object.defineProperty(products, "rawPageLength", { value: rawPageLength });
   return products;
  },
  async loadStockMovementsForValidityProducts(productIds = [], productListHint = []) {
+  if (!SG_STOCK_FEATURE_ENABLED) return [];
   const ids = [...new Set(productIds.map(p => String(p?.id || p)).filter(Boolean))];
   const rows = [];
   const hints = new Map(productListHint.map(p => [String(p.id), p]));
@@ -1017,54 +1022,56 @@ window.skaleeDb = {
   }
   return rows;
  },
-  async resolveRetailLocation(storeOrId) {
-    return resolveRetailLocation(storeOrId);
-  },
-  async loadLegacyStockMovement(params = {}) {
-   const location = await resolveRetailLocation(params.retailLocationId || params.retail_location_id || params.store);
-   if (!location?.id) return null;
-   const rawCode = String(params.productCode || params.code || params.product_code || "").trim();
-   const code = rawCode.replace(/^0+(?=\d)/, "");
-   const catalogId = params.catalogProductId || params.catalog_product_id;
-   if (!code && !catalogId) return null;
-   const query = () => {
-    let q = supabase.from("product_stock_snapshots")
-     .select("catalog_product_id,retail_location_id,snapshot_date,stock_quantity,internal_code")
-     .eq("retail_location_id", location.id);
-    return code ? q.in("internal_code", [...new Set([code, rawCode])]) : q.eq("catalog_product_id", catalogId);
-   };
-   const { data: latest, error } = await query().order("snapshot_date", { ascending: false }).limit(1).maybeSingle();
-   if (error) throw error;
-   if (!latest) return null;
-   const { data: previous, error: previousError } = await query().lt("snapshot_date", latest.snapshot_date)
-    .order("snapshot_date", { ascending: false }).limit(1).maybeSingle();
-   if (previousError) throw previousError;
-   const change = previous && latest.stock_quantity != null && previous.stock_quantity != null
-    ? Number(latest.stock_quantity) - Number(previous.stock_quantity) : null;
-   return { ...latest, stock_source: "legacy", store: location.name,
-    previous_snapshot_date: previous?.snapshot_date || null,
-    previous_stock_quantity: previous?.stock_quantity ?? null,
-    stock_change: change, movement_type: change === null ? "no_previous_snapshot" : change < 0 ? "decrease" : change > 0 ? "increase" : "stable" };
-  },
-  async loadStockMovementForProduct(params = {}) {
-   const location = await resolveRetailLocation(params.retailLocationId || params.retail_location_id || params.store);
-   if (!location?.id) return { status: "no_store", movement_type: "no_store" };
-   const code = String(params.productCode || params.code || params.product_code || "").trim().replace(/^0+(?=\d)/, "");
-   let query = supabase.from("sg_stock_movements").select("*").eq("retail_location_id", location.id);
-   if (code) query = query.eq("internal_code", code);
-   else {
-    let catalogId = params.catalogProductId || params.catalog_product_id;
-    if (!catalogId && params.barcode) catalogId = (await this.findSearchCatalogProduct(params.barcode))?.id;
-    if (!catalogId) return { status: "not_found", stock_quantity: null };
-    query = query.eq("catalog_product_id", catalogId);
-   }
-   const { data, error } = await query.limit(1).maybeSingle();
-   if (error) throw error;
-   const resolved = data || await this.loadLegacyStockMovement({ ...params, retailLocationId: location.id });
-   return { ...(resolved || { status: "not_found", stock_quantity: null }), store: location.name, retail_location_id: location.id };
-  },
+ async resolveRetailLocation(storeOrId) {
+  return resolveRetailLocation(storeOrId);
+ },
+ async loadLegacyStockMovement(params = {}) {
+  if (!SG_STOCK_FEATURE_ENABLED) return null;
+  const location = await resolveRetailLocation(params.retailLocationId || params.retail_location_id || params.store);
+  if (!location?.id) return null;
+  const rawCode = String(params.productCode || params.code || params.product_code || "").trim();
+  const code = rawCode.replace(/^0+(?=\d)/, "");
+  const catalogId = params.catalogProductId || params.catalog_product_id;
+  if (!code && !catalogId) return null;
+  const query = () => {
+   let q = supabase.from("product_stock_snapshots")
+    .select("catalog_product_id,retail_location_id,snapshot_date,stock_quantity,internal_code")
+    .eq("retail_location_id", location.id);
+   return code ? q.in("internal_code", [...new Set([code, rawCode])]) : q.eq("catalog_product_id", catalogId);
+  };
+  const { data: latest, error } = await query().order("snapshot_date", { ascending: false }).limit(1).maybeSingle();
+  if (error) throw error;
+  if (!latest) return null;
+  const { data: previous, error: previousError } = await query().lt("snapshot_date", latest.snapshot_date)
+   .order("snapshot_date", { ascending: false }).limit(1).maybeSingle();
+  if (previousError) throw previousError;
+  const change = previous && latest.stock_quantity != null && previous.stock_quantity != null
+   ? Number(latest.stock_quantity) - Number(previous.stock_quantity) : null;
+  return { ...latest, stock_source: "legacy", store: location.name,
+   previous_snapshot_date: previous?.snapshot_date || null,
+   previous_stock_quantity: previous?.stock_quantity ?? null,
+   stock_change: change, movement_type: change === null ? "no_previous_snapshot" : change < 0 ? "decrease" : change > 0 ? "increase" : "stable" };
+ },
+ async loadStockMovementForProduct(params = {}) {
+  if (!SG_STOCK_FEATURE_ENABLED) return null;
+  const location = await resolveRetailLocation(params.retailLocationId || params.retail_location_id || params.store);
+  if (!location?.id) return { status: "no_store", movement_type: "no_store" };
+  const code = String(params.productCode || params.code || params.product_code || "").trim().replace(/^0+(?=\d)/, "");
+  let query = supabase.from("sg_stock_movements").select("*").eq("retail_location_id", location.id);
+  if (code) query = query.eq("internal_code", code);
+  else {
+   let catalogId = params.catalogProductId || params.catalog_product_id;
+   if (!catalogId && params.barcode) catalogId = (await this.findSearchCatalogProduct(params.barcode))?.id;
+   if (!catalogId) return { status: "not_found", stock_quantity: null };
+   query = query.eq("catalog_product_id", catalogId);
+  }
+  const { data, error } = await query.limit(1).maybeSingle();
+  if (error) throw error;
+  const resolved = data || await this.loadLegacyStockMovement({ ...params, retailLocationId: location.id });
+  return { ...(resolved || { status: "not_found", stock_quantity: null }), store: location.name, retail_location_id: location.id };
+ },
  async loadStockImportBatches(snapshotDate) {
-  if (!snapshotDate) return [];
+  if (!SG_STOCK_FEATURE_ENABLED || !snapshotDate) return [];
   const rows = [];
   for (let offset = 0; ; offset += 500) {
    const { data, error } = await supabase.from("stock_import_batches")
@@ -1077,7 +1084,7 @@ window.skaleeDb = {
   }
  },
  async loadMonitoredStockProducts(retailLocationId, locationName = "") {
-  if (!retailLocationId) return [];
+  if (!SG_STOCK_FEATURE_ENABLED || !retailLocationId) return [];
   const rows = [];
   const normalizedLocationName = String(locationName || "").trim();
   for (let offset = 0; ; offset += 500) {
@@ -1111,6 +1118,9 @@ window.skaleeDb = {
   chunkSize = 200,
   onProgress = () => {}
  } = {}) {
+  if (!SG_STOCK_FEATURE_ENABLED) {
+   throw new Error("A importação de estoque SG está temporariamente desativada.");
+  }
   if (!snapshotDate || !retailLocationId) throw new Error("Selecione a loja e a data da carga.");
   if (!rows.length) throw new Error("Arquivo sem produtos.");
   if (!/^[a-f0-9]{64}$/.test(fileHash || "")) throw new Error("Não foi possível identificar o arquivo com SHA-256.");

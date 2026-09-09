@@ -1,4 +1,4 @@
-const CACHE_NAME = "skalee-pwa-v145-sg-chunked-import";
+const CACHE_NAME = "skalee-pwa-v146-sg-disabled";
 const APP_SHELL = [
  "/",
  "/index.html",
