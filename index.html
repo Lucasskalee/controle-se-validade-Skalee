@@ -6168,49 +6168,106 @@ function definirInfoEstoque(titulo, detalhe = "", options = {}) {
  els.stockImportInfo.innerHTML = `<b>${escapeHtml(titulo)}</b>${detalhe ? `<div>${escapeHtml(detalhe)}</div>` : ""}${progress}`;
 }
 
-els.importStockSnapshot.addEventListener("click", async () => {
- if (els.importStockSnapshot.disabled) return;
- const file = els.stockSnapshotFile.files && els.stockSnapshotFile.files[0] ? els.stockSnapshotFile.files[0] : null;
- const snapshotDate = els.stockSnapshotDate.value;
- const retailLocationId = els.stockImportLocation.value;
- if (!snapshotDate) return alert("Informe a data da carga.");
- if (!retailLocationId) return alert("Selecione a loja da carga.");
- if (!file) return alert("Selecione o arquivo da carga SG.");
- const selectedLocation = allowedLocations.find((location) => location.id === retailLocationId);
- if (!selectedLocation) return alert("Selecione uma loja ativa permitida.");
- const selectedLocationName = selectedLocation.name;
+let isSgImportRunning = false;
+let activeSgImportSession = null;
 
+async function executarImportacaoSg(isRetry = false) {
+ if (isSgImportRunning) return;
+
+ let file = null;
+ let snapshotDate = "";
+ let retailLocationId = "";
+ let selectedLocationName = "";
+ let validRows = [];
+ let totalFileRows = 0;
+ let fileHash = "";
+ let startChunk = 1;
+ let batchId = null;
+
+ if (isRetry && activeSgImportSession) {
+  file = activeSgImportSession.file;
+  snapshotDate = activeSgImportSession.snapshotDate;
+  retailLocationId = activeSgImportSession.retailLocationId;
+  selectedLocationName = activeSgImportSession.selectedLocationName;
+  validRows = activeSgImportSession.validRows;
+  totalFileRows = activeSgImportSession.totalFileRows;
+  fileHash = activeSgImportSession.fileHash;
+  startChunk = (activeSgImportSession.lastSuccessfulChunk || 0) + 1;
+  batchId = activeSgImportSession.batchId || null;
+ } else {
+  file = els.stockSnapshotFile.files && els.stockSnapshotFile.files[0] ? els.stockSnapshotFile.files[0] : null;
+  snapshotDate = els.stockSnapshotDate.value;
+  retailLocationId = els.stockImportLocation.value;
+  if (!snapshotDate) return alert("Informe a data da carga.");
+  if (!retailLocationId) return alert("Selecione a loja da carga.");
+  if (!file) return alert("Selecione o arquivo da carga SG.");
+  const selectedLocation = allowedLocations.find((location) => location.id === retailLocationId);
+  if (!selectedLocation) return alert("Selecione uma loja ativa permitida.");
+  selectedLocationName = selectedLocation.name;
+ }
+
+ isSgImportRunning = true;
  els.importStockSnapshot.disabled = true;
  [els.stockImportLocation, els.stockSnapshotDate, els.stockSnapshotFile, els.importDbf].forEach((field) => { field.disabled = true; });
- definirInfoEstoque(`Lendo carga de ${selectedLocationName}...`, file.name, { progress: 10 });
- try {
-  await new Promise((resolve) => setTimeout(resolve, 40));
-  const buffer = await file.arrayBuffer();
-  const rawRows = carregarSnapshotsArquivoEstoque(file, buffer);
-  const totalFileRows = rawRows.length;
-  definirInfoEstoque("Processando produtos da carga...", `${totalFileRows.toLocaleString("pt-BR")} linha(s) lida(s) do arquivo.`, { progress: 25 });
 
-  // Validation and deduplication are authoritative in the atomic SQL import.
-  const validRows = rawRows;
+ if (!isRetry) {
+  definirInfoEstoque(`Lendo carga de ${selectedLocationName}...`, file.name, { progress: 10 });
+ } else {
+  definirInfoEstoque(`Retomando carga de ${selectedLocationName}...`, `Continuando a partir do lote ${startChunk}...`, { progress: Math.round(((startChunk - 1) / Math.max(1, Math.ceil(validRows.length / 200))) * 100) });
+ }
+
+ try {
+  if (!isRetry || !validRows.length) {
+   await new Promise((resolve) => setTimeout(resolve, 40));
+   const buffer = await file.arrayBuffer();
+   const rawRows = carregarSnapshotsArquivoEstoque(file, buffer);
+   totalFileRows = rawRows.length;
+   validRows = rawRows;
+   fileHash = await hashArquivoSg(buffer);
+
+   activeSgImportSession = {
+    file,
+    snapshotDate,
+    retailLocationId,
+    selectedLocationName,
+    validRows,
+    totalFileRows,
+    fileHash,
+    lastSuccessfulChunk: 0,
+    processedSoFar: 0,
+    batchId: null
+   };
+  }
+
+  const effectiveChunkSize = 200;
+  const totalChunks = Math.ceil(validRows.length / effectiveChunkSize);
 
   definirInfoEstoque(
-   "Enviando carga para o Supabase...",
-   `${validRows.length.toLocaleString("pt-BR")} produtos válidos preparados a partir de ${totalFileRows.toLocaleString("pt-BR")} linhas do arquivo.`,
-   { progress: 40 }
+   isRetry ? `Retomando envio (Lote ${startChunk}/${totalChunks})...` : "Iniciando sincronização em lotes de 200...",
+   `${validRows.length.toLocaleString("pt-BR")} produtos preparados (${totalChunks} lotes).`,
+   { progress: Math.round(((startChunk - 1) / totalChunks) * 100) }
   );
 
   const result = await window.skaleeDb.importProductStockSnapshots({
    snapshotDate,
    retailLocationId,
    kind: "daily",
-   fileHash: await hashArquivoSg(buffer),
+   fileHash,
    originalFilename: file.name,
    totalFileRows,
    rows: validRows,
-   onProgress: ({ chunkIndex, totalChunks, processed, total }) => {
+   startChunk,
+   batchId,
+   chunkSize: effectiveChunkSize,
+   onProgress: ({ chunkIndex, totalChunks, processed, total, batchId: currentBatch }) => {
+    if (activeSgImportSession) {
+     activeSgImportSession.lastSuccessfulChunk = chunkIndex;
+     activeSgImportSession.processedSoFar = processed;
+     if (currentBatch) activeSgImportSession.batchId = currentBatch;
+    }
     const pct = Math.round((processed / total) * 100);
     definirInfoEstoque(
-     `Enviando carga SG (${chunkIndex}/${totalChunks})...`,
+     `Enviando carga SG (Lote ${chunkIndex}/${totalChunks})...`,
      `${processed.toLocaleString("pt-BR")} de ${total.toLocaleString("pt-BR")} produtos sincronizados com o catálogo e estoque.`,
      { progress: pct }
     );
@@ -6224,21 +6281,58 @@ els.importStockSnapshot.addEventListener("click", async () => {
    summary,
    { progress: 100 }
   );
+
+  activeSgImportSession = null;
   els.stockSnapshotFile.value = "";
   sg.clear();
   catalogLoadPromise = null;
   void iniciarCatalogo();
   await carregarMovimentacaoEstoqueDosProdutos(products, { force: true });
  } catch (error) {
-  console.error("Falha ao importar snapshot de estoque.", error);
-  definirInfoEstoque("Não foi possível importar a carga SG", error.message || "Erro desconhecido.");
-  alert(error.message || "Não foi possível importar a carga SG.");
+  console.error("Falha ao importar snapshot de estoque:", error);
+  const errInfo = error.importErrorInfo || null;
+  const chunkFailed = errInfo?.chunkIndex || (activeSgImportSession?.lastSuccessfulChunk ? activeSgImportSession.lastSuccessfulChunk + 1 : 1);
+  const totalChunks = errInfo?.totalChunks || (activeSgImportSession?.validRows?.length ? Math.ceil(activeSgImportSession.validRows.length / 200) : 1);
+  const processedCount = errInfo?.processed ?? (activeSgImportSession?.processedSoFar || 0);
+  const totalRows = errInfo?.total ?? (activeSgImportSession?.validRows?.length || 0);
+  const rangeStart = errInfo?.rangeStart || ((chunkFailed - 1) * 200 + 1);
+  const rangeEnd = errInfo?.rangeEnd || Math.min(chunkFailed * 200, totalRows);
+
+  const errorDetailHtml = `
+   <div style="margin-top:6px;font-size:12px;color:#f43f5e;line-height:1.4">
+    <b>Lote ${chunkFailed} de ${totalChunks}</b> (produtos ${rangeStart.toLocaleString("pt-BR")} a ${rangeEnd.toLocaleString("pt-BR")}).<br>
+    <b>${processedCount.toLocaleString("pt-BR")} de ${totalRows.toLocaleString("pt-BR")} produtos</b> já sincronizados com sucesso.<br>
+    <span style="opacity:0.85">Erro técnico: ${escapeHtml(error.message || "Falha de conexão / timeout")}</span>
+   </div>
+   <button id="btnRetrySgImport" class="btn" style="margin-top:10px;padding:8px 14px;font-size:13px;background:#2563eb;color:#fff;border-radius:8px;cursor:pointer" type="button">
+    🔄 Tentar novamente a partir do lote ${chunkFailed}
+   </button>
+  `;
+
+  if (els.stockImportInfo) {
+   const pct = totalRows > 0 ? Math.round((processedCount / totalRows) * 100) : 0;
+   els.stockImportInfo.innerHTML = `<b>Falha na sincronização da carga SG</b>${errorDetailHtml}<div class="catalog-progress"><span style="width:${pct}%;background:#f43f5e"></span></div>`;
+  }
  } finally {
+  isSgImportRunning = false;
   els.importStockSnapshot.disabled = false;
   [els.stockImportLocation, els.stockSnapshotDate, els.stockSnapshotFile, els.importDbf].forEach((field) => { field.disabled = false; });
   void carregarSituacaoCargasEstoque();
  }
-});
+}
+
+els.importStockSnapshot.addEventListener("click", () => executarImportacaoSg(false));
+
+if (typeof els.stockImportInfo?.addEventListener === "function") {
+ els.stockImportInfo.addEventListener("click", (event) => {
+  const retryBtn = event.target.closest("#btnRetrySgImport");
+  if (retryBtn) {
+   retryBtn.disabled = true;
+   retryBtn.textContent = "Retomando...";
+   void executarImportacaoSg(true);
+  }
+ });
+}
 
 function resetScannerConfirmation() {
  scannerConfirmCode = "";

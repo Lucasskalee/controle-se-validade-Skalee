@@ -1099,21 +1099,143 @@ window.skaleeDb = {
   }
   return rows;
  },
- async importProductStockSnapshots({ snapshotDate, retailLocationId, kind = "daily", originalFilename = "", fileHash, rows = [], onProgress = () => {} } = {}) {
+ async importProductStockSnapshots({
+  snapshotDate,
+  retailLocationId,
+  kind = "daily",
+  originalFilename = "",
+  fileHash,
+  rows = [],
+  startChunk = 1,
+  batchId = null,
+  chunkSize = 200,
+  onProgress = () => {}
+ } = {}) {
   if (!snapshotDate || !retailLocationId) throw new Error("Selecione a loja e a data da carga.");
   if (!rows.length) throw new Error("Arquivo sem produtos.");
   if (!/^[a-f0-9]{64}$/.test(fileHash || "")) throw new Error("Não foi possível identificar o arquivo com SHA-256.");
-  onProgress({ chunkIndex: 1, totalChunks: 1, processed: 0, total: rows.length });
-  const { data, error } = await supabase.rpc("import_sg_stock_v1", {
-   p_snapshot_date: snapshotDate, p_retail_location_id: retailLocationId, p_kind: kind,
-   p_original_filename: originalFilename, p_file_hash: fileHash, p_rows: rows
+
+  const effectiveChunkSize = Math.max(10, Math.min(500, Number(chunkSize) || 200));
+  const totalChunks = Math.ceil(rows.length / effectiveChunkSize);
+  let currentBatchId = batchId || null;
+  let finalResult = null;
+  let processedSoFar = Math.max(0, (startChunk - 1) * effectiveChunkSize);
+
+  onProgress({
+   chunkIndex: startChunk,
+   totalChunks,
+   processed: processedSoFar,
+   total: rows.length,
+   statusText: `Iniciando envio do lote ${startChunk} de ${totalChunks}...`
   });
-  if (error) throw error;
-  if (!data || !["completed", "completed_with_errors"].includes(data.status)) throw new Error(data?.error_message || "Carga não concluída.");
+
+  for (let i = startChunk - 1; i < totalChunks; i++) {
+   const chunkIndex = i + 1;
+   const chunkStart = i * effectiveChunkSize;
+   const chunkEnd = Math.min(chunkStart + effectiveChunkSize, rows.length);
+   const chunkRows = rows.slice(chunkStart, chunkEnd);
+
+   let lastError = null;
+   let chunkSuccess = false;
+   let chunkData = null;
+
+   // Retry loop: up to 3 attempts with progressive backoff
+   for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+     let res = await supabase.rpc("import_sg_stock_chunk_v1", {
+      p_snapshot_date: snapshotDate,
+      p_retail_location_id: retailLocationId,
+      p_kind: kind,
+      p_original_filename: originalFilename,
+      p_file_hash: fileHash,
+      p_total_file_rows: rows.length,
+      p_chunk_index: chunkIndex,
+      p_total_chunks: totalChunks,
+      p_batch_id: currentBatchId,
+      p_rows: chunkRows
+     });
+
+     // Legacy or single-chunk fallback
+     if (res.error && (res.error.code === "PGRST202" || String(res.error.message || "").includes("import_sg_stock_chunk_v1"))) {
+      if (totalChunks === 1) {
+       res = await supabase.rpc("import_sg_stock_v1", {
+        p_snapshot_date: snapshotDate,
+        p_retail_location_id: retailLocationId,
+        p_kind: kind,
+        p_original_filename: originalFilename,
+        p_file_hash: fileHash,
+        p_rows: chunkRows
+       });
+      } else {
+       throw new Error("A função import_sg_stock_chunk_v1 precisa ser aplicada no SQL Editor do Supabase para suportar lotes de 200 produtos.");
+      }
+     }
+
+     if (res.error) {
+      throw res.error;
+     }
+
+     chunkData = res.data;
+     if (chunkData?.batch_id) {
+      currentBatchId = chunkData.batch_id;
+     }
+
+     chunkSuccess = true;
+     break;
+    } catch (err) {
+     lastError = err;
+     console.warn(`[SG IMPORT] Tentativa ${attempt}/3 falhou no lote ${chunkIndex}/${totalChunks} (produtos ${chunkStart + 1} a ${chunkEnd}):`, err);
+     if (attempt < 3) {
+      const waitMs = attempt * 800;
+      await new Promise((resolve) => setTimeout(resolve, waitMs));
+     }
+    }
+   }
+
+   if (!chunkSuccess) {
+    const errorInfo = {
+     endpoint: "rpc/import_sg_stock_chunk_v1",
+     status: lastError?.status || lastError?.statusCode || "Network / Fetch Error",
+     body: lastError?.details || lastError?.hint || lastError?.message || String(lastError),
+     chunkIndex,
+     totalChunks,
+     rangeStart: chunkStart + 1,
+     rangeEnd: chunkEnd,
+     processed: processedSoFar,
+     total: rows.length,
+     batchId: currentBatchId,
+     originalError: lastError
+    };
+
+    console.error("[SG IMPORT CHUNK ERROR COMPLETO]", errorInfo);
+
+    const customErr = new Error(`Falha no lote ${chunkIndex} de ${totalChunks} (produtos ${(chunkStart + 1).toLocaleString("pt-BR")} a ${chunkEnd.toLocaleString("pt-BR")}). ${(processedSoFar).toLocaleString("pt-BR")} de ${rows.length.toLocaleString("pt-BR")} produtos já sincronizados.\nErro técnico: ${lastError?.message || "TypeError: Failed to fetch"}`);
+    customErr.importErrorInfo = errorInfo;
+    throw customErr;
+   }
+
+   processedSoFar = chunkEnd;
+   finalResult = chunkData;
+
+   onProgress({
+    chunkIndex,
+    totalChunks,
+    processed: processedSoFar,
+    total: rows.length,
+    batchId: currentBatchId,
+    statusText: `${processedSoFar.toLocaleString("pt-BR")} de ${rows.length.toLocaleString("pt-BR")} produtos sincronizados com o catálogo e estoque.`
+   });
+  }
+
   stockMovementCache.clear();
   stockMovementByCodeStoreCache.clear();
-  onProgress({ chunkIndex: 1, totalChunks: 1, processed: rows.length, total: rows.length });
-  return data;
+
+  if (!finalResult || !["completed", "completed_with_errors", "processing"].includes(finalResult.status)) {
+   if (finalResult?.duplicate) return finalResult;
+   throw new Error(finalResult?.error_message || "Carga não concluída.");
+  }
+
+  return finalResult;
  },
  async loadProductDashboardStats(options = {}) {
   const access = await this.currentPromoterAccess();

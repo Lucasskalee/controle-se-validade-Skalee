@@ -5,6 +5,7 @@ const crypto = require('node:crypto');
 const vm = require('node:vm');
 const { PGlite } = require(path.resolve(__dirname, '../.tmp/sg-test/node_modules/@electric-sql/pglite'));
 const migration = fs.readFileSync(path.resolve(__dirname, '../supabase/migrations/20260908130000_sg_catalog_base_and_stock_upsert.sql'), 'utf8');
+const chunkMigration = fs.readFileSync(path.resolve(__dirname, '../supabase/migrations/20260909100000_sg_chunked_stock_import.sql'), 'utf8');
 const owner='1d229a0e-7c6d-4b03-9505-95c50bb49cad';
 const loc=n=>`00000000-0000-4000-8000-${String(n).padStart(12,'0')}`;
 const hash=s=>crypto.createHash('sha256').update(s).digest('hex');
@@ -46,6 +47,7 @@ const pass=s=>{checks++;console.log(`PASS ${checks}: ${s}`);};
  grant select,insert,update on all tables in schema public to authenticated;
  `);
  await db.exec(migration);
+ await db.exec(chunkMigration);
  const validityBefore=await db.query('select * from public.validity_products');
  const oldBefore=await db.query('select * from public.product_stock_snapshots');
  await db.exec(`set role authenticated; set test.uid='${loc(999)}'; set test.admin='true'; set test.product_access='true';`);
@@ -117,12 +119,33 @@ const pass=s=>{checks++;console.log(`PASS ${checks}: ${s}`);};
  await db.exec(`set role authenticated; set test.admin='true'; set test.product_access='true';`);
  pass('RLS por loja/produto e importação apenas para admin autenticado');
  // Exercise the real JS client; it must never fall back to the old RPC.
- const a=fs.readFileSync(path.resolve(__dirname,'../auth.js'),'utf8');
- const calls=[];const clientContext=vm.createContext({supabase:{rpc:async(name,args)=>{calls.push(name);if(name==='import_sg_stock_v1')return {data:await load(args.p_snapshot_date,args.p_rows,args.p_kind,3,'client-file')};throw Error(name);}},stockMovementCache:new Map(),stockMovementByCodeStoreCache:new Map()});
- vm.runInContext('globalThis.api={'+a.slice(a.indexOf(' async importProductStockSnapshots({'),a.indexOf(' async loadProductDashboardStats('))+'};',clientContext);
- const clientResult=await clientContext.api.importProductStockSnapshots({snapshotDate:'2026-09-14',retailLocationId:loc(3),fileHash:hash('client-file'),rows:[row(12345,5)]});
- assert.equal(clientResult.stocks_changed,1);assert.deepEqual(calls,['import_sg_stock_v1']);
- pass('auth.js chama exclusivamente a RPC oficial e preserva contadores');
+  const a=fs.readFileSync(path.resolve(__dirname,'../auth.js'),'utf8');
+  const calls=[];
+  const clientContext=vm.createContext({
+    setTimeout,
+    console,
+    supabase:{
+      rpc:async(name,args)=>{
+        calls.push(name);
+        if(name==='import_sg_stock_chunk_v1') {
+          const res = (await db.query('select public.import_sg_stock_chunk_v1($1,$2,$3,$4,$5,$6,$7,$8,$9,$10::jsonb) result', [
+            args.p_snapshot_date, args.p_retail_location_id, args.p_kind, args.p_original_filename,
+            args.p_file_hash, args.p_total_file_rows, args.p_chunk_index, args.p_total_chunks,
+            args.p_batch_id, JSON.stringify(args.p_rows)
+          ])).rows[0].result;
+          return { data: res };
+        }
+        if(name==='import_sg_stock_v1') return {data:await load(args.p_snapshot_date,args.p_rows,args.p_kind,3,'client-file')};
+        throw Error(name);
+      }
+    },
+    stockMovementCache:new Map(),
+    stockMovementByCodeStoreCache:new Map()
+  });
+  vm.runInContext('globalThis.api={'+a.slice(a.indexOf(' async importProductStockSnapshots({'),a.indexOf(' async loadProductDashboardStats('))+'};',clientContext);
+  const clientResult=await clientContext.api.importProductStockSnapshots({snapshotDate:'2026-09-14',retailLocationId:loc(3),fileHash:hash('client-file'),rows:[row(12345,5)]});
+  assert.equal(clientResult.stocks_changed,1);assert.deepEqual(calls,['import_sg_stock_chunk_v1']);
+  pass('auth.js chama a RPC de chunk e preserva contadores');
  const aliases=await load('2026-09-15',[{...row(555,8),barcode:'7890000000555'},{...row(555,8),barcode:'7890000000556'},row(666,10),row(666,2)]);
  assert.equal(aliases.invalid_rows,2);assert.equal(aliases.valid_rows,1);
  assert.equal(await state('666'),undefined);
