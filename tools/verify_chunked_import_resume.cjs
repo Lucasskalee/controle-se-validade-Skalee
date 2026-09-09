@@ -147,6 +147,31 @@ const hash = s => crypto.createHash('sha256').update(s).digest('hex');
   assert.equal(progressUpdates[progressUpdates.length - 1].processed, 36907, 'Último progresso deve reportar 36.907');
 
   console.log('PASS 3: Retomada a partir do lote 15 finalizou com sucesso todos os 185 lotes e 36.907 produtos.');
-  console.log('TODOS OS TESTES DE CHUNKING E RETOMADA PASSARAM COM SUCESSO!');
+
+  // 3. Test chunk idempotency on dropped response:
+  // Product 1000 had stock 5 from 2026-09-09 daily import, now updated in next daily (2026-09-10) to 50
+  const idempotencyRows = [{ internal_code: '1000', stock_quantity: 50, name: 'Produto 1000' }];
+  // Chunk 1 executed first time
+  const call1 = (await db.query('select public.import_sg_stock_chunk_v1($1,$2,$3,$4,$5,$6,$7,$8,$9,$10::jsonb) result', [
+    '2026-09-10', loc(1), 'daily', 'consulta02.dbf', hash('idempotency-test'), 1, 1, 1, null, JSON.stringify(idempotencyRows)
+  ])).rows[0].result;
+  assert.equal(call1.status, 'completed');
+
+  const stockAfterCall1 = (await db.query("select stock_quantity, previous_stock_quantity, previous_snapshot_date from public.sg_stock_current where retail_location_id=$1 and internal_code='1000'", [loc(1)])).rows[0];
+  assert.equal(stockAfterCall1.stock_quantity, '50');
+  assert.equal(stockAfterCall1.previous_stock_quantity, '5'); // Stock from 2026-09-09 preserved as previous
+
+  // Simulate network dropped the HTTP response, client retries Chunk 1
+  const call2 = (await db.query('select public.import_sg_stock_chunk_v1($1,$2,$3,$4,$5,$6,$7,$8,$9,$10::jsonb) result', [
+    '2026-09-10', loc(1), 'daily', 'consulta02.dbf', hash('idempotency-test'), 1, 1, 1, call1.batch_id, JSON.stringify(idempotencyRows)
+  ])).rows[0].result;
+  assert.equal(call2.duplicate, true, 'Retry do arquivo/lote finalizado deve retornar duplicate: true');
+
+  const stockAfterRetry = (await db.query("select stock_quantity, previous_stock_quantity, previous_snapshot_date from public.sg_stock_current where retail_location_id=$1 and internal_code='1000'", [loc(1)])).rows[0];
+  assert.equal(stockAfterRetry.stock_quantity, '50');
+  assert.equal(stockAfterRetry.previous_stock_quantity, '5', 'previous_stock_quantity NÃO pode ser sobrescrito para 50 no retry');
+  console.log('PASS 4: Idempotência de chunk verificada: retry não sobrescreve previous_stock_quantity e preserva estoque anterior.');
+
+  console.log('TODOS OS TESTES DE CHUNKING, RETOMADA E IDEMPOTÊNCIA PASSARAM COM SUCESSO!');
 })();
 

@@ -1,5 +1,9 @@
--- Migration: Carga Diária SG em Lotes Seguros (Chunked Import)
+-- Migration: Carga Diária SG em Lotes Seguros (Chunked Import) com Idempotência
 -- Suporta o envio em lotes de 200 produtos por requisição para evitar limites de payload HTTP e timeouts
+-- Garante que retries de lotes já processados não sobrescrevam previous_stock_quantity nem dupliquem erros
+
+alter table public.stock_import_batches
+  add column if not exists processed_chunks integer[] not null default '{}';
 
 create or replace function public.import_sg_stock_chunk_v1(
   p_snapshot_date date,
@@ -31,6 +35,8 @@ declare
   n_duplicates integer := 0;
   total_valid_so_far integer := 0;
   total_errors_so_far integer := 0;
+  is_chunk_already_processed boolean := false;
+  batch_processed_chunks integer[] := '{}';
 begin
   if (select auth.uid()) is null or not coalesce((select private.is_platform_admin()),false) then
     raise exception 'Apenas administradores autenticados podem importar SG.';
@@ -51,10 +57,10 @@ begin
     raise exception 'Linhas inválidas.';
   end if;
 
-  -- Serialize simultaneous imports from different sessions
+  -- Serializar importações simultâneas de diferentes sessões
   perform pg_advisory_xact_lock(7260198401::bigint);
 
-  -- Check duplicate completed file
+  -- Verificar se o arquivo já foi concluído anteriormente
   select result_summary into prior_result from public.stock_import_batches
     where retail_location_id=p_retail_location_id and file_hash=p_file_hash and sg_import_kind is not null and status in ('completed','completed_with_errors');
   if found then
@@ -77,15 +83,15 @@ begin
       raise exception 'A carga deve ter data posterior à última carga oficial (%).',latest_date;
     end if;
 
-    -- Check if an in-progress batch exists for this file_hash and location
+    -- Verificar se já existe um lote em processamento para este arquivo e loja
     select id into batch from public.stock_import_batches
       where retail_location_id=p_retail_location_id and file_hash=p_file_hash and sg_import_kind=p_kind and status='processing';
 
     if batch is null then
       insert into public.stock_import_batches(snapshot_date,retail_location_id,source_name,original_filename,
-        imported_by,total_rows,status,sg_import_kind,file_hash)
+        imported_by,total_rows,status,sg_import_kind,file_hash,processed_chunks)
       values(p_snapshot_date,p_retail_location_id,'sg_v1',p_original_filename,(select auth.uid()),
-        coalesce(p_total_file_rows, jsonb_array_length(p_rows)),'processing',p_kind,p_file_hash)
+        coalesce(p_total_file_rows, jsonb_array_length(p_rows)),'processing',p_kind,p_file_hash,array[]::integer[])
       returning id into batch;
     end if;
   else
@@ -94,7 +100,14 @@ begin
 
   base_batch := coalesce(base_batch, batch);
 
-  if jsonb_array_length(p_rows) > 0 then
+  -- Verificar se este chunk específico já foi processado anteriormente (idempotência contra retries de rede)
+  select coalesce(processed_chunks, '{}') into batch_processed_chunks
+  from public.stock_import_batches
+  where id = batch;
+
+  is_chunk_already_processed := (p_chunk_index = any(batch_processed_chunks));
+
+  if not is_chunk_already_processed and jsonb_array_length(p_rows) > 0 then
     drop table if exists pg_temp.sg_chunk_stage;
     drop table if exists pg_temp.sg_chunk_valid;
     drop table if exists pg_temp.sg_chunk_conflicts;
@@ -161,7 +174,7 @@ begin
           where s.catalog_product_id is null and c.catalog_source='sg_v1' and c.source_key=s.internal_code;
       end if;
 
-      -- Retain alternate barcodes if sg_barcodes column exists
+      -- Preservar códigos de barras alternativos se a coluna existir
       begin
         update public.catalog_products c set sg_barcodes=(select array_agg(distinct b order by b)
           from unnest(c.sg_barcodes || aliases.barcodes) b)
@@ -170,11 +183,10 @@ begin
           group by v.catalog_product_id) aliases
         where c.id=aliases.catalog_product_id and aliases.barcodes is not null and not c.sg_barcodes @> aliases.barcodes;
       exception when undefined_column then
-        -- Column sg_barcodes does not exist yet; safely ignore
         null;
       end;
 
-      -- Update catalog metadata if needed
+      -- Atualizar metadados do catálogo se aplicável
       update public.catalog_products c set
         name=case when c.name like 'Produto %' then coalesce(s.name,c.name) else c.name end,
         supplier_code=coalesce(nullif(c.supplier_code,''),s.supplier_code),
@@ -196,14 +208,30 @@ begin
         case when stock_quantity is not null then p_snapshot_date end,base_batch,batch,now(),
         case when stock_quantity is not null then now() end from pg_temp.sg_chunk_valid
       on conflict(retail_location_id,internal_code) do update set
-        previous_stock_quantity=public.sg_stock_current.stock_quantity,
-        previous_snapshot_date=public.sg_stock_current.snapshot_date,
-        stock_quantity=excluded.stock_quantity,snapshot_date=excluded.snapshot_date,
-        import_batch_id=excluded.import_batch_id,last_seen_at=excluded.last_seen_at,stock_loaded_at=excluded.stock_loaded_at;
+        previous_stock_quantity = case
+          when public.sg_stock_current.import_batch_id = excluded.import_batch_id
+          then public.sg_stock_current.previous_stock_quantity
+          else public.sg_stock_current.stock_quantity
+        end,
+        previous_snapshot_date = case
+          when public.sg_stock_current.import_batch_id = excluded.import_batch_id
+          then public.sg_stock_current.previous_snapshot_date
+          else public.sg_stock_current.snapshot_date
+        end,
+        stock_quantity=excluded.stock_quantity,
+        snapshot_date=excluded.snapshot_date,
+        import_batch_id=excluded.import_batch_id,
+        last_seen_at=excluded.last_seen_at,
+        stock_loaded_at=excluded.stock_loaded_at;
     end if;
+
+    -- Registrar que este lote foi processado com sucesso pelo banco
+    update public.stock_import_batches
+    set processed_chunks = array_append(coalesce(processed_chunks, '{}'), p_chunk_index)
+    where id = batch and not (p_chunk_index = any(coalesce(processed_chunks, '{}')));
   end if;
 
-  -- If this is the final chunk, finalize the batch
+  -- Se for o último lote (chunk), finaliza e calcula o resumo completo
   if p_chunk_index >= p_total_chunks then
     select count(*) into total_errors_so_far from public.stock_import_batch_errors where import_batch_id=batch;
     select count(*) into total_valid_so_far from public.sg_stock_current where import_batch_id=batch;
@@ -242,6 +270,7 @@ begin
       'status', 'processing',
       'chunk_index', p_chunk_index,
       'total_chunks', p_total_chunks,
+      'already_processed', is_chunk_already_processed,
       'chunk_valid_rows', n_valid,
       'chunk_invalid_rows', n_invalid,
       'chunk_new', n_new,
