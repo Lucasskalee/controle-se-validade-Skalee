@@ -534,6 +534,38 @@ html[data-theme="dark"] .stock-warning-alert{background:rgba(180,83,9,.2);border
 .stock-warning-alert svg{flex-shrink:0;width:18px;height:18px;color:#d97706;margin-top:1px}
 html[data-theme="dark"] .stock-warning-alert svg{color:#fbbf24}
 .preview{height:145px;margin-top:8px;border:1px dashed #cbd3df;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--muted);overflow:hidden}.preview img{width:100%;height:100%;object-fit:cover}
+.product-image-section{margin-top:14px}
+.product-image-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.image-mode-tabs{display:inline-flex;gap:4px;padding:3px;border-radius:10px;background:#f1f5f9;border:1px solid var(--line)}
+html[data-theme="dark"] .image-mode-tabs{background:#0d1727;border-color:#24344d}
+.img-tab{border:0;border-radius:7px;background:transparent;color:var(--muted);padding:5px 10px;font-size:12px;font-weight:750;cursor:pointer;transition:background .15s ease,color .15s ease}
+.img-tab.active{background:var(--blue);color:#fff}
+.known-image-card{padding:12px 14px;border-radius:12px;background:#eff6ff;border:1px solid #bfdbfe;margin-top:8px;margin-bottom:8px}
+html[data-theme="dark"] .known-image-card{background:rgba(30,64,175,.15);border-color:rgba(96,165,250,.35)}
+.known-image-badge{font-size:11px;font-weight:850;color:#1d4ed8;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+html[data-theme="dark"] .known-image-badge{color:#93c5fd}
+.known-image-content{display:flex;gap:12px;align-items:center}
+.known-image-thumb{width:64px;height:64px;border-radius:8px;border:1px solid rgba(0,0,0,.08);background:#e2e8f0;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.known-image-thumb img{width:100%;height:100%;object-fit:cover}
+.known-image-details{display:flex;flex-direction:column;gap:6px;flex:1;min-width:0}
+.known-image-title{font-size:12.5px;font-weight:700;color:var(--text)}
+.known-image-actions{display:flex;gap:6px;flex-wrap:wrap}
+.btn-sm{padding:6px 11px;font-size:12px;border-radius:8px}
+.btn-block{width:100%;margin-top:8px;justify-content:center;text-align:center}
+.link-input-row{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:6px}
+.link-status{margin-top:6px;font-size:12px;font-weight:700;color:var(--muted)}
+.link-status.error{color:var(--red)}
+.link-status.success{color:var(--green)}
+.link-preview-box{height:140px;margin-top:8px}
+.update-image-section{margin:10px 0 14px;padding:12px;border-radius:12px;background:#f8fafc;border:1px solid var(--line)}
+html[data-theme="dark"] .update-image-section{background:#0d1727;border-color:#24344d}
+.update-image-row{display:flex;gap:12px;align-items:center}
+.update-image-thumb{width:68px;height:68px;border-radius:10px;border:1px solid var(--line);background:#e2e8f0;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:var(--muted);font-weight:700}
+.update-image-thumb img{width:100%;height:100%;object-fit:cover}
+.update-image-controls{display:flex;flex-direction:column;gap:6px;flex:1;min-width:0}
+.update-image-actions{display:flex;gap:6px;flex-wrap:wrap}
+.update-image-status{font-size:11.5px;font-weight:700;color:var(--muted)}
+.update-url-panel{margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
 .check{display:flex;gap:9px;align-items:center;margin-top:16px;font-size:14px;font-weight:700}.check input{width:auto}
 .actions{display:flex;gap:8px;margin-top:19px}
 .resultline{font-size:13px;color:var(--muted);margin-bottom:12px}
@@ -645,6 +677,7 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
 @media(max-width:900px){.admin-topbar{align-items:flex-start;flex-direction:column}.admin-actions{width:100%;justify-content:space-between}.admin-layout{grid-template-columns:1fr}.admin-sidebar{position:sticky;top:0;z-index:5;flex-direction:row;overflow:auto;border-right:0;border-bottom:1px solid var(--admin-border)}.admin-sidebar .settings-tab.admin-nav-item{flex:1 0 48px;justify-content:center;gap:0;min-height:48px;padding:12px 10px;border-radius:8px}.admin-nav-item span{max-width:0;opacity:0;overflow:hidden;white-space:nowrap;transition:max-width .2s ease,opacity .18s ease}.admin-sidebar .settings-tab.admin-nav-item.active,.admin-sidebar .settings-tab.admin-nav-item[aria-current="page"]{flex:2.8 0 132px;gap:8px}.admin-nav-item.active span,.admin-nav-item[aria-current="page"] span{max-width:118px;opacity:1;text-overflow:ellipsis}.admin-content{padding:18px 14px 26px}.admin-metrics,.management-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.management-toolbar,.management-panels{grid-template-columns:1fr}.admin-metric{min-height:82px;padding:13px}.admin-metric-icon{width:42px;height:42px}.admin-metric b,.management-card b{font-size:24px}}
 @media(max-width:620px){.app{padding:14px}.searchrow,.searchrow.with-layout,.stock-import-grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}header{align-items:flex-start;flex-direction:column;gap:5px}.photo{height:180px}.report-head{align-items:stretch;flex-direction:column}.report-controls{align-items:stretch;flex-direction:column}.product-layout-picker{justify-self:start}.theme-options,.user-create,.user-location-checks{grid-template-columns:1fr}.user-row,.user-locations-head,.user-actions,.user-location-actions{align-items:stretch;flex-direction:column}.user-row .btn2,.user-locations-head .btn2{width:100%}.install-banner{align-items:flex-start;flex-wrap:wrap}.install-copy{flex:1 1 calc(100% - 65px)}.install-actions{width:100%;justify-content:flex-end}.grid[data-columns="2"] .product-card-slot{min-height:350px}.grid[data-columns="3"] .product-card-slot{min-height:255px}.grid[data-columns="4"] .product-card-slot{min-height:200px}.grid[data-columns="2"] .photo{height:120px}.grid[data-columns="3"] .photo{height:90px}.grid[data-columns="4"] .photo{height:70px}.grid[data-columns="3"] .content,.grid[data-columns="4"] .content{padding:7px}.grid[data-columns="3"] .name,.grid[data-columns="4"] .name{min-height:0;font-size:10px}.grid[data-columns="3"] :is(.code,.card-codes),.grid[data-columns="4"] :is(.code,.card-codes){font-size:8px;min-height:0}.grid[data-columns="3"] :is(.code-supplier,.code-store),.grid[data-columns="4"] :is(.code-supplier,.code-store){font-size:7.5px}.grid[data-columns="3"] .info,.grid[data-columns="4"] .info{display:block;font-size:8px}.grid[data-columns="3"] .badge,.grid[data-columns="4"] .badge{font-size:7px;padding:4px}.grid[data-columns="3"] .card-actions .btn2,.grid[data-columns="4"] .card-actions .btn2{width:100%;padding:6px 3px;font-size:8px}}
 </style>
+<link rel="stylesheet" href="theme-layout.css">
 </head>
 <body class="auth-loading">
 <section id="authScreen" class="auth-screen" aria-labelledby="authTitle">
@@ -803,7 +836,7 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
   <div class="sub">Localize pelo código de barras e registre somente as informações da validade.</div>
 
   <label class="label">Código de barras</label>
-  <div class="scan"><input id="barcode" inputmode="numeric" placeholder="Escaneie ou digite"><button id="find" class="btn2">Buscar</button><button id="scanCamera" class="btn2">Ler câmera</button></div>
+  <div class="scan"><input id="barcode" placeholder="Código, barras ou nome do produto"><button id="find" class="btn2">Buscar</button><button id="scanCamera" class="btn2">Ler câmera</button></div>
   <input id="barcodePhoto" type="file" accept="image/*" capture="environment" class="hidden">
   <div id="catalogStatus" class="catalog-status" hidden>Carregando produtos do Supabase...</div>
   <div id="found" class="found"></div>
@@ -823,9 +856,46 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
   <label class="label">Data de vencimento</label>
   <input id="expiry" type="date">
 
-  <label class="label">Foto do produto</label>
-  <input id="photo" type="file" accept="image/jpeg,image/png,image/webp" capture="environment">
-  <div id="preview" class="preview">Sem foto</div>
+  <div class="product-image-section" id="productImageSection">
+   <div class="product-image-header">
+    <label class="label" style="margin:0;">Imagem do produto</label>
+    <div class="image-mode-tabs" id="imageModeTabs">
+     <button type="button" class="img-tab active" data-mode="camera" id="tabPhoto">📷 Foto</button>
+     <button type="button" class="img-tab" data-mode="link" id="tabLink">🔗 Link</button>
+    </div>
+   </div>
+
+   <div id="knownImageCard" class="known-image-card" hidden>
+    <div class="known-image-badge">✨ Imagem já disponível</div>
+    <div class="known-image-content">
+     <div class="known-image-thumb" id="knownImageThumb"></div>
+     <div class="known-image-details">
+      <div class="known-image-title">Imagem já cadastrada para este produto.</div>
+      <div class="known-image-actions">
+       <button id="btnUseKnownImage" class="btn btn-sm" type="button">✓ Usar esta imagem</button>
+       <button id="btnChangeImage" class="btn2 btn-sm" type="button">Trocar imagem</button>
+      </div>
+     </div>
+    </div>
+   </div>
+
+   <div id="photoUploadPanel" class="image-panel">
+    <input id="photo" type="file" accept="image/jpeg,image/png,image/webp" capture="environment">
+    <div id="preview" class="preview">Sem foto</div>
+   </div>
+
+   <div id="linkImportPanel" class="image-panel" hidden>
+    <div class="link-input-row">
+     <input id="imageUrlInput" type="url" placeholder="https://exemplo.com/foto-produto.jpg" autocomplete="off">
+     <button id="btnPreviewUrl" class="btn2" type="button">Visualizar</button>
+    </div>
+    <div id="linkPreviewStatus" class="link-status" hidden></div>
+    <div id="linkPreviewContainer" class="preview link-preview-box" hidden>
+     <img id="linkPreviewImg" src="" alt="Pré-visualização">
+    </div>
+    <button id="btnConfirmUrlPhoto" class="btn btn-block" type="button" hidden>✓ Usar esta imagem</button>
+   </div>
+  </div>
 
   <label class="check"><input id="offer" type="checkbox"> Produto está em oferta</label>
 
@@ -901,7 +971,11 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
    <p class="settings-note">Os produtos disponíveis na busca são carregados do Supabase. Use importação apenas para alimentar a base compartilhada.</p>
    <div class="import-box">
     <strong>Importar base própria para o Supabase</strong>
-    <div class="sub">Arquivo DBF, XLS ou TXT completo, incluindo relatório "Posição do estoque por departamento".</div>
+    <div class="sub">DBF com estoque cria a base oficial da loja. XLS/TXT continuam disponíveis para complementar o catálogo.</div>
+    <div class="stock-import-grid">
+     <label>Loja da base SG<select id="catalogImportLocation"><option value="">Selecione a loja</option></select></label>
+     <label>Data da base SG<input id="catalogSnapshotDate" type="date"></label>
+    </div>
     <input id="dbfFile" type="file" accept=".dbf,.xls,.txt,.csv,application/vnd.dbf,application/vnd.ms-excel,text/plain,application/octet-stream" multiple>
    </div>
    <div id="catalogInfo" class="catalog-info" aria-live="polite">
@@ -913,7 +987,7 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
   </div>
   <div id="stockImportSettingsSection" class="settings-section" hidden>
    <h2>Estoque diário por loja</h2>
-   <p class="settings-note">Envie um arquivo separado para cada loja. Escolha a loja de destino e a data: a carga atualiza somente o estoque dessa loja. Um novo envio para a mesma loja e data atualiza os produtos presentes no arquivo, sem somar as quantidades.</p>
+   <p class="settings-note">Envie um arquivo separado para cada loja. Escolha a loja de destino e a data: a carga atualiza somente o estoque dessa loja. Importe primeiro a base pelo Catálogo de produtos. A carga diária deve ter data posterior à última carga oficial. Arquivos repetidos são ignorados.</p>
    <div class="import-box stock-import-box">
     <strong>Enviar estoque da loja</strong>
     <div class="stock-import-grid">
@@ -1142,6 +1216,29 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
  <div class="update-panel">
   <h2 id="updateTitle">Atualizar produto</h2>
   <p id="updateProductName" class="update-product-name"></p>
+
+  <div class="update-image-section" id="updateImageSection">
+   <div class="update-image-row">
+    <div id="updateImagePreview" class="update-image-thumb">Sem foto</div>
+    <div class="update-image-controls">
+     <div class="update-image-actions">
+      <button id="btnUpdatePhotoFile" class="btn2 btn-sm" type="button">📷 Foto</button>
+      <button id="btnUpdatePhotoUrl" class="btn2 btn-sm" type="button">🔗 Link</button>
+      <button id="btnUpdateKnownPhoto" class="btn2 btn-sm" type="button" hidden>✨ Conhecida</button>
+      <button id="btnUpdateRemovePhoto" class="btn-danger btn-sm" type="button" hidden>🗑️ Remover</button>
+     </div>
+     <input id="updatePhotoInput" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" class="hidden">
+     <div id="updateImageStatus" class="update-image-status"></div>
+    </div>
+   </div>
+   <div id="updateUrlPanel" class="update-url-panel" hidden>
+    <div class="link-input-row">
+     <input id="updateUrlInput" type="url" placeholder="https://exemplo.com/foto.jpg" autocomplete="off">
+     <button id="btnUpdatePreviewUrl" class="btn2 btn-sm" type="button">Visualizar</button>
+    </div>
+   </div>
+  </div>
+
   <div id="updateStockContainer" class="register-stock-container"></div>
   <label class="label" for="updateQty">Quantidade encontrada com validade curta</label>
   <input id="updateQty" type="number" min="1" inputmode="numeric">
@@ -1346,6 +1443,31 @@ const els = {
  expiry: document.getElementById('expiry'),
  photo: document.getElementById('photo'),
  preview: document.getElementById('preview'),
+ imageModeTabs: document.getElementById('imageModeTabs'),
+ tabPhoto: document.getElementById('tabPhoto'),
+ tabLink: document.getElementById('tabLink'),
+ knownImageCard: document.getElementById('knownImageCard'),
+ knownImageThumb: document.getElementById('knownImageThumb'),
+ btnUseKnownImage: document.getElementById('btnUseKnownImage'),
+ btnChangeImage: document.getElementById('btnChangeImage'),
+ photoUploadPanel: document.getElementById('photoUploadPanel'),
+ linkImportPanel: document.getElementById('linkImportPanel'),
+ imageUrlInput: document.getElementById('imageUrlInput'),
+ btnPreviewUrl: document.getElementById('btnPreviewUrl'),
+ linkPreviewStatus: document.getElementById('linkPreviewStatus'),
+ linkPreviewContainer: document.getElementById('linkPreviewContainer'),
+ linkPreviewImg: document.getElementById('linkPreviewImg'),
+ btnConfirmUrlPhoto: document.getElementById('btnConfirmUrlPhoto'),
+ updateImagePreview: document.getElementById('updateImagePreview'),
+ btnUpdatePhotoFile: document.getElementById('btnUpdatePhotoFile'),
+ btnUpdatePhotoUrl: document.getElementById('btnUpdatePhotoUrl'),
+ btnUpdateKnownPhoto: document.getElementById('btnUpdateKnownPhoto'),
+ btnUpdateRemovePhoto: document.getElementById('btnUpdateRemovePhoto'),
+ updatePhotoInput: document.getElementById('updatePhotoInput'),
+ updateImageStatus: document.getElementById('updateImageStatus'),
+ updateUrlPanel: document.getElementById('updateUrlPanel'),
+ updateUrlInput: document.getElementById('updateUrlInput'),
+ btnUpdatePreviewUrl: document.getElementById('btnUpdatePreviewUrl'),
  offer: document.getElementById('offer'),
  save: document.getElementById('save'),
  clear: document.getElementById('clear'),
@@ -1362,6 +1484,8 @@ const els = {
  scannerSuccess: document.getElementById('scannerSuccess'),
  catalogStatus: document.getElementById('catalogStatus'),
  dbfFile: document.getElementById('dbfFile'),
+ catalogImportLocation: document.getElementById('catalogImportLocation'),
+ catalogSnapshotDate: document.getElementById('catalogSnapshotDate'),
  importDbf: document.getElementById('importDbf'),
  catalogInfo: document.getElementById('catalogInfo'),
  catalogSettingsSection: document.getElementById('catalogSettingsSection'),
@@ -2811,6 +2935,13 @@ function popularLojasPermitidas(locations) {
  els.storeFilter.replaceChildren(new Option("Todas as lojas", ""));
  activeLocations.forEach((location) => els.storeFilter.add(new Option(location.name, location.name)));
  if ([...els.storeFilter.options].some((option) => option.value === selectedFilter)) els.storeFilter.value = selectedFilter;
+ if (els.catalogImportLocation) {
+  const previous = els.catalogImportLocation.value;
+  els.catalogImportLocation.replaceChildren(new Option("Selecione a loja", ""));
+  activeLocations.forEach(location => els.catalogImportLocation.add(new Option(location.name, location.id)));
+  els.catalogImportLocation.value = previous;
+  if (!els.catalogSnapshotDate.value) els.catalogSnapshotDate.value = new Date().toLocaleDateString("en-CA");
+ }
  if (els.stockImportLocation) {
   const selectedStockLocation = els.stockImportLocation.value;
   els.stockImportLocation.replaceChildren(new Option(activeLocations.length ? "Selecione a loja" : "Nenhuma loja ativa", ""));
@@ -3676,10 +3807,10 @@ function formatStockNumber(value) {
 function stockMovementBadge(movement) {
  if (!movement || !movement.snapshot_date) return '<span class="stock-movement-badge no_previous_snapshot">Sem carga SG</span>';
  const type = movement.movement_type || "no_previous_snapshot";
- if (type === "decrease") return `<span class="stock-movement-badge decrease">↓ ${formatStockNumber(movement.estimated_outflow)} un. desde a última carga</span>`;
+ if (type === "decrease") return `<span class="stock-movement-badge decrease">↓ ${formatStockNumber(Math.abs(Number(movement.stock_change)))} un. desde a última carga</span>`;
  if (type === "increase") return `<span class="stock-movement-badge increase">↑ Estoque aumentou ${formatStockNumber(Math.abs(Number(movement.stock_change || 0)))} un.</span>`;
  if (type === "stable") return '<span class="stock-movement-badge stable">Estável desde a última carga</span>';
- return '<span class="stock-movement-badge no_previous_snapshot">Sem histórico anterior</span>';
+ return '<span class="stock-movement-badge no_previous_snapshot">Sem comparação anterior</span>';
 }
 
 function renderStockMovement(product) {
@@ -3762,7 +3893,7 @@ function renderStockReferenceCardMarkup(movement, options = {}) {
      <span style="font-size:10.5px;text-transform:none;color:var(--muted)">Referência informativa</span>
     </div>
     <div class="stock-reference-empty">
-     Produto não localizado na última carga SG desta loja.
+     Sem estoque oficial conhecido para este produto nesta loja.
     </div>
    </div>`;
  }
@@ -3791,8 +3922,9 @@ function renderStockReferenceCardMarkup(movement, options = {}) {
   <div class="stock-reference-card">
    <div class="stock-reference-card-header">
     <span>${escapeHtml(title)}</span>
-    <span style="font-size:10.5px;text-transform:none;color:var(--muted)">Última carga SG</span>
+    <span style="font-size:10.5px;text-transform:none;color:var(--muted)">Referência informativa</span>
    </div>
+   <div class="stock-reference-empty">Loja: ${escapeHtml(movement.store || "")} · Quantidade com validade é informada manualmente.</div>
    <div class="stock-reference-grid">
     <div class="stock-reference-item">
      <small>Estoque atual SG</small>
@@ -3861,6 +3993,7 @@ let registerStockLoadGeneration = 0;
 
 async function updateRegisterStockInfo() {
  if (!els.registerStockContainer) return;
+ const gen = ++registerStockLoadGeneration;
  if (!selected) {
   currentRegisterStockMovement = null;
   els.registerStockContainer.hidden = true;
@@ -3887,7 +4020,6 @@ async function updateRegisterStockInfo() {
   return;
  }
 
- const gen = ++registerStockLoadGeneration;
  els.registerStockContainer.hidden = false;
 
  let movement = null;
@@ -4758,6 +4890,30 @@ async function buscarProdutoPorCodigo(codigoBarras) {
  els.find.disabled = true;
  els.found.classList.add("show");
  els.found.innerHTML = "<b>Buscando produto...</b>";
+ if (!/^\d+$/.test(codigoBarras)) {
+  try {
+   const matches = await window.skaleeDb.searchCatalogByName(codigoBarras);
+   els.found.replaceChildren();
+   const label = document.createElement("b");
+   label.textContent = matches.length ? "Selecione o produto:" : "Nenhum produto encontrado. Informe pelo menos 3 letras.";
+   els.found.append(label);
+   matches.forEach(match => {
+    const button = document.createElement("button");
+    button.type = "button"; button.className = "btn2";
+    button.textContent = match.name + " · " + (match.internal_code || match.barcode);
+    button.addEventListener("click", () => {
+     registrarProdutoNoMapa(produtoCatalogoParaBusca(match));
+     void buscarProdutoPorCodigo(match.internal_code || match.barcode);
+    });
+    els.found.append(document.createElement("br"), button);
+   });
+   selected = null;
+   resetImageSection();
+   void updateRegisterStockInfo();
+  } catch (error) { els.found.textContent = "Erro ao consultar catálogo: " + error.message; }
+  els.find.disabled = false;
+  return;
+ }
  selected = sg.get(codigoBarras) || null;
  if (!selected) {
   try {
@@ -4794,6 +4950,7 @@ async function buscarProdutoPorCodigo(codigoBarras) {
 
  if (!selected) {
   renderProdutoNaoEncontrado(codigoBarras);
+  resetImageSection();
   void updateRegisterStockInfo();
   return;
  }
@@ -4807,9 +4964,10 @@ async function buscarProdutoPorCodigo(codigoBarras) {
  const sourceText = sourceLabels[selected.catalogSource] ? `<br><span style="color:#16a34a">Fonte: ${sourceLabels[selected.catalogSource]}</span>` : "";
  els.supplierCode.value = selected.supplierCode || "";
  els.supplierName.value = selected.supplierName || "";
- els.found.innerHTML = `<b>${selected.name}</b><br><span style="color:#2563eb">Cód. interno: ${selected.code || "sem código interno"}</span><br><span style="color:#39465c">Código de barras: ${selected.barcode}</span>${selected.brandName ? `<br><span style="color:#16a34a">Marca: ${selected.brandName}</span>` : ""}${sourceText}`;
+ els.found.innerHTML = `<b>${escapeHtml(selected.name)}</b><br><span style="color:#2563eb">Cód. interno: ${escapeHtml(selected.code || "sem código interno")}</span><br><span style="color:#39465c">Código de barras: ${escapeHtml(selected.barcode || "—")}</span><br><span>Código fornecedor: ${escapeHtml(selected.supplierCode || "Não informado")}</span>${selected.brandName ? `<br><span style="color:#16a34a">Marca: ${selected.brandName}</span>` : ""}${sourceText}`;
  els.qty.focus();
  void updateRegisterStockInfo();
+ void verificarImagemConhecida(selected);
 }
 
 function closeUpdateModal() {
@@ -4822,13 +4980,61 @@ function closeUpdateModal() {
 let lastFocusedProductCard = null;
 let savedBodyOverflow = "";
 
+let updatePhotoData = null;
+let updatePhotoPath = undefined;
+let updateRemovePhoto = false;
+let updateKnownImage = null;
+
 function openUpdateModalForProduct(product) {
  if (!product) return;
  updatingProductId = product.id;
+ updatePhotoData = null;
+ updatePhotoPath = undefined;
+ updateRemovePhoto = false;
+ updateKnownImage = null;
+
  els.updateProductName.textContent = `${product.name} · ${product.store} · validade ${new Date(product.expiry + "T00:00:00").toLocaleDateString("pt-BR")}`;
  els.updateQty.value = product.qty;
  els.updateOffer.checked = product.offer;
  els.deleteProduct.hidden = !product.canDelete;
+ els.updateUrlPanel.hidden = true;
+ els.updateUrlInput.value = "";
+ els.updateImageStatus.textContent = "";
+ els.btnUpdateKnownPhoto.hidden = true;
+
+ const currentImg = product.photo || "";
+ if (currentImg) {
+  els.updateImagePreview.innerHTML = `<img src="${currentImg}" alt="">`;
+  els.btnUpdateRemovePhoto.hidden = false;
+ } else if (product.photoPath) {
+  els.updateImagePreview.textContent = "Carregando...";
+  els.btnUpdateRemovePhoto.hidden = false;
+  window.skaleeDb?.getProductPhotoUrl?.(product.photoPath).then((url) => {
+   if (updatingProductId === product.id) {
+    if (url) els.updateImagePreview.innerHTML = `<img src="${url}" alt="">`;
+    else els.updateImagePreview.textContent = "Sem foto";
+   }
+  }).catch(() => {
+   if (updatingProductId === product.id) els.updateImagePreview.textContent = "Sem foto";
+  });
+ } else {
+  els.updateImagePreview.textContent = "Sem foto";
+  els.btnUpdateRemovePhoto.hidden = true;
+ }
+
+ window.skaleeDb?.findKnownProductImage?.({
+  barcode: product.barcode,
+  code: product.code,
+  catalogProductId: product.catalogProductId
+ }).then((known) => {
+  if (known?.photoUrl && updatingProductId === product.id) {
+   updateKnownImage = known;
+   if (known.photoPath !== product.photoPath) {
+    els.btnUpdateKnownPhoto.hidden = false;
+   }
+  }
+ }).catch(() => {});
+
  updateEditStockInfo(product);
  els.updateModal.classList.add("show");
  els.updateQty.focus();
@@ -5269,6 +5475,90 @@ els.updateModal.addEventListener("click", (event) => {
  if (event.target === els.updateModal) closeUpdateModal();
 });
 
+els.btnUpdatePhotoFile.addEventListener("click", () => {
+ els.updatePhotoInput.click();
+});
+
+els.updatePhotoInput.addEventListener("change", async (event) => {
+ const file = event.target.files && event.target.files[0] ? event.target.files[0] : null;
+ if (!file) return;
+ els.updateImageStatus.textContent = "Preparando foto...";
+ try {
+  const processed = await processPhoto(file);
+  updatePhotoData = processed;
+  updatePhotoPath = undefined;
+  updateRemovePhoto = false;
+  els.updateImagePreview.innerHTML = `<img src="${processed.previewUrl}" alt="">`;
+  els.updateImageStatus.textContent = "Nova foto selecionada";
+  els.btnUpdateRemovePhoto.hidden = false;
+ } catch (err) {
+  console.error("Erro ao preparar foto na edição:", err);
+  alert(err.message || "Não foi possível carregar esta foto.");
+  els.updateImageStatus.textContent = "";
+ } finally {
+  event.target.value = "";
+ }
+});
+
+els.btnUpdatePhotoUrl.addEventListener("click", () => {
+ els.updateUrlPanel.hidden = !els.updateUrlPanel.hidden;
+ if (!els.updateUrlPanel.hidden) {
+  els.updateUrlInput.focus();
+ }
+});
+
+els.btnUpdatePreviewUrl.addEventListener("click", async () => {
+ const url = els.updateUrlInput.value.trim();
+ if (!url) {
+  alert("Informe a URL da imagem.");
+  return;
+ }
+ els.updateImageStatus.textContent = "Carregando imagem...";
+ els.btnUpdatePreviewUrl.disabled = true;
+ try {
+  const processed = await processExternalImageUrl(url);
+  updatePhotoData = processed;
+  updatePhotoPath = undefined;
+  updateRemovePhoto = false;
+  els.updateImagePreview.innerHTML = `<img src="${processed.previewUrl}" alt="">`;
+  els.updateImageStatus.textContent = "Imagem da internet selecionada";
+  els.updateUrlPanel.hidden = true;
+  els.btnUpdateRemovePhoto.hidden = false;
+ } catch (err) {
+  console.error("Erro ao processar URL na edição:", err);
+  alert(err.message || "Não foi possível carregar a imagem deste endereço.");
+  els.updateImageStatus.textContent = "Falha ao carregar URL";
+ } finally {
+  els.btnUpdatePreviewUrl.disabled = false;
+ }
+});
+
+els.updateUrlInput.addEventListener("keydown", (event) => {
+ if (event.key === "Enter") {
+  event.preventDefault();
+  els.btnUpdatePreviewUrl.click();
+ }
+});
+
+els.btnUpdateKnownPhoto.addEventListener("click", () => {
+ if (!updateKnownImage?.photoUrl) return;
+ updatePhotoData = null;
+ updatePhotoPath = updateKnownImage.photoPath;
+ updateRemovePhoto = false;
+ els.updateImagePreview.innerHTML = `<img src="${updateKnownImage.photoUrl}" alt="">`;
+ els.updateImageStatus.textContent = "Imagem conhecida selecionada";
+ els.btnUpdateRemovePhoto.hidden = false;
+});
+
+els.btnUpdateRemovePhoto.addEventListener("click", () => {
+ updatePhotoData = null;
+ updatePhotoPath = null;
+ updateRemovePhoto = true;
+ els.updateImagePreview.textContent = "Sem foto";
+ els.updateImageStatus.textContent = "Foto será removida ao salvar";
+ els.btnUpdateRemovePhoto.hidden = true;
+});
+
 els.confirmUpdate.addEventListener("click", async () => {
  const quantity = Number(els.updateQty.value);
  if (!Number.isInteger(quantity) || quantity < 1) {
@@ -5284,10 +5574,32 @@ els.confirmUpdate.addEventListener("click", async () => {
  pendingProductUpdateIds.add(String(productId));
  expandedProductIds.add(String(productId));
  const existingStockMovement = previousProduct.stockMovement || (typeof window.skaleeDb?.getStockMovement === "function" ? window.skaleeDb.getStockMovement(productId, previousProduct) : null) || null;
+
+ const photoChanges = {};
+ let previewPhotoForOptimistic = previousProduct.photo || "";
+ let photoPathForOptimistic = previousProduct.photoPath || "";
+
+ if (updatePhotoData) {
+  photoChanges.processedPhoto = updatePhotoData;
+  photoChanges.imageSource = "upload";
+  previewPhotoForOptimistic = updatePhotoData.previewUrl || previewPhotoForOptimistic;
+ } else if (updatePhotoPath !== undefined) {
+  photoChanges.photoPath = updatePhotoPath;
+  photoChanges.imageSource = "reused";
+  photoPathForOptimistic = updatePhotoPath;
+  if (updateKnownImage?.photoUrl) previewPhotoForOptimistic = updateKnownImage.photoUrl;
+ } else if (updateRemovePhoto) {
+  photoChanges.removePhoto = true;
+  previewPhotoForOptimistic = "";
+  photoPathForOptimistic = "";
+ }
+
  const optimisticProduct = {
   ...previousProduct,
   qty: quantity,
   offer: els.updateOffer.checked,
+  photo: previewPhotoForOptimistic,
+  photoPath: photoPathForOptimistic,
   updatedAt: new Date().toISOString(),
   stockMovement: existingStockMovement
  };
@@ -5297,14 +5609,14 @@ els.confirmUpdate.addEventListener("click", async () => {
  render();
  showToast(`Atualizando ${productName}...`, "info", "⏳");
 
- window.skaleeDb.updateProduct(productId, { qty: quantity, offer: els.updateOffer.checked })
+ window.skaleeDb.updateProduct(productId, { qty: quantity, offer: els.updateOffer.checked, ...photoChanges })
   .then((updatedProduct) => {
    const movement = updatedProduct.stockMovement || existingStockMovement || (typeof window.skaleeDb?.getStockMovement === "function" ? window.skaleeDb.getStockMovement(productId, updatedProduct) : null) || null;
    const finalProduct = {
     ...updatedProduct,
-    photo: updatedProduct.photo || previousProduct.photo || "",
-    photoPath: updatedProduct.photoPath || previousProduct.photoPath || "",
-    photoLoaded: updatedProduct.photoLoaded || previousProduct.photoLoaded,
+    photo: updatedProduct.photo || previewPhotoForOptimistic || previousProduct.photo || "",
+    photoPath: updatedProduct.photoPath || photoPathForOptimistic || previousProduct.photoPath || "",
+    photoLoaded: true,
     stockMovement: movement
    };
    mergeReportProduct(finalProduct);
@@ -5405,57 +5717,8 @@ function textoDbf(bytes) {
 }
 
 function carregarProdutosDbfParaSupabase(buffer) {
- if (!(buffer instanceof ArrayBuffer) || buffer.byteLength < 33) {
-  throw new Error("Arquivo DBF inválido ou vazio.");
- }
- const view = new DataView(buffer);
- const bytes = new Uint8Array(buffer);
- const totalRegistros = view.getUint32(4, true);
- const tamanhoCabecalho = view.getUint16(8, true);
- const tamanhoRegistro = view.getUint16(10, true);
- const campos = [];
-
- if (tamanhoCabecalho < 33 || tamanhoCabecalho > buffer.byteLength || tamanhoRegistro < 2) {
-  throw new Error("Cabeçalho DBF inválido.");
- }
-
- for (let offset = 32; offset < tamanhoCabecalho && bytes[offset] !== 0x0d; offset += 32) {
-  campos.push({
-   nome: textoDbf(bytes.subarray(offset, offset + 11)),
-   tipo: String.fromCharCode(bytes[offset + 11]),
-   tamanho: bytes[offset + 16]
-  });
- }
-
- const nomesCampos = new Set(campos.map((campo) => campo.nome));
- if (!["CODBAR", "CODPROD", "DESCRICAO"].every((nome) => nomesCampos.has(nome))) {
-  throw new Error("O DBF precisa conter os campos CODBAR, CODPROD e DESCRICAO.");
- }
-
- const produtos = [];
- const vistos = new Set();
- for (let indice = 0; indice < totalRegistros; indice += 1) {
-  const inicio = tamanhoCabecalho + indice * tamanhoRegistro;
-  if (inicio + tamanhoRegistro > bytes.length || bytes[inicio] === 0x2a) continue;
-
-  let posicao = inicio + 1;
-  const registro = {};
-  campos.forEach((campo) => {
-   const valor = textoDbf(bytes.subarray(posicao, posicao + campo.tamanho));
-   registro[campo.nome] = campo.tipo === "N" && valor !== "" ? Number(valor) : valor;
-   posicao += campo.tamanho;
-  });
-
-  const barcode = String(registro.CODBAR || "").trim();
-  const internalCode = String(registro.CODPROD || "").trim();
-  const name = String(registro.DESCRICAO || "").trim();
-  const sourceKey = barcode || internalCode;
-  if (!sourceKey || !name || vistos.has(sourceKey)) continue;
-  vistos.add(sourceKey);
-  produtos.push({ barcode, internal_code: internalCode, name, source_key: sourceKey });
- }
- if (produtos.length === 0) throw new Error("Nenhum produto com código foi encontrado no DBF.");
- return produtos;
+ const rows = carregarSnapshotsEstoqueDbf(buffer);
+ return rows.map(row => ({ ...row, source_key: row.internal_code }));
 }
 
 function normalizarEspacos(value) {
@@ -5527,9 +5790,10 @@ function indiceColunaCatalogo(cabecalho, nomes) {
 }
 
 function parseNumeroSg(value) {
- const original = String(value || "").trim();
+ const original = String(value ?? "").trim();
  if (!original) return null;
- let cleaned = original.replace(/[^0-9,.\-]/g, "");
+ let cleaned = original.replace(/\s/g, "");
+ if (!/^-?\d+(?:[.,]\d+)*$/.test(cleaned)) return null;
  if (!cleaned || cleaned === "-") return null;
  if (cleaned.includes(",") && cleaned.includes(".")) cleaned = cleaned.replace(/\./g, "").replace(",", ".");
  else if (cleaned.includes(",")) cleaned = cleaned.replace(",", ".");
@@ -5544,16 +5808,22 @@ function carregarSnapshotsEstoqueDbf(buffer) {
  const totalRegistros = view.getUint32(4, true);
  const tamanhoCabecalho = view.getUint16(8, true);
  const tamanhoRegistro = view.getUint16(10, true);
+ if (tamanhoCabecalho < 33 || tamanhoRegistro < 2 || tamanhoCabecalho > bytes.length || tamanhoCabecalho + totalRegistros * tamanhoRegistro > bytes.length) throw new Error("DBF truncado ou cabeçalho inválido.");
  const campos = [];
  for (let offset = 32; offset < tamanhoCabecalho - 1; offset += 32) {
   if (bytes[offset] === 0x0d) break;
   const nome = textoDbf(bytes.subarray(offset, offset + 11)).replace(/\0/g, "").trim().toUpperCase();
   campos.push({ nome, tipo: String.fromCharCode(bytes[offset + 11]), tamanho: bytes[offset + 16] });
  }
- const codeField = campos.find((campo) => ["CODPROD", "CODIGO", "COD_PROD", "CODITEM", "PRODUTO"].includes(campo.nome))?.nome;
- const stockField = campos.find((campo) => ["ESTOQUE", "ESTOQ", "SALDO", "QTDEST", "QTESTOQUE", "EST_ATUAL", "DISPONIVEL"].includes(campo.nome))?.nome;
- const saleField = campos.find((campo) => ["PRECO", "PRECOVENDA", "PRVENDA", "VLRVENDA"].includes(campo.nome))?.nome;
- const costField = campos.find((campo) => ["CUSTO", "PRECOCUSTO", "PRCUSTO", "VLRCUSTO"].includes(campo.nome))?.nome;
+ if (campos.reduce((sum, campo) => sum + campo.tamanho, 1) !== tamanhoRegistro) throw new Error("Tamanho dos campos DBF inconsistente.");
+ const codeField = campos.find((campo) => ["CODPROD", "CODIGO", "COD_PROD", "CODITEM", "PRODUTO", "COD_INT", "CODINT"].includes(campo.nome))?.nome;
+ const stockField = campos.find((campo) => ["ESTOQUE", "ESTOQ", "SALDO", "QTDEST", "QTESTOQUE", "EST_ATUAL", "DISPONIVEL", "QTD_EST", "SALDO_EST"].includes(campo.nome))?.nome;
+ const nameField = campos.find((campo) => ["DESCRICAO", "DESC", "PRODUTO", "NOME", "DESCRICAO_PROD", "DESCR", "NOMPROD"].includes(campo.nome))?.nome;
+ const barcodeField = campos.find((campo) => ["CODBAR", "CODBARRA", "EAN", "COD_BARRA", "BARRAS", "COD_EAN", "CODBARRAS"].includes(campo.nome))?.nome;
+ const supplierCodeField = campos.find((campo) => ["CODFORN", "FORNECEDOR", "COD_FORN", "FORN", "CODFOR", "CODFORNEC"].includes(campo.nome))?.nome;
+ const supplierNameField = campos.find((campo) => ["NOMFORN", "RAZAO", "NOMEFORN", "NOME_FORN", "FORNEC", "NOM_FORN", "RAZAOSOCIAL"].includes(campo.nome))?.nome;
+ const saleField = campos.find((campo) => ["PRECO", "PRECOVENDA", "PRVENDA", "VLRVENDA", "PRCVEN", "VRVENDA"].includes(campo.nome))?.nome;
+ const costField = campos.find((campo) => ["CUSTO", "PRECOCUSTO", "PRCUSTO", "VLRCUSTO", "PRCUS", "VRCUSTO"].includes(campo.nome))?.nome;
  if (!codeField || !stockField) throw new Error("DBF de estoque precisa conter código interno e estoque.");
  const rows = [];
  for (let indice = 0; indice < totalRegistros; indice += 1) {
@@ -5565,13 +5835,30 @@ function carregarSnapshotsEstoqueDbf(buffer) {
    registro[campo.nome] = textoDbf(bytes.subarray(posicao, posicao + campo.tamanho));
    posicao += campo.tamanho;
   });
+  const internalCode = String(registro[codeField] || "").trim();
+  const stockQuantity = parseNumeroSg(registro[stockField]);
+  const barcode = barcodeField ? String(registro[barcodeField] || "").trim() : "";
+  const name = nameField ? String(registro[nameField] || "").trim() : "";
+  const supplierCode = supplierCodeField ? (String(registro[supplierCodeField] || "").match(/\d+/)?.[0] || "") : "";
+  const supplierName = supplierNameField ? String(registro[supplierNameField] || "").trim() : "";
+  const salePrice = saleField ? parseNumeroSg(registro[saleField]) : null;
+  const costPrice = costField ? parseNumeroSg(registro[costField]) : null;
+
   rows.push({
-   internal_code: String(registro[codeField] || "").replace(/\D/g, ""),
-   stock_quantity: parseNumeroSg(registro[stockField]),
-   sale_price: saleField ? parseNumeroSg(registro[saleField]) : null,
-   cost_price: costField ? parseNumeroSg(registro[costField]) : null
+   internal_code: internalCode,
+   stock_quantity: stockQuantity,
+   stock_invalid: stockQuantity === null && String(registro[stockField] ?? "").trim() !== "",
+   barcode: barcode || null,
+   name: name || null,
+   supplier_code: supplierCode || null,
+   supplier_name: supplierName || null,
+   sale_price: salePrice,
+   cost_price: costPrice,
+   sg_fields: registro
   });
  }
+ rows.stockField = stockField;
+ rows.fields = campos.map(campo => campo.nome);
  if (!rows.length) throw new Error("Nenhuma linha de estoque foi encontrada no DBF.");
  return rows;
 }
@@ -5591,22 +5878,38 @@ function carregarSnapshotsEstoqueTexto(buffer) {
   const separador = detectarSeparadorEstoque(linha);
   const colunas = linha.split(separador).map((coluna) => normalizarEspacos(coluna));
   if (!mapa) {
-   const codigoIndex = indiceColunaCatalogo(colunas, ["CODIGO", "CODPROD", "COD. PRODUTO", "COD PRODUTO", "CODIGO INTERNO", "COD INTERNO"]);
-   const estoqueIndex = indiceColunaCatalogo(colunas, ["ESTOQUE", "SALDO", "SALDO ESTOQUE", "QTD ESTOQUE", "QTDE ESTOQUE", "DISPONIVEL"]);
-   const vendaIndex = indiceColunaCatalogo(colunas, ["PRECO", "PRECO VENDA", "PREÇO VENDA", "VALOR VENDA"]);
-   const custoIndex = indiceColunaCatalogo(colunas, ["CUSTO", "PRECO CUSTO", "PREÇO CUSTO", "VALOR CUSTO"]);
+   const codigoIndex = indiceColunaCatalogo(colunas, ["CODIGO", "CODPROD", "COD. PRODUTO", "COD PRODUTO", "CODIGO INTERNO", "COD INTERNO", "COD_INT"]);
+   const estoqueIndex = indiceColunaCatalogo(colunas, ["ESTOQUE", "ESTOQ", "SALDO", "SALDO ESTOQUE", "QTD ESTOQUE", "QTDE ESTOQUE", "DISPONIVEL", "QTD_EST"]);
+   const barcodeIndex = indiceColunaCatalogo(colunas, ["COD. DE BARRAS", "COD BARRAS", "CODIGO BARRAS", "COD.BARRA", "COD BARRA", "CODBAR", "EAN", "BARRAS", "COD_BARRA"]);
+   const descricaoIndex = indiceColunaCatalogo(colunas, ["DESCRICAO", "DESCRIÇÃO", "DESCRICAO DO PRODUTO", "DESCRIÇÃO DO PRODUTO", "PRODUTO", "NOME"]);
+   const fornecedorIndex = indiceColunaCatalogo(colunas, ["CODFORN", "FORNECEDOR", "COD FORNECEDOR", "COD. FORNECEDOR", "FORN", "COD_FORN"]);
+   const fornecedorNomeIndex = indiceColunaCatalogo(colunas, ["NOMFORN", "NOME FORNECEDOR", "RAZAO", "RAZÃO SOCIAL", "NOME DO FORNECEDOR", "RAZAO SOCIAL"]);
+   const vendaIndex = indiceColunaCatalogo(colunas, ["PRECO", "PRECO VENDA", "PREÇO VENDA", "VALOR VENDA", "PRVENDA", "PRCVEN"]);
+   const custoIndex = indiceColunaCatalogo(colunas, ["CUSTO", "PRECO CUSTO", "PREÇO CUSTO", "VALOR CUSTO", "PRCUSTO", "PRCUS"]);
    if (codigoIndex >= 0 && estoqueIndex >= 0) {
-    mapa = { codigoIndex, estoqueIndex, vendaIndex, custoIndex };
+    mapa = { codigoIndex, estoqueIndex, barcodeIndex, descricaoIndex, fornecedorIndex, fornecedorNomeIndex, vendaIndex, custoIndex };
    }
    continue;
   }
   const internalCode = String(colunas[mapa.codigoIndex] || "").replace(/\D/g, "");
   if (!internalCode) continue;
+  const stockQuantity = parseNumeroSg(colunas[mapa.estoqueIndex]);
+  const barcode = mapa.barcodeIndex >= 0 ? String(colunas[mapa.barcodeIndex] || "").trim() : "";
+  const name = mapa.descricaoIndex >= 0 ? String(colunas[mapa.descricaoIndex] || "").trim() : "";
+  const supplierCode = mapa.fornecedorIndex >= 0 ? String(colunas[mapa.fornecedorIndex] || "").replace(/\D/g, "") : "";
+  const supplierName = mapa.fornecedorNomeIndex >= 0 ? String(colunas[mapa.fornecedorNomeIndex] || "").trim() : "";
+  const salePrice = mapa.vendaIndex >= 0 ? parseNumeroSg(colunas[mapa.vendaIndex]) : null;
+  const costPrice = mapa.custoIndex >= 0 ? parseNumeroSg(colunas[mapa.custoIndex]) : null;
+
   rows.push({
    internal_code: internalCode,
-   stock_quantity: parseNumeroSg(colunas[mapa.estoqueIndex]),
-   sale_price: mapa.vendaIndex >= 0 ? parseNumeroSg(colunas[mapa.vendaIndex]) : null,
-   cost_price: mapa.custoIndex >= 0 ? parseNumeroSg(colunas[mapa.custoIndex]) : null
+   stock_quantity: stockQuantity,
+   barcode: barcode || null,
+   name: name || null,
+   supplier_code: supplierCode || null,
+   supplier_name: supplierName || null,
+   sale_price: salePrice,
+   cost_price: costPrice
   });
  }
  if (!mapa) throw new Error("Arquivo de estoque precisa conter colunas de código interno e estoque.");
@@ -5738,25 +6041,25 @@ async function carregarCatalogoSupabase() {
  els.find.disabled = false;
  els.scanCamera.disabled = false;
  els.catalogStatus.hidden = !isSkaleeAdmin;
- els.catalogStatus.textContent = "Carregando produtos do Supabase...";
- els.catalogStatus.className = "catalog-status";
- try {
-  const produtosCatalogo = await window.skaleeDb.listSearchCatalogProducts();
-  catalogProductCount = 0;
-  sg = montarCatalogoSupabase(produtosCatalogo);
-  atualizarStatusCatalogo("Supabase");
-  els.find.disabled = false;
- els.scanCamera.disabled = false;
- } catch (error) {
-  els.find.disabled = false;
-  els.scanCamera.disabled = false;
-  els.catalogStatus.textContent = `Não foi possível carregar o catálogo de produtos: ${error.message || "erro no Supabase"}`;
-  els.catalogStatus.classList.add("error");
-  els.catalogStatus.hidden = !isSkaleeAdmin;
-  definirInfoCatalogo("Erro ao carregar catálogo", error.message);
-  console.error("Falha ao carregar catalogo do Supabase:", error);
-  catalogLoadPromise = null;
- }
+ els.catalogStatus.textContent = "Catálogo SG disponível para consulta por código, barras ou nome";
+ els.catalogStatus.className = "catalog-status ready";
+}
+
+async function hashArquivoSg(buffer) {
+ const digest = await crypto.subtle.digest("SHA-256", buffer);
+ return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("");
+}
+
+function resumoImportacaoSg(result) {
+ if (result.duplicate) return "Arquivo já importado nesta loja. Nenhum produto ou estoque foi alterado.";
+ const n = key => Number(result[key] ?? 0).toLocaleString("pt-BR");
+ return [`Produtos lidos: ${n("total_rows")}`, `Válidos: ${n("valid_rows")}`,
+  `Novos no catálogo: ${n("catalog_inserted")}`, `Existentes atualizados: ${n("catalog_updated")}`,
+  `Rejeitados: ${n("invalid_rows")}`, `Linhas repetidas: ${n("duplicate_rows")}`,
+  `Com estoque informado: ${n("with_stock")}`, `Estoque zero informado: ${n("stocks_zero")}`,
+  `Estoques alterados: ${n("stocks_changed")}`, `Sem alteração: ${n("stocks_unchanged")}`,
+  `Erros de linha: ${n("invalid_rows")}`,
+  ...(result.rejected_codes?.length ? [`Códigos rejeitados (até 100): ${result.rejected_codes.join(", ")}`] : [])].join(" · ");
 }
 
 els.importDbf.addEventListener("click", async () => {
@@ -5764,8 +6067,27 @@ els.importDbf.addEventListener("click", async () => {
  if (!files.length) return alert("Selecione um arquivo de catálogo para importar.");
 
  els.importDbf.disabled = true;
+ [els.catalogImportLocation, els.catalogSnapshotDate, els.dbfFile, els.importStockSnapshot].forEach(field => field.disabled = true);
  definirInfoCatalogo("Lendo arquivo...", "Validando campos e preparando envio para o Supabase.", { loading: true });
  try {
+  if (files.some(file => /\.dbf$/i.test(file.name))) {
+   if (files.length !== 1) throw new Error("Selecione um único DBF por loja para a base oficial.");
+   const retailLocationId = els.catalogImportLocation.value;
+   const snapshotDate = els.catalogSnapshotDate.value;
+   if (!activeLocations.some(location => location.id === retailLocationId) || !snapshotDate) throw new Error("Selecione a loja e a data da base SG.");
+   const buffer = await files[0].arrayBuffer();
+   const rows = carregarProdutosDbfParaSupabase(buffer);
+   definirInfoCatalogo("Criando base oficial SG...", `${rows.length.toLocaleString("pt-BR")} linhas. Aguarde a confirmação do banco.`, { loading: true });
+   const result = await window.skaleeDb.importCatalogProducts(rows, {
+    kind: "catalog_base", retailLocationId, snapshotDate,
+    originalFilename: files[0].name, fileHash: await hashArquivoSg(buffer)
+   });
+   sg.clear();
+   definirInfoCatalogo(result.duplicate ? "Catálogo já importado" : "Catálogo SG importado", resumoImportacaoSg(result) + (result.duplicate ? "" : " · Base inicial de estoque criada com sucesso."));
+   els.dbfFile.value = "";
+   await carregarMovimentacaoEstoqueDosProdutos(products, { force: true });
+   return;
+  }
   const produtos = [];
   const origens = new Set();
   const arquivosIgnorados = [];
@@ -5802,6 +6124,7 @@ els.importDbf.addEventListener("click", async () => {
   alert(error.message || "Não foi possível importar o catálogo.");
  } finally {
  els.importDbf.disabled = false;
+ [els.catalogImportLocation, els.catalogSnapshotDate, els.dbfFile, els.importStockSnapshot].forEach(field => field.disabled = false);
  }
 });
 
@@ -5857,111 +6180,53 @@ els.importStockSnapshot.addEventListener("click", async () => {
  const selectedLocationName = selectedLocation.name;
 
  els.importStockSnapshot.disabled = true;
- [els.stockImportLocation, els.stockSnapshotDate, els.stockSnapshotFile].forEach((field) => { field.disabled = true; });
+ [els.stockImportLocation, els.stockSnapshotDate, els.stockSnapshotFile, els.importDbf].forEach((field) => { field.disabled = true; });
  definirInfoEstoque(`Lendo carga de ${selectedLocationName}...`, file.name, { progress: 10 });
  try {
   await new Promise((resolve) => setTimeout(resolve, 40));
-  const rawRows = carregarSnapshotsArquivoEstoque(file, await file.arrayBuffer());
+  const buffer = await file.arrayBuffer();
+  const rawRows = carregarSnapshotsArquivoEstoque(file, buffer);
   const totalFileRows = rawRows.length;
-  definirInfoEstoque("Buscando produtos monitorados...", `${totalFileRows.toLocaleString("pt-BR")} linha(s) lida(s) do arquivo.`, { progress: 30 });
+  definirInfoEstoque("Processando produtos da carga...", `${totalFileRows.toLocaleString("pt-BR")} linha(s) lida(s) do arquivo.`, { progress: 25 });
 
-  const activeProducts = await window.skaleeDb.loadMonitoredStockProducts(retailLocationId, selectedLocationName);
-  if (!activeProducts || !activeProducts.length) {
-   definirInfoEstoque(
-    "Nenhum produto monitorado",
-    `Não há produtos ativos cadastrados em validade para a loja ${selectedLocationName}. Cadastre validades primeiro.`
-   );
-   alert(`Não há produtos de validade ativos cadastrados para ${selectedLocationName}. O arquivo de ${totalFileRows.toLocaleString("pt-BR")} linhas não precisa ser enviado.`);
-   return;
-  }
-
-  const monitoredLookup = new Map();
-  const monitoredUniqueIds = new Set();
-  activeProducts.forEach((product) => {
-   const catalogId = product.catalog_product_id || product.catalog_products?.id || null;
-   const codes = [
-    String(product.product_code || "").replace(/\D/g, ""),
-    String(product.catalog_products?.internal_code || "").replace(/\D/g, "")
-   ].filter(Boolean);
-   codes.forEach((code) => {
-    if (!monitoredLookup.has(code)) {
-     monitoredLookup.set(code, {
-      catalogProductId: catalogId,
-      productCode: code,
-      name: product.name || product.catalog_products?.name || "Produto monitorado"
-     });
-    }
-   });
-   if (catalogId) monitoredUniqueIds.add(catalogId);
-  });
-
-  const totalMonitoredCount = monitoredUniqueIds.size || monitoredLookup.size;
-  definirInfoEstoque("Filtrando produtos monitorados...", `${totalFileRows.toLocaleString("pt-BR")} linhas lidas · ${totalMonitoredCount} produtos monitorados na loja.`, { progress: 50 });
-
-  const monitoredRows = [];
-  const foundCodes = new Set();
-  const seenRowKeys = new Set();
-
-  rawRows.forEach((row) => {
-   const code = String(row.internal_code || "").replace(/\D/g, "");
-   if (!code || !monitoredLookup.has(code)) return;
-   const lookup = monitoredLookup.get(code);
-   const catalogProductId = lookup.catalogProductId;
-   const key = `${catalogProductId || code}`;
-   if (seenRowKeys.has(key)) return;
-   seenRowKeys.add(key);
-   foundCodes.add(code);
-   monitoredRows.push({
-    catalog_product_id: catalogProductId,
-    internal_code: code,
-    stock_quantity: row.stock_quantity,
-    sale_price: row.sale_price,
-    cost_price: row.cost_price
-   });
-  });
-
-  const unlocatedCount = Math.max(0, totalMonitoredCount - monitoredRows.length);
-  const unlocatedMessage = unlocatedCount > 0 ? ` (${unlocatedCount} não localizado(s) na carga)` : "";
-
-  if (monitoredRows.length === 0) {
-   definirInfoEstoque(
-    "Nenhum produto monitorado encontrado",
-    `${totalFileRows.toLocaleString("pt-BR")} linhas lidas do arquivo, mas nenhum dos ${totalMonitoredCount} produtos monitorados da loja foi encontrado na carga.`
-   );
-   alert(`Nenhum dos ${totalMonitoredCount} produtos monitorados foi localizado no arquivo da carga SG.`);
-   return;
-  }
+  // Validation and deduplication are authoritative in the atomic SQL import.
+  const validRows = rawRows;
 
   definirInfoEstoque(
-   "Enviando snapshots monitorados...",
-   `${monitoredRows.length} produto(s) monitorado(s) preparado(s)${unlocatedMessage} a partir de ${totalFileRows.toLocaleString("pt-BR")} linhas do arquivo.`,
-   { progress: 75 }
+   "Enviando carga para o Supabase...",
+   `${validRows.length.toLocaleString("pt-BR")} produtos válidos preparados a partir de ${totalFileRows.toLocaleString("pt-BR")} linhas do arquivo.`,
+   { progress: 40 }
   );
 
   const result = await window.skaleeDb.importProductStockSnapshots({
    snapshotDate,
    retailLocationId,
-   sourceName: "sg_stock",
+   kind: "daily",
+   fileHash: await hashArquivoSg(buffer),
    originalFilename: file.name,
    totalFileRows,
-   monitoredCount: totalMonitoredCount,
-   unlocatedCount,
-   rows: monitoredRows
+   rows: validRows,
+   onProgress: ({ chunkIndex, totalChunks, processed, total }) => {
+    const pct = Math.round((processed / total) * 100);
+    definirInfoEstoque(
+     `Enviando carga SG (${chunkIndex}/${totalChunks})...`,
+     `${processed.toLocaleString("pt-BR")} de ${total.toLocaleString("pt-BR")} produtos sincronizados com o catálogo e estoque.`,
+     { progress: pct }
+    );
+   }
   });
 
-  const summary = [
-   `${Number(totalFileRows).toLocaleString("pt-BR")} linhas lidas do arquivo`,
-   `${totalMonitoredCount} produto(s) monitorado(s) na loja`,
-   `${monitoredRows.length} encontrado(s)${unlocatedMessage}`,
-   `${Number(result.valid_rows || monitoredRows.length).toLocaleString("pt-BR")} snapshots gravados`
-  ].join(" · ");
+  const summary = resumoImportacaoSg(result);
 
   definirInfoEstoque(
    `Carga SG - ${selectedLocationName} - ${new Date(`${snapshotDate}T00:00:00`).toLocaleDateString("pt-BR")}`,
-   `${summary}. Snapshot diário salvo com status ${result.status}.`,
+   summary,
    { progress: 100 }
   );
   els.stockSnapshotFile.value = "";
+  sg.clear();
+  catalogLoadPromise = null;
+  void iniciarCatalogo();
   await carregarMovimentacaoEstoqueDosProdutos(products, { force: true });
  } catch (error) {
   console.error("Falha ao importar snapshot de estoque.", error);
@@ -5969,7 +6234,7 @@ els.importStockSnapshot.addEventListener("click", async () => {
   alert(error.message || "Não foi possível importar a carga SG.");
  } finally {
   els.importStockSnapshot.disabled = false;
-  [els.stockImportLocation, els.stockSnapshotDate, els.stockSnapshotFile].forEach((field) => { field.disabled = false; });
+  [els.stockImportLocation, els.stockSnapshotDate, els.stockSnapshotFile, els.importDbf].forEach((field) => { field.disabled = false; });
   void carregarSituacaoCargasEstoque();
  }
 });
@@ -6718,6 +6983,284 @@ async function processPhoto(file) {
  }
 }
 
+let currentKnownImage = null;
+let selectedImageState = null;
+let activeImageMode = "camera";
+
+function showImagePanel(mode) {
+ activeImageMode = mode;
+ els.tabPhoto.classList.toggle("active", mode === "camera");
+ els.tabLink.classList.toggle("active", mode === "link");
+ els.photoUploadPanel.hidden = (mode !== "camera");
+ els.linkImportPanel.hidden = (mode !== "link");
+}
+
+function resetImageSection() {
+ currentKnownImage = null;
+ selectedImageState = null;
+ photoFile = null;
+ photoData = null;
+ if (photoPreviewUrl) URL.revokeObjectURL(photoPreviewUrl);
+ photoPreviewUrl = "";
+ els.photo.value = "";
+ els.preview.textContent = "Sem foto";
+ els.knownImageCard.hidden = true;
+ els.knownImageThumb.innerHTML = "";
+ els.imageUrlInput.value = "";
+ els.linkPreviewStatus.textContent = "";
+ els.linkPreviewStatus.hidden = true;
+ els.linkPreviewContainer.hidden = true;
+ els.linkPreviewImg.src = "";
+ els.btnConfirmUrlPhoto.hidden = true;
+ showImagePanel("camera");
+}
+
+async function verificarImagemConhecida(product) {
+ if (!product) {
+  resetImageSection();
+  return;
+ }
+ try {
+  const known = await window.skaleeDb?.findKnownProductImage?.({
+   barcode: product.barcode,
+   code: product.code,
+   catalogProductId: product.catalogProductId
+  });
+  if (known?.photoUrl) {
+   currentKnownImage = known;
+   selectedImageState = {
+    type: "reused",
+    photoPath: known.photoPath,
+    photoUrl: known.photoUrl,
+    source: "reused"
+   };
+   photoData = null;
+   els.knownImageThumb.innerHTML = `<img src="${known.photoUrl}" alt="Foto existente">`;
+   els.knownImageCard.hidden = false;
+   els.photoUploadPanel.hidden = true;
+   els.linkImportPanel.hidden = true;
+   els.tabPhoto.classList.remove("active");
+   els.tabLink.classList.remove("active");
+   els.btnUseKnownImage.classList.add("active");
+   return;
+  }
+ } catch (err) {
+  console.warn("[PHOTO] Falha ao consultar imagem conhecida do produto:", err);
+ }
+
+ currentKnownImage = null;
+ selectedImageState = null;
+ els.knownImageCard.hidden = true;
+ showImagePanel("camera");
+}
+
+function isDisallowedHostnameOrIp(hostname) {
+ if (!hostname) return true;
+ const host = hostname.trim().toLowerCase();
+ if (
+  host === "localhost" ||
+  host.endsWith(".localhost") ||
+  host.endsWith(".local") ||
+  host.endsWith(".internal") ||
+  host.endsWith(".onion") ||
+  host === "0.0.0.0" ||
+  host === "127.0.0.1" ||
+  host === "::1" ||
+  host === "[::1]"
+ ) {
+  return true;
+ }
+ if (/^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(host)) return true;
+ if (/^127\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(host)) return true;
+ if (/^169\.254\.\d{1,3}\.\d{1,3}$/.test(host)) return true;
+ if (/^172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}$/.test(host)) return true;
+ if (/^192\.168\.\d{1,3}\.\d{1,3}$/.test(host)) return true;
+ if (/^0\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(host)) return true;
+ return false;
+}
+
+function validateImageUrlSecurity(rawUrl) {
+ const trimmed = String(rawUrl || "").trim();
+ if (!trimmed) throw new Error("Informe a URL da imagem.");
+ if (!/^https?:\/\//i.test(trimmed)) {
+  throw new Error("A URL precisa começar com http:// ou https://");
+ }
+ let parsed;
+ try {
+  parsed = new URL(trimmed);
+ } catch (err) {
+  throw new Error("URL inválida.");
+ }
+ if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+  throw new Error("Apenas protocolos HTTP e HTTPS são permitidos.");
+ }
+ if (isDisallowedHostnameOrIp(parsed.hostname)) {
+  throw new Error("Endereço IP ou hostname privado não permitido.");
+ }
+ if (parsed.port && parsed.port !== "80" && parsed.port !== "443") {
+  throw new Error("Portas personalizadas não são permitidas.");
+ }
+ return parsed.href;
+}
+
+function carregarBlobViaImageTag(url) {
+ return new Promise((resolve, reject) => {
+  const img = new Image();
+  img.crossOrigin = "anonymous";
+  const timer = setTimeout(() => {
+   img.src = "";
+   reject(new Error("Tempo limite ao carregar imagem externa."));
+  }, 12000);
+
+  img.onload = async () => {
+   clearTimeout(timer);
+   try {
+    const canvas = document.createElement("canvas");
+    canvas.width = img.naturalWidth || img.width;
+    canvas.height = img.naturalHeight || img.height;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+    const blob = await canvasToBlob(canvas, "image/jpeg", 0.9);
+    if (!blob || blob.size <= 0) throw new Error("Falha ao ler dados da imagem.");
+    resolve(blob);
+   } catch (canvasErr) {
+    reject(new Error("Não foi possível processar a imagem deste site devido a restrições de segurança do servidor de origem (CORS). Dica: salve a imagem no celular e use 'Tirar/Enviar foto'."));
+   }
+  };
+
+  img.onerror = () => {
+   clearTimeout(timer);
+   reject(new Error("Não foi possível carregar a imagem deste endereço. Verifique se o link está acessível."));
+  };
+
+  img.src = url;
+ });
+}
+
+async function processExternalImageUrl(rawUrl) {
+ const safeUrl = validateImageUrlSecurity(rawUrl);
+ const controller = new AbortController();
+ const timeout = setTimeout(() => controller.abort(), 12000);
+
+ let blob;
+ try {
+  const res = await fetch(safeUrl, {
+   signal: controller.signal,
+   mode: "cors"
+  });
+  if (!res.ok) throw new Error(`Falha ao baixar imagem (HTTP ${res.status}).`);
+  const contentType = res.headers.get("content-type") || "";
+  if (contentType && !contentType.startsWith("image/")) {
+   throw new Error("O link informado não é um formato de imagem válido.");
+  }
+  blob = await res.blob();
+ } catch (fetchErr) {
+  if (fetchErr.name === "AbortError") {
+   throw new Error("Tempo limite esgotado ao tentar baixar a imagem (12s).");
+  }
+  console.warn("[PHOTO] Fetch direto falhou, tentando fallback Image:", fetchErr);
+  blob = await carregarBlobViaImageTag(safeUrl);
+ } finally {
+  clearTimeout(timeout);
+ }
+
+ if (!blob || blob.size <= 0) {
+  throw new Error("Não foi possível obter os dados da imagem.");
+ }
+ if (blob.size > PHOTO_MAX_SOURCE_BYTES) {
+  throw new Error("A imagem é muito grande (limite de 18 MB). Escolha outra imagem.");
+ }
+
+ const processed = await processPhoto(blob);
+ return processed;
+}
+
+els.tabPhoto.addEventListener("click", () => {
+ els.knownImageCard.hidden = true;
+ showImagePanel("camera");
+});
+
+els.tabLink.addEventListener("click", () => {
+ els.knownImageCard.hidden = true;
+ showImagePanel("link");
+});
+
+els.btnUseKnownImage.addEventListener("click", () => {
+ if (!currentKnownImage) return;
+ selectedImageState = {
+  type: "reused",
+  photoPath: currentKnownImage.photoPath,
+  photoUrl: currentKnownImage.photoUrl,
+  source: "reused"
+ };
+ photoData = null;
+ els.btnUseKnownImage.classList.add("active");
+ showToast("Imagem existente selecionada!", "info", "✓");
+});
+
+els.btnChangeImage.addEventListener("click", () => {
+ els.knownImageCard.hidden = true;
+ selectedImageState = null;
+ showImagePanel("camera");
+});
+
+let linkProcessedPhoto = null;
+
+els.btnPreviewUrl.addEventListener("click", async () => {
+ const url = els.imageUrlInput.value.trim();
+ if (!url) {
+  els.linkPreviewStatus.textContent = "Informe a URL da imagem.";
+  els.linkPreviewStatus.className = "link-status error";
+  els.linkPreviewStatus.hidden = false;
+  return;
+ }
+ els.linkPreviewStatus.textContent = "Carregando imagem...";
+ els.linkPreviewStatus.className = "link-status";
+ els.linkPreviewStatus.hidden = false;
+ els.btnPreviewUrl.disabled = true;
+ els.btnConfirmUrlPhoto.hidden = true;
+ els.linkPreviewContainer.hidden = true;
+
+ try {
+  linkProcessedPhoto = await processExternalImageUrl(url);
+  els.linkPreviewImg.src = linkProcessedPhoto.previewUrl;
+  els.linkPreviewContainer.hidden = false;
+  els.linkPreviewStatus.textContent = `Imagem carregada (${(linkProcessedPhoto.blob.size / 1024).toFixed(0)} KB - ${linkProcessedPhoto.width}x${linkProcessedPhoto.height})`;
+  els.linkPreviewStatus.className = "link-status success";
+  els.btnConfirmUrlPhoto.hidden = false;
+ } catch (err) {
+  console.error("Erro ao carregar URL:", err);
+  linkProcessedPhoto = null;
+  els.linkPreviewContainer.hidden = true;
+  els.linkPreviewStatus.textContent = err.message || "Não foi possível carregar esta imagem.";
+  els.linkPreviewStatus.className = "link-status error";
+ } finally {
+  els.btnPreviewUrl.disabled = false;
+ }
+});
+
+els.imageUrlInput.addEventListener("keydown", (event) => {
+ if (event.key === "Enter") {
+  event.preventDefault();
+  els.btnPreviewUrl.click();
+ }
+});
+
+els.btnConfirmUrlPhoto.addEventListener("click", () => {
+ if (!linkProcessedPhoto) return;
+ photoData = linkProcessedPhoto;
+ selectedImageState = {
+  type: "processed",
+  photoData: linkProcessedPhoto,
+  source: "external_import"
+ };
+ if (photoPreviewUrl) URL.revokeObjectURL(photoPreviewUrl);
+ photoPreviewUrl = linkProcessedPhoto.previewUrl;
+ els.preview.innerHTML = `<img src="${photoPreviewUrl}" alt="">`;
+ showImagePanel("camera");
+ showToast("Imagem da internet vinculada!", "success", "✓");
+});
+
 els.photo.addEventListener("change", async (event) => {
  const file = event.target.files[0];
  if (!file) return;
@@ -6728,6 +7271,11 @@ els.photo.addEventListener("change", async (event) => {
  els.preview.textContent = "Preparando foto...";
  try {
   photoData = await processPhoto(photoFile);
+  selectedImageState = {
+   type: "processed",
+   photoData,
+   source: "upload"
+  };
   if (photoPreviewUrl) URL.revokeObjectURL(photoPreviewUrl);
   photoPreviewUrl = photoData.previewUrl;
   els.preview.innerHTML = `<img src="${photoPreviewUrl}" alt="">`;
@@ -6736,6 +7284,7 @@ els.photo.addEventListener("change", async (event) => {
   logPhotoDiagnosticError(error);
   photoFile = null;
   photoData = null;
+  selectedImageState = null;
   if (photoPreviewUrl) URL.revokeObjectURL(photoPreviewUrl);
   photoPreviewUrl = "";
   els.photo.value = "";
@@ -6817,7 +7366,6 @@ function celebrarMissaoCumprida() {
  lancarFogosLaterais();
 }
 
-
 function setSavingProduct(saving) {
  els.save.disabled = saving;
  els.savingOverlay.classList.toggle("show", saving);
@@ -6840,6 +7388,21 @@ els.save.addEventListener("click", async () => {
 
  const selectedLocation = els.store.selectedOptions[0];
 
+ let photoPayload = null;
+ let photoPathPayload = null;
+ let imageSourcePayload = null;
+
+ if (selectedImageState?.type === "processed" && selectedImageState.photoData) {
+  photoPayload = selectedImageState.photoData;
+  imageSourcePayload = selectedImageState.source || "upload";
+ } else if (selectedImageState?.type === "reused" && selectedImageState.photoPath) {
+  photoPathPayload = selectedImageState.photoPath;
+  imageSourcePayload = "reused";
+ } else if (photoData) {
+  photoPayload = photoData;
+  imageSourcePayload = "upload";
+ }
+
  const novoProduto = {
   barcode: selected.barcode,
   code: selected.code,
@@ -6850,19 +7413,21 @@ els.save.addEventListener("click", async () => {
   offer: els.offer.checked,
   supplierCode: els.supplierCode.value.trim() || selected.supplierCode || "",
   supplierName: els.supplierName.value.trim() || selected.supplierName || "",
-  processedPhoto: photoData || null,
+  processedPhoto: photoPayload,
+  photoPath: photoPathPayload,
+  imageSource: imageSourcePayload,
   catalogProductId: selected.catalogProductId || null,
   brandId: selected.brandId || null,
   retailLocationId: els.store.value
  };
  console.log("[PHOTO] produto preparado para salvar", {
   hasPhotoFile: Boolean(photoFile),
-  originalType: photoFile?.type,
-  originalSize: photoFile?.size,
-  hasProcessedPhoto: Boolean(photoData),
-  extension: photoData?.extension,
-  contentType: photoData?.contentType,
-  size: photoData?.blob?.size
+  hasProcessedPhoto: Boolean(photoPayload),
+  hasPhotoPath: Boolean(photoPathPayload),
+  imageSource: imageSourcePayload,
+  extension: photoPayload?.extension,
+  contentType: photoPayload?.contentType,
+  size: photoPayload?.blob?.size
  });
 
  setSavingProduct(true);
@@ -6900,18 +7465,13 @@ els.save.addEventListener("click", async () => {
 
 function resetForm() {
  selected = null;
- photoFile = null;
- photoData = null;
- if (photoPreviewUrl) URL.revokeObjectURL(photoPreviewUrl);
- photoPreviewUrl = "";
+ resetImageSection();
  els.barcode.value = "";
  els.supplierCode.value = "";
  els.supplierName.value = "";
  els.qty.value = "";
  els.expiry.value = "";
  els.offer.checked = false;
- els.photo.value = "";
- els.preview.textContent = "Sem foto";
  els.found.classList.remove("show");
  els.found.innerHTML = "";
  void updateRegisterStockInfo();

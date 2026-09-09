@@ -33,7 +33,7 @@ const modeButton = document.querySelector("#authMode");
 const userLabel = document.querySelector("#authUser");
 const signOutButton = document.querySelector("#signOut");
 const authRing = document.querySelector(".auth-ring");
-const VALIDITY_PRODUCT_BASE_SELECT = "id,user_id,barcode,product_code,name,store,quantity,expiry_date,offer,supplier_code,supplier_name,photo_path,created_at,updated_at,completed_at,updated_by_email,catalog_product_id,brand_id,retail_location_id,brands(name),catalog_products(name,supplier_code,supplier_name),retail_locations(name)";
+const VALIDITY_PRODUCT_BASE_SELECT = "id,user_id,barcode,product_code,name,store,quantity,expiry_date,offer,supplier_code,supplier_name,photo_path,created_at,updated_at,completed_at,updated_by_email,catalog_product_id,brand_id,retail_location_id,brands(name),catalog_products(name,supplier_code,supplier_name,photo_path),retail_locations(name)";
 const VALIDITY_PRODUCT_MANAGEMENT_SELECT = "id,user_id,barcode,product_code,name,store,quantity,expiry_date,offer,supplier_code,supplier_name,catalog_product_id,brand_id,retail_location_id,catalog_products(name,category,supplier_code,supplier_name),retail_locations(name)";
 const stockMovementCache = new Map();
 const stockMovementByCodeStoreCache = new Map();
@@ -185,6 +185,7 @@ function fromDatabase(row) {
  const vpId = String(row.id || "");
  const storeCodeKey = stockMovementStoreCodeKey(row.store, row.product_code);
  const cachedMovement = (vpId ? stockMovementCache.get(vpId) : null) || (storeCodeKey ? stockMovementByCodeStoreCache.get(storeCodeKey) : null) || null;
+ const effectivePhotoPath = row.photo_path || row.catalog_products?.photo_path || "";
  return {
   id: row.id,
   barcode: row.barcode,
@@ -197,7 +198,9 @@ function fromDatabase(row) {
   supplierCode: primarySupplierCode,
   supplierName: primarySupplierName,
   supplierAliases: primarySupplierCode ? [{ code: primarySupplierCode, name: primarySupplierName }] : [],
-  photoPath: row.photo_path || "",
+  photoPath: effectivePhotoPath,
+  ownPhotoPath: row.photo_path || "",
+  catalogPhotoPath: row.catalog_products?.photo_path || "",
   photo: row.photo || "",
   photoLoaded: Object.prototype.hasOwnProperty.call(row, "photo"),
   createdAt: row.created_at,
@@ -584,24 +587,237 @@ async function uploadProductPhoto(product, processedPhoto) {
 }
 
 async function resolveProductPhoto(row) {
- if (row.photo_path) {
+ const photoPath = row.photo_path || row.catalog_products?.photo_path || "";
+ if (photoPath) {
   try {
    return {
     id: row.id,
-    photo: await getProductPhotoUrl(row.photo_path),
-    photoPath: row.photo_path
+    photo: await getProductPhotoUrl(photoPath),
+    photoPath: photoPath,
+    ownPhotoPath: row.photo_path || "",
+    catalogPhotoPath: row.catalog_products?.photo_path || ""
    };
   } catch (error) {
    console.error("Não foi possível assinar a foto privada do produto.", error);
-   return { id: row.id, photo: row.photo || "", photoPath: row.photo_path };
+   return { id: row.id, photo: row.photo || "", photoPath: photoPath };
   }
  }
  return { id: row.id, photo: row.photo || "", photoPath: "" };
 }
 
+function resolveProductImage(product) {
+ if (!product) return "";
+ if (product.photo) return product.photo;
+ return "";
+}
+
+async function updateCatalogProductPhoto(criteria, photoPath, imageSource = "upload") {
+ if (!photoPath) return;
+ try {
+  let query = supabase.from("catalog_products").update({
+   photo_path: photoPath,
+   image_source: imageSource,
+   photo_updated_at: new Date().toISOString()
+  });
+  if (typeof criteria === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(criteria)) {
+   query = query.eq("id", criteria);
+  } else if (criteria && typeof criteria === "object") {
+   if (criteria.catalogProductId || criteria.catalog_product_id) {
+    query = query.eq("id", criteria.catalogProductId || criteria.catalog_product_id);
+   } else if (criteria.barcode && String(criteria.barcode).trim()) {
+    const b = String(criteria.barcode).trim();
+    query = query.or(`barcode.eq.${b},sg_barcodes.cs.{${b}}`);
+   } else if (criteria.code && String(criteria.code).trim()) {
+    const c = String(criteria.code).trim().replace(/^0+(?=\d)/, "");
+    query = query.eq("internal_code", c);
+   } else {
+    return;
+   }
+  } else {
+   return;
+  }
+  const { error } = await query;
+  if (error) {
+   console.warn("[PHOTO] Aviso ao sincronizar foto com catalog_products:", error);
+  } else {
+   console.log("[PHOTO] Foto vinculada com sucesso a catalog_products", photoPath);
+  }
+ } catch (err) {
+  console.warn("[PHOTO] Erro ao sincronizar foto com o catálogo:", err);
+ }
+}
+
+async function checkIfPhotoPathIsShared(photoPath, excludeValidityProductId = null) {
+ const normalizedPath = String(photoPath || "").trim();
+ if (!normalizedPath) return false;
+ try {
+  let query = supabase
+   .from("validity_products")
+   .select("id")
+   .eq("photo_path", normalizedPath)
+   .limit(2);
+  if (excludeValidityProductId) {
+   query = query.neq("id", excludeValidityProductId);
+  }
+  const { data: vpData } = await query;
+  if (vpData && vpData.length > 0) return true;
+
+  const { data: catData } = await supabase
+   .from("catalog_products")
+   .select("id")
+   .eq("photo_path", normalizedPath)
+   .limit(1);
+  if (catData && catData.length > 0) return true;
+
+  return false;
+ } catch (err) {
+  console.warn("[PHOTO] Falha ao verificar compartilhamento de foto, preservando arquivo:", err);
+  return true;
+ }
+}
+
+async function findKnownProductImage(criteria = {}) {
+ const barcode = String(criteria.barcode || "").trim();
+ const code = String(criteria.code || criteria.product_code || "").trim().replace(/^0+(?=\d)/, "");
+ const catalogId = criteria.catalogProductId || criteria.catalog_product_id || null;
+
+ // 1. Catalog product by direct ID
+ if (catalogId) {
+  const { data, error } = await supabase
+   .from("catalog_products")
+   .select("id,name,photo_path,image_source")
+   .eq("id", catalogId)
+   .not("photo_path", "is", null)
+   .maybeSingle();
+  if (!error && data?.photo_path) {
+   const photoUrl = await getProductPhotoUrl(data.photo_path);
+   if (photoUrl) {
+    return {
+     photoPath: data.photo_path,
+     photoUrl,
+     source: "catalog",
+     catalogProductId: data.id,
+     productName: data.name || ""
+    };
+   }
+  }
+ }
+
+ // 2. Catalog product by exact barcode / EAN
+ if (barcode && /^[0-9]+$/.test(barcode)) {
+  let { data, error } = await supabase
+   .from("catalog_products")
+   .select("id,name,photo_path,image_source")
+   .or(`barcode.eq.${barcode},sg_barcodes.cs.{${barcode}}`)
+   .not("photo_path", "is", null)
+   .limit(1)
+   .maybeSingle();
+  if (error && String(error.message || "").includes("sg_barcodes")) {
+   const retry = await supabase
+    .from("catalog_products")
+    .select("id,name,photo_path,image_source")
+    .eq("barcode", barcode)
+    .not("photo_path", "is", null)
+    .limit(1)
+    .maybeSingle();
+   data = retry.data;
+   error = retry.error;
+  }
+  if (!error && data?.photo_path) {
+   const photoUrl = await getProductPhotoUrl(data.photo_path);
+   if (photoUrl) {
+    return {
+     photoPath: data.photo_path,
+     photoUrl,
+     source: "catalog",
+     catalogProductId: data.id,
+     productName: data.name || ""
+    };
+   }
+  }
+ }
+
+ // 3. Catalog product by exact internal code
+ if (code && /^[0-9]+$/.test(code)) {
+  const { data, error } = await supabase
+   .from("catalog_products")
+   .select("id,name,photo_path,image_source")
+   .eq("internal_code", code)
+   .not("photo_path", "is", null)
+   .limit(1)
+   .maybeSingle();
+  if (!error && data?.photo_path) {
+   const photoUrl = await getProductPhotoUrl(data.photo_path);
+   if (photoUrl) {
+    return {
+     photoPath: data.photo_path,
+     photoUrl,
+     source: "catalog",
+     catalogProductId: data.id,
+     productName: data.name || ""
+    };
+   }
+  }
+ }
+
+ // 4. Previous validity_products by exact barcode
+ if (barcode && /^[0-9]+$/.test(barcode)) {
+  const { data, error } = await supabase
+   .from("validity_products")
+   .select("id,name,photo_path,photo")
+   .eq("barcode", barcode)
+   .not("photo_path", "is", null)
+   .order("created_at", { ascending: false })
+   .limit(1)
+   .maybeSingle();
+  if (!error && data?.photo_path) {
+   const photoUrl = await getProductPhotoUrl(data.photo_path);
+   if (photoUrl) {
+    return {
+     photoPath: data.photo_path,
+     photoUrl,
+     source: "validity_product",
+     validityProductId: data.id,
+     productName: data.name || ""
+    };
+   }
+  }
+ }
+
+ // 5. Previous validity_products by exact product_code
+ if (code && /^[0-9]+$/.test(code)) {
+  const { data, error } = await supabase
+   .from("validity_products")
+   .select("id,name,photo_path,photo")
+   .eq("product_code", code)
+   .not("photo_path", "is", null)
+   .order("created_at", { ascending: false })
+   .limit(1)
+   .maybeSingle();
+  if (!error && data?.photo_path) {
+   const photoUrl = await getProductPhotoUrl(data.photo_path);
+   if (photoUrl) {
+    return {
+     photoPath: data.photo_path,
+     photoUrl,
+     source: "validity_product",
+     validityProductId: data.id,
+     productName: data.name || ""
+    };
+   }
+  }
+ }
+
+ return null;
+}
+
 window.skaleeDb = {
  getProductPhotoUrl,
  invalidateProductPhotoUrl,
+ findKnownProductImage,
+ updateCatalogProductPhoto,
+ checkIfPhotoPathIsShared,
+ resolveProductImage,
  getStockMovement(productId, fallbackProduct) {
   const vpId = String(productId || (typeof fallbackProduct === "object" ? fallbackProduct?.id : "") || "");
   const store = String((typeof fallbackProduct === "object" ? fallbackProduct?.store : "") || "");
@@ -760,462 +976,37 @@ window.skaleeDb = {
   return products;
  },
  async loadStockMovementsForValidityProducts(productIds = [], productListHint = []) {
-   const ids = [...new Set((productIds || []).map((item) => (typeof item === "object" && item ? item.id : item)).map((id) => String(id || "").trim()).filter(Boolean))];
-   if (!ids.length) return [];
-
-   let rows = [];
-   let rpcSuccess = true;
-   try {
-    for (let index = 0; index < ids.length; index += 100) {
-     const { data, error } = await supabase.rpc("get_validity_product_stock_movements", {
-      p_validity_product_ids: ids.slice(index, index + 100)
-     });
-     if (error) {
-      console.warn("RPC get_validity_product_stock_movements warning:", error);
-      rpcSuccess = false;
-      break;
-     }
-     rows.push(...(data || []));
-    }
-   } catch (err) {
-    console.warn("RPC get_validity_product_stock_movements failed:", err);
-    rpcSuccess = false;
+  const ids = [...new Set(productIds.map(p => String(p?.id || p)).filter(Boolean))];
+  const rows = [];
+  for (let i = 0; i < ids.length; i += 100) {
+   const { data, error } = await supabase.rpc("get_validity_sg_stock_v1", { p_validity_product_ids: ids.slice(i, i + 100) });
+   if (error) throw error;
+   for (const row of data || []) {
+    const movement = { ...(row.movement || {}), validity_product_id: row.validity_product_id };
+    rows.push(movement);
+    stockMovementCache.set(String(row.validity_product_id), movement);
    }
-
-   const resolvedMap = new Map(rows.filter((r) => r && r.snapshot_date).map((r) => [String(r.validity_product_id), r]));
-   const unresolvedIds = ids.filter((id) => !resolvedMap.has(String(id)));
-
-   if (unresolvedIds.length > 0) {
-    try {
-     const hintsById = new Map((Array.isArray(productListHint) ? productListHint : []).map((p) => [String(p.id), p]));
-     let missingProducts = unresolvedIds.map((id) => hintsById.get(String(id))).filter(Boolean);
-     const missingIdsToQuery = unresolvedIds.filter((id) => !hintsById.has(String(id)));
-
-     if (missingIdsToQuery.length > 0) {
-      for (let i = 0; i < missingIdsToQuery.length; i += 100) {
-       const { data: vpData } = await supabase
-        .from("validity_products")
-        .select("id,product_code,barcode,store,retail_location_id,catalog_product_id")
-        .in("id", missingIdsToQuery.slice(i, i + 100));
-       if (vpData && vpData.length) missingProducts.push(...vpData);
-      }
-     }
-
-     if (missingProducts.length > 0) {
-      const locationMap = new Map();
-      const { data: locs } = await supabase.from("retail_locations").select("id,name").eq("active", true);
-      (locs || []).forEach((loc) => {
-       if (loc.id) locationMap.set(loc.id, loc.id);
-       if (loc.name) locationMap.set(loc.name.trim().toLowerCase(), loc.id);
-      });
-
-      const queryCodesByLocation = new Map();
-      const queryCatalogIdsByLocation = new Map();
-
-      missingProducts.forEach((vp) => {
-       const locId = vp.retail_location_id || vp.retailLocationId || locationMap.get(String(vp.store || "").trim().toLowerCase()) || null;
-       const code = String(vp.product_code || vp.code || "").replace(/\D/g, "");
-       const catId = vp.catalog_product_id || vp.catalogProductId || null;
-       if (!locId) return;
-
-       if (code) {
-        if (!queryCodesByLocation.has(locId)) queryCodesByLocation.set(locId, new Set());
-        queryCodesByLocation.get(locId).add(code);
-       }
-       if (catId) {
-        if (!queryCatalogIdsByLocation.has(locId)) queryCatalogIdsByLocation.set(locId, new Set());
-        queryCatalogIdsByLocation.get(locId).add(catId);
-       }
-      });
-
-      const snapshots = [];
-      for (const [locId, codeSet] of queryCodesByLocation.entries()) {
-       const codes = [...codeSet];
-       for (let i = 0; i < codes.length; i += 100) {
-        const { data: sData } = await supabase
-         .from("product_stock_snapshots")
-         .select("id,catalog_product_id,retail_location_id,snapshot_date,stock_quantity,sale_price,cost_price,internal_code")
-         .eq("retail_location_id", locId)
-         .in("internal_code", codes.slice(i, i + 100))
-         .order("snapshot_date", { ascending: false });
-        if (sData && sData.length) snapshots.push(...sData);
-       }
-      }
-
-      for (const [locId, catSet] of queryCatalogIdsByLocation.entries()) {
-       const catIds = [...catSet];
-       for (let i = 0; i < catIds.length; i += 100) {
-        const { data: sData } = await supabase
-         .from("product_stock_snapshots")
-         .select("id,catalog_product_id,retail_location_id,snapshot_date,stock_quantity,sale_price,cost_price,internal_code")
-         .eq("retail_location_id", locId)
-         .in("catalog_product_id", catIds.slice(i, i + 100))
-         .order("snapshot_date", { ascending: false });
-        if (sData && sData.length) snapshots.push(...sData);
-       }
-      }
-
-      const snapshotsByKey = new Map();
-      snapshots.forEach((snap) => {
-       const codeKey = snap.internal_code ? `${snap.retail_location_id}:code:${String(snap.internal_code).replace(/\D/g, "")}` : null;
-       const catKey = snap.catalog_product_id ? `${snap.retail_location_id}:cat:${snap.catalog_product_id}` : null;
-       if (codeKey) {
-        if (!snapshotsByKey.has(codeKey)) snapshotsByKey.set(codeKey, []);
-        snapshotsByKey.get(codeKey).push(snap);
-       }
-       if (catKey) {
-        if (!snapshotsByKey.has(catKey)) snapshotsByKey.set(catKey, []);
-        snapshotsByKey.get(catKey).push(snap);
-       }
-      });
-
-      missingProducts.forEach((vp) => {
-       const vpId = String(vp.id);
-       const locId = vp.retail_location_id || vp.retailLocationId || locationMap.get(String(vp.store || "").trim().toLowerCase()) || null;
-       const code = String(vp.product_code || vp.code || "").replace(/\D/g, "");
-       const catId = vp.catalog_product_id || vp.catalogProductId || null;
-
-       let snaps = [];
-       if (locId && code && snapshotsByKey.has(`${locId}:code:${code}`)) {
-        snaps = snapshotsByKey.get(`${locId}:code:${code}`);
-       } else if (locId && catId && snapshotsByKey.has(`${locId}:cat:${catId}`)) {
-        snaps = snapshotsByKey.get(`${locId}:cat:${catId}`);
-       }
-
-       snaps.sort((a, b) => b.snapshot_date.localeCompare(a.snapshot_date));
-       const current = snaps[0] || null;
-       const previous = snaps.length > 1 ? snaps[1] : null;
-
-       let movementType = "no_previous_snapshot";
-       let stockChange = null;
-       let estimatedOutflow = null;
-       let intervalDays = null;
-
-       if (current && previous) {
-        stockChange = Number(current.stock_quantity) - Number(previous.stock_quantity);
-        intervalDays = Math.round((new Date(`${current.snapshot_date}T00:00:00`) - new Date(`${previous.snapshot_date}T00:00:00`)) / (1000 * 60 * 60 * 24));
-        if (Number(current.stock_quantity) < Number(previous.stock_quantity)) {
-         movementType = "decrease";
-         estimatedOutflow = Number(previous.stock_quantity) - Number(current.stock_quantity);
-        } else if (Number(current.stock_quantity) === Number(previous.stock_quantity)) {
-         movementType = "stable";
-         estimatedOutflow = 0;
-        } else {
-         movementType = "increase";
-        }
-       }
-
-       const movementObj = {
-        validity_product_id: vpId,
-        catalog_product_id: current?.catalog_product_id || catId || null,
-        retail_location_id: current?.retail_location_id || locId || null,
-        snapshot_date: current?.snapshot_date || null,
-        stock_quantity: current ? Number(current.stock_quantity) : null,
-        previous_snapshot_date: previous?.snapshot_date || null,
-        previous_stock_quantity: previous ? Number(previous.stock_quantity) : null,
-        stock_change: stockChange,
-        estimated_outflow: estimatedOutflow,
-        movement_type: movementType,
-        interval_days: intervalDays
-       };
-
-       resolvedMap.set(vpId, movementObj);
-      });
-     }
-    } catch (fallbackErr) {
-     console.error("Erro no fallback de movimentação de estoque:", fallbackErr);
-    }
-   }
-
-   resolvedMap.forEach((movement, vpId) => {
-    if (movement && movement.snapshot_date) {
-     stockMovementCache.set(String(vpId), movement);
-    }
-   });
-   (Array.isArray(productListHint) ? productListHint : []).forEach((hint) => {
-    const vpId = String(hint?.id || "");
-    const movement = resolvedMap.get(vpId);
-    if (movement && movement.snapshot_date && hint?.store && (hint?.code || hint?.product_code)) {
-     const key = stockMovementStoreCodeKey(hint.store, hint.code || hint.product_code);
-     if (key) stockMovementByCodeStoreCache.set(key, movement);
-    }
-   });
-
-   return ids.map((id) => resolvedMap.get(String(id)) || {
-    validity_product_id: id,
-    catalog_product_id: null,
-    retail_location_id: null,
-    snapshot_date: null,
-    stock_quantity: null,
-    previous_snapshot_date: null,
-    previous_stock_quantity: null,
-    stock_change: null,
-    estimated_outflow: null,
-    movement_type: "no_previous_snapshot",
-    interval_days: null
-   });
-  },
+  }
+  return rows;
+ },
   async resolveRetailLocation(storeOrId) {
     return resolveRetailLocation(storeOrId);
   },
   async loadStockMovementForProduct(params = {}) {
-    const rawInternalCode = String(params.productCode || params.code || params.product_code || "").trim();
-    const barcode = String(params.barcode || "").trim();
-    const catalogProductId = params.catalogProductId || params.catalog_product_id || null;
-    const selectedStore = String(params.store || params.retailLocationId || params.retail_location_id || "").trim();
-
-    const location = await resolveRetailLocation(params.retailLocationId || params.retail_location_id || params.store);
-    const resolvedStoreId = location?.id || null;
-    const resolvedStoreName = location?.name || params.store || "";
-
-    console.log("[SG STOCK LOOKUP]", {
-      internalCode: rawInternalCode,
-      barcode,
-      selectedStore,
-      resolvedStoreId
-    });
-
-    if (!resolvedStoreId) {
-      console.log("[SG STOCK RESULT]", {
-        searchedBy: "none",
-        found: false,
-        stock: null,
-        lastImportAt: null,
-        reason: "store_not_resolved"
-      });
-      return {
-        status: "no_store",
-        notFound: false,
-        snapshot_date: null,
-        stock_quantity: null,
-        movement_type: "no_store",
-        store: selectedStore,
-        retail_location_id: null
-      };
-    }
-
-    const cleanCode = rawInternalCode.replace(/\D/g, "");
-    const unpaddedCode = cleanCode.replace(/^0+/, "");
-    const padded6Code = unpaddedCode ? unpaddedCode.padStart(6, "0") : "";
-    const candidateCodes = [...new Set([rawInternalCode, cleanCode, unpaddedCode, padded6Code].filter(Boolean))];
-
-    // Check memory cache
-    const cacheKeys = [
-      stockMovementStoreCodeKey(resolvedStoreName, rawInternalCode),
-      stockMovementStoreCodeKey(resolvedStoreName, cleanCode),
-      stockMovementStoreCodeKey(resolvedStoreId, rawInternalCode),
-      stockMovementStoreCodeKey(resolvedStoreId, cleanCode),
-      barcode ? stockMovementStoreCodeKey(resolvedStoreId, barcode) : ""
-    ].filter(Boolean);
-
-    for (const key of cacheKeys) {
-      if (stockMovementByCodeStoreCache.has(key)) {
-        const cached = stockMovementByCodeStoreCache.get(key);
-        if (cached && cached.snapshot_date) {
-          console.log("[SG STOCK RESULT]", {
-            searchedBy: "memory_cache",
-            found: true,
-            stock: cached.stock_quantity,
-            lastImportAt: cached.snapshot_date
-          });
-          return cached;
-        }
-      }
-    }
-
-    const buildMovementObject = (current, previous, catId) => {
-      let movementType = "no_previous_snapshot";
-      let stockChange = null;
-      let estimatedOutflow = null;
-      let intervalDays = null;
-
-      if (current && previous) {
-        stockChange = Number(current.stock_quantity) - Number(previous.stock_quantity);
-        intervalDays = Math.round((new Date(`${current.snapshot_date}T00:00:00`) - new Date(`${previous.snapshot_date}T00:00:00`)) / (1000 * 60 * 60 * 24));
-        if (Number(current.stock_quantity) < Number(previous.stock_quantity)) {
-          movementType = "decrease";
-          estimatedOutflow = Number(previous.stock_quantity) - Number(current.stock_quantity);
-        } else if (Number(current.stock_quantity) === Number(previous.stock_quantity)) {
-          movementType = "stable";
-          estimatedOutflow = 0;
-        } else {
-          movementType = "increase";
-        }
-      }
-
-      const movementObj = {
-        status: "found",
-        notFound: false,
-        validity_product_id: null,
-        catalog_product_id: current?.catalog_product_id || catId || null,
-        retail_location_id: current?.retail_location_id || resolvedStoreId,
-        snapshot_date: current.snapshot_date,
-        created_at: current.created_at || null,
-        stock_quantity: Number(current.stock_quantity),
-        previous_snapshot_date: previous?.snapshot_date || null,
-        previous_stock_quantity: previous ? Number(previous.stock_quantity) : null,
-        stock_change: stockChange,
-        estimated_outflow: estimatedOutflow,
-        movement_type: movementType,
-        interval_days: intervalDays
-      };
-
-      cacheKeys.forEach((k) => stockMovementByCodeStoreCache.set(k, movementObj));
-      if (resolvedStoreName && cleanCode) {
-        stockMovementByCodeStoreCache.set(stockMovementStoreCodeKey(resolvedStoreName, cleanCode), movementObj);
-      }
-      return movementObj;
-    };
-
-    try {
-      // 1. Primary search: Internal Code + Store
-      let catId = catalogProductId;
-      if (!catId && candidateCodes.length) {
-        const { data: catRows } = await supabase
-          .from("catalog_products")
-          .select("id,internal_code,barcode")
-          .in("internal_code", candidateCodes)
-          .eq("active", true)
-          .limit(1);
-        if (catRows && catRows[0]) catId = catRows[0].id;
-      }
-
-      if (candidateCodes.length || catId) {
-        let query = supabase
-          .from("product_stock_snapshots")
-          .select("id,catalog_product_id,retail_location_id,snapshot_date,stock_quantity,sale_price,cost_price,internal_code,created_at")
-          .eq("retail_location_id", resolvedStoreId);
-
-        if (candidateCodes.length && catId) {
-          query = query.or(`internal_code.in.(${candidateCodes.join(",")}),catalog_product_id.eq.${catId}`);
-        } else if (candidateCodes.length) {
-          query = query.in("internal_code", candidateCodes);
-        } else if (catId) {
-          query = query.eq("catalog_product_id", catId);
-        }
-
-        const { data: snaps, error } = await query
-          .order("snapshot_date", { ascending: false })
-          .order("created_at", { ascending: false })
-          .limit(2);
-
-        if (!error && snaps && snaps.length) {
-          const current = snaps[0];
-          const previous = snaps.length > 1 ? snaps[1] : null;
-          const movementObj = buildMovementObject(current, previous, catId);
-          console.log("[SG STOCK RESULT]", {
-            searchedBy: "internal_code",
-            found: true,
-            stock: movementObj.stock_quantity,
-            lastImportAt: movementObj.snapshot_date
-          });
-          return movementObj;
-        }
-      }
-
-      // 2. Fallback search: Barcode + Store
-      if (barcode) {
-        console.log("[SG STOCK FALLBACK]", {
-          barcode,
-          resolvedStoreId,
-          found: false
-        });
-
-        // 2a. Catalog lookup by barcode
-        const { data: catBarcodeRows } = await supabase
-          .from("catalog_products")
-          .select("id,internal_code,barcode")
-          .eq("barcode", barcode)
-          .eq("active", true)
-          .limit(1);
-
-        if (catBarcodeRows && catBarcodeRows[0]) {
-          const bCat = catBarcodeRows[0];
-          const bCatCodes = [...new Set([bCat.internal_code, String(bCat.internal_code || "").replace(/\D/g, ""), String(bCat.internal_code || "").replace(/^0+/, "")].filter(Boolean))];
-          
-          let bQuery = supabase
-            .from("product_stock_snapshots")
-            .select("id,catalog_product_id,retail_location_id,snapshot_date,stock_quantity,sale_price,cost_price,internal_code,created_at")
-            .eq("retail_location_id", resolvedStoreId);
-
-          if (bCatCodes.length) {
-            bQuery = bQuery.or(`catalog_product_id.eq.${bCat.id},internal_code.in.(${bCatCodes.join(",")})`);
-          } else {
-            bQuery = bQuery.eq("catalog_product_id", bCat.id);
-          }
-
-          const { data: snaps, error } = await bQuery
-            .order("snapshot_date", { ascending: false })
-            .order("created_at", { ascending: false })
-            .limit(2);
-
-          if (!error && snaps && snaps.length) {
-            const current = snaps[0];
-            const previous = snaps.length > 1 ? snaps[1] : null;
-            const movementObj = buildMovementObject(current, previous, bCat.id);
-            console.log("[SG STOCK RESULT]", {
-              searchedBy: "barcode_catalog",
-              found: true,
-              stock: movementObj.stock_quantity,
-              lastImportAt: movementObj.snapshot_date
-            });
-            return movementObj;
-          }
-        }
-
-        // 2b. Direct search by barcode as internal_code in snapshots
-        const { data: directSnaps, error: directError } = await supabase
-          .from("product_stock_snapshots")
-          .select("id,catalog_product_id,retail_location_id,snapshot_date,stock_quantity,sale_price,cost_price,internal_code,created_at")
-          .eq("retail_location_id", resolvedStoreId)
-          .eq("internal_code", barcode)
-          .order("snapshot_date", { ascending: false })
-          .order("created_at", { ascending: false })
-          .limit(2);
-
-        if (!directError && directSnaps && directSnaps.length) {
-          const current = directSnaps[0];
-          const previous = directSnaps.length > 1 ? directSnaps[1] : null;
-          const movementObj = buildMovementObject(current, previous, null);
-          console.log("[SG STOCK RESULT]", {
-            searchedBy: "barcode_direct",
-            found: true,
-            stock: movementObj.stock_quantity,
-            lastImportAt: movementObj.snapshot_date
-          });
-          return movementObj;
-        }
-      }
-
-      // 3. Not Found in Last SG Load
-      console.log("[SG STOCK RESULT]", {
-        searchedBy: "none",
-        found: false,
-        stock: null,
-        lastImportAt: null
-      });
-
-      return {
-        status: "not_found",
-        notFound: true,
-        snapshot_date: null,
-        stock_quantity: null,
-        movement_type: "not_found",
-        store: resolvedStoreName,
-        retail_location_id: resolvedStoreId
-      };
-    } catch (err) {
-      console.warn("Falha ao buscar movimentação de estoque para produto avulso:", err);
-      return {
-        status: "not_found",
-        notFound: true,
-        snapshot_date: null,
-        stock_quantity: null,
-        movement_type: "not_found",
-        store: resolvedStoreName,
-        retail_location_id: resolvedStoreId
-      };
-    }
+   const location = await resolveRetailLocation(params.retailLocationId || params.retail_location_id || params.store);
+   if (!location?.id) return { status: "no_store", movement_type: "no_store" };
+   const code = String(params.productCode || params.code || params.product_code || "").trim().replace(/^0+(?=\d)/, "");
+   let query = supabase.from("sg_stock_movements").select("*").eq("retail_location_id", location.id);
+   if (code) query = query.eq("internal_code", code);
+   else {
+    let catalogId = params.catalogProductId || params.catalog_product_id;
+    if (!catalogId && params.barcode) catalogId = (await this.findSearchCatalogProduct(params.barcode))?.id;
+    if (!catalogId) return { status: "not_found", stock_quantity: null };
+    query = query.eq("catalog_product_id", catalogId);
+   }
+   const { data, error } = await query.limit(1).maybeSingle();
+   if (error) throw error;
+   return { ...(data || { status: "not_found", stock_quantity: null }), store: location.name, retail_location_id: location.id };
   },
  async loadStockImportBatches(snapshotDate) {
   if (!snapshotDate) return [];
@@ -1223,7 +1014,7 @@ window.skaleeDb = {
   for (let offset = 0; ; offset += 500) {
    const { data, error } = await supabase.from("stock_import_batches")
     .select("id,retail_location_id,snapshot_date,status,valid_rows,invalid_rows,original_filename,imported_at")
-    .eq("snapshot_date", snapshotDate).order("imported_at", { ascending: false })
+    .eq("snapshot_date", snapshotDate).not("sg_import_kind", "is", null).order("imported_at", { ascending: false })
     .order("id", { ascending: false }).range(offset, offset + 499);
    if (error) throw error;
    rows.push(...(data || []));
@@ -1253,43 +1044,21 @@ window.skaleeDb = {
   }
   return rows;
  },
- async importProductStockSnapshots({
-  snapshotDate,
-  retailLocationId,
-  sourceName = "sg_stock",
-  originalFilename = "",
-  totalFileRows = 0,
-  monitoredCount = 0,
-  unlocatedCount = 0,
-  rows = []
- } = {}) {
-  if (!snapshotDate) throw new Error("Informe a data da carga.");
-  if (!retailLocationId) throw new Error("Selecione a loja da carga.");
-  if (!Array.isArray(rows) || !rows.length) throw new Error("Nenhum produto monitorado foi localizado no arquivo da carga SG.");
-
-  let response = await supabase.rpc("import_product_stock_snapshots", {
-   p_snapshot_date: snapshotDate,
-   p_retail_location_id: retailLocationId,
-   p_source_name: sourceName,
-   p_original_filename: originalFilename,
-   p_rows: rows,
-   p_total_file_rows: totalFileRows || rows.length,
-   p_monitored_count: monitoredCount || rows.length,
-   p_unlocated_count: unlocatedCount || 0
+ async importProductStockSnapshots({ snapshotDate, retailLocationId, kind = "daily", originalFilename = "", fileHash, rows = [], onProgress = () => {} } = {}) {
+  if (!snapshotDate || !retailLocationId) throw new Error("Selecione a loja e a data da carga.");
+  if (!rows.length) throw new Error("Arquivo sem produtos.");
+  if (!/^[a-f0-9]{64}$/.test(fileHash || "")) throw new Error("Não foi possível identificar o arquivo com SHA-256.");
+  onProgress({ chunkIndex: 1, totalChunks: 1, processed: 0, total: rows.length });
+  const { data, error } = await supabase.rpc("import_sg_stock_v1", {
+   p_snapshot_date: snapshotDate, p_retail_location_id: retailLocationId, p_kind: kind,
+   p_original_filename: originalFilename, p_file_hash: fileHash, p_rows: rows
   });
-
-  if (response.error && String(response.error.message || "").toLowerCase().includes("schema cache")) {
-   response = await supabase.rpc("import_product_stock_snapshots", {
-    p_snapshot_date: snapshotDate,
-    p_retail_location_id: retailLocationId,
-    p_source_name: sourceName,
-    p_original_filename: originalFilename,
-    p_rows: rows
-   });
-  }
-  if (response.error) throw response.error;
-  if (response.data?.status === "failed") throw new Error(response.data.error_message || "A carga falhou e não foi marcada como concluída.");
-  return response.data;
+  if (error) throw error;
+  if (!data || !["completed", "completed_with_errors"].includes(data.status)) throw new Error(data?.error_message || "Carga não concluída.");
+  stockMovementCache.clear();
+  stockMovementByCodeStoreCache.clear();
+  onProgress({ chunkIndex: 1, totalChunks: 1, processed: rows.length, total: rows.length });
+  return data;
  },
  async loadProductDashboardStats(options = {}) {
   const access = await this.currentPromoterAccess();
@@ -1448,7 +1217,7 @@ window.skaleeDb = {
   for (let index = 0; index < productIds.length; index += 100) {
    const { data, error } = await supabase
     .from("validity_products")
-    .select("id,photo,photo_path")
+    .select("id,photo,photo_path,catalog_products(photo_path)")
     .in("id", productIds.slice(index, index + 100));
    if (error) throw error;
    rows.push(...(data || []));
@@ -1471,7 +1240,7 @@ window.skaleeDb = {
   const productForInsert = {
    ...product,
    photo: product.processedPhoto ? "" : product.photo || "",
-   photoPath: ""
+   photoPath: product.processedPhoto ? "" : (product.photoPath || "")
   };
   const { data, error } = await supabase
    .from("validity_products")
@@ -1488,9 +1257,17 @@ window.skaleeDb = {
   if (existingMovement && data?.id) {
    stockMovementCache.set(String(data.id), { ...existingMovement, validity_product_id: data.id });
   }
+
+  if (product.photoPath && !product.processedPhoto) {
+   void updateCatalogProductPhoto(data.catalog_product_id || { barcode: data.barcode, code: data.product_code }, product.photoPath, product.imageSource || "reused");
+   const resolvedPhoto = await resolveProductPhoto(data);
+   return fromDatabase({ ...data, photo: resolvedPhoto.photo });
+  }
+
   if (!product.processedPhoto) {
-   console.warn("[PHOTO] fluxo de foto interrompido: produto criado sem processedPhoto");
-   return fromDatabase(data);
+   console.warn("[PHOTO] fluxo de foto: produto criado sem foto adicional");
+   const resolvedPhoto = await resolveProductPhoto(data);
+   return fromDatabase({ ...data, photo: resolvedPhoto.photo });
   }
 
   try {
@@ -1504,6 +1281,7 @@ window.skaleeDb = {
     error: updateError
    });
    if (updateError) throw updateError;
+   void updateCatalogProductPhoto(data.catalog_product_id || { barcode: data.barcode, code: data.product_code }, path, product.imageSource || "upload");
    const updatedData = { ...data, photo_path: path };
    const resolvedPhoto = await resolveProductPhoto(updatedData);
    return fromDatabase({ ...updatedData, photo: resolvedPhoto.photo });
@@ -1514,42 +1292,61 @@ window.skaleeDb = {
   }
  },
  async updateProduct(id, changes = {}) {
-   const updatePayload = {};
-   if (changes.qty !== undefined) updatePayload.quantity = Number(changes.qty);
-   if (changes.quantity !== undefined) updatePayload.quantity = Number(changes.quantity);
-   if (changes.offer !== undefined) updatePayload.offer = Boolean(changes.offer);
-   if (changes.expiry !== undefined) updatePayload.expiry_date = changes.expiry;
-   if (changes.expiry_date !== undefined) updatePayload.expiry_date = changes.expiry_date;
-   if (changes.name !== undefined && String(changes.name).trim()) updatePayload.name = String(changes.name).trim();
-   if (changes.code !== undefined) updatePayload.product_code = String(changes.code).trim();
-   if (changes.product_code !== undefined) updatePayload.product_code = String(changes.product_code).trim();
-   if (changes.barcode !== undefined) updatePayload.barcode = String(changes.barcode).trim();
-   if (changes.store !== undefined) updatePayload.store = String(changes.store).trim();
-   if (changes.supplierCode !== undefined) updatePayload.supplier_code = String(changes.supplierCode).trim() || null;
-   if (changes.supplier_code !== undefined) updatePayload.supplier_code = String(changes.supplier_code).trim() || null;
-   if (changes.supplierName !== undefined) updatePayload.supplier_name = String(changes.supplierName).trim() || null;
-   if (changes.supplier_name !== undefined) updatePayload.supplier_name = String(changes.supplier_name).trim() || null;
-   if (changes.notes !== undefined) updatePayload.notes = String(changes.notes).trim() || null;
+  const { data: existingData, error: readError } = await supabase
+   .from("validity_products")
+   .select(VALIDITY_PRODUCT_BASE_SELECT)
+   .eq("id", id)
+   .single();
+  if (readError) throw readError;
 
-   if (!Object.keys(updatePayload).length) {
-    const { data: existingData, error: readError } = await supabase
-     .from("validity_products")
-     .select(VALIDITY_PRODUCT_BASE_SELECT)
-     .eq("id", id)
-     .single();
-    if (readError) throw readError;
-    return fromDatabase(existingData);
+  const updatePayload = {};
+  if (changes.qty !== undefined) updatePayload.quantity = Number(changes.qty);
+  if (changes.quantity !== undefined) updatePayload.quantity = Number(changes.quantity);
+  if (changes.offer !== undefined) updatePayload.offer = Boolean(changes.offer);
+  if (changes.expiry !== undefined) updatePayload.expiry_date = changes.expiry;
+  if (changes.expiry_date !== undefined) updatePayload.expiry_date = changes.expiry_date;
+  if (changes.name !== undefined && String(changes.name).trim()) updatePayload.name = String(changes.name).trim();
+  if (changes.code !== undefined) updatePayload.product_code = String(changes.code).trim();
+  if (changes.product_code !== undefined) updatePayload.product_code = String(changes.product_code).trim();
+  if (changes.barcode !== undefined) updatePayload.barcode = String(changes.barcode).trim();
+  if (changes.store !== undefined) updatePayload.store = String(changes.store).trim();
+  if (changes.supplierCode !== undefined) updatePayload.supplier_code = String(changes.supplierCode).trim() || null;
+  if (changes.supplier_code !== undefined) updatePayload.supplier_code = String(changes.supplier_code).trim() || null;
+  if (changes.supplierName !== undefined) updatePayload.supplier_name = String(changes.supplierName).trim() || null;
+  if (changes.supplier_name !== undefined) updatePayload.supplier_name = String(changes.supplier_name).trim() || null;
+  if (changes.notes !== undefined) updatePayload.notes = String(changes.notes).trim() || null;
+
+  let newPhotoPath = null;
+  if (changes.processedPhoto) {
+   const path = await uploadProductPhoto(existingData, changes.processedPhoto);
+   updatePayload.photo_path = path;
+   newPhotoPath = path;
+   void updateCatalogProductPhoto(existingData.catalog_product_id || { barcode: existingData.barcode, code: existingData.product_code }, path, changes.imageSource || "upload");
+  } else if (changes.photoPath !== undefined) {
+   updatePayload.photo_path = String(changes.photoPath || "").trim() || null;
+   if (updatePayload.photo_path) {
+    newPhotoPath = updatePayload.photo_path;
+    void updateCatalogProductPhoto(existingData.catalog_product_id || { barcode: existingData.barcode, code: existingData.product_code }, updatePayload.photo_path, changes.imageSource || "reused");
    }
+  } else if (changes.removePhoto) {
+   updatePayload.photo_path = null;
+   updatePayload.photo = "";
+  }
 
-   const { data, error } = await supabase
-    .from("validity_products")
-    .update(updatePayload)
-    .eq("id", id)
-    .select(VALIDITY_PRODUCT_BASE_SELECT)
-    .single();
-   if (error) throw error;
-   return fromDatabase(data);
-  },
+  if (!Object.keys(updatePayload).length) {
+   return fromDatabase(existingData);
+  }
+
+  const { data, error } = await supabase
+   .from("validity_products")
+   .update(updatePayload)
+   .eq("id", id)
+   .select(VALIDITY_PRODUCT_BASE_SELECT)
+   .single();
+  if (error) throw error;
+  const resolved = await resolveProductPhoto(data);
+  return fromDatabase({ ...data, photo: resolved.photo });
+ },
  async completeProduct(id) {
   const { data, error } = await supabase
    .from("validity_products")
@@ -1567,7 +1364,16 @@ window.skaleeDb = {
    .eq("id", id)
    .single();
   if (findError) throw findError;
-  if (existing?.photo_path) await removeStoredPhoto(existing.photo_path);
+  if (existing?.photo_path) {
+   const isShared = await checkIfPhotoPathIsShared(existing.photo_path, id);
+   if (!isShared) {
+    try {
+     await removeStoredPhoto(existing.photo_path);
+    } catch (removeErr) {
+     console.warn("[PHOTO] Aviso ao remover foto do storage:", removeErr);
+    }
+   }
+  }
   const { data, error } = await supabase
    .from("validity_products")
    .delete()
@@ -1707,12 +1513,13 @@ async listCatalogProducts(options = {}) {
  async findSearchCatalogProduct(code) {
   const value = String(code || "").trim();
   if (!value) return null;
+  if (!/^[0-9]+$/.test(value)) return null;
   const access = await this.currentPromoterAccess();
   if (access && !access.supplierCodes.length && !access.brandIds.length) return null;
   const { data, error } = await supabase
    .from("catalog_products")
    .select("id,brand_id,barcode,internal_code,name,supplier_code,supplier_name,active,brands(name)")
-   .or(`barcode.eq.${value},internal_code.eq.${value}`)
+   .or(`barcode.eq.${value},internal_code.eq.${value.replace(/^0+(?=\d)/, "")},sg_barcodes.cs.{${value}}`)
    .eq("active", true)
    .limit(20);
   if (error) throw error;
@@ -1723,6 +1530,15 @@ async listCatalogProducts(options = {}) {
   });
   const product = allowed.find((item) => item.supplier_code) || allowed[0] || null;
   return product;
+ },
+ async searchCatalogByName(name) {
+  const value = String(name || "").replace(/[%_(),.]/g, " ").trim();
+  if (value.length < 3) return [];
+  const { data, error } = await supabase.from("catalog_products")
+   .select("id,brand_id,barcode,internal_code,name,supplier_code,supplier_name,active,brands(name)")
+   .eq("active", true).ilike("name", `%${value}%`).order("name").limit(20);
+  if (error) throw error;
+  return data || [];
  },
  async countCatalogProducts() {
   const { count, error } = await supabase.from("catalog_products").select("id", { count: "exact", head: true });
@@ -1735,6 +1551,7 @@ async listCatalogProducts(options = {}) {
   return data;
  },
  async importCatalogProducts(products, options = {}) {
+  if (options.kind === "catalog_base") return this.importProductStockSnapshots({ ...options, rows: products });
   const source = options.source || "own_import";
   const reportProgress = typeof options.onProgress === "function" ? options.onProgress : () => {};
   const progressDetail = (current, total) => `${current.toLocaleString("pt-BR")} de ${total.toLocaleString("pt-BR")} produto(s)`;

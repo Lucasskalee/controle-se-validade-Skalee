@@ -1,10 +1,10 @@
-const CACHE_NAME = "skalee-pwa-v138-stock-rpc-compatibility";
-const CACHE_NAME = "skalee-pwa-v139-stock-movement-fix";
+const CACHE_NAME = "skalee-pwa-v142-sg-restored-themes";
 const APP_SHELL = [
  "/",
  "/index.html",
  "/skalito-demo.html",
  "/auth.css",
+ "/theme-layout.css",
  "/auth.js",
  "/admin-cadastros.css",
  "/admin-cadastros.js",

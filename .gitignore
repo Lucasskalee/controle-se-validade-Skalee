@@ -8,5 +8,6 @@ __pycache__/
 *.pyc
 supabase/.temp/
 test-results/
+.tmp/
 dev/chrome-tour-profile/
 dev/chrome-tour-profile-mobile/
