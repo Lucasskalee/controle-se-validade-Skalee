@@ -13,11 +13,12 @@ const photoUrlCacheStats = {
  hits: 0,
  memoryHits: 0,
  sessionHits: 0,
+ persistentHits: 0,
  misses: 0,
  signed: 0,
  pending: 0,
  requested: 0,
- downloaded: 0
+ displayed: 0
 };
 window.skaleePhotoCacheStats = photoUrlCacheStats;
 const SHARED_CATALOG_OWNER_ID = "1d229a0e-7c6d-4b03-9505-95c50bb49cad";
@@ -436,44 +437,59 @@ function logPhotoDiagnosticError(error) {
  console.error("[PHOTO] stack", error?.stack);
 }
 
+const PHOTO_CACHE_PREFIX = "skalee:photo-url:v2:";
+let photoCacheGeneration = 0;
 function photoCacheKey(path) {
- return `validity-photo-url:${path}`;
+ return PHOTO_CACHE_PREFIX + activeUserId + ":" + path;
 }
-
+function clearPhotoUrlCache() {
+ photoCacheGeneration += 1;
+ signedPhotoUrlCache.clear();
+ pendingSignedPhotoUrlRequests.clear();
+ for (const storageName of ["localStorage", "sessionStorage"]) {
+  try {
+   const storage = window[storageName];
+   for (let i = storage.length - 1; i >= 0; i--) {
+    const key = storage.key(i);
+    if (key?.startsWith(PHOTO_CACHE_PREFIX) || key?.startsWith("validity-photo-url:")) storage.removeItem(key);
+   }
+  } catch (_) { /* Storage may be disabled; memory cache still works. */ }
+ }
+}
 function readStoredPhotoUrl(path) {
+ if (!activeUserId) return null;
  try {
-  const raw = sessionStorage.getItem(photoCacheKey(path));
-  if (!raw) return null;
-  const cached = JSON.parse(raw);
-  if (!cached?.url || !cached?.expiresAt || cached.expiresAt <= Date.now() + SIGNED_PHOTO_URL_REFRESH_MARGIN_MS) {
-   sessionStorage.removeItem(photoCacheKey(path));
+  const key = photoCacheKey(path);
+  const cached = JSON.parse(localStorage.getItem(key) || "null");
+  if (!cached?.url || cached.expiresAt <= Date.now() || !Number.isFinite(cached.expiresAt)) {
+   localStorage.removeItem(key);
    return null;
   }
   return cached;
- } catch (error) {
-  console.debug("[PHOTO] session cache ignored", path, error);
-  return null;
- }
+ } catch (_) { return null; }
 }
-
 function invalidateProductPhotoUrl(photoPath) {
- const normalizedPath = String(photoPath || "").trim();
- if (!normalizedPath) return;
- signedPhotoUrlCache.delete(normalizedPath);
- pendingSignedPhotoUrlRequests.delete(normalizedPath);
- try {
-  sessionStorage.removeItem(photoCacheKey(normalizedPath));
- } catch (error) {
-  console.debug("[PHOTO] session cache invalidate skipped", normalizedPath, error);
- }
+ const path = String(photoPath || "").trim();
+ signedPhotoUrlCache.delete(path);
+ pendingSignedPhotoUrlRequests.delete(path);
+ try { localStorage.removeItem(photoCacheKey(path)); } catch (_) {}
 }
-
 function writeStoredPhotoUrl(path, cached) {
+ if (!activeUserId) return;
  try {
-  sessionStorage.setItem(photoCacheKey(path), JSON.stringify(cached));
- } catch (error) {
-  console.debug("[PHOTO] session cache write skipped", path, error);
- }
+  // Bound storage growth and discard expired entries without touching other app data.
+  const keys = [];
+  for (let i = 0; i < localStorage.length; i++) {
+   const key = localStorage.key(i);
+   if (key?.startsWith(PHOTO_CACHE_PREFIX)) keys.push(key);
+  }
+  for (const key of keys) {
+   try { if (!(JSON.parse(localStorage.getItem(key))?.expiresAt > Date.now())) localStorage.removeItem(key); }
+   catch (_) { localStorage.removeItem(key); }
+  }
+  while (keys.length >= 1000) localStorage.removeItem(keys.shift());
+  localStorage.setItem(photoCacheKey(path), JSON.stringify(cached));
+ } catch (_) { /* Quota/full storage must not block loading photos. */ }
 }
 
 function rememberSignedPhotoUrl(path, url) {
@@ -488,7 +504,7 @@ function rememberSignedPhotoUrl(path, url) {
 
 async function getProductPhotoUrl(photoPath) {
  const normalizedPath = String(photoPath || "").trim();
- if (!normalizedPath) return "";
+ if (!normalizedPath || !activeUserId) return "";
  const cached = signedPhotoUrlCache.get(normalizedPath);
  if (cached && cached.expiresAt > Date.now()) {
   photoUrlCacheStats.hits += 1;
@@ -500,7 +516,7 @@ async function getProductPhotoUrl(photoPath) {
  if (stored) {
   signedPhotoUrlCache.set(normalizedPath, stored);
   photoUrlCacheStats.hits += 1;
-  photoUrlCacheStats.sessionHits += 1;
+  photoUrlCacheStats.persistentHits += 1;
   console.debug("[PHOTO CACHE] HIT", normalizedPath);
   return stored.url;
  }
@@ -512,12 +528,15 @@ async function getProductPhotoUrl(photoPath) {
  }
  photoUrlCacheStats.misses += 1;
  console.debug("[PHOTO CACHE] MISS", normalizedPath);
+ const requestGeneration = photoCacheGeneration;
+ const requestUser = activeUserId;
  const request = supabase
   .storage
   .from(VALIDITY_PHOTO_BUCKET)
   .createSignedUrl(normalizedPath, SIGNED_PHOTO_URL_TTL_SECONDS)
   .then(({ data, error }) => {
    if (error) throw error;
+   if (requestGeneration !== photoCacheGeneration || requestUser !== activeUserId) return "";
    const url = data?.signedUrl || "";
    if (!url) throw new Error("Não foi possível gerar URL assinada da foto.");
    photoUrlCacheStats.signed += 1;
@@ -537,7 +556,7 @@ async function removeStoredPhoto(path) {
  signedPhotoUrlCache.delete(normalizedPath);
  pendingSignedPhotoUrlRequests.delete(normalizedPath);
  try {
-  sessionStorage.removeItem(photoCacheKey(normalizedPath));
+  localStorage.removeItem(photoCacheKey(normalizedPath));
  } catch (storageError) {
   console.debug("[PHOTO] session cache remove skipped", normalizedPath, storageError);
  }
@@ -1872,6 +1891,7 @@ function showSession(session) {
  body.classList.add(authenticated ? "auth-authenticated" : "auth-anonymous");
  app.setAttribute("aria-hidden", String(!authenticated));
  const accessRole = session?.user?.app_metadata?.access_role || "editor";
+ if ((previousUserId && previousUserId !== nextUserId) || !nextUserId) clearPhotoUrlCache();
  activeUserId = nextUserId;
  activeUserEmail = session?.user?.email || "";
  activeAccessRole = accessRole;

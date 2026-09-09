@@ -3040,7 +3040,7 @@ function aplicarFotosCarregadas(photoById) {
    image.decoding = "async";
    image.alt = "";
    image.addEventListener("load", () => {
-    if (window.skaleePhotoCacheStats) window.skaleePhotoCacheStats.downloaded = (window.skaleePhotoCacheStats.downloaded || 0) + 1;
+    if (window.skaleePhotoCacheStats) window.skaleePhotoCacheStats.displayed = (window.skaleePhotoCacheStats.displayed || 0) + 1;
    }, { once: true });
    slot.appendChild(image);
   } else {

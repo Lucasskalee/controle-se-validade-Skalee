@@ -1,4 +1,4 @@
-const CACHE_NAME = "skalee-pwa-v143-sg-legacy-history";
+const CACHE_NAME = "skalee-pwa-v144-persistent-photo-cache";
 const APP_SHELL = [
  "/",
  "/index.html",
