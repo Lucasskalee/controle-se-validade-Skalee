@@ -1571,12 +1571,22 @@ async listCatalogProducts(options = {}) {
   if (!/^[0-9]+$/.test(value)) return null;
   const access = await this.currentPromoterAccess();
   if (access && !access.supplierCodes.length && !access.brandIds.length) return null;
-  const { data, error } = await supabase
+  let { data, error } = await supabase
    .from("catalog_products")
    .select("id,brand_id,barcode,internal_code,name,supplier_code,supplier_name,active,brands(name)")
    .or(`barcode.eq.${value},internal_code.eq.${value.replace(/^0+(?=\d)/, "")},sg_barcodes.cs.{${value}}`)
    .eq("active", true)
    .limit(20);
+  if (error && String(error.message || "").includes("sg_barcodes")) {
+   const retry = await supabase
+    .from("catalog_products")
+    .select("id,brand_id,barcode,internal_code,name,supplier_code,supplier_name,active,brands(name)")
+    .or(`barcode.eq.${value},internal_code.eq.${value.replace(/^0+(?=\d)/, "")}`)
+    .eq("active", true)
+    .limit(20);
+   data = retry.data;
+   error = retry.error;
+  }
   if (error) throw error;
   const allowed = (data || []).filter((item) => {
    if (!access) return true;
