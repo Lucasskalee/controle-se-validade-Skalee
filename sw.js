@@ -1,7 +1,8 @@
-const CACHE_NAME = "skalee-pwa-v147-monitored-stock";
+const CACHE_NAME = "skalee-pwa-v152-auth-startup-fix";
 const APP_SHELL = [
  "/",
  "/index.html",
+ "/local-query.js",
  "/skalito-demo.html",
  "/auth.css",
  "/theme-layout.css",

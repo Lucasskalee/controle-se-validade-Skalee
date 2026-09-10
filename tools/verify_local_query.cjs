@@ -1,0 +1,34 @@
+const fs = require('node:fs');
+const vm = require('node:vm');
+const assert = require('node:assert/strict');
+const path = require('node:path');
+const root = path.join(__dirname, '..');
+const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const js = fs.readFileSync(path.join(root, 'local-query.js'), 'utf8');
+const context = vm.createContext({ TextDecoder });
+vm.runInContext(html.slice(html.indexOf('function parseNumeroSg(value)'), html.indexOf('function carregarSnapshotsEstoqueDbf(buffer)')), context);
+vm.runInContext(js.slice(0, js.indexOf('(() => {')), context);
+const parse = text => context.parseLocalQueryText(Buffer.from(text));
+const rows = parse('Código;Descrição;Preço;Estoque;EAN\r\n001;"Café; especial";"1.234,56";0;07890000000001\r\n002;"Arroz ""tipo 1""";2,50;-1,5;7890000000002');
+assert.equal(rows[0].internal_code, '001');
+assert.equal(rows[0].name, 'Café; especial');
+assert.equal(rows[0].sale_price, 1234.56);
+assert.equal(rows[0].stock_quantity, 0);
+assert.equal(rows[0].barcode, '07890000000001');
+assert.equal(rows[1].stock_quantity, -1.5);
+assert.equal(rows[1].name, 'Arroz "tipo 1"');
+assert.equal(parse('codigo,descricao,preco,estoque\nABC,"Café\nPremium",3.25,2')[0].sale_price, 3.25);
+assert.equal(parse('CODPROD\tDESCRICAO\tESTOQ\n123\tTeste\t4')[0].sale_price, null);
+assert.equal(context.parseLocalQueryText(Buffer.from('codigo;descricao;estoque\n1;Café;2', 'latin1'))[0].name, 'Café');
+assert.throws(() => parse('codigo;estoque\n1;abc'), /inválido/);
+assert.throws(() => parse('codigo;estoque;preco\n1;2;abc'), /Preço inválido/);
+assert.throws(() => parse('codigo;estoque\n1;"2'), /aspas/);
+assert.throws(() => parse('produto;valor\nCafé;2'), /cabeçalhos/);
+assert.throws(() => parse('<html>Planilha</html>'), /CSV/);
+for (const match of html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)) {
+ if (match[1].trim()) new vm.Script(match[1]);
+}
+assert.ok(html.includes('data-page="local-query"'));
+assert.ok(fs.readFileSync(path.join(root, 'sw.js'), 'utf8').includes('"/local-query.js"'));
+assert.ok(!/\bfetch\s*\(|supabase\./.test(js));
+console.log('PASS: CSV/TSV, UTF-8/Windows-1252, aspas, acentos, códigos, preços, estoque zero/negativo, rejeição de inválidos, sintaxe e integração local.');

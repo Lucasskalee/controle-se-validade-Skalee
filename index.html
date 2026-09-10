@@ -711,6 +711,7 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
 </header>
 
 <nav class="main-nav" aria-label="Navegação principal">
+ <button class="tab" data-page="local-query" type="button"><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="10" cy="10" r="6"/><path d="m15 15 6 6"/></svg></span><span class="tab-label"><span class="label-desktop">Consulta local</span><span class="label-mobile">Consulta</span></span></button>
  <button class="tab active" data-page="products" aria-current="page"><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span><span class="tab-label"><span class="label-desktop">Produtos</span><span class="label-mobile">Produtos</span></span></button>
  <button class="tab" data-page="register"><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 5v14"/><path d="M5 12h14"/><path d="M4 4h16v16H4z"/></svg></span><span class="tab-label"><span class="label-desktop">Registrar produto</span><span class="label-mobile">Registrar</span></span></button>
  <button id="reportTab" class="tab" data-page="report" hidden><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 19V5"/><path d="M8 17v-6"/><path d="M13 17V7"/><path d="M18 17v-3"/><path d="M4 19h17"/></svg></span><span class="tab-label"><span class="label-desktop">Relatórios</span><span class="label-mobile">Relat.</span></span></button>
@@ -768,6 +769,28 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
  </div>
 </aside>
 
+<section class="page" id="local-query">
+ <div class="card" style="padding:20px">
+  <h2>Consulta local</h2>
+  <p>Importe um arquivo por loja para consultar produtos, preços e estoque neste aparelho.</p>
+  <p class="settings-note">Os dados ficam somente neste navegador. Limpar os dados do site apaga as consultas salvas. Um novo arquivo da mesma loja substitui a consulta anterior.</p>
+  <form id="localQueryImport" class="local-query-controls">
+   <label>Nome ou código da loja<input id="localQueryStore" required maxlength="100" placeholder="Ex.: Loja 01" autocomplete="off"></label>
+   <label>Arquivo de consulta<input id="localQueryFile" type="file" required></label>
+   <button class="btn" type="submit">Salvar neste aparelho</button>
+  </form>
+  <p class="settings-note">DBF, CSV, TSV, TXT ou relatório XLS em texto. Colunas: código, descrição, preço e estoque. Planilhas Excel binárias devem ser exportadas como CSV.</p>
+  <p id="localQueryStatus" role="status" aria-live="polite"></p>
+  <div class="local-query-controls">
+   <label>Consultar loja<select id="localQueryFilter"><option value="">Todas as lojas</option></select></label>
+   <label>Buscar produto<input id="localQuerySearch" type="search" placeholder="Descrição, código ou código de barras"></label>
+   <button id="localQueryDelete" class="btn2" type="button" disabled>Excluir consulta da loja</button>
+  </div>
+  <p id="localQuerySummary" aria-live="polite"></p>
+  <div style="overflow-x:auto"><table class="local-query-table"><thead><tr><th>Loja</th><th>Código</th><th>Produto</th><th>Código de barras</th><th>Preço</th><th>Estoque</th></tr></thead><tbody id="localQueryRows"></tbody></table></div>
+  <button id="localQueryMore" class="btn2" type="button" hidden>Mostrar mais</button>
+ </div>
+</section>
 <section class="page active" id="products">
  <div class="stats">
   <div class="stat"><small>Produtos ativos</small><b id="sProducts">0</b></div>
@@ -5559,6 +5582,7 @@ els.btnUpdateRemovePhoto.addEventListener("click", () => {
 });
 
 els.confirmUpdate.addEventListener("click", async () => {
+ if (els.confirmUpdate.disabled) return;
  const quantity = Number(els.updateQty.value);
  if (!Number.isInteger(quantity) || quantity < 1) {
   els.updateError.textContent = "Informe uma quantidade inteira maior que zero.";
@@ -5569,6 +5593,7 @@ els.confirmUpdate.addEventListener("click", async () => {
  const previousProduct = products.find((product) => product.id === productId);
  if (!previousProduct) return;
  const productName = previousProduct.name || "Produto";
+ const offer = els.updateOffer.checked;
  els.updateError.textContent = "";
  pendingProductUpdateIds.add(String(productId));
  expandedProductIds.add(String(productId));
@@ -5596,7 +5621,7 @@ els.confirmUpdate.addEventListener("click", async () => {
  const optimisticProduct = {
   ...previousProduct,
   qty: quantity,
-  offer: els.updateOffer.checked,
+  offer,
   photo: previewPhotoForOptimistic,
   photoPath: photoPathForOptimistic,
   updatedAt: new Date().toISOString(),
@@ -5604,11 +5629,11 @@ els.confirmUpdate.addEventListener("click", async () => {
  };
  products = products.map((product) => product.id === productId ? optimisticProduct : product);
  applyDashboardStatsDelta(previousProduct, optimisticProduct);
- closeUpdateModal();
+ setUpdateActionsDisabled(true);
  render();
  showToast(`Atualizando ${productName}...`, "info", "⏳");
 
- window.skaleeDb.updateProduct(productId, { qty: quantity, offer: els.updateOffer.checked, ...photoChanges })
+ window.skaleeDb.updateProduct(productId, { qty: quantity, offer, ...photoChanges })
   .then((updatedProduct) => {
    const movement = updatedProduct.stockMovement || existingStockMovement || (typeof window.skaleeDb?.getStockMovement === "function" ? window.skaleeDb.getStockMovement(productId, updatedProduct) : null) || null;
    const finalProduct = {
@@ -5620,16 +5645,24 @@ els.confirmUpdate.addEventListener("click", async () => {
    };
    mergeReportProduct(finalProduct);
    products = products.map((product) => product.id === productId ? finalProduct : product);
+   if (updatingProductId === productId) closeUpdateModal();
    showToast(`${productName} atualizado.`, "success", "✓");
   })
   .catch((error) => {
    console.error("Falha ao atualizar produto.", error);
    products = products.map((product) => product.id === productId ? previousProduct : product);
    applyDashboardStatsDelta(optimisticProduct, previousProduct);
-   showToast(`Não foi possível atualizar ${productName}.`, "error", "!");
+   const detail = /row.level security|permission denied|unauthorized/i.test(error.message || "")
+    ? "Sua sessão não tem permissão para salvar esta alteração. Entre novamente e tente outra vez."
+    : /fetch|network/i.test(error.message || "")
+     ? "Falha de conexão. Confira a internet e tente salvar novamente."
+     : error.message || "Tente salvar novamente.";
+   if (updatingProductId === productId) els.updateError.textContent = `Não foi possível salvar. ${detail} Sua edição foi mantida para tentar novamente.`;
+   showToast(`Não foi possível atualizar ${productName}. ${detail}`, "error", "!");
   })
   .finally(() => {
    pendingProductUpdateIds.delete(String(productId));
+   setUpdateActionsDisabled(false);
    render();
   });
 });
@@ -7523,6 +7556,7 @@ els.updateQty.addEventListener("change", renderEditStockFeedback);
 
 render();
 </script>
+<script src="local-query.js"></script>
 <script type="module" src="auth.js"></script>
 <script type="module" src="components/tour/SkalitoTour.js"></script>
 <script src="admin-cadastros.js" defer></script>
