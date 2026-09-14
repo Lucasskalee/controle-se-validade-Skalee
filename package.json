@@ -1,0 +1,16 @@
+{
+  "name": "controle-se-validade-skalee",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Controle de Validades | Skalee - Local-First & PWA",
+  "scripts": {
+    "build": "tsc",
+    "build:ts": "tsc",
+    "typecheck": "tsc --noEmit",
+    "watch:ts": "tsc --watch",
+    "start": "node tools/server.js"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}
