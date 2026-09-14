@@ -36,9 +36,66 @@ const modeButton = document.querySelector("#authMode");
 const userLabel = document.querySelector("#authUser");
 const signOutButton = document.querySelector("#signOut");
 const authRing = document.querySelector(".auth-ring");
-const VALIDITY_PRODUCT_BASE_SELECT = "id,user_id,barcode,product_code,name,store,quantity,expiry_date,offer,supplier_code,supplier_name,photo_path,created_at,updated_at,completed_at,updated_by_email,catalog_product_id,brand_id,retail_location_id,brands(name),catalog_products(name,supplier_code,supplier_name,photo_path),retail_locations(name)";
-const VALIDITY_PRODUCT_MANAGEMENT_SELECT = "id,user_id,barcode,product_code,name,store,quantity,expiry_date,offer,supplier_code,supplier_name,catalog_product_id,brand_id,retail_location_id,catalog_products(name,category,supplier_code,supplier_name),retail_locations(name)";
+const VALIDITY_PRODUCT_BASE_SELECT = "id,user_id,barcode,product_code,name,store,quantity,expiry_date,offer,supplier_code,supplier_name,photo_path,created_at,updated_at,completed_at,updated_by_email,catalog_product_id,brand_id,retail_location_id,brands(name),catalog_products(name,supplier_code,supplier_name,photo_path,image_source,image_url,image_provider,image_origin),retail_locations(name)";
+const VALIDITY_PRODUCT_MANAGEMENT_SELECT = "id,user_id,barcode,product_code,name,store,quantity,expiry_date,offer,supplier_code,supplier_name,catalog_product_id,brand_id,retail_location_id,catalog_products(name,category,supplier_code,supplier_name,photo_path,image_source,image_url,image_provider,image_origin),retail_locations(name)";
 const stockMovementCache = new Map();
+
+function normalizeReferenceCode(value) {
+  return String(value || "").trim().replace(/^0+(?=\d)/, "");
+}
+
+async function lookupExternalProductReferenceImage(ean) {
+  const normalized = String(ean || "").trim();
+  if (!normalized || !/^\d{8,13}$/.test(normalized)) {
+    return null;
+  }
+
+  const providers = [
+    {
+      provider: "openfoodfacts",
+      async lookup(code) {
+        const fields = "code,product_name,product_name_pt,generic_name,generic_name_pt,abbreviated_product_name,brands,image_front_url,image_ingredients_url,image_nutrition_url";
+        const response = await fetch(`https://world.openfoodfacts.org/api/v3/product/${encodeURIComponent(code)}?fields=${encodeURIComponent(fields)}&product_type=all&lc=pt&cc=br`, {
+          headers: { Accept: "application/json" }
+        });
+        if (!response.ok) return null;
+        const payload = await response.json();
+        const product = payload?.product || null;
+        const imageUrl = String(product?.image_front_url || product?.image_ingredients_url || product?.image_nutrition_url || "").trim();
+        if (!imageUrl) return null;
+        return { imageUrl, provider: "openfoodfacts", source: "external_reference" };
+      }
+    },
+    {
+      provider: "upcitemdb",
+      async lookup(code) {
+        const response = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${encodeURIComponent(code)}`, {
+          headers: { Accept: "application/json" }
+        });
+        if (response.status === 404) return null;
+        if (!response.ok) throw new Error(`UPCItemDB HTTP ${response.status}`);
+        const payload = await response.json();
+        const item = Array.isArray(payload?.items) ? payload.items[0] : null;
+        const imageUrl = String(item?.images?.[0] || item?.image || "").trim();
+        if (!imageUrl) return null;
+        return { imageUrl, provider: "upcitemdb", source: "external_reference" };
+      }
+    }
+  ];
+
+  for (const provider of providers) {
+    try {
+      const result = await provider.lookup(normalized);
+      if (result?.imageUrl) {
+        return result;
+      }
+    } catch (error) {
+      console.warn(`[PHOTO] Provedor de imagem externa falhou (${provider.provider}):`, error);
+    }
+  }
+
+  return null;
+}
 const stockMovementByCodeStoreCache = new Map();
 
 function stockMovementStoreCodeKey(store, code) {
@@ -66,6 +123,13 @@ async function getActiveRetailLocationsList(forceRefresh = false) {
  if (!forceRefresh && cachedRetailLocationsList && (now - cachedRetailLocationsTime < 60000)) {
   return cachedRetailLocationsList;
  }
+ if (!navigator.onLine && window.skaleeLocalStore) {
+  const cached = await window.skaleeLocalStore.getAllowedLocations();
+  if (cached && cached.length) {
+   cachedRetailLocationsList = cached;
+   return cached;
+  }
+ }
  try {
   const { data, error } = await supabase
    .from("retail_locations")
@@ -74,10 +138,20 @@ async function getActiveRetailLocationsList(forceRefresh = false) {
   if (!error && Array.isArray(data)) {
    cachedRetailLocationsList = data;
    cachedRetailLocationsTime = now;
+   if (window.skaleeLocalStore) {
+    void window.skaleeLocalStore.saveAllowedLocations(data);
+   }
    return data;
   }
  } catch (err) {
   console.warn("Aviso ao carregar retail_locations:", err);
+  if (window.skaleeLocalStore) {
+   const cached = await window.skaleeLocalStore.getAllowedLocations();
+   if (cached && cached.length) {
+    cachedRetailLocationsList = cached;
+    return cached;
+   }
+  }
  }
  return cachedRetailLocationsList || [];
 }
@@ -204,8 +278,12 @@ function fromDatabase(row) {
   photoPath: effectivePhotoPath,
   ownPhotoPath: row.photo_path || "",
   catalogPhotoPath: row.catalog_products?.photo_path || "",
-  photo: row.photo || "",
-  photoLoaded: Object.prototype.hasOwnProperty.call(row, "photo"),
+  imageUrl: row.catalog_products?.image_url || null,
+  imageProvider: row.catalog_products?.image_provider || null,
+  imageOrigin: row.catalog_products?.image_origin || null,
+  imageSource: row.image_source || row.catalog_products?.image_source || null,
+  photo: row.photo || (!effectivePhotoPath && row.catalog_products?.image_url ? row.catalog_products.image_url : ""),
+  photoLoaded: Object.prototype.hasOwnProperty.call(row, "photo") || Boolean(row.catalog_products?.image_url),
   createdAt: row.created_at,
   updatedAt: row.updated_at || row.created_at,
   completedAt: row.completed_at,
@@ -503,6 +581,9 @@ function rememberSignedPhotoUrl(path, url) {
  };
  signedPhotoUrlCache.set(path, cached);
  writeStoredPhotoUrl(path, cached);
+ if (window.skaleeLocalStore) {
+  void window.skaleeLocalStore.setCachedPhotoUrl(path, url, SIGNED_PHOTO_URL_TTL_SECONDS);
+ }
  return cached;
 }
 
@@ -523,6 +604,15 @@ async function getProductPhotoUrl(photoPath) {
   photoUrlCacheStats.persistentHits += 1;
   console.debug("[PHOTO CACHE] HIT", normalizedPath);
   return stored.url;
+ }
+ if (window.skaleeLocalStore) {
+  const idbUrl = await window.skaleeLocalStore.getCachedPhotoUrl(normalizedPath);
+  if (idbUrl) {
+   photoUrlCacheStats.hits += 1;
+   photoUrlCacheStats.persistentHits += 1;
+   signedPhotoUrlCache.set(normalizedPath, { url: idbUrl, expiresAt: Date.now() + 3600000 });
+   return idbUrl;
+  }
  }
  const pending = pendingSignedPhotoUrlRequests.get(normalizedPath);
  if (pending) {
@@ -634,14 +724,23 @@ function resolveProductImage(product) {
  return "";
 }
 
-async function updateCatalogProductPhoto(criteria, photoPath, imageSource = "upload") {
- if (!photoPath) return;
+async function updateCatalogProductPhoto(criteria, photoPath, imageSource = "upload", metadata = {}) {
+ const safeMetadata = metadata || {};
+ const nextImageUrl = String(safeMetadata.imageUrl || safeMetadata.image_url || "").trim();
+ const providerName = String(safeMetadata.imageProvider || safeMetadata.image_provider || "").trim();
+ const originName = String(safeMetadata.imageOrigin || safeMetadata.image_origin || (photoPath ? "catalog" : "external")).trim();
+ if (!photoPath && !nextImageUrl) return;
  try {
-  let query = supabase.from("catalog_products").update({
-   photo_path: photoPath,
-   image_source: imageSource,
+  const payload = {
+   photo_path: photoPath || null,
+   image_source: imageSource || "upload",
+   image_provider: providerName || (photoPath ? "skalee" : null),
+   image_origin: originName || null,
+   image_url: nextImageUrl || null,
+   image_updated_at: new Date().toISOString(),
    photo_updated_at: new Date().toISOString()
-  });
+  };
+  let query = supabase.from("catalog_products").update(payload);
   if (typeof criteria === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(criteria)) {
    query = query.eq("id", criteria);
   } else if (criteria && typeof criteria === "object") {
@@ -651,7 +750,7 @@ async function updateCatalogProductPhoto(criteria, photoPath, imageSource = "upl
     const b = String(criteria.barcode).trim();
     query = query.or(`barcode.eq.${b},sg_barcodes.cs.{${b}}`);
    } else if (criteria.code && String(criteria.code).trim()) {
-    const c = String(criteria.code).trim().replace(/^0+(?=\d)/, "");
+    const c = normalizeReferenceCode(String(criteria.code).trim());
     query = query.eq("internal_code", c);
    } else {
     return;
@@ -663,7 +762,7 @@ async function updateCatalogProductPhoto(criteria, photoPath, imageSource = "upl
   if (error) {
    console.warn("[PHOTO] Aviso ao sincronizar foto com catalog_products:", error);
   } else {
-   console.log("[PHOTO] Foto vinculada com sucesso a catalog_products", photoPath);
+   console.log("[PHOTO] Foto vinculada com sucesso a catalog_products", { photoPath, imageSource, providerName, originName, imageUrl: nextImageUrl });
   }
  } catch (err) {
   console.warn("[PHOTO] Erro ao sincronizar foto com o catálogo:", err);
@@ -701,28 +800,54 @@ async function checkIfPhotoPathIsShared(photoPath, excludeValidityProductId = nu
 
 async function findKnownProductImage(criteria = {}) {
  const barcode = String(criteria.barcode || "").trim();
- const code = String(criteria.code || criteria.product_code || "").trim().replace(/^0+(?=\d)/, "");
+ const code = normalizeReferenceCode(String(criteria.code || criteria.product_code || "").trim());
  const catalogId = criteria.catalogProductId || criteria.catalog_product_id || null;
+
+ const buildCatalogResult = async (data) => {
+  if (!data) return null;
+  // PRIORIDADE 1: Foto própria no Storage
+  if (data.photo_path) {
+   const signedUrl = await getProductPhotoUrl(data.photo_path);
+   return {
+    photoPath: data.photo_path,
+    photoUrl: signedUrl,
+    source: data.image_provider || data.image_source || "catalog",
+    imageSource: data.image_source || "catalog",
+    imageOrigin: data.image_origin || "catalog",
+    imageProvider: data.image_provider || "skalee",
+    catalogProductId: data.id,
+    productName: data.name || ""
+   };
+  }
+  // PRIORIDADE 2: URL de referência no catálogo
+  if (data.image_url) {
+   return {
+    photoPath: null,
+    photoUrl: data.image_url,
+    source: data.image_provider || data.image_source || "external_reference",
+    imageSource: data.image_source || "external_reference",
+    imageOrigin: data.image_origin || "external",
+    imageProvider: data.image_provider || "external",
+    catalogProductId: data.id,
+    productName: data.name || ""
+   };
+  }
+  return null;
+ };
+
+ const CATALOG_IMAGE_SELECT = "id,name,photo_path,image_source,image_url,image_provider,image_origin";
 
  // 1. Catalog product by direct ID
  if (catalogId) {
   const { data, error } = await supabase
    .from("catalog_products")
-   .select("id,name,photo_path,image_source")
+   .select(CATALOG_IMAGE_SELECT)
    .eq("id", catalogId)
-   .not("photo_path", "is", null)
+   .limit(1)
    .maybeSingle();
-  if (!error && data?.photo_path) {
-   const photoUrl = await getProductPhotoUrl(data.photo_path);
-   if (photoUrl) {
-    return {
-     photoPath: data.photo_path,
-     photoUrl,
-     source: "catalog",
-     catalogProductId: data.id,
-     productName: data.name || ""
-    };
-   }
+  if (!error && data) {
+   const resolved = await buildCatalogResult(data);
+   if (resolved && resolved.photoUrl) return resolved;
   }
  }
 
@@ -730,33 +855,23 @@ async function findKnownProductImage(criteria = {}) {
  if (barcode && /^[0-9]+$/.test(barcode)) {
   let { data, error } = await supabase
    .from("catalog_products")
-   .select("id,name,photo_path,image_source")
+   .select(CATALOG_IMAGE_SELECT)
    .or(`barcode.eq.${barcode},sg_barcodes.cs.{${barcode}}`)
-   .not("photo_path", "is", null)
    .limit(1)
    .maybeSingle();
   if (error && String(error.message || "").includes("sg_barcodes")) {
    const retry = await supabase
     .from("catalog_products")
-    .select("id,name,photo_path,image_source")
+    .select(CATALOG_IMAGE_SELECT)
     .eq("barcode", barcode)
-    .not("photo_path", "is", null)
     .limit(1)
     .maybeSingle();
    data = retry.data;
    error = retry.error;
   }
-  if (!error && data?.photo_path) {
-   const photoUrl = await getProductPhotoUrl(data.photo_path);
-   if (photoUrl) {
-    return {
-     photoPath: data.photo_path,
-     photoUrl,
-     source: "catalog",
-     catalogProductId: data.id,
-     productName: data.name || ""
-    };
-   }
+  if (!error && data) {
+   const resolved = await buildCatalogResult(data);
+   if (resolved && resolved.photoUrl) return resolved;
   }
  }
 
@@ -764,22 +879,13 @@ async function findKnownProductImage(criteria = {}) {
  if (code && /^[0-9]+$/.test(code)) {
   const { data, error } = await supabase
    .from("catalog_products")
-   .select("id,name,photo_path,image_source")
+   .select(CATALOG_IMAGE_SELECT)
    .eq("internal_code", code)
-   .not("photo_path", "is", null)
    .limit(1)
    .maybeSingle();
-  if (!error && data?.photo_path) {
-   const photoUrl = await getProductPhotoUrl(data.photo_path);
-   if (photoUrl) {
-    return {
-     photoPath: data.photo_path,
-     photoUrl,
-     source: "catalog",
-     catalogProductId: data.id,
-     productName: data.name || ""
-    };
-   }
+  if (!error && data) {
+   const resolved = await buildCatalogResult(data);
+   if (resolved && resolved.photoUrl) return resolved;
   }
  }
 
@@ -800,6 +906,9 @@ async function findKnownProductImage(criteria = {}) {
      photoPath: data.photo_path,
      photoUrl,
      source: "validity_product",
+     imageSource: "reused",
+     imageOrigin: "user",
+     imageProvider: "validity_photo",
      validityProductId: data.id,
      productName: data.name || ""
     };
@@ -824,6 +933,9 @@ async function findKnownProductImage(criteria = {}) {
      photoPath: data.photo_path,
      photoUrl,
      source: "validity_product",
+     imageSource: "reused",
+     imageOrigin: "user",
+     imageProvider: "validity_photo",
      validityProductId: data.id,
      productName: data.name || ""
     };
@@ -834,14 +946,193 @@ async function findKnownProductImage(criteria = {}) {
  return null;
 }
 
+const inFlightRequests = new Map();
+
+function deduplicatedCall(key, fn) {
+ if (inFlightRequests.has(key)) {
+  return inFlightRequests.get(key);
+ }
+ const promise = Promise.resolve().then(() => fn()).finally(() => {
+  inFlightRequests.delete(key);
+ });
+ inFlightRequests.set(key, promise);
+ return promise;
+}
+
+function remainingDays(value) {
+ if (!value) return -9999;
+ const today = new Date();
+ today.setHours(0, 0, 0, 0);
+ const target = new Date(value + "T00:00:00");
+ return Math.ceil((target - today) / 86400000);
+}
+
+function filterAndSortProductsLocally(allProducts = [], options = {}) {
+ const limit = Number(options.limit) || 0;
+ const offset = Number(options.offset) || 0;
+ const storeFilter = String(options.store || "").trim();
+ const supplierFilter = String(options.supplier || "").trim().toLowerCase();
+ const searchQuery = String(options.search || "").trim().toLowerCase();
+ const activeFilters = options.filters || options.activeFilters || {};
+ const sortOrder = options.sort || "expiry";
+
+ let filtered = (allProducts || []).filter((product) => {
+  if (!product || product.completedAt) return false;
+  if (storeFilter && product.store !== storeFilter) return false;
+  if (supplierFilter && !productHasSupplier(product, supplierFilter)) return false;
+
+  const days = remainingDays(product.expiry);
+  if (days < 0) return false;
+
+  if (searchQuery) {
+   const haystack = [product.name, product.code, product.barcode, product.supplierCode, product.supplierName, product.store].join(" ").toLowerCase();
+   if (!haystack.includes(searchQuery)) return false;
+  }
+
+  if (activeFilters.expiryRange === "today" && days !== 0) return false;
+  if (activeFilters.expiryRange === "3" && days > 3) return false;
+  if (activeFilters.expiryRange === "7" && days > 7) return false;
+  if (activeFilters.expiryRange === "15" && days > 15) return false;
+
+  if (activeFilters.offerStatus === "offer" && !product.offer) return false;
+  if (activeFilters.offerStatus === "no_offer" && product.offer) return false;
+
+  if (activeFilters.highQuantity && Number(product.qty || 0) < 100) return false;
+
+  return true;
+ });
+
+ const sorted = [...filtered];
+ if (sortOrder === "expiry") {
+  sorted.sort((a, b) => remainingDays(a.expiry) - remainingDays(b.expiry) || String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+ } else if (sortOrder === "qtyDesc") {
+  sorted.sort((a, b) => (b.qty || 0) - (a.qty || 0) || String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+ } else if (sortOrder === "qtyAsc") {
+  sorted.sort((a, b) => (a.qty || 0) - (b.qty || 0) || String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+ } else if (sortOrder === "name") {
+  sorted.sort((a, b) => String(a.name || "").localeCompare(String(b.name || "")) || String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+ }
+
+ const page = limit > 0 ? sorted.slice(offset, offset + limit) : sorted.slice(offset);
+ Object.defineProperty(page, "rawPageLength", { value: page.length });
+ return page;
+}
+
+function computeLocalDashboardStats(allProducts = [], options = {}) {
+ const storeFilter = String(options.store || "").trim();
+ const supplierFilter = String(options.supplier || "").trim().toLowerCase();
+
+ const active = (allProducts || []).filter((product) => {
+  if (!product || product.completedAt) return false;
+  if (storeFilter && product.store !== storeFilter) return false;
+  if (supplierFilter && !productHasSupplier(product, supplierFilter)) return false;
+  return remainingDays(product.expiry) >= 0;
+ });
+
+ const alertWindowDays = Array.from({ length: 13 }, (_, index) => index + 3);
+ const alertWindows = Object.fromEntries(alertWindowDays.map((days) => [days, 0]));
+ const today = localDateKeyFromOffset(0);
+ const alertWindowLimits = Object.fromEntries(alertWindowDays.map((days) => [days, localDateKeyFromOffset(days)]));
+ let todayCount = 0;
+ let offerCount = 0;
+
+ active.forEach((product) => {
+  const expiryDate = String(product.expiry || "");
+  const days = remainingDays(product.expiry);
+  if (expiryDate === today || days === 0) todayCount += 1;
+  if (product.offer) offerCount += 1;
+  alertWindowDays.forEach((wDays) => {
+   if (days >= 0 && days <= wDays) alertWindows[wDays] += 1;
+  });
+ });
+
+ return {
+  products: active.length,
+  units: active.reduce((sum, p) => sum + Number(p.qty || 0), 0),
+  today: todayCount,
+  seven: alertWindows[7],
+  fifteen: alertWindows[15],
+  offer: offerCount,
+  alertWindows
+ };
+}
+
+function isNetworkError(error) {
+ if (!navigator.onLine) return true;
+ const msg = String(error?.message || "").toLowerCase();
+ return msg.includes("failed to fetch") || msg.includes("networkerror") || msg.includes("load failed") || msg.includes("timeout");
+}
+
+let isProcessingSyncQueue = false;
+
+async function processOfflineSyncQueue() {
+ if (isProcessingSyncQueue || !navigator.onLine || !activeUserId || !window.skaleeLocalStore) return;
+ isProcessingSyncQueue = true;
+ try {
+  const queue = await window.skaleeLocalStore.getPendingSyncQueue();
+  if (window.skaleePerformanceStats) window.skaleePerformanceStats.offlineQueue = queue.length;
+  if (!queue.length) {
+   isProcessingSyncQueue = false;
+   return;
+  }
+  console.log(`[SYNC_QUEUE] Processando ${queue.length} operações pendentes...`);
+  for (const item of queue) {
+   try {
+    await window.skaleeLocalStore.updateSyncQueueItem(item.id, { status: "processing" });
+    if (item.operation === "create") {
+     const saved = await window.skaleeDb.saveProduct(item.payload, { skipOfflineQueue: true });
+     if (item.payload.temporaryId && saved?.id) {
+      await window.skaleeLocalStore.deleteProduct(item.payload.temporaryId);
+     }
+     await window.skaleeLocalStore.saveProduct(saved);
+    } else if (item.operation === "update") {
+     const updated = await window.skaleeDb.updateProduct(item.payload.id, item.payload.changes, { skipOfflineQueue: true });
+     await window.skaleeLocalStore.saveProduct(updated);
+    } else if (item.operation === "complete") {
+     await window.skaleeDb.completeProduct(item.payload.id, { skipOfflineQueue: true });
+     await window.skaleeLocalStore.deleteProduct(item.payload.id);
+    } else if (item.operation === "delete") {
+     await window.skaleeDb.deleteProduct(item.payload.id, { skipOfflineQueue: true });
+     await window.skaleeLocalStore.deleteProduct(item.payload.id);
+    }
+    await window.skaleeLocalStore.removeSyncQueueItem(item.id);
+   } catch (opError) {
+    console.warn(`[SYNC_QUEUE] Falha na operação ${item.id}:`, opError);
+    const retries = (item.retries || 0) + 1;
+    await window.skaleeLocalStore.updateSyncQueueItem(item.id, {
+     status: retries >= 5 ? "failed" : "pending",
+     retries,
+     lastError: opError?.message || "Erro de rede"
+    });
+   }
+  }
+  const remaining = await window.skaleeLocalStore.countPendingSyncQueue();
+  if (window.skaleePerformanceStats) window.skaleePerformanceStats.offlineQueue = remaining;
+  window.dispatchEvent(new CustomEvent("skalee:sync-status-changed", { detail: { pending: remaining } }));
+ } catch (err) {
+  console.warn("[SYNC_QUEUE] Erro no processamento da fila:", err);
+ } finally {
+  isProcessingSyncQueue = false;
+ }
+}
+
+window.addEventListener("online", () => {
+ void processOfflineSyncQueue();
+});
+
 window.skaleeDb = {
  SG_STOCK_FEATURE_ENABLED,
  getProductPhotoUrl,
  invalidateProductPhotoUrl,
  findKnownProductImage,
  updateCatalogProductPhoto,
+ lookupExternalProductReferenceImage,
  checkIfPhotoPathIsShared,
  resolveProductImage,
+ processOfflineSyncQueue,
+ get productImageService() {
+  return typeof window !== "undefined" ? window.productImageService : null;
+ },
  getStockMovement(productId, fallbackProduct) {
   if (!SG_STOCK_FEATURE_ENABLED) return null;
   const vpId = String(productId || (typeof fallbackProduct === "object" ? fallbackProduct?.id : "") || "");
@@ -914,91 +1205,143 @@ window.skaleeDb = {
   return access.brandIds;
  },
  async listAllowedSuppliersForCurrentUser() {
-  const access = await this.currentPromoterAccess();
-  if (!access) return null;
-  if (!access.supplierCodes.length) return [];
-  const { data, error } = await supabase
-   .from("suppliers")
-   .select("code,name,active")
-   .in("code", access.supplierCodes)
-   .eq("active", true)
-   .order("name");
-  if (error) throw error;
-  const rows = data || [];
-  const foundCodes = new Set(rows.map((item) => item.code));
-  access.supplierCodes.forEach((code) => {
-   if (!foundCodes.has(code)) rows.push({ code, name: "", active: true });
-  });
-  return rows;
- },
- async loadProducts(options = {}) {
-  const limit = Number(options.limit) || 0;
-  const offset = Number(options.offset) || 0;
-  const accessPromise = this.currentPromoterAccess();
-  const access = await accessPromise;
-  const supplierFilter = String(options.supplier || "").trim();
-  const needsClientSupplierFiltering = Boolean(supplierFilter || access?.supplierCodes?.length);
-  if (needsClientSupplierFiltering) {
-   const filteredProducts = [];
-   let rawRowsRead = 0;
-   const rawPageSize = limit > 0 ? limit : 1000;
-   for (let from = offset; ; from += rawPageSize) {
-    let pageQuery = applyProductSort(
-     applyProductQueryCriteria(
-      applyProductAccessFilters(
-       supabase
-        .from("validity_products")
-        .select(VALIDITY_PRODUCT_BASE_SELECT)
-        .is("completed_at", null),
-       access?.supplierCodes?.length ? null : access
-      ),
-      { ...options, supplier: "", skipSupplierFilter: true }
-     ),
-     options.sort || "expiry"
-    ).range(from, from + rawPageSize - 1);
-    const { data, error } = await pageQuery;
+  const dedupeKey = `allowedSuppliers:${activeUserId}`;
+  return deduplicatedCall(dedupeKey, async () => {
+   if (!navigator.onLine && window.skaleeLocalStore) {
+    const cached = await window.skaleeLocalStore.getAllowedSuppliers();
+    if (cached && cached.length) return cached;
+   }
+   try {
+    const access = await this.currentPromoterAccess();
+    if (!access) return null;
+    if (!access.supplierCodes.length) return [];
+    const { data, error } = await supabase
+     .from("suppliers")
+     .select("code,name,active")
+     .in("code", access.supplierCodes)
+     .eq("active", true)
+     .order("name");
     if (error) throw error;
     const rows = data || [];
-    rawRowsRead += rows.length;
-    let pageProducts = await enrichProductsWithCatalogSuppliers(rows.map(fromDatabase));
-    if (access) {
-     if (access.supplierCodes.length) pageProducts = pageProducts.filter((product) => product.supplierAliases.some((alias) => access.supplierCodes.includes(alias.code)));
-     else pageProducts = pageProducts.filter((product) => product.brandId && access.brandIds.includes(product.brandId));
+    const foundCodes = new Set(rows.map((item) => item.code));
+    access.supplierCodes.forEach((code) => {
+     if (!foundCodes.has(code)) rows.push({ code, name: "", active: true });
+    });
+    if (window.skaleeLocalStore) {
+     void window.skaleeLocalStore.saveAllowedSuppliers(rows);
     }
-    filteredProducts.push(...pageProducts.filter((product) => productHasSupplier(product, supplierFilter)));
-    if (limit > 0 && filteredProducts.length >= limit) break;
-    if (!rows.length || rows.length < rawPageSize) break;
+    return rows;
+   } catch (err) {
+    if (window.skaleeLocalStore) {
+     const cached = await window.skaleeLocalStore.getAllowedSuppliers();
+     if (cached && cached.length) return cached;
+    }
+    throw err;
    }
-   const page = limit > 0 ? filteredProducts.slice(0, limit) : filteredProducts;
-   const rawPageLength = rawRowsRead;
-   Object.defineProperty(page, "rawPageLength", { value: rawPageLength });
-   return page;
-  }
-  let productsQuery = applyProductSort(
-   applyProductQueryCriteria(
-    applyProductAccessFilters(
-     supabase
-      .from("validity_products")
-      .select(VALIDITY_PRODUCT_BASE_SELECT)
-      .is("completed_at", null),
-     access
-    ),
-    options
-   ),
-   options.sort || "expiry"
-  );
-  if (limit > 0) productsQuery = productsQuery.range(offset, offset + limit - 1);
-  const { data, error } = await productsQuery;
-  if (error) throw error;
-  let rows = data || [];
-  const rawPageLength = rows.length;
-  let products = await enrichProductsWithCatalogSuppliers(rows.map(fromDatabase));
-  if (access) {
-   if (access.supplierCodes.length) products = products.filter((product) => product.supplierAliases.some((alias) => access.supplierCodes.includes(alias.code)));
-  else products = products.filter((product) => product.brandId && access.brandIds.includes(product.brandId));
-  }
-  Object.defineProperty(products, "rawPageLength", { value: rawPageLength });
-  return products;
+  });
+ },
+ async loadProducts(options = {}) {
+  const dedupeKey = `loadProducts:${JSON.stringify(options)}`;
+  return deduplicatedCall(dedupeKey, async () => {
+   if (!navigator.onLine && window.skaleeLocalStore) {
+    if (window.skaleePerformanceStats) window.skaleePerformanceStats.cacheHits += 1;
+    const allCached = await window.skaleeLocalStore.getAllProducts();
+    return filterAndSortProductsLocally(allCached, options);
+   }
+
+   try {
+    const limit = Number(options.limit) || 0;
+    const offset = Number(options.offset) || 0;
+    const accessPromise = this.currentPromoterAccess();
+    const access = await accessPromise;
+    const supplierFilter = String(options.supplier || "").trim();
+    const needsClientSupplierFiltering = Boolean(supplierFilter || access?.supplierCodes?.length);
+    let productsResult;
+
+    if (needsClientSupplierFiltering) {
+     const filteredProducts = [];
+     let rawRowsRead = 0;
+     const rawPageSize = limit > 0 ? limit : 1000;
+     for (let from = offset; ; from += rawPageSize) {
+      let pageQuery = applyProductSort(
+       applyProductQueryCriteria(
+        applyProductAccessFilters(
+         supabase
+          .from("validity_products")
+          .select(VALIDITY_PRODUCT_BASE_SELECT)
+          .is("completed_at", null),
+         access?.supplierCodes?.length ? null : access
+        ),
+        { ...options, supplier: "", skipSupplierFilter: true }
+       ),
+       options.sort || "expiry"
+      ).range(from, from + rawPageSize - 1);
+      const { data, error } = await pageQuery;
+      if (error) throw error;
+      const rows = data || [];
+      rawRowsRead += rows.length;
+      let pageProducts = await enrichProductsWithCatalogSuppliers(rows.map(fromDatabase));
+      if (access) {
+       if (access.supplierCodes.length) pageProducts = pageProducts.filter((product) => product.supplierAliases.some((alias) => access.supplierCodes.includes(alias.code)));
+       else pageProducts = pageProducts.filter((product) => product.brandId && access.brandIds.includes(product.brandId));
+      }
+      filteredProducts.push(...pageProducts.filter((product) => productHasSupplier(product, supplierFilter)));
+      if (limit > 0 && filteredProducts.length >= limit) break;
+      if (!rows.length || rows.length < rawPageSize) break;
+     }
+     const page = limit > 0 ? filteredProducts.slice(0, limit) : filteredProducts;
+     const rawPageLength = rawRowsRead;
+     Object.defineProperty(page, "rawPageLength", { value: rawPageLength });
+     productsResult = page;
+    } else {
+     let productsQuery = applyProductSort(
+      applyProductQueryCriteria(
+       applyProductAccessFilters(
+        supabase
+         .from("validity_products")
+         .select(VALIDITY_PRODUCT_BASE_SELECT)
+         .is("completed_at", null),
+        access
+       ),
+       options
+      ),
+      options.sort || "expiry"
+     );
+     if (limit > 0) productsQuery = productsQuery.range(offset, offset + limit - 1);
+     const { data, error } = await productsQuery;
+     if (error) throw error;
+     let rows = data || [];
+     const rawPageLength = rows.length;
+     let products = await enrichProductsWithCatalogSuppliers(rows.map(fromDatabase));
+     if (access) {
+      if (access.supplierCodes.length) products = products.filter((product) => product.supplierAliases.some((alias) => access.supplierCodes.includes(alias.code)));
+      else products = products.filter((product) => product.brandId && access.brandIds.includes(product.brandId));
+     }
+     Object.defineProperty(products, "rawPageLength", { value: rawPageLength });
+     productsResult = products;
+    }
+
+    if (window.skaleeLocalStore && Array.isArray(productsResult) && productsResult.length) {
+     void window.skaleeLocalStore.saveProducts(productsResult);
+     void window.skaleeLocalStore.setLastSyncAt(Date.now());
+    }
+    if (window.skaleePerformanceStats) {
+     window.skaleePerformanceStats.queries += 1;
+     window.skaleePerformanceStats.lastSync = new Date().toISOString();
+    }
+    return productsResult;
+   } catch (networkError) {
+    console.warn("[DB] Erro ao carregar produtos online, recorrendo ao cache local:", networkError);
+    if (window.skaleeLocalStore) {
+     if (window.skaleePerformanceStats) window.skaleePerformanceStats.cacheMisses += 1;
+     const allCached = await window.skaleeLocalStore.getAllProducts();
+     if (allCached && allCached.length) {
+      return filterAndSortProductsLocally(allCached, options);
+     }
+    }
+    throw networkError;
+   }
+  });
  },
   async loadStockMovementsForValidityProducts(productIds = [], productListHint = []) {
     const ids = [...new Set((productIds || []).map((item) => (typeof item === "object" && item ? item.id : item)).map((id) => String(id || "").trim()).filter(Boolean))];
@@ -1513,105 +1856,187 @@ window.skaleeDb = {
   async importProductStockSnapshots({
     snapshotDate,
     retailLocationId,
-    sourceName = "sg_stock",
+    kind = "daily",
+    fileHash = "",
     originalFilename = "",
-    totalFileRows = 0,
-    monitoredCount = 0,
-    unlocatedCount = 0,
-    rows = []
+    rows = [],
+    chunkSize = 200,
+    startChunk = 1,
+    batchId = null,
+    onProgress
   } = {}) {
     if (!snapshotDate) throw new Error("Informe a data da carga.");
     if (!retailLocationId) throw new Error("Selecione a loja da carga.");
     if (!Array.isArray(rows) || !rows.length) throw new Error("Nenhum produto monitorado foi localizado no arquivo da carga SG.");
 
-    let response = await supabase.rpc("import_product_stock_snapshots", {
-      p_snapshot_date: snapshotDate,
-      p_retail_location_id: retailLocationId,
-      p_source_name: sourceName,
-      p_original_filename: originalFilename,
-      p_rows: rows,
-      p_total_file_rows: totalFileRows || rows.length,
-      p_monitored_count: monitoredCount || rows.length,
-      p_unlocated_count: unlocatedCount || 0
-    });
+    const totalRows = rows.length;
+    const safeChunkSize = Math.max(50, Math.min(chunkSize, 500));
+    const totalChunks = Math.ceil(totalRows / safeChunkSize);
+    let currentBatchId = batchId || null;
+    let accumulatedResult = null;
 
-    if (response.error && String(response.error.message || "").toLowerCase().includes("schema cache")) {
-      response = await supabase.rpc("import_product_stock_snapshots", {
-        p_snapshot_date: snapshotDate,
-        p_retail_location_id: retailLocationId,
-        p_source_name: sourceName,
-        p_original_filename: originalFilename,
-        p_rows: rows
-      });
+    for (let chunkIndex = startChunk; chunkIndex <= totalChunks; chunkIndex++) {
+      const startIndex = (chunkIndex - 1) * safeChunkSize;
+      const endIndex = Math.min(startIndex + safeChunkSize, totalRows);
+      const chunkRows = rows.slice(startIndex, endIndex);
+
+      let attempts = 0;
+      let chunkSuccess = false;
+      let lastError = null;
+
+      while (attempts < 3 && !chunkSuccess) {
+        attempts++;
+        try {
+          const res = await supabase.rpc("import_sg_stock_chunk_v1", {
+            p_snapshot_date: snapshotDate,
+            p_retail_location_id: retailLocationId,
+            p_kind: kind,
+            p_original_filename: originalFilename,
+            p_file_hash: fileHash,
+            p_total_file_rows: totalRows,
+            p_chunk_index: chunkIndex,
+            p_total_chunks: totalChunks,
+            p_batch_id: currentBatchId,
+            p_rows: chunkRows
+          });
+
+          if (res.error) {
+            throw res.error;
+          }
+
+          const resultData = res.data;
+          if (resultData && resultData.batch_id) {
+            currentBatchId = resultData.batch_id;
+          }
+          accumulatedResult = resultData;
+          chunkSuccess = true;
+
+          if (typeof onProgress === "function") {
+            onProgress({
+              processed: endIndex,
+              total: totalRows,
+              chunkIndex,
+              totalChunks,
+              batchId: currentBatchId,
+              status: resultData?.status || "processing"
+            });
+          }
+        } catch (err) {
+          lastError = err;
+          if (attempts < 3) {
+            await new Promise((r) => setTimeout(r, 800 * attempts));
+          }
+        }
+      }
+
+      if (!chunkSuccess) {
+        const error = new Error(`Falha ao importar lote ${chunkIndex}/${totalChunks}: ${lastError?.message || "Erro de rede"}`);
+        error.importErrorInfo = {
+          chunkIndex,
+          totalChunks,
+          processed: startIndex,
+          rangeStart: startIndex + 1,
+          rangeEnd: endIndex,
+          batchId: currentBatchId,
+          originalError: lastError
+        };
+        throw error;
+      }
     }
 
-    if (response.error) throw response.error;
-    if (response.data?.status === "failed") throw new Error(response.data.error_message || "A carga falhou e não foi marcada como concluída.");
     stockMovementCache.clear();
     stockMovementByCodeStoreCache.clear();
-
-    return response.data;
+    return accumulatedResult;
   },
- async loadProductDashboardStats(options = {}) {
-  const access = await this.currentPromoterAccess();
- const baseCriteria = {
-  store: options.store || "",
-  supplier: options.supplier || ""
- };
-  let quantityRows = [];
-  for (let from = 0; ; from += 1000) {
-   const supplierFilter = String(baseCriteria.supplier || "").trim();
-   let quantityQuery = applyProductQueryCriteria(
-    applyProductAccessFilters(
-     supabase
-      .from("validity_products")
-      .select(supplierFilter ? VALIDITY_PRODUCT_BASE_SELECT : "quantity,expiry_date,offer")
-      .is("completed_at", null),
-     access
-    ),
-    supplierFilter ? { ...baseCriteria, supplier: "", skipSupplierFilter: true } : baseCriteria
-   ).range(from, from + 999);
-   const { data, error } = await quantityQuery;
-   if (error) throw error;
-   quantityRows.push(...(data || []));
-   if (!data || data.length < 1000) break;
-  }
-  if (baseCriteria.supplier) {
-   let products = await enrichProductsWithCatalogSuppliers(quantityRows.map(fromDatabase));
-   if (access) {
-    if (access.supplierCodes.length) products = products.filter((product) => product.supplierAliases.some((alias) => access.supplierCodes.includes(alias.code)));
-    else products = products.filter((product) => product.brandId && access.brandIds.includes(product.brandId));
-   }
-   quantityRows = products.filter((product) => productHasSupplier(product, baseCriteria.supplier)).map((product) => ({
-    quantity: product.qty,
-    expiry_date: product.expiry,
-    offer: product.offer
-   }));
-  }
-  const alertWindowDays = Array.from({ length: 13 }, (_, index) => index + 3);
-  const alertWindows = Object.fromEntries(alertWindowDays.map((days) => [days, 0]));
-  const today = localDateKeyFromOffset(0);
-  const alertWindowLimits = Object.fromEntries(alertWindowDays.map((days) => [days, localDateKeyFromOffset(days)]));
-  let todayCount = 0;
-  let offerCount = 0;
-  quantityRows.forEach((row) => {
-   const expiryDate = String(row.expiry_date || "");
-   if (expiryDate === today) todayCount += 1;
-   if (row.offer) offerCount += 1;
-   alertWindowDays.forEach((days) => {
-    if (expiryDate >= today && expiryDate <= alertWindowLimits[days]) alertWindows[days] += 1;
+  async loadProductDashboardStats(options = {}) {
+   const dedupeKey = `dashboardStats:${JSON.stringify(options)}`;
+   return deduplicatedCall(dedupeKey, async () => {
+    if (!navigator.onLine && window.skaleeLocalStore) {
+     const allCached = await window.skaleeLocalStore.getAllProducts();
+     if (allCached && allCached.length) {
+      return computeLocalDashboardStats(allCached, options);
+     }
+     const savedStats = await window.skaleeLocalStore.getDashboardStats();
+     if (savedStats) return savedStats;
+    }
+
+    try {
+     const access = await this.currentPromoterAccess();
+     const baseCriteria = {
+      store: options.store || "",
+      supplier: options.supplier || ""
+     };
+     let quantityRows = [];
+     for (let from = 0; ; from += 1000) {
+      const supplierFilter = String(baseCriteria.supplier || "").trim();
+      let quantityQuery = applyProductQueryCriteria(
+       applyProductAccessFilters(
+        supabase
+         .from("validity_products")
+         .select(supplierFilter ? VALIDITY_PRODUCT_BASE_SELECT : "quantity,expiry_date,offer")
+         .is("completed_at", null),
+        access
+       ),
+       supplierFilter ? { ...baseCriteria, supplier: "", skipSupplierFilter: true } : baseCriteria
+      ).range(from, from + 999);
+      const { data, error } = await quantityQuery;
+      if (error) throw error;
+      quantityRows.push(...(data || []));
+      if (!data || data.length < 1000) break;
+     }
+     if (baseCriteria.supplier) {
+      let products = await enrichProductsWithCatalogSuppliers(quantityRows.map(fromDatabase));
+      if (access) {
+       if (access.supplierCodes.length) products = products.filter((product) => product.supplierAliases.some((alias) => access.supplierCodes.includes(alias.code)));
+       else products = products.filter((product) => product.brandId && access.brandIds.includes(product.brandId));
+      }
+      quantityRows = products.filter((product) => productHasSupplier(product, baseCriteria.supplier)).map((product) => ({
+       quantity: product.qty,
+       expiry_date: product.expiry,
+       offer: product.offer
+      }));
+     }
+     const alertWindowDays = Array.from({ length: 13 }, (_, index) => index + 3);
+     const alertWindows = Object.fromEntries(alertWindowDays.map((days) => [days, 0]));
+     const today = localDateKeyFromOffset(0);
+     const alertWindowLimits = Object.fromEntries(alertWindowDays.map((days) => [days, localDateKeyFromOffset(days)]));
+     let todayCount = 0;
+     let offerCount = 0;
+     quantityRows.forEach((row) => {
+      const expiryDate = String(row.expiry_date || "");
+      if (expiryDate === today) todayCount += 1;
+      if (row.offer) offerCount += 1;
+      alertWindowDays.forEach((days) => {
+       if (expiryDate >= today && expiryDate <= alertWindowLimits[days]) alertWindows[days] += 1;
+      });
+     });
+     const stats = {
+      products: quantityRows.length,
+      units: quantityRows.reduce((sum, row) => sum + Number(row.quantity || 0), 0),
+      today: todayCount,
+      seven: alertWindows[7],
+      fifteen: alertWindows[15],
+      offer: offerCount,
+      alertWindows
+     };
+     if (window.skaleeLocalStore) {
+      void window.skaleeLocalStore.saveDashboardStats(stats);
+     }
+     return stats;
+    } catch (statsError) {
+     console.warn("[DB] Falha ao carregar dashboard stats online, calculando localmente:", statsError);
+     if (window.skaleeLocalStore) {
+      const allCached = await window.skaleeLocalStore.getAllProducts();
+      if (allCached && allCached.length) {
+       return computeLocalDashboardStats(allCached, options);
+      }
+      const savedStats = await window.skaleeLocalStore.getDashboardStats();
+      if (savedStats) return savedStats;
+     }
+     throw statsError;
+    }
    });
-  });
-  return {
-   products: quantityRows.length,
-   units: quantityRows.reduce((sum, row) => sum + Number(row.quantity || 0), 0),
-   today: todayCount,
-   seven: alertWindows[7],
-   fifteen: alertWindows[15],
-   offer: offerCount,
-   alertWindows
-  };
- },
+  },
  async loadManagementDashboard() {
   const access = await this.currentPromoterAccess();
   const today = localDateKeyFromOffset(0);
@@ -1716,7 +2141,7 @@ window.skaleeDb = {
   }
   return Promise.all(rows.map(resolveProductPhoto));
  },
- async saveProduct(product) {
+ async saveProduct(product, options = {}) {
   const access = await this.currentPromoterAccess();
   if (access) {
    if (access.supplierCodes.length) {
@@ -1729,20 +2154,61 @@ window.skaleeDb = {
     throw new Error("Este produto não pertence a uma marca atribuída ao seu usuário promotor.");
    }
   }
+
+  if (!navigator.onLine && !options.skipOfflineQueue && window.skaleeLocalStore) {
+   const tempId = `offline_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+   const localProduct = {
+    ...product,
+    id: tempId,
+    temporaryId: tempId,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    canEdit: true,
+    canDelete: true,
+    isOffline: true
+   };
+   await window.skaleeLocalStore.saveProduct(localProduct);
+   await window.skaleeLocalStore.enqueueSyncOperation("create", { ...product, temporaryId: tempId });
+   return localProduct;
+  }
+
   const productForInsert = {
    ...product,
    photo: product.processedPhoto ? "" : product.photo || "",
    photoPath: product.processedPhoto ? "" : (product.photoPath || "")
   };
-  const { data, error } = await supabase
-   .from("validity_products")
-   .insert(toDatabase(productForInsert))
-   .select(VALIDITY_PRODUCT_BASE_SELECT)
-   .single();
-  if (error) {
+
+  let data;
+  try {
+   const res = await supabase
+    .from("validity_products")
+    .insert(toDatabase(productForInsert))
+    .select(VALIDITY_PRODUCT_BASE_SELECT)
+    .single();
+   if (res.error) throw res.error;
+   data = res.data;
+  } catch (error) {
+   if (!options.skipOfflineQueue && window.skaleeLocalStore && isNetworkError(error)) {
+    console.warn("[DB] Falha de conexão ao salvar produto online. Salvando offline:", error);
+    const tempId = `offline_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+    const localProduct = {
+     ...product,
+     id: tempId,
+     temporaryId: tempId,
+     createdAt: new Date().toISOString(),
+     updatedAt: new Date().toISOString(),
+     canEdit: true,
+     canDelete: true,
+     isOffline: true
+    };
+    await window.skaleeLocalStore.saveProduct(localProduct);
+    await window.skaleeLocalStore.enqueueSyncOperation("create", { ...product, temporaryId: tempId });
+    return localProduct;
+   }
    logPhotoDiagnosticError(error);
    throw error;
   }
+
   console.log("[PHOTO] produto criado", data?.id);
   const storeCodeKey = stockMovementStoreCodeKey(data?.store, data?.product_code);
   const existingMovement = (storeCodeKey ? stockMovementByCodeStoreCache.get(storeCodeKey) : null) || null;
@@ -1750,130 +2216,202 @@ window.skaleeDb = {
    stockMovementCache.set(String(data.id), { ...existingMovement, validity_product_id: data.id });
   }
 
+  let finalResult;
   if (product.photoPath && !product.processedPhoto) {
    void updateCatalogProductPhoto(data.catalog_product_id || { barcode: data.barcode, code: data.product_code }, product.photoPath, product.imageSource || "reused");
    const resolvedPhoto = await resolveProductPhoto(data);
-   return fromDatabase({ ...data, photo: resolvedPhoto.photo });
-  }
-
-  if (!product.processedPhoto) {
+   finalResult = fromDatabase({ ...data, photo: resolvedPhoto.photo });
+  } else if (!product.processedPhoto) {
    console.warn("[PHOTO] fluxo de foto: produto criado sem foto adicional");
    const resolvedPhoto = await resolveProductPhoto(data);
-   return fromDatabase({ ...data, photo: resolvedPhoto.photo });
+   finalResult = fromDatabase({ ...data, photo: resolvedPhoto.photo });
+  } else {
+   try {
+    const path = await uploadProductPhoto(data, product.processedPhoto);
+    console.log("[PHOTO] iniciando update photo_path", path);
+    const { error: updateError } = await supabase
+     .from("validity_products")
+     .update({ photo_path: path })
+     .eq("id", data.id);
+    console.log("[PHOTO] resultado update", { error: updateError });
+    if (updateError) throw updateError;
+    void updateCatalogProductPhoto(data.catalog_product_id || { barcode: data.barcode, code: data.product_code }, path, product.imageSource || "upload");
+    const updatedData = { ...data, photo_path: path };
+    const resolvedPhoto = await resolveProductPhoto(updatedData);
+    finalResult = fromDatabase({ ...updatedData, photo: resolvedPhoto.photo });
+   } catch (uploadError) {
+    console.error("Storage upload error:", uploadError);
+    logPhotoDiagnosticError(uploadError);
+    finalResult = { ...fromDatabase(data), photoUploadError: "Produto registrado, mas não foi possível enviar a foto." };
+   }
+  }
+
+  if (window.skaleeLocalStore && finalResult?.id) {
+   void window.skaleeLocalStore.saveProduct(finalResult);
+  }
+  return finalResult;
+ },
+ async updateProduct(id, changes = {}, options = {}) {
+  if (!navigator.onLine && !options.skipOfflineQueue && window.skaleeLocalStore) {
+   const existing = await window.skaleeLocalStore.getProduct(id);
+   const updatedLocal = {
+    ...(existing || {}),
+    ...changes,
+    id,
+    updatedAt: new Date().toISOString(),
+    isOffline: true
+   };
+   await window.skaleeLocalStore.saveProduct(updatedLocal);
+   await window.skaleeLocalStore.enqueueSyncOperation("update", { id, changes });
+   return updatedLocal;
   }
 
   try {
-   const path = await uploadProductPhoto(data, product.processedPhoto);
-   console.log("[PHOTO] iniciando update photo_path", path);
-   const { error: updateError } = await supabase
+   const { data: existingData, error: readError } = await supabase
     .from("validity_products")
-    .update({ photo_path: path })
-    .eq("id", data.id);
-   console.log("[PHOTO] resultado update", {
-    error: updateError
-   });
-   if (updateError) throw updateError;
-   void updateCatalogProductPhoto(data.catalog_product_id || { barcode: data.barcode, code: data.product_code }, path, product.imageSource || "upload");
-   const updatedData = { ...data, photo_path: path };
-   const resolvedPhoto = await resolveProductPhoto(updatedData);
-   return fromDatabase({ ...updatedData, photo: resolvedPhoto.photo });
-  } catch (uploadError) {
-   console.error("Storage upload error:", uploadError);
-   logPhotoDiagnosticError(uploadError);
-   return { ...fromDatabase(data), photoUploadError: "Produto registrado, mas não foi possível enviar a foto." };
-  }
- },
- async updateProduct(id, changes = {}) {
-  const { data: existingData, error: readError } = await supabase
-   .from("validity_products")
-   .select(VALIDITY_PRODUCT_BASE_SELECT)
-   .eq("id", id)
-   .single();
-  if (readError) throw readError;
+    .select(VALIDITY_PRODUCT_BASE_SELECT)
+    .eq("id", id)
+    .single();
+   if (readError) throw readError;
 
-  const updatePayload = {};
-  if (changes.qty !== undefined) updatePayload.quantity = Number(changes.qty);
-  if (changes.quantity !== undefined) updatePayload.quantity = Number(changes.quantity);
-  if (changes.offer !== undefined) updatePayload.offer = Boolean(changes.offer);
-  if (changes.expiry !== undefined) updatePayload.expiry_date = changes.expiry;
-  if (changes.expiry_date !== undefined) updatePayload.expiry_date = changes.expiry_date;
-  if (changes.name !== undefined && String(changes.name).trim()) updatePayload.name = String(changes.name).trim();
-  if (changes.code !== undefined) updatePayload.product_code = String(changes.code).trim();
-  if (changes.product_code !== undefined) updatePayload.product_code = String(changes.product_code).trim();
-  if (changes.barcode !== undefined) updatePayload.barcode = String(changes.barcode).trim();
-  if (changes.store !== undefined) updatePayload.store = String(changes.store).trim();
-  if (changes.supplierCode !== undefined) updatePayload.supplier_code = String(changes.supplierCode).trim() || null;
-  if (changes.supplier_code !== undefined) updatePayload.supplier_code = String(changes.supplier_code).trim() || null;
-  if (changes.supplierName !== undefined) updatePayload.supplier_name = String(changes.supplierName).trim() || null;
-  if (changes.supplier_name !== undefined) updatePayload.supplier_name = String(changes.supplier_name).trim() || null;
-  if (changes.notes !== undefined) updatePayload.notes = String(changes.notes).trim() || null;
+   const updatePayload = {};
+   if (changes.qty !== undefined) updatePayload.quantity = Number(changes.qty);
+   if (changes.quantity !== undefined) updatePayload.quantity = Number(changes.quantity);
+   if (changes.offer !== undefined) updatePayload.offer = Boolean(changes.offer);
+   if (changes.expiry !== undefined) updatePayload.expiry_date = changes.expiry;
+   if (changes.expiry_date !== undefined) updatePayload.expiry_date = changes.expiry_date;
+   if (changes.name !== undefined && String(changes.name).trim()) updatePayload.name = String(changes.name).trim();
+   if (changes.code !== undefined) updatePayload.product_code = String(changes.code).trim();
+   if (changes.product_code !== undefined) updatePayload.product_code = String(changes.product_code).trim();
+   if (changes.barcode !== undefined) updatePayload.barcode = String(changes.barcode).trim();
+   if (changes.store !== undefined) updatePayload.store = String(changes.store).trim();
+   if (changes.supplierCode !== undefined) updatePayload.supplier_code = String(changes.supplierCode).trim() || null;
+   if (changes.supplier_code !== undefined) updatePayload.supplier_code = String(changes.supplier_code).trim() || null;
+   if (changes.supplierName !== undefined) updatePayload.supplier_name = String(changes.supplierName).trim() || null;
+   if (changes.supplier_name !== undefined) updatePayload.supplier_name = String(changes.supplier_name).trim() || null;
+   if (changes.notes !== undefined) updatePayload.notes = String(changes.notes).trim() || null;
 
-  let newPhotoPath = null;
-  if (changes.processedPhoto) {
-   const path = await uploadProductPhoto(existingData, changes.processedPhoto);
-   updatePayload.photo_path = path;
-   newPhotoPath = path;
-   void updateCatalogProductPhoto(existingData.catalog_product_id || { barcode: existingData.barcode, code: existingData.product_code }, path, changes.imageSource || "upload");
-  } else if (changes.photoPath !== undefined) {
-   updatePayload.photo_path = String(changes.photoPath || "").trim() || null;
-   if (updatePayload.photo_path) {
-    newPhotoPath = updatePayload.photo_path;
-    void updateCatalogProductPhoto(existingData.catalog_product_id || { barcode: existingData.barcode, code: existingData.product_code }, updatePayload.photo_path, changes.imageSource || "reused");
+   let newPhotoPath = null;
+   if (changes.processedPhoto) {
+    const path = await uploadProductPhoto(existingData, changes.processedPhoto);
+    updatePayload.photo_path = path;
+    newPhotoPath = path;
+    void updateCatalogProductPhoto(existingData.catalog_product_id || { barcode: existingData.barcode, code: existingData.product_code }, path, changes.imageSource || "upload");
+   } else if (changes.photoPath !== undefined) {
+    updatePayload.photo_path = String(changes.photoPath || "").trim() || null;
+    if (updatePayload.photo_path) {
+     newPhotoPath = updatePayload.photo_path;
+     void updateCatalogProductPhoto(existingData.catalog_product_id || { barcode: existingData.barcode, code: existingData.product_code }, updatePayload.photo_path, changes.imageSource || "reused");
+    }
+   } else if (changes.removePhoto) {
+    updatePayload.photo_path = null;
+    updatePayload.photo = "";
    }
-  } else if (changes.removePhoto) {
-   updatePayload.photo_path = null;
-   updatePayload.photo = "";
+
+   if (!Object.keys(updatePayload).length) {
+    const res = fromDatabase(existingData);
+    if (window.skaleeLocalStore) void window.skaleeLocalStore.saveProduct(res);
+    return res;
+   }
+
+   const { data, error } = await supabase
+    .from("validity_products")
+    .update(updatePayload)
+    .eq("id", id)
+    .select(VALIDITY_PRODUCT_BASE_SELECT)
+    .single();
+   if (error) throw error;
+   const resolved = await resolveProductPhoto(data);
+   const finalResult = fromDatabase({ ...data, photo: resolved.photo });
+   if (window.skaleeLocalStore) void window.skaleeLocalStore.saveProduct(finalResult);
+   return finalResult;
+  } catch (updateError) {
+   if (!options.skipOfflineQueue && window.skaleeLocalStore && isNetworkError(updateError)) {
+    console.warn("[DB] Falha ao atualizar produto online. Enfileirando offline:", updateError);
+    const existing = await window.skaleeLocalStore.getProduct(id);
+    const updatedLocal = {
+     ...(existing || {}),
+     ...changes,
+     id,
+     updatedAt: new Date().toISOString(),
+     isOffline: true
+    };
+    await window.skaleeLocalStore.saveProduct(updatedLocal);
+    await window.skaleeLocalStore.enqueueSyncOperation("update", { id, changes });
+    return updatedLocal;
+   }
+   throw updateError;
+  }
+ },
+ async completeProduct(id, options = {}) {
+  if (!navigator.onLine && !options.skipOfflineQueue && window.skaleeLocalStore) {
+   await window.skaleeLocalStore.deleteProduct(id);
+   await window.skaleeLocalStore.enqueueSyncOperation("complete", { id });
+   return id;
   }
 
-  if (!Object.keys(updatePayload).length) {
-   return fromDatabase(existingData);
+  try {
+   const { data, error } = await supabase
+    .from("validity_products")
+    .update({ completed_at: new Date().toISOString() })
+    .eq("id", id)
+    .select("id")
+    .single();
+   if (error) throw error;
+   if (window.skaleeLocalStore) void window.skaleeLocalStore.deleteProduct(id);
+   return data.id;
+  } catch (err) {
+   if (!options.skipOfflineQueue && window.skaleeLocalStore && isNetworkError(err)) {
+    console.warn("[DB] Falha ao concluir produto online. Enfileirando offline:", err);
+    await window.skaleeLocalStore.deleteProduct(id);
+    await window.skaleeLocalStore.enqueueSyncOperation("complete", { id });
+    return id;
+   }
+   throw err;
+  }
+ },
+ async deleteProduct(id, options = {}) {
+  if (!navigator.onLine && !options.skipOfflineQueue && window.skaleeLocalStore) {
+   await window.skaleeLocalStore.deleteProduct(id);
+   await window.skaleeLocalStore.enqueueSyncOperation("delete", { id });
+   return id;
   }
 
-  const { data, error } = await supabase
-   .from("validity_products")
-   .update(updatePayload)
-   .eq("id", id)
-   .select(VALIDITY_PRODUCT_BASE_SELECT)
-   .single();
-  if (error) throw error;
-  const resolved = await resolveProductPhoto(data);
-  return fromDatabase({ ...data, photo: resolved.photo });
- },
- async completeProduct(id) {
-  const { data, error } = await supabase
-   .from("validity_products")
-   .update({ completed_at: new Date().toISOString() })
-   .eq("id", id)
-   .select("id")
-   .single();
-  if (error) throw error;
-  return data.id;
- },
- async deleteProduct(id) {
-  const { data: existing, error: findError } = await supabase
-   .from("validity_products")
-   .select("id,photo_path")
-   .eq("id", id)
-   .single();
-  if (findError) throw findError;
-  if (existing?.photo_path) {
-   const isShared = await checkIfPhotoPathIsShared(existing.photo_path, id);
-   if (!isShared) {
-    try {
-     await removeStoredPhoto(existing.photo_path);
-    } catch (removeErr) {
-     console.warn("[PHOTO] Aviso ao remover foto do storage:", removeErr);
+  try {
+   const { data: existing, error: findError } = await supabase
+    .from("validity_products")
+    .select("id,photo_path")
+    .eq("id", id)
+    .single();
+   if (findError) throw findError;
+   if (existing?.photo_path) {
+    const isShared = await checkIfPhotoPathIsShared(existing.photo_path, id);
+    if (!isShared) {
+     try {
+      await removeStoredPhoto(existing.photo_path);
+     } catch (removeErr) {
+      console.warn("[PHOTO] Aviso ao remover foto do storage:", removeErr);
+     }
     }
    }
+   const { data, error } = await supabase
+    .from("validity_products")
+    .delete()
+    .eq("id", id)
+    .select("id")
+    .single();
+   if (error) throw error;
+   if (window.skaleeLocalStore) void window.skaleeLocalStore.deleteProduct(id);
+   return data.id;
+  } catch (err) {
+   if (!options.skipOfflineQueue && window.skaleeLocalStore && isNetworkError(err)) {
+    console.warn("[DB] Falha ao excluir produto online. Enfileirando offline:", err);
+    await window.skaleeLocalStore.deleteProduct(id);
+    await window.skaleeLocalStore.enqueueSyncOperation("delete", { id });
+    return id;
+   }
+   throw err;
   }
-  const { data, error } = await supabase
-   .from("validity_products")
-   .delete()
-   .eq("id", id)
-   .select("id")
-   .single();
-  if (error) throw error;
-  return data.id;
  },
  formatFunctionError(error) {
   if (!error) return "Não foi possível chamar a função administrativa.";
@@ -2191,6 +2729,8 @@ async listCatalogProducts(options = {}) {
   const sourceKey = String(product.source_key || barcode || internalCode).trim();
   const supplierCode = String(product.supplier_code || product.supplierCode || "").trim();
   const supplierName = String(product.supplier_name || product.supplierName || "").trim();
+  const imageUrl = String(product.image_url || product.imageUrl || "").trim();
+  const imageProvider = String(product.image_provider || product.imageProvider || source || "external_reference").trim();
   if (!name || !sourceKey || (!barcode && !internalCode)) return null;
   const row = {
    owner_organization_id: SHARED_CATALOG_OWNER_ID,
@@ -2203,15 +2743,176 @@ async listCatalogProducts(options = {}) {
    catalog_source: source,
    source_key: sourceKey,
    source_updated_at: new Date().toISOString(),
-   source_payload: product.source_payload || null
+   source_payload: product.source_payload || null,
+   image_url: imageUrl || null,
+   image_provider: imageProvider || null,
+   image_source: imageUrl ? (product.image_source || "external_reference") : null
   };
   const { data, error } = await supabase
    .from("catalog_products")
    .upsert(row, { onConflict: "catalog_source,source_key" })
-   .select("id,brand_id,barcode,internal_code,name,supplier_code,supplier_name,active")
+   .select("id,brand_id,barcode,internal_code,name,supplier_code,supplier_name,active,image_url,image_provider,image_source")
    .single();
   if (error) throw error;
   return data;
+ },
+ async saveCatalogReferenceImage(criteria, imageResult) {
+  const imageUrl = String(imageResult?.imageUrl || imageResult?.image_url || "").trim();
+  if (!imageUrl) return null;
+  const provider = String(imageResult?.provider || imageResult?.imageProvider || imageResult?.source || "external_reference").trim();
+  const origin = String(imageResult?.imageOrigin || imageResult?.image_origin || "external").trim();
+  const normalizedCriteria = criteria && typeof criteria === "object" ? criteria : { barcode: criteria };
+  const updatePayload = {
+   image_url: imageUrl,
+   image_provider: provider,
+   image_origin: origin,
+   image_source: imageResult?.source || "external_reference",
+   image_updated_at: new Date().toISOString(),
+   photo_updated_at: new Date().toISOString()
+  };
+  let query = supabase.from("catalog_products").update(updatePayload);
+  if (normalizedCriteria.catalogProductId || normalizedCriteria.catalog_product_id) {
+   query = query.eq("id", normalizedCriteria.catalogProductId || normalizedCriteria.catalog_product_id);
+  } else if (normalizedCriteria.barcode && String(normalizedCriteria.barcode).trim()) {
+   const b = String(normalizedCriteria.barcode).trim();
+   query = query.or(`barcode.eq.${b},sg_barcodes.cs.{${b}}`);
+  } else if (normalizedCriteria.code && String(normalizedCriteria.code).trim()) {
+   query = query.eq("internal_code", normalizeReferenceCode(String(normalizedCriteria.code).trim()));
+  } else {
+   return null;
+  }
+  const { data, error } = await query.select("id,image_url,image_provider,image_origin,image_source").limit(1).maybeSingle();
+  if (error) {
+   console.warn("[PHOTO] Falha ao persistir imagem de referência no catálogo:", error);
+   return null;
+  }
+  return data;
+ },
+ async ensureProductReferenceImage(product) {
+  if (!product) return null;
+  const existing = await this.findKnownProductImage({
+   barcode: product.barcode,
+   code: product.code,
+   catalogProductId: product.catalogProductId
+  });
+  if (existing?.photoUrl) return existing;
+  const ean = String(product.barcode || "").trim();
+  if (!ean || !/^\d{6,14}$/.test(ean)) return null;
+
+  const service = (typeof window !== "undefined" && window.productImageService) || null;
+  let external = null;
+  if (service && typeof service.findProductImageByBarcode === "function") {
+   try {
+    const searchRes = await service.findProductImageByBarcode(ean);
+    if (searchRes && searchRes.found && searchRes.imageUrl) {
+     external = {
+      imageUrl: searchRes.imageUrl,
+      provider: searchRes.provider,
+      imageOrigin: "external",
+      source: "external_reference"
+     };
+    }
+   } catch (e) {
+    console.warn("[PHOTO] Falha ao buscar imagem via productImageService:", e);
+   }
+  }
+  if (!external) {
+   external = await lookupExternalProductReferenceImage(ean);
+  }
+  if (!external?.imageUrl) return null;
+
+  const catalogRow = await this.saveCatalogReferenceImage({
+   catalogProductId: product.catalogProductId || null,
+   barcode: product.barcode || null,
+   code: product.code || null
+  }, external);
+  if (!catalogRow && product.catalogSource) {
+   await this.cacheExternalCatalogProduct({
+    ...product,
+    image_url: external.imageUrl,
+    image_provider: external.provider,
+    image_origin: "external",
+    image_source: external.source || "external_reference"
+   }, product.catalogSource || "external");
+  }
+  return {
+   photoPath: catalogRow?.photo_path || null,
+   photoUrl: external.imageUrl,
+   source: external.source || "external_reference",
+   imageSource: external.source || "external_reference",
+   imageOrigin: "external",
+   imageProvider: external.provider,
+   catalogProductId: product.catalogProductId || catalogRow?.id || null,
+   productName: product.name || ""
+  };
+ },
+ async findActiveDuplicateValidityProduct(criteria = {}) {
+  const expiry = String(criteria.expiry || criteria.expiry_date || "").trim();
+  const storeName = String(criteria.store || "").trim();
+  const storeId = criteria.retailLocationId || criteria.retail_location_id || null;
+  const catalogId = criteria.catalogProductId || criteria.catalog_product_id || null;
+  const barcode = String(criteria.barcode || "").trim();
+  const code = normalizeReferenceCode(String(criteria.code || criteria.product_code || "").trim());
+
+  if (!expiry || (!storeName && !storeId) || (!catalogId && !barcode && !code)) {
+   return { isDuplicate: false, product: null };
+  }
+
+  // 1. Consulta em memória / LocalStore
+  if (window.skaleeLocalStore) {
+   try {
+    const allLocal = await window.skaleeLocalStore.getAllProducts();
+    const match = (allLocal || []).find((p) => {
+     if (!p || p.completedAt) return false;
+     if (p.expiry !== expiry) return false;
+     const storeMatches = (storeId && p.retailLocationId === storeId) ||
+                          (storeName && String(p.store || "").trim().toLowerCase() === storeName.toLowerCase());
+     if (!storeMatches) return false;
+
+     if (catalogId && p.catalogProductId === catalogId) return true;
+     if (barcode && /^[0-9]+$/.test(barcode) && p.barcode === barcode) return true;
+     if (code && /^[0-9]+$/.test(code) && normalizeReferenceCode(p.code) === code) return true;
+     return false;
+    });
+    if (match) {
+     return { isDuplicate: true, product: match };
+    }
+   } catch (localErr) {
+    console.warn("[DB] Erro ao verificar duplicidade local:", localErr);
+   }
+  }
+
+  // 2. Consulta no Supabase validity_products
+  try {
+   let query = supabase
+    .from("validity_products")
+    .select(VALIDITY_PRODUCT_BASE_SELECT)
+    .is("completed_at", null)
+    .eq("expiry_date", expiry);
+
+   if (storeId) {
+    query = query.eq("retail_location_id", storeId);
+   } else if (storeName) {
+    query = query.eq("store", storeName);
+   }
+
+   if (catalogId) {
+    query = query.eq("catalog_product_id", catalogId);
+   } else if (barcode && /^[0-9]+$/.test(barcode)) {
+    query = query.eq("barcode", barcode);
+   } else if (code && /^[0-9]+$/.test(code)) {
+    query = query.eq("product_code", code);
+   }
+
+   const { data, error } = await query.limit(1).maybeSingle();
+   if (!error && data) {
+    return { isDuplicate: true, product: fromDatabase(data) };
+   }
+  } catch (remoteErr) {
+   console.warn("[DB] Erro ao verificar duplicidade online:", remoteErr);
+  }
+
+  return { isDuplicate: false, product: null };
  },
  async listRetailLocations() {
   try {

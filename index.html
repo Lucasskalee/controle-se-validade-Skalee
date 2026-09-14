@@ -11,12 +11,25 @@
 <link rel="stylesheet" href="auth.css">
 <link rel="stylesheet" href="admin-cadastros.css">
 <link rel="stylesheet" href="components/tour/skalitoTour.css">
+<script src="local-store.js"></script>
+<script src="product-image-service.js"></script>
 <script>
 (() => {
  const preference = localStorage.getItem("skalee.theme") || "auto";
  const dark = preference === "dark" || (preference === "auto" && matchMedia("(prefers-color-scheme: dark)").matches);
  document.documentElement.dataset.theme = dark ? "dark" : "light";
  document.documentElement.dataset.themePreference = preference;
+
+ const isAndroid = /Android/i.test(navigator.userAgent);
+ const isMobile = /Mobile|Android|iPhone|iPad/i.test(navigator.userAgent);
+ const lowCores = typeof navigator.hardwareConcurrency === "number" && navigator.hardwareConcurrency <= 4;
+ const lowMemory = typeof navigator.deviceMemory === "number" && navigator.deviceMemory <= 4;
+ const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+ const perfPreference = localStorage.getItem("skalee.performance_mode");
+
+ if (perfPreference === "on" || (perfPreference !== "off" && (isAndroid || lowCores || lowMemory || prefersReducedMotion))) {
+  document.documentElement.classList.add("performance-mode");
+ }
 })();
 </script>
 <style>
@@ -542,8 +555,13 @@ html[data-theme="dark"] .image-mode-tabs{background:#0d1727;border-color:#24344d
 .img-tab.active{background:var(--blue);color:#fff}
 .known-image-card{padding:12px 14px;border-radius:12px;background:#eff6ff;border:1px solid #bfdbfe;margin-top:8px;margin-bottom:8px}
 html[data-theme="dark"] .known-image-card{background:rgba(30,64,175,.15);border-color:rgba(96,165,250,.35)}
-.known-image-badge{font-size:11px;font-weight:850;color:#1d4ed8;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.known-image-badge-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.known-image-badge{font-size:11px;font-weight:850;color:#1d4ed8;text-transform:uppercase;letter-spacing:.04em}
 html[data-theme="dark"] .known-image-badge{color:#93c5fd}
+.known-image-origin-tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:6px;background:#dbeafe;color:#1e40af;font-size:11px;font-weight:700}
+html[data-theme="dark"] .known-image-origin-tag{background:rgba(37,99,235,.25);color:#bfdbfe}
+.no-image-notice{padding:10px 12px;border-radius:10px;background:#f8fafc;border:1px dashed var(--line);margin:8px 0;font-size:12px;font-weight:600;color:var(--muted);text-align:center}
+html[data-theme="dark"] .no-image-notice{background:#0c1524}
 .known-image-content{display:flex;gap:12px;align-items:center}
 .known-image-thumb{width:64px;height:64px;border-radius:8px;border:1px solid rgba(0,0,0,.08);background:#e2e8f0;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center}
 .known-image-thumb img{width:100%;height:100%;object-fit:cover}
@@ -551,12 +569,22 @@ html[data-theme="dark"] .known-image-badge{color:#93c5fd}
 .known-image-title{font-size:12.5px;font-weight:700;color:var(--text)}
 .known-image-actions{display:flex;gap:6px;flex-wrap:wrap}
 .btn-sm{padding:6px 11px;font-size:12px;border-radius:8px}
+.btn-danger{background:#ef4444;color:#fff;border:0;border-radius:8px;cursor:pointer}
+.btn-danger:hover{background:#dc2626}
 .btn-block{width:100%;margin-top:8px;justify-content:center;text-align:center}
 .link-input-row{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:6px}
 .link-status{margin-top:6px;font-size:12px;font-weight:700;color:var(--muted)}
 .link-status.error{color:var(--red)}
 .link-status.success{color:var(--green)}
 .link-preview-box{height:140px;margin-top:8px}
+.duplicate-panel{width:min(480px,100%);padding:22px;border-radius:18px}
+.duplicate-header{display:flex;gap:12px;align-items:flex-start;margin-bottom:14px}
+.duplicate-icon{font-size:26px;line-height:1}
+.duplicate-details-card{display:grid;gap:8px;padding:14px;border-radius:12px;background:#fef2f2;border:1px solid #fecaca;margin-top:10px}
+html[data-theme="dark"] .duplicate-details-card{background:rgba(239,68,68,.12);border-color:rgba(248,113,113,.25)}
+.duplicate-detail-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:12.5px}
+.duplicate-label{color:var(--muted);font-weight:600}
+.duplicate-val{color:var(--text);font-weight:700;text-align:right}
 .update-image-section{margin:10px 0 14px;padding:12px;border-radius:12px;background:#f8fafc;border:1px solid var(--line)}
 html[data-theme="dark"] .update-image-section{background:#0d1727;border-color:#24344d}
 .update-image-row{display:flex;gap:12px;align-items:center}
@@ -707,7 +735,7 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
 <main id="protectedApp" class="app" aria-hidden="true">
 <header>
  <div class="app-brand"><img class="app-header-logo" src="skalee-symbol-transparent.png" alt="Skalee"><div><h1>Controle de Validades | Skalee</h1><div class="sub">Acompanhe primeiro o que está mais perto de vencer.</div></div></div>
- <div class="user-area"><div class="user-copy"><span id="authUser" class="sub"></span><div class="sub" id="today"></div></div><button id="signOut" class="btn2" type="button">Sair</button><button id="adminCentralButton" class="header-admin-button" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M12 3 20 7v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7l8-4Z"/><path d="M9 12l2 2 4-4"/></svg><span>Central Administrativa</span></button><button id="headerProfileButton" class="header-profile-button" type="button" aria-label="Abrir perfil" aria-haspopup="dialog" aria-controls="personalPanel"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></button></div>
+ <div class="user-area"><span id="syncStatusIndicator" class="sync-status-indicator is-synced" title="Status de Sincronização"><span class="sync-dot"></span><span id="syncStatusText">Sincronizado</span></span><div class="user-copy"><span id="authUser" class="sub"></span><div class="sub" id="today"></div></div><button id="signOut" class="btn2" type="button">Sair</button><button id="adminCentralButton" class="header-admin-button" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M12 3 20 7v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7l8-4Z"/><path d="M9 12l2 2 4-4"/></svg><span>Central Administrativa</span></button><button id="headerProfileButton" class="header-profile-button" type="button" aria-label="Abrir perfil" aria-haspopup="dialog" aria-controls="personalPanel"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></button></div>
 </header>
 
 <nav class="main-nav" aria-label="Navegação principal">
@@ -889,17 +917,25 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
    </div>
 
    <div id="knownImageCard" class="known-image-card" hidden>
-    <div class="known-image-badge">✨ Imagem já disponível</div>
+    <div class="known-image-badge-row">
+     <div class="known-image-badge" id="knownImageBadge">✨ Imagem de referência</div>
+     <span class="known-image-origin-tag" id="knownImageOriginTag">Imagem do Skalee</span>
+    </div>
     <div class="known-image-content">
      <div class="known-image-thumb" id="knownImageThumb"></div>
      <div class="known-image-details">
-      <div class="known-image-title">Imagem já cadastrada para este produto.</div>
+      <div class="known-image-title" id="knownImageStatus">Imagem de referência encontrada</div>
       <div class="known-image-actions">
-       <button id="btnUseKnownImage" class="btn btn-sm" type="button">✓ Usar esta imagem</button>
-       <button id="btnChangeImage" class="btn2 btn-sm" type="button">Trocar imagem</button>
+       <button id="btnChangeToPhoto" class="btn2 btn-sm" type="button">📷 Trocar por foto</button>
+       <button id="btnChangeToLink" class="btn2 btn-sm" type="button">🔗 Inserir link</button>
+       <button id="btnRemoveKnownImage" class="btn-danger btn-sm" type="button">🗑️ Remover imagem</button>
       </div>
      </div>
     </div>
+   </div>
+
+   <div id="noImageStatus" class="no-image-notice" hidden>
+    <span>Nenhuma imagem encontrada automaticamente. Você pode tirar uma foto ou inserir um link.</span>
    </div>
 
    <div id="photoUploadPanel" class="image-panel">
@@ -1275,6 +1311,51 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
  </div>
 </div>
 
+<div id="duplicateModal" class="update-modal" role="dialog" aria-modal="true" aria-labelledby="duplicateTitle" hidden>
+ <div class="update-panel duplicate-panel">
+  <div class="duplicate-header">
+   <span class="duplicate-icon" aria-hidden="true">⚠️</span>
+   <div>
+    <h2 id="duplicateTitle" style="margin:0 0 4px;font-size:18px;">Possível duplicidade de validade</h2>
+    <p style="margin:0;color:var(--muted);font-size:12.5px;">Já existe um registro ativo para este produto com o mesmo vencimento nesta loja.</p>
+   </div>
+  </div>
+
+  <div class="duplicate-details-card">
+   <div class="duplicate-detail-row">
+    <span class="duplicate-label">Produto:</span>
+    <strong class="duplicate-val" id="duplicateProductName">-</strong>
+   </div>
+   <div class="duplicate-detail-row">
+    <span class="duplicate-label">Loja:</span>
+    <span class="duplicate-val" id="duplicateStoreName">-</span>
+   </div>
+   <div class="duplicate-detail-row">
+    <span class="duplicate-label">Quantidade atual:</span>
+    <span class="duplicate-val" id="duplicateQty">-</span>
+   </div>
+   <div class="duplicate-detail-row">
+    <span class="duplicate-label">Vencimento:</span>
+    <span class="duplicate-val" id="duplicateExpiry">-</span>
+   </div>
+   <div class="duplicate-detail-row" id="duplicateUserRow">
+    <span class="duplicate-label">Cadastrado por:</span>
+    <span class="duplicate-val" id="duplicateUser">-</span>
+   </div>
+   <div class="duplicate-detail-row" id="duplicateDateRow">
+    <span class="duplicate-label">Data de cadastro:</span>
+    <span class="duplicate-val" id="duplicateCreatedAt">-</span>
+   </div>
+  </div>
+
+  <div class="actions" style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;">
+   <button id="btnViewExistingDuplicate" class="btn2" type="button">Ver existente</button>
+   <button id="btnConfirmDuplicateSave" class="btn" type="button">Cadastrar mesmo assim</button>
+   <button id="btnCancelDuplicate" class="btn2" type="button">Cancelar</button>
+  </div>
+ </div>
+</div>
+
 <div id="productDetailModal" class="product-detail-modal" role="dialog" aria-modal="true" aria-labelledby="productDetailTitle" aria-hidden="true">
  <div class="product-detail-panel" tabindex="-1">
   <button id="closeProductDetail" class="product-detail-close" type="button" aria-label="Fechar detalhes do produto">
@@ -1466,9 +1547,14 @@ const els = {
  tabPhoto: document.getElementById('tabPhoto'),
  tabLink: document.getElementById('tabLink'),
  knownImageCard: document.getElementById('knownImageCard'),
+ knownImageBadge: document.getElementById('knownImageBadge'),
+ knownImageOriginTag: document.getElementById('knownImageOriginTag'),
  knownImageThumb: document.getElementById('knownImageThumb'),
- btnUseKnownImage: document.getElementById('btnUseKnownImage'),
- btnChangeImage: document.getElementById('btnChangeImage'),
+ knownImageStatus: document.getElementById('knownImageStatus'),
+ btnChangeToPhoto: document.getElementById('btnChangeToPhoto'),
+ btnChangeToLink: document.getElementById('btnChangeToLink'),
+ btnRemoveKnownImage: document.getElementById('btnRemoveKnownImage'),
+ noImageStatus: document.getElementById('noImageStatus'),
  photoUploadPanel: document.getElementById('photoUploadPanel'),
  linkImportPanel: document.getElementById('linkImportPanel'),
  imageUrlInput: document.getElementById('imageUrlInput'),
@@ -1515,6 +1601,18 @@ const els = {
  importStockSnapshot: document.getElementById('importStockSnapshot'),
  stockImportInfo: document.getElementById('stockImportInfo'),
  stockImportStatus: document.getElementById('stockImportStatus'),
+ duplicateModal: document.getElementById('duplicateModal'),
+ duplicateProductName: document.getElementById('duplicateProductName'),
+ duplicateStoreName: document.getElementById('duplicateStoreName'),
+ duplicateQty: document.getElementById('duplicateQty'),
+ duplicateExpiry: document.getElementById('duplicateExpiry'),
+ duplicateUser: document.getElementById('duplicateUser'),
+ duplicateCreatedAt: document.getElementById('duplicateCreatedAt'),
+ duplicateUserRow: document.getElementById('duplicateUserRow'),
+ duplicateDateRow: document.getElementById('duplicateDateRow'),
+ btnViewExistingDuplicate: document.getElementById('btnViewExistingDuplicate'),
+ btnConfirmDuplicateSave: document.getElementById('btnConfirmDuplicateSave'),
+ btnCancelDuplicate: document.getElementById('btnCancelDuplicate'),
  updateModal: document.getElementById('updateModal'),
  updateProductName: document.getElementById('updateProductName'),
  updateStockContainer: document.getElementById('updateStockContainer'),
@@ -1695,6 +1793,117 @@ const queryStats = {
  rowsReceived: 0
 };
 window.skaleeQueryStats = queryStats;
+
+const performanceStats = {
+ initTime: Date.now(),
+ firstRenderMs: 0,
+ cacheHits: 0,
+ cacheMisses: 0,
+ queries: 0,
+ offlineQueue: 0,
+ performanceMode: document.documentElement.classList.contains("performance-mode"),
+ lastSync: null
+};
+window.skaleePerformanceStats = performanceStats;
+
+function updateSyncStatusIndicator(status, text) {
+ const indicator = document.getElementById("syncStatusIndicator");
+ const label = document.getElementById("syncStatusText");
+ if (!indicator || !label) return;
+
+ indicator.classList.remove("is-synced", "is-syncing", "is-offline", "is-error");
+ if (status === "offline") {
+  indicator.classList.add("is-offline");
+  label.textContent = text || "Offline (Local)";
+ } else if (status === "syncing") {
+  indicator.classList.add("is-syncing");
+  label.textContent = text || "Sincronizando...";
+ } else if (status === "error") {
+  indicator.classList.add("is-error");
+  label.textContent = text || "Erro de Sincronia";
+ } else {
+  indicator.classList.add("is-synced");
+  label.textContent = text || "Sincronizado";
+ }
+}
+
+window.addEventListener("skalee:sync-status-changed", (e) => {
+ const pending = e.detail?.pending || 0;
+ if (!navigator.onLine) {
+  updateSyncStatusIndicator("offline", `Offline (${pending} pendente${pending === 1 ? "" : "s"})`);
+ } else if (pending > 0) {
+  updateSyncStatusIndicator("syncing", `Sincronizando ${pending}...`);
+ } else {
+  updateSyncStatusIndicator("synced", "Sincronizado");
+ }
+});
+
+function saveCurrentUiState() {
+ if (!window.skaleeLocalStore) return;
+ const activeTabBtn = document.querySelector("nav .tab.active");
+ const activePage = activeTabBtn ? activeTabBtn.dataset.page : "products";
+ const state = {
+  activePage,
+  search: els.search ? els.search.value : "",
+  store: els.storeFilter ? els.storeFilter.value : "",
+  supplier: els.supplierFilter ? els.supplierFilter.value : "",
+  sort: els.sort ? els.sort.value : "expiry",
+  activeFilters: { ...activeFilters },
+  scrollPosition: window.scrollY || document.documentElement.scrollTop || 0,
+  updatedAt: Date.now()
+ };
+ if (typeof window.skaleeLocalStore.saveUiState === "function") {
+  void window.skaleeLocalStore.saveUiState(state);
+ } else if (typeof window.skaleeLocalStore.setUiState === "function") {
+  void window.skaleeLocalStore.setUiState(state);
+ }
+}
+
+async function restoreSavedUiState() {
+ if (!window.skaleeLocalStore) return;
+ try {
+  const isMobile = window.matchMedia("(max-width: 768px)").matches || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+  const defaultPage = isMobile ? "register" : "products";
+  const state = await window.skaleeLocalStore.getUiState();
+  if (state) {
+   if (state.search && els.search) {
+    els.search.value = state.search;
+    if (els.clearSearch) els.clearSearch.hidden = false;
+   }
+   if (state.sort && els.sort) {
+    els.sort.value = state.sort;
+   }
+   if (state.store && els.storeFilter) {
+    els.storeFilter.value = state.store;
+   }
+   if (state.supplier && els.supplierFilter) {
+    els.supplierFilter.value = state.supplier;
+    if (els.clearSupplierFilter) els.clearSupplierFilter.hidden = false;
+   }
+   if (state.activeFilters) {
+    activeFilters = { ...activeFilters, ...state.activeFilters };
+    if (typeof syncFilterUI === "function") syncFilterUI();
+   }
+   const targetPage = state.activePage || defaultPage;
+   if (targetPage) {
+    const tab = document.querySelector(`nav .tab[data-page="${targetPage}"]`);
+    if (tab && !tab.hidden) tab.click();
+   }
+   if (state.scrollPosition && state.scrollPosition > 0) {
+    requestAnimationFrame(() => {
+     window.scrollTo({ top: state.scrollPosition, behavior: "instant" });
+    });
+   }
+  } else {
+   if (defaultPage !== "products") {
+    const tab = document.querySelector(`nav .tab[data-page="${defaultPage}"]`);
+    if (tab && !tab.hidden) tab.click();
+   }
+  }
+ } catch (e) {
+  console.warn("Aviso ao restaurar uiState:", e);
+ }
+}
 let reportSelectionInitialized = false;
 let reportCreatedTodayOnly = false;
 const REPORT_COLUMNS_KEY = "skalee.report.columns";
@@ -2298,8 +2507,59 @@ let scannerConfirmCode = "";
 let scannerConfirmCount = 0;
 let scannerConfirmAt = 0;
 let scannerCanvas = null;
-let scannerCanvasContext = null;
 let products = [];
+const resolvedProductPhotoState = new Map();
+
+function preserveProductPhotoState(targetProduct, sourceProduct = null) {
+ if (!targetProduct || !targetProduct.id) return targetProduct;
+ const id = String(targetProduct.id);
+ const currentPath = String(targetProduct.photoPath || "").trim();
+
+ const existingState = resolvedProductPhotoState.get(id) || (sourceProduct ? {
+  photoPath: String(sourceProduct.photoPath || "").trim(),
+  photo: sourceProduct.photo || "",
+  photoLoaded: Boolean(sourceProduct.photoLoaded)
+ } : null);
+
+ if (existingState) {
+  const samePath = String(existingState.photoPath || "").trim() === currentPath;
+  if (samePath) {
+   if (existingState.photo || existingState.photoLoaded) {
+    targetProduct.photo = existingState.photo || targetProduct.photo || "";
+    targetProduct.photoLoaded = existingState.photoLoaded;
+   }
+  } else {
+   if (existingState.photoPath && typeof window.skaleeDb?.invalidateProductPhotoUrl === "function") {
+    window.skaleeDb.invalidateProductPhotoUrl(existingState.photoPath);
+   }
+   targetProduct.photo = "";
+   targetProduct.photoLoaded = false;
+   resolvedProductPhotoState.delete(id);
+   requestedProductPhotoIds.delete(id);
+   queuedProductPhotoIdSet.delete(id);
+  }
+ }
+
+ if (targetProduct.photo || targetProduct.photoLoaded) {
+  resolvedProductPhotoState.set(id, {
+   photoPath: currentPath,
+   photo: targetProduct.photo || "",
+   photoLoaded: Boolean(targetProduct.photoLoaded)
+  });
+ }
+
+ return targetProduct;
+}
+
+function mergeProductsPreservingPhotoState(newProductsList, existingProductsList = products) {
+ if (!Array.isArray(newProductsList)) return [];
+ const existingMap = new Map((existingProductsList || []).map((p) => [String(p.id), p]));
+ return newProductsList.map((newProd) => {
+  const existing = existingMap.get(String(newProd.id));
+  return preserveProductPhotoState(newProd, existing);
+ });
+}
+
 let reportProducts = [];
 let reportProductsLoaded = false;
 let reportProductsLoading = false;
@@ -2335,8 +2595,9 @@ function hideProductLoadToastSoon() {
 }
 
 function appendUniqueProducts(nextProducts) {
- const existingIds = new Set(products.map((product) => product.id));
- const uniqueProducts = nextProducts.filter((product) => !existingIds.has(product.id));
+ const existingIds = new Set(products.map((product) => String(product.id)));
+ const mergedNext = mergeProductsPreservingPhotoState(nextProducts, products);
+ const uniqueProducts = mergedNext.filter((product) => !existingIds.has(String(product.id)));
  if (uniqueProducts.length) products = [...products, ...uniqueProducts];
  return uniqueProducts.length;
 }
@@ -2571,6 +2832,7 @@ function applyDashboardStatsDelta(beforeProduct, afterProduct) {
 
 function scheduleProductQueryReload(delay = 300) {
  if (productQueryReloadTimer) clearTimeout(productQueryReloadTimer);
+ saveCurrentUiState();
  productQueryReloadTimer = setTimeout(() => {
   productQueryReloadTimer = null;
   void carregarProdutosOnline();
@@ -2631,11 +2893,12 @@ function mergeRealtimeProduct(nextProduct) {
   if (!samePhotoPath && existing.photoPath && typeof window.skaleeDb?.invalidateProductPhotoUrl === "function") {
    window.skaleeDb.invalidateProductPhotoUrl(existing.photoPath);
    requestedProductPhotoIds.delete(id);
+   queuedProductPhotoIdSet.delete(id);
+   resolvedProductPhotoState.delete(id);
   }
+  preserveProductPhotoState(nextProduct, existing);
   products = products.map((product) => String(product.id) === id ? {
    ...nextProduct,
-   photo: samePhotoPath ? product.photo : "",
-   photoLoaded: samePhotoPath ? product.photoLoaded : false,
    supplierAliases: nextProduct.supplierAliases?.length ? nextProduct.supplierAliases : product.supplierAliases,
    canEdit: product.canEdit,
    canDelete: nextProduct.canDelete,
@@ -2647,6 +2910,7 @@ function mergeRealtimeProduct(nextProduct) {
   }
   return true;
  }
+ preserveProductPhotoState(nextProduct);
  const newProductWithMovement = {
   ...nextProduct,
   stockMovement: movement
@@ -2790,7 +3054,46 @@ function syncDashboardAfterAppResume(reason = "resume") {
  scheduleDashboardStatsReload(0);
 }
 
-window.addEventListener("online", () => syncDashboardAfterAppResume("online"));
+let lastAppHiddenAt = 0;
+const SYNC_THRESHOLD_INSTANT_MS = 120000; // < 2 min: zero network/reload, instant resume
+const SYNC_THRESHOLD_LIGHT_MS = 900000;   // 2 to 15 min: lightweight stats check
+
+document.addEventListener("visibilitychange", () => {
+ if (document.hidden) {
+  lastAppHiddenAt = Date.now();
+  saveCurrentUiState();
+ } else {
+  const hiddenDuration = Date.now() - lastAppHiddenAt;
+  console.debug(`[APP RESUME] Retornou após ${(hiddenDuration / 1000).toFixed(1)}s`);
+  if (lastAppHiddenAt > 0 && hiddenDuration < SYNC_THRESHOLD_INSTANT_MS) {
+   console.debug("[APP RESUME] < 2 min: Retomada instantânea preservada");
+  } else if (lastAppHiddenAt > 0 && hiddenDuration < SYNC_THRESHOLD_LIGHT_MS) {
+   console.debug("[APP RESUME] 2-15 min: Verificação leve de dashboard em segundo plano");
+   syncDashboardAfterAppResume("visibility_light");
+  } else {
+   console.debug("[APP RESUME] > 15 min: Revalidação em segundo plano");
+   syncDashboardAfterAppResume("visibility_full");
+   void carregarProdutosOnline();
+  }
+ }
+});
+
+window.addEventListener("pagehide", () => {
+ saveCurrentUiState();
+});
+
+window.addEventListener("pageshow", (event) => {
+ if (event.persisted) {
+  console.debug("[APP RESUME] Restaurado de BFCache (pageshow persisted)");
+ }
+});
+
+window.addEventListener("online", () => {
+ syncDashboardAfterAppResume("online");
+ if (window.skaleeDb?.processOfflineSyncQueue) {
+  void window.skaleeDb.processOfflineSyncQueue();
+ }
+});
 
 function aplicarMovimentacoesEstoque(rows = []) {
  const movementById = new Map((rows || []).map((row) => [String(row.validity_product_id), row]));
@@ -2836,7 +3139,7 @@ async function carregarProdutosOnline() {
  try {
   const firstPage = await window.skaleeDb.loadProducts({ ...criteria, offset: productPageOffset, limit: PRODUCT_PAGE_SIZE });
   if (generation !== productLoadGeneration) return;
-  products = firstPage;
+  products = mergeProductsPreservingPhotoState(firstPage, products);
   const rawLength = pageRawLength(firstPage);
   queryStats.rowsReceived += firstPage.length;
   productPageOffset += rawLength;
@@ -2938,7 +3241,9 @@ async function carregarOpcoesPermitidas() {
 function popularLojasPermitidas(locations) {
  const activeLocations = (locations || []).filter((location) => location.active !== false);
  allowedLocations = activeLocations;
- const selectedStore = els.store.value;
+ let storedStoreId = "";
+ try { storedStoreId = localStorage.getItem("skalee_last_selected_store_id") || ""; } catch (_) {}
+ const selectedStore = els.store.value || storedStoreId;
  els.store.replaceChildren(new Option(activeLocations.length ? "Selecione o local" : "Nenhum local permitido", ""));
  activeLocations.forEach((location) => {
   const option = new Option(location.name, location.id);
@@ -2949,6 +3254,7 @@ function popularLojasPermitidas(locations) {
   els.store.value = selectedStore;
  } else if (activeLocations.length === 1) {
   els.store.value = activeLocations[0].id;
+  try { localStorage.setItem("skalee_last_selected_store_id", activeLocations[0].id); } catch (_) {}
  }
  if (selected) void updateRegisterStockInfo();
 
@@ -3016,11 +3322,19 @@ function preencherFornecedorPelosProdutos() {
 }
 
 function markProductPhotoLoaded(id, photo = "") {
+ const normId = String(id || "");
+ const product = products.find((item) => String(item.id) === normId);
+ const photoPath = product ? String(product.photoPath || "").trim() : "";
+ resolvedProductPhotoState.set(normId, {
+  photoPath,
+  photo: photo || "",
+  photoLoaded: true
+ });
  let changed = false;
- products = products.map((product) => {
-  if (String(product.id) !== String(id)) return product;
+ products = products.map((item) => {
+  if (String(item.id) !== normId) return item;
   changed = true;
-  return { ...product, photo, photoLoaded: true };
+  return { ...item, photo: photo || "", photoLoaded: true };
  });
  return changed;
 }
@@ -3031,48 +3345,64 @@ async function carregarFotosProdutosOnline(productIds) {
  try {
   const photoById = new Map();
   for (const id of ids) {
-   const product = products.find((item) => String(item.id) === String(id));
+   const normId = String(id);
+   const product = products.find((item) => String(item.id) === normId);
    if (!product) continue;
-   let photo = product.photo || "";
-   if (!photo && product.photoPath && typeof window.skaleeDb?.getProductPhotoUrl === "function") {
+   const currentPath = String(product.photoPath || "").trim();
+   const registered = resolvedProductPhotoState.get(normId);
+   let photo = (registered && String(registered.photoPath || "").trim() === currentPath && (registered.photo || registered.photoLoaded))
+    ? (registered.photo || "")
+    : (product.photo || "");
+
+   if (!photo && currentPath && typeof window.skaleeDb?.getProductPhotoUrl === "function") {
     if (window.skaleePhotoCacheStats) window.skaleePhotoCacheStats.requested = (window.skaleePhotoCacheStats.requested || 0) + 1;
-    photo = await window.skaleeDb.getProductPhotoUrl(product.photoPath);
+    photo = await window.skaleeDb.getProductPhotoUrl(currentPath);
    }
-   photoById.set(product.id, photo);
-   markProductPhotoLoaded(product.id, photo);
+   photoById.set(normId, photo || "");
+   markProductPhotoLoaded(normId, photo || "");
   }
   aplicarFotosCarregadas(photoById);
  } catch (error) {
-  ids.forEach((id) => requestedProductPhotoIds.delete(id));
+  ids.forEach((id) => requestedProductPhotoIds.delete(String(id)));
   console.error("Não foi possível carregar as fotos dos produtos.", error);
  }
 }
 
 function aplicarFotosCarregadas(photoById) {
  photoById.forEach((photo, id) => {
-  const slot = [...els.grid.querySelectorAll(".photo[data-photo-id]")].find((item) => item.dataset.photoId === String(id));
-  if (!slot) return;
-  slot.removeAttribute("data-photo-id");
-  slot.replaceChildren();
-  if (photo) {
-   const image = document.createElement("img");
-   image.src = photo;
-   image.loading = "lazy";
-   image.decoding = "async";
-   image.alt = "";
-   image.addEventListener("load", () => {
-    if (window.skaleePhotoCacheStats) window.skaleePhotoCacheStats.displayed = (window.skaleePhotoCacheStats.displayed || 0) + 1;
-   }, { once: true });
-   slot.appendChild(image);
-  } else {
-   slot.textContent = "Sem foto";
-  }
+  const normId = String(id);
+  const slots = els.grid.querySelectorAll(`.photo[data-photo-id="${normId}"]`);
+  slots.forEach((slot) => {
+   slot.removeAttribute("data-photo-id");
+   slot.replaceChildren();
+   if (photo) {
+    const image = document.createElement("img");
+    image.src = photo;
+    image.loading = "lazy";
+    image.decoding = "async";
+    image.alt = "";
+    image.addEventListener("load", () => {
+     if (window.skaleePhotoCacheStats) window.skaleePhotoCacheStats.displayed = (window.skaleePhotoCacheStats.displayed || 0) + 1;
+    }, { once: true });
+    slot.appendChild(image);
+   } else {
+    slot.textContent = "Sem foto";
+   }
+  });
  });
 }
 
 function queueProductPhotoLoad(id) {
  const normalizedId = String(id || "");
- if (!normalizedId || requestedProductPhotoIds.has(normalizedId) || queuedProductPhotoIdSet.has(normalizedId)) return;
+ if (!normalizedId) return;
+ const registered = resolvedProductPhotoState.get(normalizedId);
+ const product = products.find((item) => String(item.id) === normalizedId);
+ const currentPath = String(product?.photoPath || "").trim();
+ if (registered && String(registered.photoPath || "").trim() === currentPath && (registered.photo || registered.photoLoaded)) {
+  aplicarFotosCarregadas(new Map([[normalizedId, registered.photo || ""]]));
+  return;
+ }
+ if (requestedProductPhotoIds.has(normalizedId) || queuedProductPhotoIdSet.has(normalizedId)) return;
  requestedProductPhotoIds.add(normalizedId);
  queuedProductPhotoIdSet.add(normalizedId);
  queuedProductPhotoIds.push(normalizedId);
@@ -3343,7 +3673,7 @@ els.createUser.addEventListener("click", async () => {
  }
 });
 
-window.addEventListener("skalee:authenticated", (event) => {
+window.addEventListener("skalee:authenticated", async (event) => {
  appAuthenticated = true;
  isViewer = event.detail?.accessRole === "viewer";
  activeUserEmail = event.detail?.email || "";
@@ -3364,10 +3694,7 @@ window.addEventListener("skalee:authenticated", (event) => {
  reportSelectionInitialized = false;
  showInstallBannerWhenAvailable();
  armNotificationPermissionRequest();
- void carregarOpcoesPermitidas();
- void carregarProdutosOnline();
- void carregarDashboardStats();
- startValidityProductsRealtime();
+
  const isAdmin = canManageAdminUsers;
  const canUsePoster = isAdmin || isPlatformAdmin;
  const canOpenAdminSettings = isAdmin || isPlatformAdmin;
@@ -3389,6 +3716,47 @@ window.addEventListener("skalee:authenticated", (event) => {
   if (els.stockSnapshotDate && !els.stockSnapshotDate.value) els.stockSnapshotDate.value = localDateKey(new Date());
   void carregarSituacaoCargasEstoque();
  }
+
+ // Phase 1 & 2: Local-First Instant Render from IndexedDB
+ const t0 = performance.now();
+ if (window.skaleeLocalStore) {
+  try {
+   const [cachedProducts, cachedStats, cachedLocs, cachedSupps] = await Promise.all([
+    window.skaleeLocalStore.getAllProducts(),
+    window.skaleeLocalStore.getDashboardStats(),
+    window.skaleeLocalStore.getAllowedLocations(),
+    window.skaleeLocalStore.getAllowedSuppliers()
+   ]);
+   if (cachedLocs && cachedLocs.length) popularLojasPermitidas(cachedLocs);
+   if (cachedSupps && cachedSupps.length) popularFornecedoresPermitidos(cachedSupps);
+   await restoreSavedUiState();
+   if (cachedProducts && cachedProducts.length) {
+    const mergedCached = mergeProductsPreservingPhotoState(cachedProducts, products);
+    products = sortProductsForCurrentCriteria(mergedCached.filter(productMatchesCurrentCriteria)).slice(0, PRODUCT_PAGE_SIZE);
+    if (cachedStats) {
+     dashboardStats = cachedStats;
+    }
+    renderDashboardStats();
+    render();
+    if (window.skaleePerformanceStats) {
+     window.skaleePerformanceStats.firstRenderMs = Math.round(performance.now() - t0);
+     window.skaleePerformanceStats.cacheHits += 1;
+    }
+    console.debug(`[FAST STARTUP] Renderizado a partir do cache local em ${Math.round(performance.now() - t0)}ms`);
+   }
+  } catch (cacheBootErr) {
+   console.warn("[FAST STARTUP] Aviso ao restaurar cache:", cacheBootErr);
+  }
+ }
+
+ // Phase 3, 4, 5, 6: Background Network Sync & Offline Queue
+ void carregarOpcoesPermitidas();
+ void carregarProdutosOnline();
+ void carregarDashboardStats();
+ if (window.skaleeDb?.processOfflineSyncQueue) {
+  void window.skaleeDb.processOfflineSyncQueue();
+ }
+ startValidityProductsRealtime();
 });
 window.addEventListener("skalee:signed-out", () => {
  appAuthenticated = false;
@@ -3411,6 +3779,8 @@ window.addEventListener("skalee:signed-out", () => {
  stopValidityProductsRealtime();
  dashboardStats = null;
  dashboardStatsDelta = null;
+ resolvedProductPhotoState.clear();
+ resetProductPhotoQueue();
  products = [];
  reportProducts = [];
  reportProductsLoaded = false;
@@ -3944,8 +4314,8 @@ function renderStockReferenceCardMarkup(movement, options = {}) {
  return `
   <div class="stock-reference-card">
    <div class="stock-reference-card-header">
-    <span>${escapeHtml(title)}</span>
-    <span style="font-size:10.5px;text-transform:none;color:var(--muted)">Última carga SG</span>
+    <span>${escapeHtml(title)}${movement?.store ? ` · ${escapeHtml(movement.store)}` : ""}</span>
+    <span style="font-size:10.5px;text-transform:none;color:var(--muted)">Referência informativa (saldo importado do SG, não alterado manualmente)</span>
    </div>
    <div class="stock-reference-grid">
     <div class="stock-reference-item">
@@ -4317,13 +4687,13 @@ function openPdfReport() {
   els.reportStatus.textContent = "Permita pop-ups para abrir o relatório em PDF.";
   return;
  }
- reportWindow.document.write(`<!doctype html>
-<html lang="pt-BR">
-<head>
-<meta charset="utf-8">
-<base href="${escapeHtml(window.location.href)}">
-<title>Relatorio_Validades_Skalee_${fileDate}</title>
-<style>
+  reportWindow.document.write(`\x3C!doctype html>
+\x3Chtml lang="pt-BR">
+\x3Chead>
+\x3Cmeta charset="utf-8">
+\x3Cbase href="${escapeHtml(window.location.href)}">
+\x3Ctitle>Relatorio_Validades_Skalee_${fileDate}\x3C/title>
+\x3Cstyle>
  @page{size:A4 landscape;margin:12mm}
  *{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}
  body{margin:0;font-family:Arial,sans-serif;color:#111827;background:#fff;font-size:10px}
@@ -4352,9 +4722,9 @@ function openPdfReport() {
  .footer{margin-top:8px;color:#4b5563;font-size:10px}
  .page-break{break-before:page;page-break-before:always}
  @media print{.print-actions{display:none}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
-</style>
-</head>
-<body>
+\x3C/style>
+\x3C/head>
+\x3Cbody>
  <div class="print-actions"><button onclick="window.print()">Salvar como PDF</button></div>
  <div class="header">
   <img class="logo" src="skalee-icon-192.png" alt="Skalee">
@@ -4372,9 +4742,9 @@ function openPdfReport() {
  </div>
  ${buildPdfReportSections(groups)}
  <div class="footer">Relatorio gerado automaticamente pela aba Relatorios do Controle de Validades Skalee.</div>
- <script>window.addEventListener("load",()=>setTimeout(()=>window.print(),250));<\/script>
-</body>
-</html>`);
+ \x3Cscript>window.addEventListener("load",()=>setTimeout(()=>window.print(),250));\x3C/script>
+\x3C/body>
+\x3C/html>`);
  reportWindow.document.close();
  els.reportStatus.textContent = `Relatório PDF aberto: ${storeLabel}.`;
 }
@@ -4513,8 +4883,17 @@ function render() {
    const days = remaining(product.expiry);
    const [label, tone] = status(days);
    const expiryText = new Date(product.expiry + "T00:00:00").toLocaleDateString("pt-BR");
-   const photoContent = product.photo ? `<img src="${product.photo}" loading="lazy" decoding="async" alt="">` : (product.photoLoaded ? "Sem foto" : "Carregando foto...");
-   const photoAttrs = (!product.photo && !product.photoLoaded) ? ` data-photo-id="${escapeHtml(product.id)}"` : "";
+   const normId = String(product.id || "");
+   const registered = resolvedProductPhotoState.get(normId);
+   const samePath = registered && String(registered.photoPath || "").trim() === String(product.photoPath || "").trim();
+   const effectivePhoto = samePath ? (registered.photo || product.photo || "") : (product.photo || "");
+   const effectivePhotoLoaded = samePath ? (registered.photoLoaded || product.photoLoaded || false) : (product.photoLoaded || false);
+   const photoContent = effectivePhoto
+    ? `<img src="${effectivePhoto}" loading="lazy" decoding="async" alt="">`
+    : (effectivePhotoLoaded ? "Sem foto" : "Carregando foto...");
+   const photoAttrs = (!effectivePhoto && !effectivePhotoLoaded)
+    ? ` data-photo-id="${escapeHtml(product.id)}"`
+    : "";
    const firstCode = extractFirstInternalCode(product.code) || "sem código";
    const firstBarcode = extractFirstBarcode(product.barcode) || "sem barras";
    const firstSupplierCode = extractFirstSupplierCode(product);
@@ -5111,8 +5490,12 @@ function openProductDetailModal(product, sourceCard) {
  const firstCode = extractFirstInternalCode(product.code) || "sem código";
  const firstBarcode = extractFirstBarcode(product.barcode) || "sem barras";
  const firstSupplierCode = extractFirstSupplierCode(product) || "sem código";
- const photoMarkup = product.photo
-  ? `<img src="${product.photo}" alt="${escapeHtml(product.name)}">`
+ const normId = String(product.id || "");
+ const registered = resolvedProductPhotoState.get(normId);
+ const samePath = registered && String(registered.photoPath || "").trim() === String(product.photoPath || "").trim();
+ const effectivePhoto = samePath ? (registered.photo || product.photo || "") : (product.photo || "");
+ const photoMarkup = effectivePhoto
+  ? `<img src="${effectivePhoto}" alt="${escapeHtml(product.name)}">`
   : `<div class="detail-no-photo"><span>Sem foto</span></div>`;
  const updating = pendingProductUpdateIds.has(String(product.id));
 
@@ -6149,13 +6532,15 @@ async function carregarSituacaoCargasEstoque() {
  const date = els.stockSnapshotDate.value;
  els.stockImportStatus.textContent = "Consultando cargas por loja...";
  try {
-  const batches = await window.skaleeDb.loadStockImportBatches(date);
+  const rawBatches = await window.skaleeDb.loadStockImportBatches(date);
   if (generation !== stockImportStatusGeneration || !isSkaleeAdmin) return;
+  const batches = Array.isArray(rawBatches) ? rawBatches : [];
   const latest = new Map();
-  batches.forEach((batch) => { if (!latest.has(batch.retail_location_id)) latest.set(batch.retail_location_id, batch); });
+  batches.forEach((batch) => { if (batch && batch.retail_location_id && !latest.has(batch.retail_location_id)) latest.set(batch.retail_location_id, batch); });
   const labels = { completed: "Carga concluída", completed_with_errors: "Carga com pendências", failed: "Última tentativa falhou", processing: "Em processamento" };
+  const locations = Array.isArray(allowedLocations) ? allowedLocations.filter((loc) => loc && loc.active !== false) : [];
   els.stockImportStatus.innerHTML = `<b>Cargas de ${escapeHtml(new Date(`${date}T00:00:00`).toLocaleDateString("pt-BR"))}</b>` +
-   (allowedLocations.length ? allowedLocations.map((location) => {
+   (locations.length ? locations.map((location) => {
     const batch = latest.get(location.id);
     const detail = batch ? `${labels[batch.status] || "Situação desconhecida"} · ${Number(batch.valid_rows || 0).toLocaleString("pt-BR")} produtos · ${Number(batch.invalid_rows || 0).toLocaleString("pt-BR")} pendências · ${batch.original_filename || "Arquivo sem nome"}` : "Carga pendente";
     return `<div class="stock-movement"><b>${escapeHtml(location.name)}</b><div>${escapeHtml(detail)}</div></div>`;
@@ -6187,7 +6572,7 @@ els.importStockSnapshot.addEventListener("click", async () => {
  if (!snapshotDate) return alert("Informe a data da carga.");
  if (!retailLocationId) return alert("Selecione a loja da carga.");
  if (!file) return alert("Selecione o arquivo da carga SG.");
- const selectedLocation = allowedLocations.find((location) => location.id === retailLocationId);
+ const selectedLocation = (Array.isArray(allowedLocations) ? allowedLocations : []).find((location) => location && location.id === retailLocationId);
  if (!selectedLocation) return alert("Selecione uma loja ativa permitida.");
  const selectedLocationName = selectedLocation.name;
 
@@ -7065,6 +7450,12 @@ function showImagePanel(mode) {
  els.linkImportPanel.hidden = (mode !== "link");
 }
 
+function setReferenceImageStatus(message, tone = "info") {
+ if (!els.knownImageStatus) return;
+ els.knownImageStatus.textContent = message || "";
+ els.knownImageStatus.dataset.tone = tone;
+}
+
 function resetImageSection() {
  currentKnownImage = null;
  selectedImageState = null;
@@ -7076,6 +7467,9 @@ function resetImageSection() {
  els.preview.textContent = "Sem foto";
  els.knownImageCard.hidden = true;
  els.knownImageThumb.innerHTML = "";
+ if (els.knownImageOriginTag) els.knownImageOriginTag.textContent = "";
+ if (els.noImageStatus) els.noImageStatus.hidden = true;
+ setReferenceImageStatus("Imagem já cadastrada para este produto.", "info");
  els.imageUrlInput.value = "";
  els.linkPreviewStatus.textContent = "";
  els.linkPreviewStatus.hidden = true;
@@ -7090,38 +7484,111 @@ async function verificarImagemConhecida(product) {
   resetImageSection();
   return;
  }
+
+ resetImageSection();
+ setReferenceImageStatus("Buscando imagem de referência...", "info");
+
  try {
+  // 1. Busca imagem existente no Skalee (Storage / photo_path ou imagem de referência do catálogo)
   const known = await window.skaleeDb?.findKnownProductImage?.({
    barcode: product.barcode,
    code: product.code,
    catalogProductId: product.catalogProductId
   });
+
   if (known?.photoUrl) {
    currentKnownImage = known;
    selectedImageState = {
     type: "reused",
-    photoPath: known.photoPath,
+    photoPath: known.photoPath || null,
     photoUrl: known.photoUrl,
-    source: "reused"
+    source: known.source || "reused",
+    imageOrigin: known.imageOrigin || "internal",
+    imageProvider: known.imageProvider || null
    };
    photoData = null;
-   els.knownImageThumb.innerHTML = `<img src="${known.photoUrl}" alt="Foto existente">`;
+   els.knownImageThumb.innerHTML = `<img src="${escapeHtml(known.photoUrl)}" alt="Imagem do produto">`;
+   if (els.knownImageOriginTag) {
+    let tagText = "Imagem de referência";
+    if (known.imageOrigin === "upload" || (known.photoPath && known.imageOrigin !== "external")) {
+     tagText = "Foto enviada pelo usuário";
+    } else if (known.imageOrigin === "external" || known.imageProvider) {
+     tagText = "Imagem de referência externa";
+    } else if (known.photoPath) {
+     tagText = "Imagem do Skalee";
+    }
+    els.knownImageOriginTag.textContent = tagText;
+   }
+   setReferenceImageStatus("Imagem de referência encontrada no sistema", "success");
    els.knownImageCard.hidden = false;
    els.photoUploadPanel.hidden = true;
    els.linkImportPanel.hidden = true;
-   els.tabPhoto.classList.remove("active");
-   els.tabLink.classList.remove("active");
-   els.btnUseKnownImage.classList.add("active");
+   if (els.noImageStatus) els.noImageStatus.hidden = true;
    return;
   }
- } catch (err) {
-  console.warn("[PHOTO] Falha ao consultar imagem conhecida do produto:", err);
- }
 
- currentKnownImage = null;
- selectedImageState = null;
- els.knownImageCard.hidden = true;
- showImagePanel("camera");
+  // 2. Se não tem imagem no sistema, busca na internet por código de barras via productImageService
+  const validBarcode = String(product.barcode || "").trim();
+  if (validBarcode && /^[0-9]{8,14}$/.test(validBarcode) && window.productImageService) {
+   setReferenceImageStatus("Buscando imagem de referência na internet...", "info");
+   const external = await window.productImageService.findProductImageByBarcode(validBarcode);
+   if (external?.imageUrl) {
+    // Salva a referência no catálogo para futuros usos sem bloquear
+    void window.skaleeDb?.saveCatalogReferenceImage?.({
+     catalogProductId: product.catalogProductId || null,
+     barcode: validBarcode,
+     code: product.code || "",
+     imageUrl: external.imageUrl,
+     provider: external.provider,
+     imageOrigin: "external"
+    });
+
+    currentKnownImage = {
+     photoUrl: external.imageUrl,
+     photoPath: null,
+     source: "external_reference",
+     imageOrigin: "external",
+     imageProvider: external.provider
+    };
+    selectedImageState = {
+     type: "reused",
+     photoPath: null,
+     photoUrl: external.imageUrl,
+     source: "external_reference",
+     imageOrigin: "external",
+     imageProvider: external.provider
+    };
+    photoData = null;
+    els.knownImageThumb.innerHTML = `<img src="${escapeHtml(external.imageUrl)}" alt="Imagem externa">`;
+    if (els.knownImageOriginTag) {
+     els.knownImageOriginTag.textContent = "Imagem de referência externa";
+    }
+    const providerLabel = external.provider === "open_food_facts" ? "Open Food Facts" : "UPCItemDB";
+    setReferenceImageStatus(`Imagem encontrada via ${providerLabel}`, "success");
+    els.knownImageCard.hidden = false;
+    els.photoUploadPanel.hidden = true;
+    els.linkImportPanel.hidden = true;
+    if (els.noImageStatus) els.noImageStatus.hidden = true;
+    return;
+   }
+  }
+
+  // 3. Nenhuma imagem encontrada: ativa aviso e modo de foto manual
+  currentKnownImage = null;
+  selectedImageState = null;
+  els.knownImageThumb.innerHTML = "";
+  els.knownImageCard.hidden = true;
+  if (els.noImageStatus) els.noImageStatus.hidden = false;
+  showImagePanel("camera");
+ } catch (err) {
+  console.warn("[PHOTO] Falha ao consultar imagem do produto:", err);
+  currentKnownImage = null;
+  selectedImageState = null;
+  els.knownImageThumb.innerHTML = "";
+  els.knownImageCard.hidden = true;
+  if (els.noImageStatus) els.noImageStatus.hidden = false;
+  showImagePanel("camera");
+ }
 }
 
 function isDisallowedHostnameOrIp(hostname) {
@@ -7247,32 +7714,50 @@ async function processExternalImageUrl(rawUrl) {
 
 els.tabPhoto.addEventListener("click", () => {
  els.knownImageCard.hidden = true;
+ if (els.noImageStatus) els.noImageStatus.hidden = true;
  showImagePanel("camera");
 });
 
 els.tabLink.addEventListener("click", () => {
  els.knownImageCard.hidden = true;
+ if (els.noImageStatus) els.noImageStatus.hidden = true;
  showImagePanel("link");
 });
 
-els.btnUseKnownImage.addEventListener("click", () => {
- if (!currentKnownImage) return;
- selectedImageState = {
-  type: "reused",
-  photoPath: currentKnownImage.photoPath,
-  photoUrl: currentKnownImage.photoUrl,
-  source: "reused"
- };
- photoData = null;
- els.btnUseKnownImage.classList.add("active");
- showToast("Imagem existente selecionada!", "info", "✓");
-});
+if (els.btnChangeToPhoto) {
+ els.btnChangeToPhoto.addEventListener("click", () => {
+  els.knownImageCard.hidden = true;
+  if (els.noImageStatus) els.noImageStatus.hidden = true;
+  showImagePanel("camera");
+  if (els.photo) els.photo.click();
+ });
+}
 
-els.btnChangeImage.addEventListener("click", () => {
- els.knownImageCard.hidden = true;
- selectedImageState = null;
- showImagePanel("camera");
-});
+if (els.btnChangeToLink) {
+ els.btnChangeToLink.addEventListener("click", () => {
+  els.knownImageCard.hidden = true;
+  if (els.noImageStatus) els.noImageStatus.hidden = true;
+  showImagePanel("link");
+  if (els.imageUrlInput) els.imageUrlInput.focus();
+ });
+}
+
+if (els.btnRemoveKnownImage) {
+ els.btnRemoveKnownImage.addEventListener("click", () => {
+  currentKnownImage = null;
+  selectedImageState = { type: "none" };
+  photoFile = null;
+  photoData = null;
+  if (photoPreviewUrl) URL.revokeObjectURL(photoPreviewUrl);
+  photoPreviewUrl = "";
+  if (els.photo) els.photo.value = "";
+  els.preview.textContent = "Sem foto";
+  els.knownImageCard.hidden = true;
+  if (els.noImageStatus) els.noImageStatus.hidden = false;
+  showImagePanel("camera");
+  showToast("Imagem removida deste cadastro", "info");
+ });
+}
 
 let linkProcessedPhoto = null;
 
@@ -7376,8 +7861,19 @@ function showToast(message, type = "success", icon = "✓") {
  saveToastTimer = setTimeout(() => els.saveToast.classList.remove("show"), 2600);
 }
 
+let isConfettiActive = false;
+
 function lancarConfetes({ quantidade = 54, alcanceX = 760, alcanceY = 600, subida = 230, duracao = 2100 } = {}) {
  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+ const isPerfMode = document.documentElement.classList.contains("performance-mode") || /Android|Mobile/i.test(navigator.userAgent);
+ if (isPerfMode) {
+  quantidade = Math.min(quantidade, 16);
+  alcanceX = Math.min(alcanceX, 380);
+  alcanceY = Math.min(alcanceY, 320);
+  duracao = Math.min(duracao, 1200);
+ }
+ if (isConfettiActive) return;
+ isConfettiActive = true;
  const cores = ["#2563eb", "#16a34a", "#facc15", "#f97316", "#ec4899", "#8b5cf6"];
  const fragmento = document.createDocumentFragment();
  for (let indice = 0; indice < quantidade; indice += 1) {
@@ -7391,14 +7887,25 @@ function lancarConfetes({ quantidade = 54, alcanceX = 760, alcanceY = 600, subid
   fragmento.appendChild(confete);
  }
  els.confettiLayer.replaceChildren(fragmento);
- setTimeout(() => els.confettiLayer.replaceChildren(), duracao);
+ setTimeout(() => {
+  els.confettiLayer.replaceChildren();
+  isConfettiActive = false;
+ }, duracao);
 }
 
 function lancarFogosLaterais({ faiscas = 24, duracao = 2400 } = {}) {
  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+ const isPerfMode = document.documentElement.classList.contains("performance-mode") || /Android|Mobile/i.test(navigator.userAgent);
+ if (isPerfMode) {
+  faiscas = Math.min(faiscas, 8);
+  duracao = Math.min(duracao, 1200);
+ }
  const cores = ["#facc15", "#38bdf8", "#f97316", "#22c55e", "#ec4899"];
  const fragmento = document.createDocumentFragment();
- const centros = [
+ const centros = isPerfMode ? [
+  { left: "15%", top: "34%" },
+  { left: "84%", top: "38%" }
+ ] : [
   { left: "15%", top: "34%" },
   { left: "84%", top: "38%" },
   { left: "22%", top: "48%" },
@@ -7409,7 +7916,7 @@ function lancarFogosLaterais({ faiscas = 24, duracao = 2400 } = {}) {
  centros.forEach((centro, centroIndice) => {
   for (let indice = 0; indice < faiscas; indice += 1) {
    const angulo = (Math.PI * 2 * indice) / faiscas;
-   const distancia = 98 + Math.random() * 58;
+   const distancia = (isPerfMode ? 50 : 98) + Math.random() * 38;
    const faisca = document.createElement("span");
    faisca.className = "firework-spark";
    faisca.style.setProperty("--firework-left", centro.left);
@@ -7448,6 +7955,114 @@ function mensagemErroCadastroProduto(error) {
  const details = [error?.details, error?.hint, error?.code].map((value) => String(value || "").trim()).filter(Boolean);
  if (message) return [message, ...details].join("\n");
  return "O produto não foi salvo. Verifique sua conexão e tente novamente.";
+}
+
+let pendingDuplicateSave = null;
+
+function closeDuplicateModal() {
+ if (els.duplicateModal) {
+  els.duplicateModal.classList.remove("show");
+  els.duplicateModal.hidden = true;
+ }
+ pendingDuplicateSave = null;
+}
+
+function showDuplicateModal(duplicate, saveAction) {
+ pendingDuplicateSave = saveAction;
+ if (!els.duplicateModal) return;
+
+ if (els.duplicateProductName) {
+  els.duplicateProductName.textContent = duplicate.name || duplicate.productName || selected?.name || "-";
+ }
+ if (els.duplicateStoreName) {
+  els.duplicateStoreName.textContent = duplicate.store || "-";
+ }
+ if (els.duplicateQty) {
+  els.duplicateQty.textContent = String(duplicate.qty || "-");
+ }
+ if (els.duplicateExpiry) {
+  els.duplicateExpiry.textContent = duplicate.expiry ? new Date(duplicate.expiry + "T00:00:00").toLocaleDateString("pt-BR") : "-";
+ }
+
+ const createdBy = duplicate.userName || duplicate.userEmail || duplicate.user_name || duplicate.created_by || "";
+ if (els.duplicateUser && els.duplicateUserRow) {
+  if (createdBy) {
+   els.duplicateUser.textContent = createdBy;
+   els.duplicateUserRow.hidden = false;
+  } else {
+   els.duplicateUserRow.hidden = true;
+  }
+ }
+
+ if (els.duplicateCreatedAt && els.duplicateDateRow) {
+  if (duplicate.createdAt) {
+   els.duplicateCreatedAt.textContent = new Date(duplicate.createdAt).toLocaleString("pt-BR");
+   els.duplicateDateRow.hidden = false;
+  } else {
+   els.duplicateDateRow.hidden = true;
+  }
+ }
+
+ els.duplicateModal.hidden = false;
+ els.duplicateModal.classList.add("show");
+}
+
+if (els.btnViewExistingDuplicate) {
+ els.btnViewExistingDuplicate.addEventListener("click", () => {
+  const dup = pendingDuplicateSave?.duplicate;
+  closeDuplicateModal();
+  if (dup) {
+   openUpdateModalForProduct(dup);
+  }
+ });
+}
+
+if (els.btnConfirmDuplicateSave) {
+ els.btnConfirmDuplicateSave.addEventListener("click", async () => {
+  const action = pendingDuplicateSave?.execute;
+  closeDuplicateModal();
+  if (typeof action === "function") {
+   await action();
+  }
+ });
+}
+
+if (els.btnCancelDuplicate) {
+ els.btnCancelDuplicate.addEventListener("click", closeDuplicateModal);
+}
+
+async function executarSalvarProduto(novoProduto) {
+ setSavingProduct(true);
+ try {
+  const produtoSalvo = await window.skaleeDb.saveProduct(novoProduto);
+  applyDashboardStatsDelta(null, produtoSalvo);
+  mergeReportProduct(produtoSalvo);
+  locallyCountedRealtimeIds.add(String(produtoSalvo.id));
+  setTimeout(() => locallyCountedRealtimeIds.delete(String(produtoSalvo.id)), 8000);
+  if (products.some((product) => String(product.id) === String(produtoSalvo.id))) {
+   products = products.map((product) => String(product.id) === String(produtoSalvo.id) ? {
+    ...produtoSalvo,
+    photo: produtoSalvo.photo || product.photo || "",
+    photoLoaded: produtoSalvo.photoLoaded || product.photoLoaded
+   } : product);
+  } else if (productMatchesCurrentCriteria(produtoSalvo)) {
+   products = sortProductsForCurrentCriteria([produtoSalvo, ...products]);
+  }
+  if (produtoSalvo.photoUploadError) {
+   alert(produtoSalvo.photoUploadError);
+  }
+ } catch (error) {
+  console.error("Falha ao salvar produto online.", error);
+  logPhotoDiagnosticError(error);
+  setSavingProduct(false);
+  alert(mensagemErroCadastroProduto(error));
+  return;
+ }
+ setSavingProduct(false);
+ resetForm();
+ render();
+ if (els.barcode) els.barcode.focus();
+ celebrarProdutoSalvo();
 }
 
 els.save.addEventListener("click", async () => {
@@ -7500,37 +8115,28 @@ els.save.addEventListener("click", async () => {
   size: photoPayload?.blob?.size
  });
 
- setSavingProduct(true);
- try {
-  const produtoSalvo = await window.skaleeDb.saveProduct(novoProduto);
-  applyDashboardStatsDelta(null, produtoSalvo);
-  mergeReportProduct(produtoSalvo);
-  locallyCountedRealtimeIds.add(String(produtoSalvo.id));
-  setTimeout(() => locallyCountedRealtimeIds.delete(String(produtoSalvo.id)), 8000);
-  if (products.some((product) => String(product.id) === String(produtoSalvo.id))) {
-   products = products.map((product) => String(product.id) === String(produtoSalvo.id) ? {
-    ...produtoSalvo,
-    photo: produtoSalvo.photo || product.photo || "",
-    photoLoaded: produtoSalvo.photoLoaded || product.photoLoaded
-   } : product);
-  } else if (productMatchesCurrentCriteria(produtoSalvo)) {
-   products = sortProductsForCurrentCriteria([produtoSalvo, ...products]);
-  }
-  if (produtoSalvo.photoUploadError) {
-   alert(produtoSalvo.photoUploadError);
-  }
- } catch (error) {
-  console.error("Falha ao salvar produto online.", error);
-  logPhotoDiagnosticError(error);
-  setSavingProduct(false);
-  alert(mensagemErroCadastroProduto(error));
+ // Checagem de duplicidade ativa antes de salvar
+ const checkCriteria = {
+  catalogProductId: selected.catalogProductId || null,
+  barcode: selected.barcode || "",
+  code: selected.code || "",
+  store: selectedLocation?.dataset.name || selectedLocation?.textContent || "",
+  retailLocationId: els.store.value,
+  expiry: els.expiry.value
+ };
+
+ const duplicateResult = await window.skaleeDb?.findActiveDuplicateValidityProduct?.(checkCriteria);
+ if (duplicateResult?.isDuplicate && duplicateResult.product) {
+  showDuplicateModal(duplicateResult.product, {
+   duplicate: duplicateResult.product,
+   execute: async () => {
+    await executarSalvarProduto(novoProduto);
+   }
+  });
   return;
  }
- setSavingProduct(false);
- resetForm();
- render();
- document.querySelector('[data-page="products"]').click();
- celebrarProdutoSalvo();
+
+ await executarSalvarProduto(novoProduto);
 });
 
 function resetForm() {
@@ -7548,7 +8154,12 @@ function resetForm() {
 }
 
 els.clear.addEventListener("click", resetForm);
-els.store.addEventListener("change", () => { void updateRegisterStockInfo(); });
+els.store.addEventListener("change", () => {
+ if (els.store.value) {
+  try { localStorage.setItem("skalee_last_selected_store_id", els.store.value); } catch (_) {}
+ }
+ void updateRegisterStockInfo();
+});
 els.qty.addEventListener("input", renderRegisterStockFeedback);
 els.qty.addEventListener("change", renderRegisterStockFeedback);
 els.updateQty.addEventListener("input", renderEditStockFeedback);
