@@ -391,7 +391,10 @@ el("retailLocationForm").addEventListener("submit", (event) => {
  el("promoterForm").addEventListener("submit", (event) => { event.preventDefault(); submit(event.currentTarget, () => window.skaleeDb.configurePromoter({ userId:el("promoterUser").value, fullName:text(el("promoterName").value), agencyOrganizationId:el("promoterAgency").value, brandIds:[...el("promoterBrands").querySelectorAll("input:checked")].map((input) => input.value), supplierCodes:selectedPromoterSupplierCodes(), locationIds:[...el("promoterLocations").querySelectorAll("input:checked")].map((input) => input.value) }), "Promotor, fornecedores, marcas e locais atualizados com sucesso."); });
 
  window.addEventListener("skalee:authenticated", (event) => {
-  isPlatformAdminUser = event.detail?.accessRole === "platform_admin";
+  const permissions = typeof window.skaleeAdminPermissions === "function"
+   ? window.skaleeAdminPermissions()
+   : null;
+  isPlatformAdminUser = event.detail?.accessRole === "platform_admin" || Boolean(permissions?.isPlatformAdmin);
   registrationOptionsLoaded = false;
   registrationOptionsPromise = null;
   registriesLoaded = false;

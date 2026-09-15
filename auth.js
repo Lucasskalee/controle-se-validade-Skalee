@@ -276,6 +276,22 @@ function isSkaleeAdminEmail(value) {
  return SKALEE_ADMIN_EMAILS.has(String(value || "").trim().toLowerCase());
 }
 
+function getAdminPermissions() {
+ const isPlatformAdmin = activeAccessRole === "platform_admin";
+ const isSkaleeAdmin = isSkaleeAdminEmail(activeUserEmail);
+ return {
+  accessRole: activeAccessRole,
+  isPlatformAdmin,
+  isSkaleeAdmin,
+  canManageAdminUsers: isSkaleeAdmin || isPlatformAdmin,
+  canImportStock: isSkaleeAdmin || isPlatformAdmin,
+  canImportOffers: isSkaleeAdmin || isPlatformAdmin,
+  isViewer: activeAccessRole === "viewer"
+ };
+}
+
+window.skaleeAdminPermissions = getAdminPermissions;
+
 async function getCurrentUser() {
  const { data: { user }, error } = await supabase.auth.getUser();
  if (error) throw error;
@@ -1161,6 +1177,7 @@ window.addEventListener("online", () => {
 });
 
 window.skaleeDb = {
+ getAdminPermissions,
  SG_STOCK_FEATURE_ENABLED,
  getProductPhotoUrl,
  invalidateProductPhotoUrl,
