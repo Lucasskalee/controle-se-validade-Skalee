@@ -1896,110 +1896,29 @@ window.skaleeDb = {
   async importProductStockSnapshots({
     snapshotDate,
     retailLocationId,
-    kind = "daily",
-    fileHash = "",
+    sourceName = "sg_stock",
     originalFilename = "",
-    rows = [],
-    chunkSize = 200,
-    startChunk = 1,
-    batchId = null,
-    onProgress
+    totalFileRows = null,
+    monitoredCount = null,
+    unlocatedCount = null,
+    rows = []
   } = {}) {
     if (!snapshotDate) throw new Error("Informe a data da carga.");
     if (!retailLocationId) throw new Error("Selecione a loja da carga.");
     if (!Array.isArray(rows) || !rows.length) throw new Error("Nenhum produto monitorado foi localizado no arquivo da carga SG.");
 
-    const totalRows = rows.length;
-    const safeChunkSize = Math.max(50, Math.min(chunkSize, 500));
-    const totalChunks = Math.ceil(totalRows / safeChunkSize);
-    let currentBatchId = batchId || null;
-    let accumulatedResult = null;
+    const { data, error } = await supabase.rpc("import_product_stock_snapshots", {
+      p_snapshot_date: snapshotDate,
+      p_retail_location_id: retailLocationId,
+      p_source_name: sourceName || "sg_stock",
+      p_original_filename: originalFilename || "",
+      p_rows: rows
+    });
 
-    let resolvedHash = typeof fileHash === "string" ? fileHash.trim().toLowerCase() : "";
-    if (!/^[a-f0-9]{64}$/.test(resolvedHash)) {
-      try {
-        const hashSeed = `${snapshotDate}:${retailLocationId}:${kind}:${originalFilename || "estoque.xls"}:${totalRows}:${JSON.stringify(rows.slice(0, 50))}`;
-        const encoder = new TextEncoder();
-        const data = encoder.encode(hashSeed);
-        const digest = await crypto.subtle.digest("SHA-256", data);
-        resolvedHash = Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
-      } catch (_) {
-        resolvedHash = "0".repeat(64);
-      }
-    }
-
-    for (let chunkIndex = startChunk; chunkIndex <= totalChunks; chunkIndex++) {
-      const startIndex = (chunkIndex - 1) * safeChunkSize;
-      const endIndex = Math.min(startIndex + safeChunkSize, totalRows);
-      const chunkRows = rows.slice(startIndex, endIndex);
-
-      let attempts = 0;
-      let chunkSuccess = false;
-      let lastError = null;
-
-      while (attempts < 3 && !chunkSuccess) {
-        attempts++;
-        try {
-          const res = await supabase.rpc("import_sg_stock_chunk_v1", {
-            p_snapshot_date: snapshotDate,
-            p_retail_location_id: retailLocationId,
-            p_kind: kind,
-            p_original_filename: originalFilename,
-            p_file_hash: resolvedHash,
-            p_total_file_rows: totalRows,
-            p_chunk_index: chunkIndex,
-            p_total_chunks: totalChunks,
-            p_batch_id: currentBatchId,
-            p_rows: chunkRows
-          });
-
-          if (res.error) {
-            throw res.error;
-          }
-
-          const resultData = res.data;
-          if (resultData && resultData.batch_id) {
-            currentBatchId = resultData.batch_id;
-          }
-          accumulatedResult = resultData;
-          chunkSuccess = true;
-
-          if (typeof onProgress === "function") {
-            onProgress({
-              processed: endIndex,
-              total: totalRows,
-              chunkIndex,
-              totalChunks,
-              batchId: currentBatchId,
-              status: resultData?.status || "processing"
-            });
-          }
-        } catch (err) {
-          lastError = err;
-          if (attempts < 3) {
-            await new Promise((r) => setTimeout(r, 800 * attempts));
-          }
-        }
-      }
-
-      if (!chunkSuccess) {
-        const error = new Error(`Falha ao importar lote ${chunkIndex}/${totalChunks}: ${lastError?.message || "Erro de rede"}`);
-        error.importErrorInfo = {
-          chunkIndex,
-          totalChunks,
-          processed: startIndex,
-          rangeStart: startIndex + 1,
-          rangeEnd: endIndex,
-          batchId: currentBatchId,
-          originalError: lastError
-        };
-        throw error;
-      }
-    }
-
+    if (error) throw error;
     stockMovementCache.clear();
     stockMovementByCodeStoreCache.clear();
-    return accumulatedResult;
+    return data;
   },
   async loadProductDashboardStats(options = {}) {
    const dedupeKey = `dashboardStats:${JSON.stringify(options)}`;
@@ -2644,7 +2563,6 @@ async listCatalogProducts(options = {}) {
   return data;
  },
  async importCatalogProducts(products, options = {}) {
-  if (options.kind === "catalog_base") return this.importProductStockSnapshots({ ...options, rows: products });
   const source = options.source || "own_import";
   const reportProgress = typeof options.onProgress === "function" ? options.onProgress : () => {};
   const progressDetail = (current, total) => `${current.toLocaleString("pt-BR")} de ${total.toLocaleString("pt-BR")} produto(s)`;

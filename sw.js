@@ -1,4 +1,4 @@
-const CACHE_VERSION = "skalee-v3.1-hash-fix";
+const CACHE_VERSION = "skalee-v3.2-stock-rpc";
 const CACHE_NAME = CACHE_VERSION;
 
 const APP_SHELL = [

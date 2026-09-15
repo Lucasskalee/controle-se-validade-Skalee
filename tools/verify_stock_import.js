@@ -9,19 +9,44 @@ for (const match of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
 }
 
 const handlers = {};
-const field = (name, value = '') => ({ value, disabled: false, addEventListener: (event, fn) => { handlers[`${name}:${event}`] = fn; } });
-const els = {
- stockImportStatus: {}, stockImportInfo: {},
- stockSnapshotDate: field('date', '2026-09-05'),
- stockImportLocation: field('location', 'loc-sol-2'),
- stockSnapshotFile: { ...field('file'), files: [{ name: 'consulta02.dbf', arrayBuffer: async () => new ArrayBuffer(0) }] },
- importStockSnapshot: field('submit')
+const mockElement = (name = 'el') => ({
+ value: '',
+ disabled: false,
+ files: [{ name: 'consulta02.dbf', arrayBuffer: async () => new ArrayBuffer(0) }],
+ innerHTML: '',
+ textContent: '',
+ className: '',
+ hidden: false,
+ style: {},
+ classList: { add: () => {}, remove: () => {}, toggle: () => {}, contains: () => false },
+ addEventListener: (event, fn) => { handlers[`${name}:${event}`] = fn; },
+ appendChild: () => {},
+ querySelector: () => null,
+ querySelectorAll: () => []
+});
+
+const elsTarget = {
+ stockImportStatus: mockElement('stockImportStatus'),
+ stockImportInfo: mockElement('stockImportInfo'),
+ stockSnapshotDate: { ...mockElement('date'), value: '2026-09-15' },
+ stockImportLocation: { ...mockElement('location'), value: 'loc-sol-2' },
+ stockSnapshotFile: { ...mockElement('file'), files: [{ name: 'consulta02.dbf', arrayBuffer: async () => new ArrayBuffer(0) }] },
+ importStockSnapshot: mockElement('submit')
 };
+
+const els = new Proxy(elsTarget, {
+ get: (target, prop) => {
+  if (!(prop in target)) {
+   target[prop] = mockElement(String(prop));
+  }
+  return target[prop];
+ }
+});
 
 let submittedPayload = null;
 
-// Mock 32 monitored products in the store
-const monitoredProductsFixture = Array.from({ length: 32 }, (_, i) => ({
+// Mock 89 monitored products in Store 2 (Supermercado Sol 2)
+const monitoredProductsFixture = Array.from({ length: 89 }, (_, i) => ({
  id: `vp-${i + 1}`,
  catalog_product_id: `cat-${i + 1}`,
  product_code: String(1000 + i + 1),
@@ -30,9 +55,9 @@ const monitoredProductsFixture = Array.from({ length: 32 }, (_, i) => ({
  retail_location_id: 'loc-sol-2'
 }));
 
-// Mock 36,901 rows in SG file (31 of the 32 monitored products are in the file, 1 is missing)
-const mockSgFileRows = Array.from({ length: 36901 }, (_, i) => {
- if (i < 31) {
+// Mock 36,937 rows in SG file (all 89 monitored products are located in the file)
+const mockSgFileRows = Array.from({ length: 36937 }, (_, i) => {
+ if (i < 89) {
   return {
    internal_code: String(1000 + i + 1),
    stock_quantity: 150 + i,
@@ -55,7 +80,7 @@ const context = vm.createContext({
  window: {
   skaleeDb: {
    loadStockImportBatches: async () => [
-    { retail_location_id: 'loc-sol-2', status: 'completed', valid_rows: 31, original_filename: 'consulta02.dbf' }
+    { retail_location_id: 'loc-sol-2', status: 'completed', valid_rows: 89, original_filename: 'consulta02.dbf' }
    ],
    loadMonitoredStockProducts: async (locationId, locationName) => {
     assert.equal(locationId, 'loc-sol-2');
@@ -83,6 +108,7 @@ const context = vm.createContext({
  alert: (message) => { throw new Error(`Alert: ${message}`); },
  escapeHtml: (value) => String(value).replaceAll('<', '&lt;'),
  carregarSnapshotsArquivoEstoque: () => mockSgFileRows,
+ hashArquivoSg: async () => 'a'.repeat(64),
  carregarMovimentacaoEstoqueDosProdutos: async () => {},
  products: []
 });
@@ -101,29 +127,29 @@ vm.runInContext(
  assert.match(els.stockImportStatus.innerHTML, /Supermercado sol 2.*Carga concluída/);
  assert.match(els.stockImportStatus.innerHTML, /A.R.S Supermercados CD.*Carga pendente/);
 
- // 2. Trigger click on "Enviar carga para a loja selecionada" with 36,901 rows
+ // 2. Trigger click on "Enviar carga para a loja selecionada" with 36,937 rows
  await handlers['submit:click']();
  const totalImportTime = Date.now() - startTime;
 
- // 3. Verify acceptance criteria:
- // - Total lines parsed: 36,901
- assert.equal(submittedPayload.totalFileRows, 36901, 'Deve reportar o total de 36.901 linhas do arquivo original');
- // - Monitored products: 32
- assert.equal(submittedPayload.monitoredCount, 32, 'Deve identificar os 32 produtos monitorados da loja');
- // - Found products in file: 31
- assert.equal(submittedPayload.rows.length, 31, 'Deve enviar APENAS os 31 produtos encontrados para a RPC');
- // - Unlocated products: 1 (not found in snapshot, not forced to 0)
- assert.equal(submittedPayload.unlocatedCount, 1, 'Deve detectar 1 produto monitorado não localizado na carga');
+ // 3. Verify acceptance criteria for Store 2 (Supermercado Sol 2):
+ // - Total lines parsed: 36,937
+ assert.equal(submittedPayload.totalFileRows, 36937, 'Deve reportar o total de 36.937 linhas do arquivo original');
+ // - Monitored products: 89
+ assert.equal(submittedPayload.monitoredCount, 89, 'Deve identificar os 89 produtos monitorados da loja');
+ // - Found products in file: 89
+ assert.equal(submittedPayload.rows.length, 89, 'Deve enviar APENAS os 89 produtos encontrados para a RPC');
+ // - Unlocated products: 0
+ assert.equal(submittedPayload.unlocatedCount, 0, '0 produtos não localizados na carga');
  // - Direct catalog_product_id populated
  assert.equal(submittedPayload.rows[0].catalog_product_id, 'cat-1');
  assert.equal(submittedPayload.rows[0].internal_code, '1001');
  assert.equal(submittedPayload.rows[0].stock_quantity, 150);
 
  // 4. Check UI summary text
- assert.match(els.stockImportInfo.innerHTML, /36\.901 linhas lidas do arquivo/);
- assert.match(els.stockImportInfo.innerHTML, /32 produto\(s\) monitorado\(s\) na loja/);
- assert.match(els.stockImportInfo.innerHTML, /31 encontrado\(s\) \(1 não localizado\(s\) na carga\)/);
- assert.match(els.stockImportInfo.innerHTML, /31 snapshots gravados/);
+ assert.match(els.stockImportInfo.innerHTML, /36\.937 linhas lidas do arquivo/);
+ assert.match(els.stockImportInfo.innerHTML, /89 produto\(s\) monitorado\(s\) na loja/);
+ assert.match(els.stockImportInfo.innerHTML, /89 encontrado\(s\)/);
+ assert.match(els.stockImportInfo.innerHTML, /89 snapshots gravados/);
 
  // 5. Check badges and movement calculations
  const badgeFirst = context.stockMovementBadge({ snapshot_date: '2026-09-04', movement_type: 'no_previous_snapshot' });
@@ -395,7 +421,8 @@ vm.runInContext(
     throw new Error(`Unexpected RPC: ${name}`);
    }
   },
-  window: { dispatchEvent: () => {} },
+  window: { dispatchEvent: () => {}, addEventListener: () => {}, removeEventListener: () => {} },
+  navigator: { onLine: true },
   document: { body: mockEl(), querySelector: () => mockEl(), querySelectorAll: () => [], addEventListener: () => {} },
   activeUserId: 'user-1',
   SHARED_CATALOG_OWNER_ID: 'org-1',
@@ -416,16 +443,25 @@ vm.runInContext(
 
  // Test loadMonitoredStockProducts in auth.js
  const loadedMonitored = await authContext.window.skaleeDb.loadMonitoredStockProducts('loc-sol-2');
- assert.equal(loadedMonitored.length, 33);
+ assert.equal(loadedMonitored.length, 90);
 
- // Test importProductStockSnapshots in auth.js
- const authResult = await authContext.window.skaleeDb.importProductStockSnapshots(submittedPayload);
- assert.equal(rpcReceivedPayload.p_rows.length, 31, 'RPC no Supabase recebeu exatamente 31 linhas');
- assert.equal(rpcReceivedPayload.p_total_file_rows, 36901);
- assert.equal(rpcReceivedPayload.p_monitored_count, 32);
- assert.equal(rpcReceivedPayload.p_unlocated_count, 1);
- assert.equal(authResult.status, 'completed');
- assert.equal(authResult.valid_rows, 31);
+  // Test importProductStockSnapshots in auth.js
+  const authResult = await authContext.window.skaleeDb.importProductStockSnapshots(submittedPayload);
+  assert.equal(rpcReceivedPayload.p_rows.length, 89, 'RPC no Supabase recebeu exatamente 89 linhas');
+  assert.equal(rpcReceivedPayload.p_source_name, 'sg_stock');
+  assert.equal(rpcReceivedPayload.p_retail_location_id, 'loc-sol-2');
+  assert.equal(rpcReceivedPayload.p_snapshot_date, '2026-09-15');
+  assert.equal(rpcReceivedPayload.p_original_filename, 'consulta02.dbf');
+  assert.deepEqual(
+   Object.keys(rpcReceivedPayload).sort(),
+   ['p_original_filename', 'p_retail_location_id', 'p_rows', 'p_snapshot_date', 'p_source_name'],
+   'RPC deve receber ESTRITAMENTE os 5 parâmetros aceitos pelo Supabase'
+  );
+  assert.equal(rpcReceivedPayload.p_total_file_rows, undefined, 'p_total_file_rows NÃO deve ser enviado à RPC');
+  assert.equal(rpcReceivedPayload.p_monitored_count, undefined, 'p_monitored_count NÃO deve ser enviado à RPC');
+  assert.equal(rpcReceivedPayload.p_unlocated_count, undefined, 'p_unlocated_count NÃO deve ser enviado à RPC');
+  assert.equal(authResult.status, 'completed');
+  assert.equal(authResult.valid_rows, 89);
 
  // Test loadStockMovementsForValidityProducts fallback in auth.js
  const fallbackMovements = await authContext.window.skaleeDb.loadStockMovementsForValidityProducts(
