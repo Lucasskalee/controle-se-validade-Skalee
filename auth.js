@@ -516,8 +516,8 @@ function applyProductQueryCriteria(query, criteria = {}) {
  if (!structuredFilters && legacyFilter && legacyFilter !== "all") {
   if (legacyFilter === "today" || /^\d+$/.test(legacyFilter)) {
    expiryRange = legacyFilter;
-  } else if (legacyFilter === "offer") {
-   offerStatus = "offer";
+  } else if (legacyFilter === "offer" || legacyFilter === "no_offer") {
+   offerStatus = legacyFilter;
   } else if (legacyFilter === "high") {
    highQuantity = true;
   }
@@ -534,6 +534,8 @@ function applyProductQueryCriteria(query, criteria = {}) {
 
  if (offerStatus === "offer") {
   query = query.eq("offer", true);
+ } else if (offerStatus === "no_offer") {
+  query = query.eq("offer", false);
  }
 
  if (highQuantity) {
@@ -1047,6 +1049,7 @@ function filterAndSortProductsLocally(allProducts = [], options = {}) {
   if (activeFilters.expiryRange === "15" && days > 15) return false;
 
   if (activeFilters.offerStatus === "offer" && !product.offer) return false;
+  if (activeFilters.offerStatus === "no_offer" && product.offer) return false;
 
   if (activeFilters.highQuantity && Number(product.qty || 0) < 100) return false;
 

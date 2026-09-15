@@ -9,13 +9,16 @@ async function runTest() {
   const indexHtml = fs.readFileSync(path.resolve(__dirname, '../index.html'), 'utf8');
   const authJs = fs.readFileSync(path.resolve(__dirname, '../auth.js'), 'utf8');
 
-  // 1. Verify no "no_offer" filter chips, UI handlers, or options exist
-  assert.equal(indexHtml.includes('data-filter="no_offer"'), false, 'Não deve existir data-filter="no_offer" no index.html');
-  assert.equal(indexHtml.includes('offerStatus === "no_offer"'), false, 'Não deve existir checagem de no_offer no index.html');
-  assert.equal(authJs.includes('offerStatus === "no_offer"'), false, 'Não deve existir checagem de no_offer no auth.js');
+  // 1. Verify filters exist in index.html and auth.js
+  assert.equal(indexHtml.includes('data-filter="offer"'), true, 'Deve existir data-filter="offer" no index.html');
+  assert.equal(indexHtml.includes('data-filter="no_offer"'), true, 'Deve existir data-filter="no_offer" no index.html');
+  assert.equal(indexHtml.includes('offerStatus === "offer"'), true, 'Deve existir checagem de offer no index.html');
+  assert.equal(indexHtml.includes('offerStatus === "no_offer"'), true, 'Deve existir checagem de no_offer no index.html');
+  assert.equal(authJs.includes('offerStatus === "offer"'), true, 'Deve existir checagem de offer no auth.js');
+  assert.equal(authJs.includes('offerStatus === "no_offer"'), true, 'Deve existir checagem de no_offer no auth.js');
   assert.equal(indexHtml.includes('id="updateOffer"'), false, 'Não deve existir checkbox updateOffer no index.html');
   assert.equal(indexHtml.includes('id="offer"'), false, 'Não deve existir checkbox manual offer no form de cadastro do index.html');
-  console.log("PASS: 1. Nenhum resquício de no_offer ou checkboxes manuais de oferta no código.");
+  console.log("PASS: 1. Filtros 'Em oferta' e 'Sem oferta' configurados e sem checkboxes manuais de oferta.");
 
   // 2. Mock validity_products in DB
   const mockValidityProducts = [
@@ -172,15 +175,21 @@ async function runTest() {
   assert.equal(renderOfferBadgesMarkup(mockValidityProducts[2]), '');
   console.log("PASS: 4. Card renderiza badge 'Em oferta' apenas quando offer === true.");
 
-  // CENÁRIO 5: Filtro "Em oferta" encontra o produto
+  // CENÁRIO 5: Filtro "Em oferta" e Filtro "Sem oferta"
   const filterByCriteria = (product, offerStatus) => {
     if (offerStatus === "offer" && !product.offer) return false;
+    if (offerStatus === "no_offer" && product.offer) return false;
     return true;
   };
+  // Filtro Em oferta
   assert.equal(filterByCriteria(mockValidityProducts[0], "offer"), true);
   assert.equal(filterByCriteria(mockValidityProducts[1], "offer"), true);
   assert.equal(filterByCriteria(mockValidityProducts[2], "offer"), false);
-  console.log("PASS: 5. Filtro 'Em oferta' encontra corretamente apenas produtos com offer === true.");
+  // Filtro Sem oferta
+  assert.equal(filterByCriteria(mockValidityProducts[0], "no_offer"), false);
+  assert.equal(filterByCriteria(mockValidityProducts[1], "no_offer"), false);
+  assert.equal(filterByCriteria(mockValidityProducts[2], "no_offer"), true);
+  console.log("PASS: 5. Filtros 'Em oferta' e 'Sem oferta' filtram corretamente.");
 
   // CENÁRIO 6 & 7: Editar somente a quantidade do produto -> offer continua true
   const updateProductSimulation = (product, changes) => {

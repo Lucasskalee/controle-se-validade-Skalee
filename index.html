@@ -883,6 +883,7 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
     <button class="chip" type="button" data-filter="7" data-filter-group="expiry">Até 7 dias</button>
     <button class="chip" type="button" data-filter="15" data-filter-group="expiry">Até 15 dias</button>
     <button class="chip" type="button" data-filter="offer" data-filter-group="offer">Em oferta</button>
+    <button class="chip" type="button" data-filter="no_offer" data-filter-group="offer">Sem oferta</button>
     <button class="chip" type="button" data-filter="high" data-filter-group="quantity">Quantidade alta</button>
    </div>
  </div>
@@ -2691,6 +2692,7 @@ function productMatchesCurrentCriteria(product) {
  if (expiryRange === "15" && days > 15) return false;
 
  if (offerStatus === "offer" && !product.offer) return false;
+ if (offerStatus === "no_offer" && product.offer) return false;
 
  if (highQuantity && product.qty < 100) return false;
 
@@ -4997,6 +4999,7 @@ function render() {
   if (expiryRange === "15" && days > 15) return false;
 
   if (offerStatus === "offer" && !product.offer) return false;
+  if (offerStatus === "no_offer" && product.offer) return false;
 
   if (highQuantity && product.qty < 100) return false;
 
@@ -5184,7 +5187,7 @@ function syncFilterUI() {
    isActive = !hasFilters;
   } else if (filterKey === "today" || filterKey === "3" || filterKey === "7" || filterKey === "15") {
    isActive = activeFilters.expiryRange === filterKey;
-  } else if (filterKey === "offer") {
+  } else if (filterKey === "offer" || filterKey === "no_offer") {
    isActive = activeFilters.offerStatus === filterKey;
   } else if (filterKey === "high") {
    isActive = Boolean(activeFilters.highQuantity);
@@ -5211,7 +5214,7 @@ function toggleFilterChip(filterKey) {
 
  if (filterKey === "today" || filterKey === "3" || filterKey === "7" || filterKey === "15") {
   activeFilters.expiryRange = activeFilters.expiryRange === filterKey ? null : filterKey;
- } else if (filterKey === "offer") {
+ } else if (filterKey === "offer" || filterKey === "no_offer") {
   activeFilters.offerStatus = activeFilters.offerStatus === filterKey ? null : filterKey;
  } else if (filterKey === "high") {
   activeFilters.highQuantity = !activeFilters.highQuantity;
