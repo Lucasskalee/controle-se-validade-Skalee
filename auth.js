@@ -518,8 +518,6 @@ function applyProductQueryCriteria(query, criteria = {}) {
    expiryRange = legacyFilter;
   } else if (legacyFilter === "offer") {
    offerStatus = "offer";
-  } else if (legacyFilter === "no_offer") {
-   offerStatus = "no_offer";
   } else if (legacyFilter === "high") {
    highQuantity = true;
   }
@@ -536,8 +534,6 @@ function applyProductQueryCriteria(query, criteria = {}) {
 
  if (offerStatus === "offer") {
   query = query.eq("offer", true);
- } else if (offerStatus === "no_offer") {
-  query = query.eq("offer", false);
  }
 
  if (highQuantity) {
@@ -1051,7 +1047,6 @@ function filterAndSortProductsLocally(allProducts = [], options = {}) {
   if (activeFilters.expiryRange === "15" && days > 15) return false;
 
   if (activeFilters.offerStatus === "offer" && !product.offer) return false;
-  if (activeFilters.offerStatus === "no_offer" && product.offer) return false;
 
   if (activeFilters.highQuantity && Number(product.qty || 0) < 100) return false;
 
@@ -3012,232 +3007,245 @@ async listCatalogProducts(options = {}) {
   await this.syncPromoterLocations(values.userId, values.locationIds || []);
   return true;
  },
- getSgOffer(productId, fallbackProduct) {
-  const vpId = String(productId || (typeof fallbackProduct === "object" ? fallbackProduct?.id : "") || "");
-  const store = String((typeof fallbackProduct === "object" ? (fallbackProduct?.retailLocationId || fallbackProduct?.retail_location_id || fallbackProduct?.store) : "") || "");
-  const code = String((typeof fallbackProduct === "object" ? (fallbackProduct?.code || fallbackProduct?.product_code) : "") || "");
-  const barcode = String((typeof fallbackProduct === "object" ? fallbackProduct?.barcode : "") || "");
-  const storeCodeKey = sgOfferStoreCodeKey(store, code);
-  const storeBarcodeKey = sgOfferStoreCodeKey(store, barcode);
-  return (vpId ? sgOffersCache.get(vpId) : null) ||
-         (storeCodeKey ? sgOffersByCodeStoreCache.get(storeCodeKey) : null) ||
-         (storeBarcodeKey ? sgOffersByBarcodeStoreCache.get(storeBarcodeKey) : null) || null;
- },
- setSgOffer(productId, offer, store = "", code = "", barcode = "") {
-  if (!offer) return;
-  const vpId = String(productId || offer.validity_product_id || "");
-  if (vpId) sgOffersCache.set(vpId, offer);
-  const storeCodeKey = sgOfferStoreCodeKey(store, code);
-  if (storeCodeKey) sgOffersByCodeStoreCache.set(storeCodeKey, offer);
-  const storeBarcodeKey = sgOfferStoreCodeKey(store, barcode);
-  if (storeBarcodeKey) sgOffersByBarcodeStoreCache.set(storeBarcodeKey, offer);
- },
- clearSgOffersCache() {
-  sgOffersCache.clear();
-  sgOffersByCodeStoreCache.clear();
-  sgOffersByBarcodeStoreCache.clear();
- },
- isSgOfferActive,
- isExpiryReasonOffer,
- calculateOfferDiscount,
- async loadActiveSGOffersForLocation(storeIdOrCode = null) {
-  let query = supabase.from("sg_offers_current").select("*").eq("is_active", true);
-  if (storeIdOrCode) {
-   if (typeof storeIdOrCode === "number" || /^\d+$/.test(String(storeIdOrCode).trim())) {
-    query = query.eq("sg_store_code", Number(storeIdOrCode));
+  getSgOffer(productId, fallbackProduct) {
+   if (typeof fallbackProduct === "object" && fallbackProduct?.offer) {
+    return { is_active: true };
+   }
+   return null;
+  },
+  setSgOffer(productId, offer, store = "", code = "", barcode = "") {
+   if (!offer) return;
+   const vpId = String(productId || offer.validity_product_id || "");
+   if (vpId) sgOffersCache.set(vpId, offer);
+  },
+  clearSgOffersCache() {
+   sgOffersCache.clear();
+   sgOffersByCodeStoreCache.clear();
+   sgOffersByBarcodeStoreCache.clear();
+  },
+  isSgOfferActive(offer) {
+   if (!offer) return false;
+   return Boolean(offer.is_active || offer.offer);
+  },
+  isExpiryReasonOffer(offer) {
+   if (!offer || !offer.reason) return false;
+   const norm = String(offer.reason)
+     .normalize("NFD")
+     .replace(/[\u0300-\u036f]/g, "")
+     .toUpperCase();
+   return norm.includes("VENCIM");
+  },
+  calculateOfferDiscount,
+  async loadActiveSGOffersForLocation(storeIdOrCode = null) {
+   return [];
+  },
+  async loadSGOffersForValidityProducts(validityProducts = []) {
+   return new Map();
+  },
+  async importSGOffers(firstArg, secondArg, thirdArg) {
+   let originalFilename = "";
+   let fileHash = "";
+   let rows = [];
+   if (typeof firstArg === "object" && firstArg !== null && !Array.isArray(firstArg) && firstArg.rows) {
+    originalFilename = firstArg.originalFilename || "ofertas.xls";
+    fileHash = firstArg.fileHash || "";
+    rows = firstArg.rows || [];
    } else {
-    query = query.eq("store_id", storeIdOrCode);
+    originalFilename = firstArg || "ofertas.xls";
+    fileHash = secondArg || "";
+    rows = thirdArg || [];
    }
-  }
-  const { data, error } = await query;
-  if (error) throw error;
-  return (data || []).map((raw) => {
-   const discount = calculateOfferDiscount(raw.regular_price, raw.offer_price);
-   return {
-    ...raw,
-    discount_value: discount.discountValue,
-    discount_percentage: discount.discountPercentage,
-    is_expiry_offer: isExpiryReasonOffer(raw),
-    is_active_now: isSgOfferActive(raw)
-   };
-  });
- },
- async loadSGOffersForValidityProducts(validityProducts = []) {
-  const list = Array.isArray(validityProducts) ? validityProducts : [];
-  if (!list.length) return new Map();
+   if (!Array.isArray(rows) || !rows.length) throw new Error("Nenhuma oferta para importar.");
 
-  const locationMap = new Map();
-  try {
-   const { data: locs } = await supabase.from("retail_locations").select("id,code,name").eq("active", true);
-   (locs || []).forEach((loc) => {
-    if (loc.id) {
-     locationMap.set(loc.id, loc);
-     locationMap.set(String(loc.id).toLowerCase(), loc);
-    }
-    if (loc.code) {
-     const normCode = String(loc.code).trim().replace(/^0+(?=\d)/, "");
-     locationMap.set(`code:${normCode}`, loc);
-    }
-    if (loc.name) {
-     locationMap.set(loc.name.trim().toLowerCase(), loc);
-    }
-   });
-  } catch (err) {
-   console.warn("Aviso ao carregar retail_locations para ofertas:", err);
-  }
-
-  let offersData = [];
-  try {
-   const { data, error } = await supabase
-    .from("sg_offers_current")
-    .select("*")
-    .eq("is_active", true);
-   if (error) {
-    console.warn("Aviso ao carregar sg_offers_current:", error);
-   } else {
-    offersData = data || [];
-   }
-  } catch (err) {
-   console.warn("Falha ao consultar sg_offers_current:", err);
-  }
-
-  const offersByStoreCode = new Map();
-  const offersByStoreBarcode = new Map();
-
-  offersData.forEach((rawOffer) => {
-   const discount = calculateOfferDiscount(rawOffer.regular_price, rawOffer.offer_price);
-   const offer = {
-    ...rawOffer,
-    discount_value: discount.discountValue,
-    discount_percentage: discount.discountPercentage,
-    is_expiry_offer: isExpiryReasonOffer(rawOffer),
-    is_active_now: isSgOfferActive(rawOffer)
-   };
-
-   const locByCode = locationMap.get(`code:${String(rawOffer.sg_store_code).trim().replace(/^0+(?=\d)/, "")}`);
-   const resolvedStoreId = rawOffer.store_id || locByCode?.id || null;
-   const storeIdentifiers = [
-    resolvedStoreId,
-    String(rawOffer.sg_store_code),
-    locByCode?.name?.trim().toLowerCase()
-   ].filter(Boolean);
-
-   const codeNorm = String(rawOffer.product_code || "").trim().replace(/^0+(?=\d)/, "");
-   const barcodeNorm = String(rawOffer.barcode || "").trim();
-
-   storeIdentifiers.forEach((sId) => {
-    if (codeNorm) {
-     const key = sgOfferStoreCodeKey(sId, codeNorm);
-     if (!offersByStoreCode.has(key)) offersByStoreCode.set(key, offer);
-    }
-    if (barcodeNorm) {
-     const key = sgOfferStoreCodeKey(sId, barcodeNorm);
-     if (!offersByStoreBarcode.has(key)) offersByStoreBarcode.set(key, offer);
-    }
-   });
-  });
-
-  const resultMap = new Map();
-
-  list.forEach((product) => {
-   const pId = String(product.id || "");
-   const storeRef = product.retailLocationId || product.retail_location_id || product.store || "";
-   const locObj = locationMap.get(storeRef) || locationMap.get(String(storeRef).toLowerCase()) || null;
-   const storeKeys = [
-    product.retailLocationId,
-    product.retail_location_id,
-    locObj?.id,
-    locObj?.code ? String(locObj.code).trim().replace(/^0+(?=\d)/, "") : null,
-    product.store ? String(product.store).trim().toLowerCase() : null
-   ].filter(Boolean);
-
-   const pCode = String(product.code || product.product_code || "").trim().replace(/^0+(?=\d)/, "");
-   const pBarcode = String(product.barcode || "").trim();
-
-   let matchedOffer = null;
-
-   if (pCode) {
-    for (const sKey of storeKeys) {
-     const lookupKey = sgOfferStoreCodeKey(sKey, pCode);
-     if (offersByStoreCode.has(lookupKey)) {
-      matchedOffer = offersByStoreCode.get(lookupKey);
-      break;
-     }
-    }
+   // 1. Buscar produtos ativos monitorados no Controle de Validade
+   const validityProducts = [];
+   for (let offset = 0; ; offset += 500) {
+    const { data, error } = await supabase
+     .from("validity_products")
+     .select("id,product_code,barcode,store,retail_location_id,offer,catalog_product_id,catalog_products(internal_code,barcode)")
+     .is("completed_at", null)
+     .range(offset, offset + 499);
+    if (error) throw error;
+    validityProducts.push(...(data || []));
+    if (!data || data.length < 500) break;
    }
 
-   if (!matchedOffer && pBarcode) {
-    for (const sKey of storeKeys) {
-     const lookupKey = sgOfferStoreCodeKey(sKey, pBarcode);
-     if (offersByStoreBarcode.has(lookupKey)) {
-      matchedOffer = offersByStoreBarcode.get(lookupKey);
-      break;
-     }
-    }
-   }
-
-   if (matchedOffer) {
-    resultMap.set(pId, matchedOffer);
-    if (pId) sgOffersCache.set(pId, matchedOffer);
-    storeKeys.forEach((sKey) => {
-     if (pCode) sgOffersByCodeStoreCache.set(sgOfferStoreCodeKey(sKey, pCode), matchedOffer);
-     if (pBarcode) sgOffersByBarcodeStoreCache.set(sgOfferStoreCodeKey(sKey, pBarcode), matchedOffer);
-    });
-   }
-  });
-
-  return resultMap;
- },
- async importSGOffers(firstArg, secondArg, thirdArg) {
-  let originalFilename = "";
-  let fileHash = "";
-  let rows = [];
-  if (typeof firstArg === "object" && firstArg !== null && !Array.isArray(firstArg) && firstArg.fileHash) {
-   originalFilename = firstArg.originalFilename || "ofertas.xls";
-   fileHash = firstArg.fileHash;
-   rows = firstArg.rows || [];
-  } else {
-   originalFilename = firstArg || "ofertas.xls";
-   fileHash = secondArg;
-   rows = thirdArg || [];
-  }
-  if (!Array.isArray(rows) || !rows.length) throw new Error("Nenhuma oferta para importar.");
-
-  let resolvedHash = typeof fileHash === "string" ? fileHash.trim().toLowerCase() : "";
-  if (!/^[a-f0-9]{64}$/.test(resolvedHash)) {
+   // 2. Buscar lojas ativas para mapear códigos SG e nomes
+   const locationMap = new Map();
    try {
-    const hashSeed = `${originalFilename}:${rows.length}:${JSON.stringify(rows.slice(0, 50))}`;
-    const encoder = new TextEncoder();
-    const data = encoder.encode(hashSeed);
-    const digest = await crypto.subtle.digest("SHA-256", data);
-    resolvedHash = Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
-   } catch (_) {
-    resolvedHash = "0".repeat(64);
+    const { data: locs } = await supabase.from("retail_locations").select("id,code,name").eq("active", true);
+    (locs || []).forEach((loc) => {
+     if (loc.id) {
+      locationMap.set(loc.id, loc);
+      locationMap.set(String(loc.id).toLowerCase(), loc);
+     }
+     if (loc.code) {
+      const normCode = String(loc.code).trim().replace(/^0+(?=\d)/, "");
+      locationMap.set(`code:${normCode}`, loc);
+     }
+     if (loc.name) {
+      locationMap.set(loc.name.trim().toLowerCase(), loc);
+     }
+    });
+   } catch (err) {
+    console.warn("Aviso ao carregar retail_locations para importação de ofertas:", err);
    }
+
+   // 3. Indexar produtos monitorados para vínculo rápido por código e código de barras
+   const productsByStoreCode = new Map();
+   const productsByStoreBarcode = new Map();
+   const productsByCode = new Map();
+   const productsByBarcode = new Map();
+
+   const addProductToMap = (map, key, prodId) => {
+    if (!key) return;
+    if (!map.has(key)) map.set(key, new Set());
+    map.get(key).add(prodId);
+   };
+
+   validityProducts.forEach((vp) => {
+    const pId = String(vp.id);
+    const storeRef = vp.retail_location_id || vp.store || "";
+    const locObj = locationMap.get(storeRef) || locationMap.get(String(storeRef).toLowerCase()) || null;
+    const storeKeys = [
+     vp.retail_location_id,
+     locObj?.id,
+     locObj?.code ? String(locObj.code).trim().replace(/^0+(?=\d)/, "") : null,
+     vp.store ? String(vp.store).trim().toLowerCase() : null
+    ].filter(Boolean);
+
+    const codes = [
+     vp.product_code ? String(vp.product_code).trim().replace(/^0+(?=\d)/, "") : null,
+     vp.product_code ? String(vp.product_code).trim() : null,
+     vp.catalog_products?.internal_code ? String(vp.catalog_products.internal_code).trim().replace(/^0+(?=\d)/, "") : null,
+     vp.catalog_products?.internal_code ? String(vp.catalog_products.internal_code).trim() : null
+    ].filter(Boolean);
+
+    const barcodes = [
+     vp.barcode ? String(vp.barcode).trim() : null,
+     vp.catalog_products?.barcode ? String(vp.catalog_products.barcode).trim() : null
+    ].filter(Boolean);
+
+    codes.forEach((c) => {
+     addProductToMap(productsByCode, c, pId);
+     storeKeys.forEach((sKey) => {
+      addProductToMap(productsByStoreCode, `${sKey}:${c}`, pId);
+     });
+    });
+
+    barcodes.forEach((b) => {
+     addProductToMap(productsByBarcode, b, pId);
+     storeKeys.forEach((sKey) => {
+      addProductToMap(productsByStoreBarcode, `${sKey}:${b}`, pId);
+     });
+    });
+   });
+
+   // 4. Fazer o vínculo da carga do SG com os produtos existentes
+   const matchedProductIds = new Set();
+   const unlocatedCodes = new Set();
+   let unlocatedRowsCount = 0;
+
+   rows.forEach((row) => {
+    const rowFilial = row.sg_store_code !== null && row.sg_store_code !== undefined ? String(row.sg_store_code).trim().replace(/^0+(?=\d)/, "") : "";
+    const locByCode = rowFilial ? locationMap.get(`code:${rowFilial}`) : null;
+    const storeKeys = [
+     rowFilial,
+     locByCode?.id,
+     locByCode?.name?.trim().toLowerCase()
+    ].filter(Boolean);
+
+    const codeRaw = String(row.product_code || "").trim();
+    const codeNorm = codeRaw.replace(/^0+(?=\d)/, "");
+    const barcodeNorm = String(row.barcode || "").trim();
+
+    let matchedForThisRow = false;
+
+    // Vínculo por Loja + Código Interno
+    if (codeNorm && storeKeys.length) {
+     for (const sKey of storeKeys) {
+      const key = `${sKey}:${codeNorm}`;
+      if (productsByStoreCode.has(key)) {
+       productsByStoreCode.get(key).forEach((id) => matchedProductIds.add(id));
+       matchedForThisRow = true;
+      }
+     }
+    }
+
+    // Vínculo por Loja + Código de Barras
+    if (barcodeNorm && storeKeys.length) {
+     for (const sKey of storeKeys) {
+      const key = `${sKey}:${barcodeNorm}`;
+      if (productsByStoreBarcode.has(key)) {
+       productsByStoreBarcode.get(key).forEach((id) => matchedProductIds.add(id));
+       matchedForThisRow = true;
+      }
+     }
+    }
+
+    // Vínculo global (quando loja não foi discriminada ou filial única)
+    if (!matchedForThisRow && codeNorm && productsByCode.has(codeNorm)) {
+     productsByCode.get(codeNorm).forEach((id) => matchedProductIds.add(id));
+     matchedForThisRow = true;
+    }
+    if (!matchedForThisRow && barcodeNorm && productsByBarcode.has(barcodeNorm)) {
+     productsByBarcode.get(barcodeNorm).forEach((id) => matchedProductIds.add(id));
+     matchedForThisRow = true;
+    }
+
+    if (!matchedForThisRow) {
+     unlocatedRowsCount += 1;
+     if (codeRaw || barcodeNorm) {
+      unlocatedCodes.add(codeRaw || barcodeNorm);
+     }
+    }
+   });
+
+   // 5. Atualizar exclusivamente o campo offer = true dos produtos monitorados encontrados
+   const matchedIdsList = [...matchedProductIds];
+   let updatedCount = 0;
+
+   for (let i = 0; i < matchedIdsList.length; i += 100) {
+    const chunk = matchedIdsList.slice(i, i + 100);
+    const { error: updateErr } = await supabase
+     .from("validity_products")
+     .update({ offer: true, updated_at: new Date().toISOString() })
+     .in("id", chunk);
+    if (updateErr) throw updateErr;
+    updatedCount += chunk.length;
+   }
+
+   // 6. Limpar caches
+   sgOffersCache.clear();
+   sgOffersByCodeStoreCache.clear();
+   sgOffersByBarcodeStoreCache.clear();
+
+   return {
+    success: true,
+    duplicate: false,
+    original_filename: originalFilename,
+    total_rows: rows.length,
+    matched_products: matchedProductIds.size,
+    updated_offers: updatedCount,
+    unlocated_count: unlocatedRowsCount,
+    unlocated_codes_count: unlocatedCodes.size,
+    unlocated_codes_sample: [...unlocatedCodes].slice(0, 50),
+    valid_rows: rows.length,
+    new_offers: updatedCount,
+    inactivated_offers: 0,
+    invalid_rows: 0
+   };
+  },
+  async loadSGOfferBatches() {
+   const { data, error } = await supabase
+    .from("sg_offer_import_batches")
+    .select("*")
+    .order("imported_at", { ascending: false })
+    .limit(50);
+   if (error) return [];
+   return data || [];
   }
-
-  const { data, error } = await supabase.rpc("import_sg_offers_v1", {
-   p_original_filename: originalFilename || "ofertas.xls",
-   p_file_hash: resolvedHash,
-   p_rows: rows
-  });
-
-  if (error) throw error;
-  sgOffersCache.clear();
-  sgOffersByCodeStoreCache.clear();
-  sgOffersByBarcodeStoreCache.clear();
-  return data;
- },
- async loadSGOfferBatches() {
-  const { data, error } = await supabase
-   .from("sg_offer_import_batches")
-   .select("*")
-   .order("imported_at", { ascending: false })
-   .limit(50);
-  if (error) throw error;
-  return data || [];
- }
-};
+ };
 
 function showMessage(text = "", type = "") {
  message.textContent = text;

@@ -1,4 +1,4 @@
-const CACHE_VERSION = "skalee-v3.3-auth-permissions";
+const CACHE_VERSION = "skalee-v3.5-sg-offers-direct";
 const CACHE_NAME = CACHE_VERSION;
 
 const APP_SHELL = [

@@ -111,7 +111,7 @@ interface SyncQueueItem {
 
 interface UiFilters {
   expiryRange?: string | null;
-  offerStatus?: "offer" | "no_offer" | "sg_offer" | "expiry_offer" | "requested_offer" | "pending_sg_offer" | "ending_today" | string | null;
+  offerStatus?: "offer" | string | null;
   highQuantity?: boolean;
   [key: string]: unknown;
 }

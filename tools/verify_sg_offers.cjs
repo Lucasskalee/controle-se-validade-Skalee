@@ -172,7 +172,7 @@ const pass = s => { checks++; console.log(`PASS ${checks}: ${s}`); };
  assert.equal(offer3, undefined);
  const validityProd3 = (await db.query('select * from public.validity_products where id = $1', [loc(103)])).rows[0];
  assert.equal(validityProd3.offer, true);
- pass('TESTE 7: Produto 1003 mantém offer = true manual e não possui oferta no SG (pendente no SG)');
+ pass('TESTE 7: Compatibilidade legada - produto 1003 pré-existente preserva offer = true mesmo sem carga SG');
 
  // SCENARIO 7: Idempotency - double import of the exact same file
  const duplicateRes = await importOffers('ofertas_sg_01.xls', batch1Rows);
@@ -310,43 +310,26 @@ const pass = s => { checks++; console.log(`PASS ${checks}: ${s}`); };
 
  // Extract and test renderOfferBadgesMarkup from index.html
  const renderOfferBadgesMatch = indexHtml.match(/function renderOfferBadgesMarkup\([\s\S]*?^}/m);
- const getProductSgOfferMatch = indexHtml.match(/function getProductSgOffer\([\s\S]*?^}/m);
- const isProductInActiveSgOfferMatch = indexHtml.match(/function isProductInActiveSgOffer\([\s\S]*?^}/m);
- const isProductInActiveSgExpiryOfferMatch = indexHtml.match(/function isProductInActiveSgExpiryOffer\([\s\S]*?^}/m);
- const isProductSgOfferEndingTodayMatch = indexHtml.match(/function isProductSgOfferEndingToday\([\s\S]*?^}/m);
-
- vm.runInContext(getProductSgOfferMatch[0], sandbox);
- vm.runInContext(isProductInActiveSgOfferMatch[0], sandbox);
- vm.runInContext(isProductInActiveSgExpiryOfferMatch[0], sandbox);
- vm.runInContext(isProductSgOfferEndingTodayMatch[0], sandbox);
  vm.runInContext(renderOfferBadgesMatch[0], sandbox);
 
- // Case A: Commercial SG Offer active
- const badgeCommercial = sandbox.renderOfferBadgesMarkup({
+ // Case A: Product with offer = true
+ const badgeOffer = sandbox.renderOfferBadgesMarkup({
   id: '1',
-  offer: false,
-  sgOffer: { is_active: true, starts_at: fiveDaysAgo, ends_at: inFiveDays, reason: 'COMERCIAL' }
+  name: 'Produto em Oferta',
+  offer: true
  });
- assert.match(badgeCommercial, /EM OFERTA SG/);
+ assert.match(badgeOffer, /Em oferta/);
+ assert.match(badgeOffer, /badge offer/);
 
- // Case B: Expiry Action SG Offer ending today
- const badgeExpiryEndingToday = sandbox.renderOfferBadgesMarkup({
+ // Case B: Product with offer = false
+ const badgeNoOffer = sandbox.renderOfferBadgesMarkup({
   id: '2',
-  offer: false,
-  sgOffer: { is_active: true, starts_at: fiveDaysAgo, ends_at: today, reason: 'AÇÃO DE VENCIMENTO' }
+  name: 'Produto Normal',
+  offer: false
  });
- assert.match(badgeExpiryEndingToday, /OFERTA DE VALIDADE/);
- assert.match(badgeExpiryEndingToday, /OFERTA TERMINA HOJE/);
+ assert.equal(badgeNoOffer, "");
 
- // Case C: Requested Offer pending SG
- const badgeRequestedPending = sandbox.renderOfferBadgesMarkup({
-  id: '3',
-  offer: true,
-  sgOffer: null
- });
- assert.match(badgeRequestedPending, /OFERTA SOLICITADA/);
-
- pass('TESTE 16: renderOfferBadgesMarkup renderiza todas as variantes de badges corretamente');
+ pass('TESTE 16: renderOfferBadgesMarkup renderiza exclusivamente o selo "Em oferta" quando offer = true');
 
   // Extract and test modular parser functions from index.html
   const parserSliceMatch = indexHtml.slice(
