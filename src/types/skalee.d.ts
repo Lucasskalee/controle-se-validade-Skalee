@@ -50,6 +50,7 @@ interface Product {
   retailLocationName?: string | null;
 
   stockMovement?: StockMovement | unknown | null;
+  sgOffer?: SGOfferCurrent | null;
   canEdit?: boolean;
   canDelete?: boolean;
   isOffline?: boolean;
@@ -110,7 +111,7 @@ interface SyncQueueItem {
 
 interface UiFilters {
   expiryRange?: string | null;
-  offerStatus?: string | null;
+  offerStatus?: "offer" | "no_offer" | "sg_offer" | "expiry_offer" | "requested_offer" | "pending_sg_offer" | "ending_today" | string | null;
   highQuantity?: boolean;
   [key: string]: unknown;
 }
@@ -298,6 +299,10 @@ interface SkaleeDb {
   listPromoterProfiles(): Promise<PromoterProfile[]>;
   syncPromoterLocations(userId: string, locationIds: string[]): Promise<boolean>;
   configurePromoter(values: Record<string, unknown>): Promise<boolean>;
+  loadActiveSGOffersForLocation(storeIdOrCode: string | number): Promise<SGOfferCurrent[]>;
+  loadSGOffersForValidityProducts(validityProducts: (Product | ValidityProductRow | Record<string, unknown>)[]): Promise<Map<string, SGOfferCurrent>>;
+  importSGOffers(options: { originalFilename: string; fileHash: string; rows: unknown[] }): Promise<Record<string, unknown>>;
+  loadSGOfferBatches(): Promise<SGOfferImportBatch[]>;
   [key: string]: unknown;
 }
 

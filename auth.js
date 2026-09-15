@@ -105,6 +105,46 @@ function stockMovementStoreCodeKey(store, code) {
  return `${s}:${c}`;
 }
 
+const sgOffersCache = new Map();
+const sgOffersByCodeStoreCache = new Map();
+const sgOffersByBarcodeStoreCache = new Map();
+
+function sgOfferStoreCodeKey(storeOrId, code) {
+  const s = String(storeOrId || "").trim().toLowerCase();
+  const c = String(code || "").trim().replace(/^0+(?=\d)/, "");
+  if (!s || !c) return "";
+  return `${s}:::${c}`;
+}
+
+function isSgOfferActive(offer) {
+  if (!offer || !offer.is_active) return false;
+  const today = new Date().toISOString().slice(0, 10);
+  if (offer.starts_at && today < offer.starts_at) return false;
+  if (offer.ends_at && today > offer.ends_at) return false;
+  return true;
+}
+
+function isExpiryReasonOffer(offer) {
+  if (!offer || !offer.reason) return false;
+  const norm = String(offer.reason)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toUpperCase();
+  return norm.includes("VENCIM");
+}
+
+function calculateOfferDiscount(regularPrice, offerPrice) {
+  const regular = Number(regularPrice);
+  const offer = Number(offerPrice);
+  if (!Number.isFinite(regular) || !Number.isFinite(offer) || regular <= 0 || offer <= 0 || offer >= regular) {
+    return { discountValue: 0, discountPercentage: 0 };
+  }
+  const discountValue = Number((regular - offer).toFixed(2));
+  const discountPercentage = Number((((regular - offer) / regular) * 100).toFixed(2));
+  return { discountValue, discountPercentage };
+}
+
+
 let cachedRetailLocationsList = null;
 let cachedRetailLocationsTime = 0;
 
@@ -3023,6 +3063,219 @@ async listCatalogProducts(options = {}) {
   if (error) throw error;
   await this.syncPromoterLocations(values.userId, values.locationIds || []);
   return true;
+ },
+ getSgOffer(productId, fallbackProduct) {
+  const vpId = String(productId || (typeof fallbackProduct === "object" ? fallbackProduct?.id : "") || "");
+  const store = String((typeof fallbackProduct === "object" ? (fallbackProduct?.retailLocationId || fallbackProduct?.retail_location_id || fallbackProduct?.store) : "") || "");
+  const code = String((typeof fallbackProduct === "object" ? (fallbackProduct?.code || fallbackProduct?.product_code) : "") || "");
+  const barcode = String((typeof fallbackProduct === "object" ? fallbackProduct?.barcode : "") || "");
+  const storeCodeKey = sgOfferStoreCodeKey(store, code);
+  const storeBarcodeKey = sgOfferStoreCodeKey(store, barcode);
+  return (vpId ? sgOffersCache.get(vpId) : null) ||
+         (storeCodeKey ? sgOffersByCodeStoreCache.get(storeCodeKey) : null) ||
+         (storeBarcodeKey ? sgOffersByBarcodeStoreCache.get(storeBarcodeKey) : null) || null;
+ },
+ setSgOffer(productId, offer, store = "", code = "", barcode = "") {
+  if (!offer) return;
+  const vpId = String(productId || offer.validity_product_id || "");
+  if (vpId) sgOffersCache.set(vpId, offer);
+  const storeCodeKey = sgOfferStoreCodeKey(store, code);
+  if (storeCodeKey) sgOffersByCodeStoreCache.set(storeCodeKey, offer);
+  const storeBarcodeKey = sgOfferStoreCodeKey(store, barcode);
+  if (storeBarcodeKey) sgOffersByBarcodeStoreCache.set(storeBarcodeKey, offer);
+ },
+ clearSgOffersCache() {
+  sgOffersCache.clear();
+  sgOffersByCodeStoreCache.clear();
+  sgOffersByBarcodeStoreCache.clear();
+ },
+ isSgOfferActive,
+ isExpiryReasonOffer,
+ calculateOfferDiscount,
+ async loadActiveSGOffersForLocation(storeIdOrCode = null) {
+  let query = supabase.from("sg_offers_current").select("*").eq("is_active", true);
+  if (storeIdOrCode) {
+   if (typeof storeIdOrCode === "number" || /^\d+$/.test(String(storeIdOrCode).trim())) {
+    query = query.eq("sg_store_code", Number(storeIdOrCode));
+   } else {
+    query = query.eq("store_id", storeIdOrCode);
+   }
+  }
+  const { data, error } = await query;
+  if (error) throw error;
+  return (data || []).map((raw) => {
+   const discount = calculateOfferDiscount(raw.regular_price, raw.offer_price);
+   return {
+    ...raw,
+    discount_value: discount.discountValue,
+    discount_percentage: discount.discountPercentage,
+    is_expiry_offer: isExpiryReasonOffer(raw),
+    is_active_now: isSgOfferActive(raw)
+   };
+  });
+ },
+ async loadSGOffersForValidityProducts(validityProducts = []) {
+  const list = Array.isArray(validityProducts) ? validityProducts : [];
+  if (!list.length) return new Map();
+
+  const locationMap = new Map();
+  try {
+   const { data: locs } = await supabase.from("retail_locations").select("id,code,name").eq("active", true);
+   (locs || []).forEach((loc) => {
+    if (loc.id) {
+     locationMap.set(loc.id, loc);
+     locationMap.set(String(loc.id).toLowerCase(), loc);
+    }
+    if (loc.code) {
+     const normCode = String(loc.code).trim().replace(/^0+(?=\d)/, "");
+     locationMap.set(`code:${normCode}`, loc);
+    }
+    if (loc.name) {
+     locationMap.set(loc.name.trim().toLowerCase(), loc);
+    }
+   });
+  } catch (err) {
+   console.warn("Aviso ao carregar retail_locations para ofertas:", err);
+  }
+
+  let offersData = [];
+  try {
+   const { data, error } = await supabase
+    .from("sg_offers_current")
+    .select("*")
+    .eq("is_active", true);
+   if (error) {
+    console.warn("Aviso ao carregar sg_offers_current:", error);
+   } else {
+    offersData = data || [];
+   }
+  } catch (err) {
+   console.warn("Falha ao consultar sg_offers_current:", err);
+  }
+
+  const offersByStoreCode = new Map();
+  const offersByStoreBarcode = new Map();
+
+  offersData.forEach((rawOffer) => {
+   const discount = calculateOfferDiscount(rawOffer.regular_price, rawOffer.offer_price);
+   const offer = {
+    ...rawOffer,
+    discount_value: discount.discountValue,
+    discount_percentage: discount.discountPercentage,
+    is_expiry_offer: isExpiryReasonOffer(rawOffer),
+    is_active_now: isSgOfferActive(rawOffer)
+   };
+
+   const locByCode = locationMap.get(`code:${String(rawOffer.sg_store_code).trim().replace(/^0+(?=\d)/, "")}`);
+   const resolvedStoreId = rawOffer.store_id || locByCode?.id || null;
+   const storeIdentifiers = [
+    resolvedStoreId,
+    String(rawOffer.sg_store_code),
+    locByCode?.name?.trim().toLowerCase()
+   ].filter(Boolean);
+
+   const codeNorm = String(rawOffer.product_code || "").trim().replace(/^0+(?=\d)/, "");
+   const barcodeNorm = String(rawOffer.barcode || "").trim();
+
+   storeIdentifiers.forEach((sId) => {
+    if (codeNorm) {
+     const key = sgOfferStoreCodeKey(sId, codeNorm);
+     if (!offersByStoreCode.has(key)) offersByStoreCode.set(key, offer);
+    }
+    if (barcodeNorm) {
+     const key = sgOfferStoreCodeKey(sId, barcodeNorm);
+     if (!offersByStoreBarcode.has(key)) offersByStoreBarcode.set(key, offer);
+    }
+   });
+  });
+
+  const resultMap = new Map();
+
+  list.forEach((product) => {
+   const pId = String(product.id || "");
+   const storeRef = product.retailLocationId || product.retail_location_id || product.store || "";
+   const locObj = locationMap.get(storeRef) || locationMap.get(String(storeRef).toLowerCase()) || null;
+   const storeKeys = [
+    product.retailLocationId,
+    product.retail_location_id,
+    locObj?.id,
+    locObj?.code ? String(locObj.code).trim().replace(/^0+(?=\d)/, "") : null,
+    product.store ? String(product.store).trim().toLowerCase() : null
+   ].filter(Boolean);
+
+   const pCode = String(product.code || product.product_code || "").trim().replace(/^0+(?=\d)/, "");
+   const pBarcode = String(product.barcode || "").trim();
+
+   let matchedOffer = null;
+
+   if (pCode) {
+    for (const sKey of storeKeys) {
+     const lookupKey = sgOfferStoreCodeKey(sKey, pCode);
+     if (offersByStoreCode.has(lookupKey)) {
+      matchedOffer = offersByStoreCode.get(lookupKey);
+      break;
+     }
+    }
+   }
+
+   if (!matchedOffer && pBarcode) {
+    for (const sKey of storeKeys) {
+     const lookupKey = sgOfferStoreCodeKey(sKey, pBarcode);
+     if (offersByStoreBarcode.has(lookupKey)) {
+      matchedOffer = offersByStoreBarcode.get(lookupKey);
+      break;
+     }
+    }
+   }
+
+   if (matchedOffer) {
+    resultMap.set(pId, matchedOffer);
+    if (pId) sgOffersCache.set(pId, matchedOffer);
+    storeKeys.forEach((sKey) => {
+     if (pCode) sgOffersByCodeStoreCache.set(sgOfferStoreCodeKey(sKey, pCode), matchedOffer);
+     if (pBarcode) sgOffersByBarcodeStoreCache.set(sgOfferStoreCodeKey(sKey, pBarcode), matchedOffer);
+    });
+   }
+  });
+
+  return resultMap;
+ },
+ async importSGOffers(firstArg, secondArg, thirdArg) {
+  let originalFilename = "";
+  let fileHash = "";
+  let rows = [];
+  if (typeof firstArg === "object" && firstArg !== null && !Array.isArray(firstArg) && firstArg.fileHash) {
+   originalFilename = firstArg.originalFilename || "ofertas.xls";
+   fileHash = firstArg.fileHash;
+   rows = firstArg.rows || [];
+  } else {
+   originalFilename = firstArg || "ofertas.xls";
+   fileHash = secondArg;
+   rows = thirdArg || [];
+  }
+  if (!fileHash) throw new Error("Hash SHA-256 do arquivo obrigatório.");
+  if (!Array.isArray(rows) || !rows.length) throw new Error("Nenhuma oferta para importar.");
+
+  const { data, error } = await supabase.rpc("import_sg_offers_v1", {
+   p_original_filename: originalFilename || "ofertas.xls",
+   p_file_hash: fileHash,
+   p_rows: rows
+  });
+
+  if (error) throw error;
+  sgOffersCache.clear();
+  sgOffersByCodeStoreCache.clear();
+  sgOffersByBarcodeStoreCache.clear();
+  return data;
+ },
+ async loadSGOfferBatches() {
+  const { data, error } = await supabase
+   .from("sg_offer_import_batches")
+   .select("*")
+   .order("imported_at", { ascending: false })
+   .limit(50);
+  if (error) throw error;
+  return data || [];
  }
 };
 

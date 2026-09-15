@@ -155,3 +155,46 @@ interface NotificationSettings {
   alertTime: string;
   pushEnabled: boolean;
 }
+
+interface SGOfferCurrent {
+  id?: string;
+  store_id?: string | null;
+  sg_store_code: number;
+  product_code: string;
+  barcode?: string | null;
+  description?: string | null;
+  department?: string | null;
+  regular_price?: number | null;
+  offer_price?: number | null;
+  offer_quantity?: number | null;
+  reason?: string | null;
+  starts_at?: string | null;
+  ends_at?: string | null;
+  is_active: boolean;
+  imported_at?: string;
+  updated_at?: string;
+  import_batch_id?: string | null;
+  discount_value?: number | null;
+  discount_percentage?: number | null;
+  is_expiry_offer?: boolean;
+}
+
+interface SGOfferImportBatch {
+  id: string;
+  sg_store_code?: number | null;
+  retail_location_id?: string | null;
+  original_filename?: string | null;
+  file_hash: string;
+  imported_by?: string | null;
+  total_rows: number;
+  valid_rows: number;
+  invalid_rows: number;
+  new_offers: number;
+  updated_offers: number;
+  inactivated_offers: number;
+  status: "processing" | "completed" | "completed_with_errors" | "failed" | string;
+  result_summary?: Record<string, unknown> | null;
+  imported_at: string;
+  completed_at?: string | null;
+}
+

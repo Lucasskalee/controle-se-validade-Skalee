@@ -521,6 +521,26 @@ html[data-theme="dark"] .preview-days-val.green{
 .update-modal{position:fixed;inset:0;z-index:1900;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(15,23,42,.52);backdrop-filter:blur(6px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .14s ease,visibility .14s ease}.update-modal.show{opacity:1;visibility:visible;pointer-events:auto}
 .update-panel{width:min(440px,100%);background:#fff;border-radius:18px;padding:20px;box-shadow:0 24px 70px rgba(15,23,42,.28);transform:translateY(8px) scale(.98);transition:transform .14s ease}.update-modal.show .update-panel{transform:translateY(0) scale(1)}.update-panel h2{margin:0}.update-product-name{margin:5px 0 16px;color:var(--muted);font-size:14px}.update-error{min-height:19px;margin-top:10px;color:var(--red);font-size:13px;font-weight:700}
 .red{background:#fee2e2;color:var(--red)}.orange{background:#ffedd5;color:var(--orange)}.yellow{background:#fef9c3;color:var(--yellow)}.green{background:#dcfce7;color:var(--green)}.offer{background:#dbeafe;color:#1d4ed8}.high{background:#f3e8ff;color:#7e22ce}
+.badge.offer-sg{background:#dbeafe;color:#1e40af;border:1px solid #bfdbfe;font-weight:850}
+.badge.offer-expiry{background:#f3e8ff;color:#6b21a8;border:1px solid #e9d5ff;font-weight:850}
+.badge.offer-ending{background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;font-weight:850}
+.badge.offer-pending{background:#fef3c7;color:#92400e;border:1px solid #fde68a;font-weight:800}
+.offer-reference-card{margin-top:14px;margin-bottom:14px;padding:14px 16px;border-radius:14px;background:#f8fafc;border:1px solid #cbd5e1;display:flex;flex-direction:column;gap:10px}
+.offer-reference-card.expiry-action{background:#faf5ff;border-color:#d8b4fe}
+.offer-reference-card.pending{background:#fffbeb;border-color:#fde68a}
+html[data-theme="dark"] .offer-reference-card{background:#0d1727;border-color:#24344d}
+html[data-theme="dark"] .offer-reference-card.expiry-action{background:#1e1035;border-color:#581c87}
+html[data-theme="dark"] .offer-reference-card.pending{background:#2a1c06;border-color:#78350f}
+.offer-reference-header{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11px;font-weight:850;text-transform:uppercase;letter-spacing:.05em;color:#2563eb}
+html[data-theme="dark"] .offer-reference-header{color:#60a5fa}
+.offer-reference-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px 14px;align-items:center}
+.offer-reference-item{display:flex;flex-direction:column;gap:2px}
+.offer-reference-item small{font-size:11px;color:var(--muted);font-weight:700}
+.offer-reference-item strong{font-size:13.5px;font-weight:850;color:var(--text)}
+.offer-reference-item .offer-price-val{font-size:16.5px;color:#16a34a;font-weight:900}
+html[data-theme="dark"] .offer-reference-item .offer-price-val{color:#4ade80}
+.offer-reference-footer{font-size:12px;color:#16a34a;font-weight:750;padding-top:6px;border-top:1px dashed #cbd5e1}
+html[data-theme="dark"] .offer-reference-footer{border-color:#334155}
 .empty{grid-column:1/-1;background:#fff;border:1px dashed #cbd3df;border-radius:15px;padding:40px;text-align:center;color:var(--muted)}
 .form{max-width:680px;margin:auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px}
 .form h2{margin:0 0 4px}.label{display:block;margin:14px 0 6px;font-size:13px;font-weight:800}
@@ -856,16 +876,20 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
     <span>Limpar filtros</span>
    </button>
   </div>
-  <div class="filters" id="chips" role="group" aria-label="Filtros de produtos">
-   <button class="chip active" type="button" data-filter="all">Todos</button>
-   <button class="chip" type="button" data-filter="today" data-filter-group="expiry">Vence hoje</button>
-   <button class="chip" type="button" data-filter="3" data-filter-group="expiry">Até 3 dias</button>
-   <button class="chip" type="button" data-filter="7" data-filter-group="expiry">Até 7 dias</button>
-   <button class="chip" type="button" data-filter="15" data-filter-group="expiry">Até 15 dias</button>
-   <button class="chip" type="button" data-filter="offer" data-filter-group="offer">Em oferta</button>
-   <button class="chip" type="button" data-filter="no_offer" data-filter-group="offer">Sem oferta</button>
-   <button class="chip" type="button" data-filter="high" data-filter-group="quantity">Quantidade alta</button>
-  </div>
+   <div class="filters" id="chips" role="group" aria-label="Filtros de produtos">
+    <button class="chip active" type="button" data-filter="all">Todos</button>
+    <button class="chip" type="button" data-filter="today" data-filter-group="expiry">Vence hoje</button>
+    <button class="chip" type="button" data-filter="3" data-filter-group="expiry">Até 3 dias</button>
+    <button class="chip" type="button" data-filter="7" data-filter-group="expiry">Até 7 dias</button>
+    <button class="chip" type="button" data-filter="15" data-filter-group="expiry">Até 15 dias</button>
+    <button class="chip" type="button" data-filter="sg_offer" data-filter-group="offer">Em oferta no SG</button>
+    <button class="chip" type="button" data-filter="expiry_offer" data-filter-group="offer">Oferta de validade</button>
+    <button class="chip" type="button" data-filter="requested_offer" data-filter-group="offer">Oferta solicitada</button>
+    <button class="chip" type="button" data-filter="pending_sg_offer" data-filter-group="offer">Solicitada sem oferta SG</button>
+    <button class="chip" type="button" data-filter="ending_today" data-filter-group="offer">Oferta termina hoje</button>
+    <button class="chip" type="button" data-filter="no_offer" data-filter-group="offer">Sem oferta</button>
+    <button class="chip" type="button" data-filter="high" data-filter-group="quantity">Quantidade alta</button>
+   </div>
  </div>
 
  <div class="searchrow">
@@ -1058,6 +1082,24 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
     <b>Nenhuma carga diária enviada nesta sessão.</b>
    </div>
    <div id="stockImportStatus" class="catalog-info" aria-live="polite"></div>
+  </div>
+  <div id="offerImportSettingsSection" class="settings-section" hidden>
+   <h2>Carga de Ofertas SG (Relação de Produtos em Oferta)</h2>
+   <p class="settings-note">Importe o relatório do SG para identificar automaticamente se um produto de validade possui oferta ativa no SG, preços normais/promocionais e ofertas por ação de vencimento. Totalmente independente da carga de estoque.</p>
+   <div class="import-box stock-import-box">
+    <strong>Importar ofertas do SG</strong>
+    <div class="stock-import-grid" style="grid-template-columns: 1fr;">
+     <label class="stock-import-file">Arquivo de ofertas SG (.xls, .xlsx, .csv, .txt)<input id="offerSnapshotFile" type="file" accept=".xls,.xlsx,.txt,.csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/plain,text/csv,application/octet-stream"></label>
+    </div>
+    <div class="settings-actions" style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;">
+     <button id="previewOfferSnapshot" class="btn2" type="button" disabled>Analisar arquivo (Dry-Run)</button>
+     <button id="importOfferSnapshot" class="btn" type="button" disabled>Confirmar e importar ofertas</button>
+    </div>
+   </div>
+   <div id="offerImportInfo" class="catalog-info" aria-live="polite">
+    <b>Selecione um arquivo de ofertas SG para ver o resumo prévio (Dry-Run).</b>
+   </div>
+   <div id="offerImportStatus" class="catalog-info" aria-live="polite"></div>
   </div>
   </section>
 
@@ -1601,6 +1643,12 @@ const els = {
  importStockSnapshot: document.getElementById('importStockSnapshot'),
  stockImportInfo: document.getElementById('stockImportInfo'),
  stockImportStatus: document.getElementById('stockImportStatus'),
+ offerImportSettingsSection: document.getElementById('offerImportSettingsSection'),
+ offerSnapshotFile: document.getElementById('offerSnapshotFile'),
+ previewOfferSnapshot: document.getElementById('previewOfferSnapshot'),
+ importOfferSnapshot: document.getElementById('importOfferSnapshot'),
+ offerImportInfo: document.getElementById('offerImportInfo'),
+ offerImportStatus: document.getElementById('offerImportStatus'),
  duplicateModal: document.getElementById('duplicateModal'),
  duplicateProductName: document.getElementById('duplicateProductName'),
  duplicateStoreName: document.getElementById('duplicateStoreName'),
@@ -2652,8 +2700,13 @@ function productMatchesCurrentCriteria(product) {
  if (expiryRange === "7" && days > 7) return false;
  if (expiryRange === "15" && days > 15) return false;
 
- if (offerStatus === "offer" && !product.offer) return false;
- if (offerStatus === "no_offer" && product.offer) return false;
+ if (offerStatus === "sg_offer" && !isProductInActiveSgOffer(product)) return false;
+ if (offerStatus === "expiry_offer" && !isProductInActiveSgExpiryOffer(product)) return false;
+ if (offerStatus === "requested_offer" && !product.offer) return false;
+ if (offerStatus === "pending_sg_offer" && (!product.offer || isProductInActiveSgOffer(product))) return false;
+ if (offerStatus === "ending_today" && !isProductSgOfferEndingToday(product)) return false;
+ if (offerStatus === "no_offer" && (product.offer || isProductInActiveSgOffer(product))) return false;
+ if (offerStatus === "offer" && !product.offer && !isProductInActiveSgOffer(product)) return false;
 
  if (highQuantity && product.qty < 100) return false;
 
@@ -3122,10 +3175,38 @@ async function carregarMovimentacaoEstoqueDosProdutos(targetProducts = products,
  }
 }
 
+let sgOfferLoadGeneration = 0;
+function aplicarOfertasSg(rows = []) {
+ const offerById = new Map((rows || []).map((row) => [String(row.validity_product_id), row]));
+ products = products.map((product) => {
+  const offer = offerById.get(String(product.id));
+  return offer !== undefined ? { ...product, sgOffer: offer } : product;
+ });
+}
+
+async function carregarOfertasSgDosProdutos(targetProducts = products, options = {}) {
+ if (!window.skaleeDb?.loadSGOffersForValidityProducts) return;
+ const list = targetProducts || [];
+ const ids = [...new Set(list
+  .map((product) => product.id)
+  .filter(Boolean))];
+ if (!ids.length) return;
+ const generation = options.force ? ++sgOfferLoadGeneration : sgOfferLoadGeneration;
+ try {
+  const rows = await window.skaleeDb.loadSGOffersForValidityProducts(ids, list);
+  if (generation !== sgOfferLoadGeneration) return;
+  aplicarOfertasSg(rows);
+  render();
+ } catch (error) {
+  console.error("Não foi possível carregar ofertas SG dos produtos.", error);
+ }
+}
+
 async function carregarProdutosOnline() {
  if (!window.skaleeDb) return;
  const generation = ++productLoadGeneration;
  stockMovementLoadGeneration += 1;
+ sgOfferLoadGeneration += 1;
  const criteria = getProductQueryCriteria();
  realtimeStats.fullReloads += 1;
  queryStats.initialLoads += 1;
@@ -3148,6 +3229,7 @@ async function carregarProdutosOnline() {
   productPageLoading = false;
   render();
   void carregarMovimentacaoEstoqueDosProdutos(firstPage);
+  void carregarOfertasSgDosProdutos(firstPage);
   maybeShowValidityNotification(true);
   setProductLoadToast("Produtos carregados", `${products.length} produto(s) exibidos no primeiro lote.`, false);
  } catch (error) {
@@ -3178,6 +3260,7 @@ async function carregarMaisProdutosOnline() {
   productPageLoading = false;
   render();
   void carregarMovimentacaoEstoqueDosProdutos(nextProducts);
+  void carregarOfertasSgDosProdutos(nextProducts);
  } catch (error) {
   console.error("Não foi possível carregar mais produtos.", error);
   if (generation !== productLoadGeneration) return;
@@ -3712,6 +3795,7 @@ window.addEventListener("skalee:authenticated", async (event) => {
  els.adminUsersSection.hidden = !isAdmin;
  els.catalogSettingsSection.hidden = true;
  els.stockImportSettingsSection.hidden = !isSkaleeAdmin;
+ els.offerImportSettingsSection.hidden = !isSkaleeAdmin;
  if (isSkaleeAdmin) {
   if (els.stockSnapshotDate && !els.stockSnapshotDate.value) els.stockSnapshotDate.value = localDateKey(new Date());
   void carregarSituacaoCargasEstoque();
@@ -3799,6 +3883,7 @@ window.addEventListener("skalee:signed-out", () => {
  els.adminUsersSection.hidden = true;
  els.catalogSettingsSection.hidden = true;
  els.stockImportSettingsSection.hidden = true;
+ els.offerImportSettingsSection.hidden = true;
  els.userList.replaceChildren();
  render();
 });
@@ -4380,6 +4465,154 @@ function renderStockFeedbackMarkup(qty, movement) {
  return elements.join("");
 }
 
+function getProductSgOffer(product) {
+ if (!product) return null;
+ return product.sgOffer || (typeof window.skaleeDb?.getSgOffer === "function" ? window.skaleeDb.getSgOffer(product.id, product) : null) || null;
+}
+
+function isProductInActiveSgOffer(product) {
+ const offer = getProductSgOffer(product);
+ if (!offer) return false;
+ return typeof window.skaleeDb?.isSgOfferActive === "function" ? window.skaleeDb.isSgOfferActive(offer) : Boolean(offer.is_active);
+}
+
+function isProductInActiveSgExpiryOffer(product) {
+ const offer = getProductSgOffer(product);
+ if (!offer || !isProductInActiveSgOffer(product)) return false;
+ return typeof window.skaleeDb?.isExpiryReasonOffer === "function" ? window.skaleeDb.isExpiryReasonOffer(offer) : /vencim/i.test(offer.reason || "");
+}
+
+function isProductSgOfferEndingToday(product) {
+ const offer = getProductSgOffer(product);
+ if (!offer || !isProductInActiveSgOffer(product) || !offer.ends_at) return false;
+ const todayIso = new Date().toISOString().slice(0, 10);
+ const endsIso = String(offer.ends_at).slice(0, 10);
+ return endsIso === todayIso;
+}
+
+function formatOfferCurrency(val) {
+ if (val === null || val === undefined || Number.isNaN(Number(val))) return "--";
+ return Number(val).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+function formatOfferDate(isoDate) {
+ if (!isoDate) return "--";
+ try {
+  const parts = String(isoDate).slice(0, 10).split("-");
+  if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  return new Date(isoDate).toLocaleDateString("pt-BR");
+ } catch (_) {
+  return String(isoDate);
+ }
+}
+
+function renderOfferBadgesMarkup(product) {
+ if (!product) return "";
+ const badges = [];
+ const hasActiveSg = isProductInActiveSgOffer(product);
+ if (hasActiveSg) {
+  if (isProductInActiveSgExpiryOffer(product)) {
+   badges.push('<span class="badge offer-expiry" title="Oferta SG por ação de vencimento">OFERTA DE VALIDADE</span>');
+  } else {
+   badges.push('<span class="badge offer-sg" title="Oferta ativa no SG">EM OFERTA SG</span>');
+  }
+  if (isProductSgOfferEndingToday(product)) {
+   badges.push('<span class="badge offer-ending" title="Oferta do SG encerra hoje">OFERTA TERMINA HOJE</span>');
+  }
+ } else if (product.offer) {
+  badges.push('<span class="badge offer-pending" title="Solicitada no app, pendente no SG">OFERTA SOLICITADA</span>');
+ }
+ return badges.join("");
+}
+
+function renderProductSgOfferDetailMarkup(product) {
+ if (!product) return "";
+ const offer = getProductSgOffer(product);
+ const hasActiveSg = isProductInActiveSgOffer(product);
+
+ if (hasActiveSg && offer) {
+  const isExpiry = isProductInActiveSgExpiryOffer(product);
+  const isEndingToday = isProductSgOfferEndingToday(product);
+  const regPrice = Number(offer.regular_price);
+  const offPrice = Number(offer.offer_price);
+  let discountMarkup = "--";
+  if (Number.isFinite(regPrice) && Number.isFinite(offPrice) && regPrice > offPrice) {
+   const discountVal = regPrice - offPrice;
+   const discountPct = Math.round(((regPrice - offPrice) / regPrice) * 100);
+   discountMarkup = `<span style="color:#16a34a;font-weight:850">-${formatOfferCurrency(discountVal)} (${discountPct}%)</span>`;
+  }
+  const periodText = offer.starts_at && offer.ends_at
+   ? `${formatOfferDate(offer.starts_at)} a ${formatOfferDate(offer.ends_at)}`
+   : (offer.ends_at ? `Até ${formatOfferDate(offer.ends_at)}` : "Sem data fim definida");
+
+  return `
+   <div class="offer-reference-card ${isExpiry ? 'expiry-action' : ''}">
+    <div class="offer-reference-header">
+     <span>${isExpiry ? '⚡ Oferta de Validade no SG' : '🏷️ Oferta Ativa no SG'}</span>
+     ${isEndingToday ? '<span class="badge offer-ending">Termina hoje</span>' : ''}
+    </div>
+    <div class="offer-reference-grid">
+     <div class="offer-reference-item">
+      <small>Preço Normal</small>
+      <strong>${formatOfferCurrency(offer.regular_price)}</strong>
+     </div>
+     <div class="offer-reference-item">
+      <small>Preço Oferta</small>
+      <strong class="offer-price-val">${formatOfferCurrency(offer.offer_price)}</strong>
+     </div>
+     <div class="offer-reference-item">
+      <small>Desconto</small>
+      <strong>${discountMarkup}</strong>
+     </div>
+     <div class="offer-reference-item">
+      <small>Motivo SG</small>
+      <strong>${escapeHtml(offer.reason || "Não especificado")}</strong>
+     </div>
+     <div class="offer-reference-item">
+      <small>Vigência</small>
+      <strong>${escapeHtml(periodText)}</strong>
+     </div>
+    </div>
+    ${offer.sg_store_code ? `<div style="font-size:11px;color:var(--muted)">Filial SG: <b>${escapeHtml(offer.sg_store_code)}</b>${product.store ? ` (${escapeHtml(product.store)})` : ''}</div>` : ''}
+   </div>
+  `;
+ }
+
+ if (product.offer) {
+  return `
+   <div class="offer-reference-card pending">
+    <div class="offer-reference-header" style="color:#b45309">
+     <span>⏳ Oferta Solicitada</span>
+     <span class="badge offer-pending">Pendente no SG</span>
+    </div>
+    <div style="font-size:12.5px;color:var(--muted);line-height:1.4">
+     Este produto foi marcado com solicitação de oferta no aplicativo, mas ainda não consta em oferta ativa na carga do SG para esta filial.
+    </div>
+   </div>
+  `;
+ }
+
+ return "";
+}
+
+function renderExpandedPreviewOfferRow(product) {
+ const offer = getProductSgOffer(product);
+ const hasActiveSg = isProductInActiveSgOffer(product);
+ if (hasActiveSg && offer) {
+  const isExpiry = isProductInActiveSgExpiryOffer(product);
+  const title = isExpiry ? "Oferta Validade (SG)" : "Em oferta (SG)";
+  const price = formatOfferCurrency(offer.offer_price);
+  return `
+   <div class="preview-row" style="color:#16a34a"><span>${title}</span><strong>${price}</strong></div>
+   <div class="preview-row preview-row-secondary"><span>Motivo SG</span><strong>${escapeHtml(offer.reason || "--")}</strong></div>
+  `;
+ }
+ if (product.offer) {
+  return `<div class="preview-row" style="color:#d97706"><span>Oferta solicitada</span><strong>Pendente SG</strong></div>`;
+ }
+ return `<div class="preview-row"><span>Oferta</span><strong>Sem oferta</strong></div>`;
+}
+
 let currentRegisterStockMovement = null;
 let registerStockLoadGeneration = 0;
 
@@ -4862,8 +5095,13 @@ function render() {
   if (expiryRange === "7" && days > 7) return false;
   if (expiryRange === "15" && days > 15) return false;
 
-  if (offerStatus === "offer" && !product.offer) return false;
-  if (offerStatus === "no_offer" && product.offer) return false;
+  if (offerStatus === "sg_offer" && !isProductInActiveSgOffer(product)) return false;
+  if (offerStatus === "expiry_offer" && !isProductInActiveSgExpiryOffer(product)) return false;
+  if (offerStatus === "requested_offer" && !product.offer) return false;
+  if (offerStatus === "pending_sg_offer" && (!product.offer || isProductInActiveSgOffer(product))) return false;
+  if (offerStatus === "ending_today" && !isProductSgOfferEndingToday(product)) return false;
+  if (offerStatus === "no_offer" && (product.offer || isProductInActiveSgOffer(product))) return false;
+  if (offerStatus === "offer" && !product.offer && !isProductInActiveSgOffer(product)) return false;
 
   if (highQuantity && product.qty < 100) return false;
 
@@ -4918,7 +5156,7 @@ function render() {
           </div>
           <div class="badges">
             <span class="badge ${tone}">${days === 0 ? "Vence hoje" : label}</span>
-            ${product.offer ? '<span class="badge offer">EM OFERTA</span>' : ''}
+            ${renderOfferBadgesMarkup(product)}
             ${product.qty >= 100 ? '<span class="badge high">QUANTIDADE ALTA</span>' : ''}
           </div>
          </div>
@@ -5051,10 +5289,8 @@ function syncFilterUI() {
    isActive = !hasFilters;
   } else if (filterKey === "today" || filterKey === "3" || filterKey === "7" || filterKey === "15") {
    isActive = activeFilters.expiryRange === filterKey;
-  } else if (filterKey === "offer") {
-   isActive = activeFilters.offerStatus === "offer";
-  } else if (filterKey === "no_offer") {
-   isActive = activeFilters.offerStatus === "no_offer";
+  } else if (["sg_offer", "expiry_offer", "requested_offer", "pending_sg_offer", "ending_today", "no_offer", "offer"].includes(filterKey)) {
+   isActive = activeFilters.offerStatus === filterKey;
   } else if (filterKey === "high") {
    isActive = Boolean(activeFilters.highQuantity);
   }
@@ -5080,10 +5316,8 @@ function toggleFilterChip(filterKey) {
 
  if (filterKey === "today" || filterKey === "3" || filterKey === "7" || filterKey === "15") {
   activeFilters.expiryRange = activeFilters.expiryRange === filterKey ? null : filterKey;
- } else if (filterKey === "offer") {
-  activeFilters.offerStatus = activeFilters.offerStatus === "offer" ? null : "offer";
- } else if (filterKey === "no_offer") {
-  activeFilters.offerStatus = activeFilters.offerStatus === "no_offer" ? null : "no_offer";
+ } else if (["sg_offer", "expiry_offer", "requested_offer", "pending_sg_offer", "ending_today", "no_offer", "offer"].includes(filterKey)) {
+  activeFilters.offerStatus = activeFilters.offerStatus === filterKey ? null : filterKey;
  } else if (filterKey === "high") {
   activeFilters.highQuantity = !activeFilters.highQuantity;
  }
@@ -5502,7 +5736,7 @@ function openProductDetailModal(product, sourceCard) {
  els.productDetailBody.innerHTML = `
   <div class="detail-badges">
    <span class="badge ${tone}">${days === 0 ? "Vence hoje" : label}</span>
-   ${product.offer ? '<span class="badge offer">EM OFERTA</span>' : ''}
+   ${renderOfferBadgesMarkup(product)}
    ${product.qty >= 100 ? '<span class="badge high">QUANTIDADE ALTA</span>' : ''}
   </div>
   <div class="detail-grid">
@@ -5543,6 +5777,7 @@ function openProductDetailModal(product, sourceCard) {
       <strong>${displayUserName(product.updatedByEmail)}</strong>
      </div>
     </div>
+    ${renderProductSgOfferDetailMarkup(product)}
     ${renderStockMovement(product)}
    </div>
   </div>
@@ -5686,7 +5921,7 @@ function openExpandedPreview(card, product) {
     </div>
     <div class="badges" style="margin-top:1px;margin-bottom:2px">
      <span class="badge ${tone}">${days === 0 ? "Vence hoje" : label}</span>
-     ${product.offer ? '<span class="badge offer">EM OFERTA</span>' : ''}
+     ${renderOfferBadgesMarkup(product)}
      ${product.qty >= 100 ? '<span class="badge high">QUANTIDADE ALTA</span>' : ''}
     </div>
     <div class="preview-rows">
@@ -5696,7 +5931,7 @@ function openExpandedPreview(card, product) {
      <div class="preview-row preview-row-secondary"><span>Estoque SG</span><strong>${stockQuantity}</strong></div>
      <div class="preview-row preview-row-secondary"><span>Última carga</span><strong>${lastSnapshotDate}</strong></div>
      <div class="preview-row preview-row-secondary"><span>Estoque anterior</span><strong>${prevStock}</strong></div>
-     <div class="preview-row"><span>Oferta</span><strong>${offerText}</strong></div>
+     ${renderExpandedPreviewOfferRow(product)}
     </div>
    </div>
   </div>
@@ -6208,7 +6443,7 @@ function parseNumeroSg(value) {
  const original = String(value ?? "").trim();
  if (!original) return null;
  let cleaned = original.replace(/\s/g, "");
- if (!/^-?\d+(?:[.,]\d+)*$/.test(cleaned)) return null;
+ if (!/^-?\d+(?:[.,]\d+)*(?:[eE][+-]?\d+)?$/.test(cleaned)) return null;
  if (!cleaned || cleaned === "-") return null;
  if (cleaned.includes(",") && cleaned.includes(".")) cleaned = cleaned.replace(/\./g, "").replace(",", ".");
  else if (cleaned.includes(",")) cleaned = cleaned.replace(",", ".");
@@ -6693,6 +6928,771 @@ els.importStockSnapshot.addEventListener("click", async () => {
   void carregarSituacaoCargasEstoque();
  }
 });
+
+ function definirInfoOfertas(titulo, detalhe = "", options = {}) {
+  if (!els.offerImportInfo) return;
+  const progress = Number.isFinite(options.progress)
+   ? `<div class="catalog-progress"><span style="width:${Math.max(0, Math.min(100, options.progress))}%"></span></div>`
+   : "";
+  els.offerImportInfo.innerHTML = `<b>${escapeHtml(titulo)}</b>${detalhe ? `<div>${detalhe}</div>` : ""}${progress}`;
+ }
+
+ function parseOfferDateString(value) {
+  if (value === null || value === undefined) return null;
+  const str = String(value).trim();
+  if (!str) return null;
+
+  if (/^\d{5}$/.test(str)) {
+   const serial = Number(str);
+   if (serial > 20000 && serial < 80000) {
+    const date = new Date(Math.round((serial - 25569) * 86400 * 1000));
+    if (!Number.isNaN(date.getTime())) {
+     return date.toISOString().slice(0, 10);
+    }
+   }
+  }
+
+  const dmy = str.match(/^(\d{1,2})[\/\.-](\d{1,2})[\/\.-](\d{2,4})$/);
+  if (dmy) {
+   const day = dmy[1].padStart(2, "0");
+   const month = dmy[2].padStart(2, "0");
+   let year = dmy[3];
+   if (year.length === 2) {
+    year = Number(year) >= 70 ? `19${year}` : `20${year}`;
+   }
+   return `${year}-${month}-${day}`;
+  }
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+   return str;
+  }
+
+  return null;
+ }
+
+ function colRefToIndex(colStr) {
+  let idx = 0;
+  for (let i = 0; i < colStr.length; i++) {
+   idx = idx * 26 + (colStr.charCodeAt(i) - 64);
+  }
+  return idx - 1;
+ }
+
+ function normalizarTextoCabecalho(val) {
+  return String(val || "")
+   .normalize("NFD")
+   .replace(/[\u0300-\u036f]/g, "")
+   .toUpperCase()
+   .replace(/[^A-Z0-9]+/g, " ")
+   .trim();
+ }
+
+ async function unzipOpenXml(buffer) {
+  const bytes = new Uint8Array(buffer);
+  const view = new DataView(buffer);
+  let pos = 0;
+  const files = {};
+  while (pos < bytes.length - 4) {
+   if (view.getUint32(pos, true) === 0x04034b50) {
+    const compression = view.getUint16(pos + 8, true);
+    const compressedSize = view.getUint32(pos + 18, true);
+    const uncompressedSize = view.getUint32(pos + 22, true);
+    const nameLen = view.getUint16(pos + 26, true);
+    const extraLen = view.getUint16(pos + 28, true);
+    const nameBytes = bytes.subarray(pos + 30, pos + 30 + nameLen);
+    const name = new TextDecoder("utf-8").decode(nameBytes);
+    const dataOffset = pos + 30 + nameLen + extraLen;
+    const compData = bytes.subarray(dataOffset, dataOffset + compressedSize);
+
+    let uncompData;
+    if (compression === 0) {
+     uncompData = compData;
+    } else if (compression === 8) {
+     const ds = new DecompressionStream("deflate-raw");
+     const writer = ds.writable.getWriter();
+     writer.write(compData);
+     writer.close();
+     const reader = ds.readable.getReader();
+     const chunks = [];
+     let total = 0;
+     while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+      total += value.length;
+     }
+     uncompData = new Uint8Array(total);
+     let off = 0;
+     for (const c of chunks) {
+      uncompData.set(c, off);
+      off += c.length;
+     }
+    }
+    if (uncompData) {
+     files[name] = new TextDecoder("utf-8").decode(uncompData);
+    }
+    pos = dataOffset + compressedSize;
+   } else {
+    pos++;
+   }
+  }
+  return files;
+ }
+
+ async function extrairMatrizLinhasSg(file, buffer) {
+  const bytes = new Uint8Array(buffer);
+  // 1. XLSX (PK Zip)
+  if (bytes.length >= 4 && bytes[0] === 0x50 && bytes[1] === 0x4b && bytes[2] === 0x03 && bytes[3] === 0x04) {
+   const files = await unzipOpenXml(buffer);
+   const sharedStrings = [];
+   if (files["xl/sharedStrings.xml"]) {
+    const sstXml = files["xl/sharedStrings.xml"];
+    const siMatches = sstXml.match(/<si>[\s\S]*?<\/si>/g) || [];
+    for (const si of siMatches) {
+     const tMatches = si.match(/<t[^>]*>([\s\S]*?)<\/t>/g) || [];
+     const str = tMatches.map(t => t.replace(/<[^>]+>/g, "")).join("");
+     sharedStrings.push(str);
+    }
+   }
+
+   const sheetXml = files["xl/worksheets/sheet1.xml"] || files["xl/worksheets/sheet.xml"] || Object.entries(files).find(([k]) => k.startsWith("xl/worksheets/sheet"))?.[1];
+   if (!sheetXml) return { format: "xlsx", formatLabel: "Planilha SG (XLSX)", matrix: [] };
+
+   const rowRegex = /<row\s+r="(\d+)"[^>]*>([\s\S]*?)<\/row>/g;
+   const cellRegex = /<c\s+r="([A-Z]+)(\d+)"([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g;
+
+   const matrix = [];
+   let rMatch;
+   while ((rMatch = rowRegex.exec(sheetXml)) !== null) {
+    const rowNum = parseInt(rMatch[1], 10);
+    const rowContent = rMatch[2];
+    const cells = [];
+
+    let cMatch;
+    cellRegex.lastIndex = 0;
+    while ((cMatch = cellRegex.exec(rowContent)) !== null) {
+     const colLetters = cMatch[1];
+     const colIdx = colRefToIndex(colLetters);
+     const attrs = cMatch[3] || "";
+     const cellBody = cMatch[4] || "";
+     const isSharedString = /t="s"/.test(attrs);
+     const isInlineString = /t="inlineStr"/.test(attrs);
+
+     let val = "";
+     if (isSharedString) {
+      const vMatch = cellBody.match(/<v>(\d+)<\/v>/);
+      if (vMatch) {
+       const sIdx = parseInt(vMatch[1], 10);
+       val = sharedStrings[sIdx] || "";
+      }
+     } else if (isInlineString) {
+      const tMatch = cellBody.match(/<t[^>]*>([\s\S]*?)<\/t>/);
+      if (tMatch) val = tMatch[1];
+     } else {
+      const vMatch = cellBody.match(/<v>([\s\S]*?)<\/v>/);
+      if (vMatch) val = vMatch[1];
+      else {
+       const tMatch = cellBody.match(/<t[^>]*>([\s\S]*?)<\/t>/);
+       if (tMatch) val = tMatch[1];
+      }
+     }
+
+     val = val.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&apos;/g, "'").trim();
+
+     while (cells.length < colIdx) cells.push("");
+     cells[colIdx] = val;
+    }
+
+    matrix.push({ rowNumber: rowNum, cells });
+   }
+   return { format: "xlsx", formatLabel: "Planilha SG (XLSX / Zip)", matrix };
+  }
+
+  // Text / HTML / XML decode
+  let texto = "";
+  try {
+   texto = new TextDecoder("windows-1252").decode(buffer).replace(/\0/g, "");
+  } catch (_) {
+   texto = new TextDecoder("utf-8").decode(buffer).replace(/\0/g, "");
+  }
+
+  // 2. XML SpreadsheetML (e.g. <Workbook> with <Table> and <Row>)
+  if (/<(?:[a-zA-Z0-9]+:)?Workbook/i.test(texto) || (/<(?:[a-zA-Z0-9]+:)?Row\b/i.test(texto) && !/<(?:tr|td|th)\b/i.test(texto))) {
+   const rowMatches = texto.match(/<(?:[a-zA-Z0-9]+:)?Row[^>]*>([\s\S]*?)<\/(?:[a-zA-Z0-9]+:)?Row>/gi) || [];
+   const matrix = [];
+   let rIdx = 1;
+   for (const rXml of rowMatches) {
+    const cellRegex = /<(?:[a-zA-Z0-9]+:)?Cell([^>]*)>([\s\S]*?)<\/(?:[a-zA-Z0-9]+:)?Cell>/gi;
+    const cells = [];
+    let cMatch;
+    let currCol = 0;
+    while ((cMatch = cellRegex.exec(rXml)) !== null) {
+     const attrs = cMatch[1] || "";
+     const body = cMatch[2] || "";
+     const idxMatch = attrs.match(/(?:ss:)?Index="(\d+)"/i);
+     if (idxMatch) {
+      currCol = parseInt(idxMatch[1], 10) - 1;
+     }
+     const dataMatch = body.match(/<(?:[a-zA-Z0-9]+:)?Data[^>]*>([\s\S]*?)<\/(?:[a-zA-Z0-9]+:)?Data>/i);
+     let val = dataMatch ? dataMatch[1] : body.replace(/<[^>]+>/g, "");
+     val = val.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&apos;/g, "'").trim();
+     while (cells.length < currCol) cells.push("");
+     cells[currCol] = normalizarEspacos(val);
+     currCol++;
+    }
+    matrix.push({ rowNumber: rIdx++, cells });
+   }
+   return { format: "xml_spreadsheet", formatLabel: "Planilha XML (SpreadsheetML)", matrix };
+  }
+
+  // 3. HTML Table
+  if (/<(?:tr|td|th)\b|<html\b/i.test(texto)) {
+   const rowMatches = texto.match(/<tr[^>]*>[\s\S]*?<\/tr>/gi) || [];
+   const matrix = [];
+   let rIdx = 1;
+   for (const tr of rowMatches) {
+    const cellMatches = tr.match(/<(?:td|th)[^>]*>([\s\S]*?)<\/(?:td|th)>/gi) || [];
+    const cells = cellMatches.map(c => normalizarEspacos(c.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&nbsp;/g, " ")));
+    matrix.push({ rowNumber: rIdx++, cells });
+   }
+   return { format: "html_table", formatLabel: "Tabela HTML (.xls)", matrix };
+  }
+
+  // 4. CSV / TSV / TXT
+  const linhas = texto.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  const matrix = [];
+  let rIdx = 1;
+  for (const linha of linhas) {
+   let sep = "\t";
+   if (linha.includes("\t")) sep = "\t";
+   else if (linha.includes(";")) sep = ";";
+   else if (linha.includes(",")) sep = ",";
+   const cells = linha.split(sep).map(c => normalizarEspacos(c));
+   matrix.push({ rowNumber: rIdx++, cells });
+  }
+  return { format: "delimited_text", formatLabel: "Texto Delimitado (CSV/TSV)", matrix };
+ }
+
+ function matchColumnAlias(rawHeader, aliases) {
+  const norm = normalizarTextoCabecalho(rawHeader);
+  if (!norm) return null;
+
+  for (const [key, aliasList] of Object.entries(aliases)) {
+   for (const alias of aliasList) {
+    if (norm === normalizarTextoCabecalho(alias)) {
+     return { key, score: 10 };
+    }
+   }
+  }
+
+  for (const [key, aliasList] of Object.entries(aliases)) {
+   for (const alias of aliasList) {
+    const normAlias = normalizarTextoCabecalho(alias);
+    if (norm.startsWith(normAlias + " ") || norm.endsWith(" " + normAlias)) {
+     if (key === "precoOferta" && (norm.includes("QTD") || norm.includes("QTDE") || norm.includes("QUANTIDADE"))) continue;
+     if (key === "precoNormal" && (norm.includes("QTD") || norm.includes("QTDE") || norm.includes("QUANTIDADE"))) continue;
+     if (key === "qtd" && (norm.includes("PRECO") || norm.includes("VALOR") || norm.includes("PR "))) continue;
+     return { key, score: 6 };
+    }
+   }
+  }
+
+  return null;
+ }
+
+ function scoreHeaderRow(cells, aliases) {
+  let score = 0;
+  const colMap = {};
+  for (let c = 0; c < cells.length; c++) {
+   const match = matchColumnAlias(cells[c], aliases);
+   if (match && colMap[match.key] === undefined) {
+    colMap[match.key] = c;
+    score += match.score;
+   }
+  }
+  return { score, colMap };
+ }
+
+ function localizarCabecalhoDinamico(matrix, aliases, requiredKeys = ["codigo", "precoOferta"]) {
+  let bestScore = 0;
+  let bestHeader = null;
+  let bestRowIndex = -1;
+
+  for (let i = 0; i < Math.min(50, matrix.length); i++) {
+   const row = matrix[i];
+   const prevRow = i > 0 ? matrix[i - 1] : null;
+
+   const single = scoreHeaderRow(row.cells, aliases);
+   const singleReq = requiredKeys.every(k => single.colMap[k] !== undefined);
+   if (singleReq && single.score > bestScore) {
+    bestScore = single.score;
+    bestHeader = { ...single.colMap, isCombined: false };
+    bestRowIndex = i;
+   }
+
+   if (prevRow) {
+    const maxCols = Math.max(prevRow.cells.length, row.cells.length);
+    const combinedCells = [];
+    for (let c = 0; c < maxCols; c++) {
+     const c1 = prevRow.cells[c] || "";
+     const c2 = row.cells[c] || "";
+     combinedCells.push(`${c1} ${c2}`.trim());
+    }
+    const combined = scoreHeaderRow(combinedCells, aliases);
+    const combinedReq = requiredKeys.every(k => combined.colMap[k] !== undefined);
+    if (combinedReq && combined.score > bestScore) {
+     bestScore = combined.score;
+     bestHeader = { ...combined.colMap, isCombined: true };
+     bestRowIndex = i;
+    }
+   }
+  }
+
+  if (bestHeader) {
+   return {
+    found: true,
+    rowIndex: bestRowIndex,
+    header: bestHeader,
+    score: bestScore
+   };
+  }
+
+  let candidateRow = -1;
+  let candidateScore = 0;
+  let candidateCols = {};
+  for (let i = 0; i < Math.min(50, matrix.length); i++) {
+   const single = scoreHeaderRow(matrix[i].cells, aliases);
+   if (single.score > candidateScore) {
+    candidateScore = single.score;
+    candidateRow = i;
+    candidateCols = single.colMap;
+   }
+  }
+
+  const missingKeys = requiredKeys.filter(k => candidateCols[k] === undefined);
+
+  return {
+   found: false,
+   bestScore: candidateScore,
+   bestRowIndex: candidateRow,
+   candidateCols,
+   missingKeys
+  };
+ }
+
+ async function parseOfferImport(file, buffer) {
+  const { format, formatLabel, matrix } = await extrairMatrizLinhasSg(file, buffer);
+  if (!matrix.length) {
+   throw new Error("Arquivo vazio ou formato não suportado.");
+  }
+
+  let documentFilial = null;
+  for (let i = 0; i < Math.min(10, matrix.length); i++) {
+   const lineText = matrix[i].cells.join(" ");
+   const filMatch = lineText.match(/(?:FILIAL|LOJA|EMPRESA)\s*[:=-]?\s*(\d+)/i);
+   if (filMatch) {
+    documentFilial = Number(filMatch[1]);
+    break;
+   }
+  }
+
+  const aliases = {
+   codigo: ["CODIGO", "CODPROD", "COD PRODUTO", "COD PROD", "COD_INT", "CODINT", "PRODUTO", "CODIGO INTERNO", "COD INTERNO", "COD"],
+   precoOferta: ["PRECO OFERTA", "PREÇO OFERTA", "PR OFERTA", "PR. OFERTA", "VLR OFERTA", "PRECO POR", "PRECO PROMOCIONAL", "PR PROMOCIONAL", "PR PROM", "PRECO_OFERTA", "PR_OFERTA", "OFERTA", "VLR PROMOCAO", "VALOR OFERTA"],
+   precoNormal: ["PRECO VENDA", "PRECO NORMAL", "PREÇO NORMAL", "PR. NORMAL", "PR NORMAL", "VLR NORMAL", "PRECO DE", "PRECO TABELA", "PR TABELA", "PRECO", "PREÇO", "VLR TABELA", "PRECO_NORMAL", "PR_NORMAL", "VALOR NORMAL", "VALOR VENDA", "PR VENDA"],
+   barcode: ["COD BARRAS", "COD.BARRAS", "COD. BARRAS", "COD DE BARRAS", "CODIGO BARRAS", "COD.BARRA", "COD BARRA", "CODBAR", "CODBARRA", "EAN", "BARRAS", "COD_BARRA", "COD_EAN"],
+   nome: ["DESCRICAO DO PRODUTO", "DESCRICAO", "DESCRIÇÃO", "DESCRIÇÃO DO PRODUTO", "PRODUTO", "NOME", "DESCR"],
+   depto: ["DEPARTAMENTO", "DEPTO", "SECAO", "SEÇÃO", "GRUPO", "CATEGORIA"],
+   motivo: ["MOTIVO", "TIPO DE OFERTA", "TIPO OFERTA", "TIPO", "MOTIVO DA OFERTA", "MOTIVO OFERTA", "JUSTIFICATIVA", "CAMPANHA", "DESCRICAO DO MOTIVO", "DESCRICAO MOTIVO", "MOTIVO_OFERTA"],
+   inicio: ["INICIO", "INÍCIO", "DATA INICIAL", "DT INICIAL", "DT. INICIAL", "DATA INICIO", "DATA INÍCIO", "DT INICIO", "DT. INICIO", "DT. INI", "DT INI", "DE", "VIGENCIA INICIAL", "VIGENCIA DE", "DT_INICIAL", "DT_INI"],
+   fim: ["TERMINO", "TÉRMINO", "DATA FINAL", "DT FINAL", "DT. FINAL", "DATA FIM", "DT FIM", "DT. FIM", "DT. TER", "DT TER", "FIM", "ATE", "ATÉ", "VIGENCIA FINAL", "VIGENCIA ATE", "DT_FINAL", "DT_FIM"],
+   qtd: ["QTDE. OFERTA", "QTDE OFERTA", "QTD OFERTA", "QUANTIDADE", "LIMITE", "QTD MAXIMA", "QTD", "QTDE"],
+   filial: ["FILIAL", "LOJA", "COD_FILIAL", "COD FILIAL", "FIL", "EMPRESA"]
+  };
+
+  const headerRes = localizarCabecalhoDinamico(matrix, aliases, ["codigo", "precoOferta"]);
+  if (!headerRes.found) {
+   const missingLabels = (headerRes.missingKeys || []).map(k => k === "codigo" ? "CÓDIGO" : (k === "precoOferta" ? "PREÇO OFERTA / OFERTA" : k)).join(", ");
+   throw new Error(`Nenhuma oferta reconhecida no arquivo. Coluna(s) obrigatória(s) ausente(s): ${missingLabels}.${headerRes.bestRowIndex >= 0 ? ` (Linha provável analisada: ${headerRes.bestRowIndex + 1})` : ""}`);
+  }
+
+  const colMap = headerRes.header;
+  let currentFilial = documentFilial;
+  let currentDept = null;
+  const rows = [];
+  let ignoredRowsCount = 0;
+
+  for (let i = headerRes.rowIndex + 1; i < matrix.length; i++) {
+   const row = matrix[i];
+   const cells = row.cells;
+   const lineText = cells.join(" ").trim();
+   if (!lineText) continue;
+
+   const filMatch = lineText.match(/(?:FILIAL|LOJA|EMPRESA)\s*[:=-]?\s*(\d+)/i);
+   if (filMatch && (cells.length < 3 || /RELACAO|EMISSAO|RELATORIO/i.test(lineText))) {
+    currentFilial = Number(filMatch[1]);
+    ignoredRowsCount++;
+    continue;
+   }
+
+   const deptMatch = lineText.match(/DEPARTAMENTO\s*:\s*([^<\r\n]+)/i);
+   if (deptMatch && cells.length < 4) {
+    currentDept = normalizarEspacos(deptMatch[1]);
+    ignoredRowsCount++;
+    continue;
+   }
+
+   const rawCode = colMap.codigo !== undefined ? String(cells[colMap.codigo] || "").trim() : "";
+   const internalCode = rawCode.replace(/\D/g, "");
+   if (!internalCode) {
+    ignoredRowsCount++;
+    continue;
+   }
+
+   let rowFilial = currentFilial;
+   if (colMap.filial !== undefined && cells[colMap.filial]) {
+    const filFromCol = String(cells[colMap.filial]).replace(/\D/g, "");
+    if (filFromCol) rowFilial = Number(filFromCol);
+   }
+
+   const offerPrice = colMap.precoOferta !== undefined ? parseNumeroSg(cells[colMap.precoOferta]) : null;
+   if (offerPrice === null || offerPrice <= 0) {
+    ignoredRowsCount++;
+    continue;
+   }
+
+   const regularPrice = colMap.precoNormal !== undefined ? parseNumeroSg(cells[colMap.precoNormal]) : null;
+   const barcode = colMap.barcode !== undefined ? String(cells[colMap.barcode] || "").trim().replace(/\D/g, "") : null;
+   const description = colMap.nome !== undefined ? normalizarEspacos(cells[colMap.nome]) : null;
+   const department = colMap.depto !== undefined && cells[colMap.depto] ? normalizarEspacos(cells[colMap.depto]) : currentDept;
+   const reason = colMap.motivo !== undefined ? normalizarEspacos(cells[colMap.motivo]) : null;
+   const startsAt = colMap.inicio !== undefined ? parseOfferDateString(cells[colMap.inicio]) : null;
+   const endsAt = colMap.fim !== undefined ? parseOfferDateString(cells[colMap.fim]) : null;
+   const offerQuantity = colMap.qtd !== undefined ? parseNumeroSg(cells[colMap.qtd]) : null;
+
+   rows.push({
+    sg_store_code: rowFilial || null,
+    product_code: internalCode,
+    barcode: barcode || null,
+    description: description || null,
+    department: department || null,
+    regular_price: regularPrice,
+    offer_price: offerPrice,
+    offer_quantity: offerQuantity,
+    reason: reason || null,
+    starts_at: startsAt,
+    ends_at: endsAt
+   });
+  }
+
+  if (!rows.length) {
+   throw new Error("Nenhuma linha de oferta válida foi encontrada após o cabeçalho.");
+  }
+
+  return {
+   format,
+   formatLabel: formatLabel || format,
+   totalRowsAnalyzed: matrix.length,
+   headerRowIndex: headerRes.rowIndex,
+   detectedFilial: documentFilial,
+   ignoredRowsCount,
+   rows
+  };
+ }
+
+ async function carregarOfertasArquivoSg(file, buffer) {
+  const result = await parseOfferImport(file, buffer);
+  return result.rows;
+ }
+
+ function renderDryRunOfertasHtml(summary) {
+  const filialCards = summary.filiais.map((f) => {
+   const badgeStyle = f.unmapped
+    ? "background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;padding:2px 6px;border-radius:6px;font-size:11px;font-weight:800"
+    : "background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;padding:2px 6px;border-radius:6px;font-size:11px;font-weight:800";
+   const statusLabel = f.unmapped ? "Filial não mapeada no app" : `Loja: ${escapeHtml(f.name)}`;
+   return `
+    <div style="background:var(--bg-secondary,#f8fafc);border:1px solid var(--line,#e2e8f0);border-radius:10px;padding:10px 12px;margin-top:8px">
+     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <strong>Filial SG ${escapeHtml(String(f.code))}</strong>
+      <span style="${badgeStyle}">${statusLabel}</span>
+     </div>
+     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:6px;font-size:12px">
+      <div>Total lido: <b>${f.validRows.toLocaleString("pt-BR")}</b></div>
+      <div>Novas: <b style="color:#16a34a">${f.newOffers.toLocaleString("pt-BR")}</b></div>
+      <div>Atualizadas: <b style="color:#2563eb">${f.updatedOffers.toLocaleString("pt-BR")}</b></div>
+      <div>Serão inativadas: <b style="color:#dc2626">${f.inactivatedOffers.toLocaleString("pt-BR")}</b></div>
+      <div>Ação vencimento: <b style="color:#7e22ce">${f.expiryOffers.toLocaleString("pt-BR")}</b></div>
+     </div>
+    </div>
+   `;
+  }).join("");
+
+  const sampleRowsHtml = summary.sampleRows && summary.sampleRows.length ? `
+   <div style="margin-top:12px">
+    <div style="font-size:11.5px;font-weight:800;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Amostra de ofertas no arquivo</div>
+    <div style="overflow-x:auto;max-height:160px;border:1px solid var(--line,#e2e8f0);border-radius:8px">
+     <table style="width:100%;font-size:11.5px;border-collapse:collapse;text-align:left">
+      <thead>
+       <tr style="background:var(--bg-secondary,#f1f5f9);border-bottom:1px solid var(--line,#cbd5e1)">
+        <th style="padding:4px 8px">Filial</th>
+        <th style="padding:4px 8px">Código</th>
+        <th style="padding:4px 8px">Descrição</th>
+        <th style="padding:4px 8px">Normal</th>
+        <th style="padding:4px 8px">Oferta</th>
+        <th style="padding:4px 8px">Motivo</th>
+        <th style="padding:4px 8px">Vigência</th>
+       </tr>
+      </thead>
+      <tbody>
+       ${summary.sampleRows.map(r => `
+        <tr style="border-bottom:1px solid var(--line,#f1f5f9)">
+         <td style="padding:3px 8px">${escapeHtml(String(r.sg_store_code || "-"))}</td>
+         <td style="padding:3px 8px"><b>${escapeHtml(String(r.product_code))}</b></td>
+         <td style="padding:3px 8px;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(String(r.description || "-"))}</td>
+         <td style="padding:3px 8px">${r.regular_price ? formatOfferCurrency(r.regular_price) : "-"}</td>
+         <td style="padding:3px 8px;color:#16a34a;font-weight:800">${formatOfferCurrency(r.offer_price)}</td>
+         <td style="padding:3px 8px;max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(String(r.reason || "-"))}</td>
+         <td style="padding:3px 8px">${r.starts_at && r.ends_at ? `${formatOfferDate(r.starts_at)} a ${formatOfferDate(r.ends_at)}` : (r.ends_at ? `Até ${formatOfferDate(r.ends_at)}` : "-")}</td>
+        </tr>
+       `).join("")}
+      </tbody>
+     </table>
+    </div>
+   </div>
+  ` : "";
+
+  return `
+   <div style="margin-top:6px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;flex-wrap:wrap">
+     <div style="font-size:13px;font-weight:800;color:var(--text)">
+      📊 Análise Prévia do Arquivo (Dry-Run): <u>${escapeHtml(summary.filename)}</u>
+     </div>
+     <span style="background:#e0e7ff;color:#3730a3;border:1px solid #c7d2fe;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700">
+      ${escapeHtml(summary.formatLabel || summary.format || "SG")}
+     </span>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:8px">
+     Linhas analisadas: <b>${summary.totalRowsAnalyzed ? summary.totalRowsAnalyzed.toLocaleString("pt-BR") : summary.totalRows.toLocaleString("pt-BR")}</b> · Válidas: <b>${summary.validRows.toLocaleString("pt-BR")}</b> · Linhas ignoradas/seções: <b>${(summary.ignoredRowsCount || summary.invalidRows || 0).toLocaleString("pt-BR")}</b> · Duplicadas: <b>${summary.duplicateRows.toLocaleString("pt-BR")}</b>
+    </div>
+    ${filialCards}
+    ${summary.hasUnmappedFilials ? `<div style="margin-top:8px;color:#b91c1c;font-size:12px;font-weight:700">⚠️ Atenção: foram encontradas filiais no arquivo sem loja correspondente no aplicativo. Essas ofertas serão salvas com a filial original, mas não vincularão a lojas sem código SG configurado.</div>` : ""}
+    ${sampleRowsHtml}
+   </div>
+  `;
+ }
+
+ let currentOfferSnapshotState = {
+  file: null,
+  buffer: null,
+  fileHash: null,
+  parsedRows: [],
+  dryRun: null
+ };
+
+ els.offerSnapshotFile.addEventListener("change", async (event) => {
+  const file = event.target.files && event.target.files[0] ? event.target.files[0] : null;
+  if (!file) {
+   els.previewOfferSnapshot.disabled = true;
+   els.importOfferSnapshot.disabled = true;
+   currentOfferSnapshotState = { file: null, buffer: null, fileHash: null, parsedRows: [], dryRun: null };
+   definirInfoOfertas("Selecione um arquivo de ofertas SG para ver o resumo prévio (Dry-Run).");
+   return;
+  }
+
+  els.previewOfferSnapshot.disabled = true;
+  els.importOfferSnapshot.disabled = true;
+  definirInfoOfertas(`Lendo arquivo ${file.name}...`, "Detectando formato e extraindo ofertas...", { progress: 20 });
+
+  try {
+   const buffer = await file.arrayBuffer();
+   const fileHash = await hashArquivoSg(buffer);
+   const parseResult = await parseOfferImport(file, buffer);
+   const parsedRows = parseResult.rows;
+
+   definirInfoOfertas("Calculando impacto por filial...", `${parsedRows.length.toLocaleString("pt-BR")} ofertas lidas (${parseResult.formatLabel}). Consultando banco para o Dry-Run...`, { progress: 60 });
+
+   const filiaisNoArquivo = [...new Set(parsedRows.map(r => r.sg_store_code).filter(c => c !== null && c !== undefined))];
+   const activeOffersByFilial = new Map();
+
+   if (window.skaleeDb?.loadActiveSGOffersForLocation) {
+    for (const filCode of filiaisNoArquivo) {
+     try {
+      const dbOffers = await window.skaleeDb.loadActiveSGOffersForLocation(filCode);
+      activeOffersByFilial.set(Number(filCode), dbOffers || []);
+     } catch (err) {
+      console.warn(`Aviso ao consultar ofertas ativas da filial ${filCode}:`, err);
+     }
+    }
+   }
+
+   const locations = Array.isArray(allowedLocations) ? allowedLocations : [];
+   let nValid = 0;
+   let nInvalid = 0;
+   const seenKeys = new Set();
+   const validRowsDeduplicated = [];
+
+   parsedRows.forEach((row) => {
+    if (!row.sg_store_code || !row.product_code || row.offer_price === null) {
+     nInvalid += 1;
+     return;
+    }
+    const key = `${row.sg_store_code}:${row.product_code}`;
+    if (seenKeys.has(key)) return;
+    seenKeys.add(key);
+    validRowsDeduplicated.push(row);
+    nValid += 1;
+   });
+
+   const nDuplicates = parsedRows.length - nInvalid - nValid;
+   const filialSummaries = [];
+   let hasUnmapped = false;
+
+   filiaisNoArquivo.forEach((filCode) => {
+    const filRows = validRowsDeduplicated.filter(r => r.sg_store_code === Number(filCode));
+    const loc = locations.find(l => l && String(l.code || "").trim() === String(filCode));
+    if (!loc) hasUnmapped = true;
+
+    const dbOffers = activeOffersByFilial.get(Number(filCode)) || [];
+    const dbCodeSet = new Set(dbOffers.map(o => String(o.product_code).replace(/\D/g, "")));
+    const fileCodeSet = new Set(filRows.map(r => String(r.product_code).replace(/\D/g, "")));
+
+    let newOffers = 0;
+    let updatedOffers = 0;
+    filRows.forEach((r) => {
+     if (dbCodeSet.has(String(r.product_code))) {
+      updatedOffers += 1;
+     } else {
+      newOffers += 1;
+     }
+    });
+
+    let inactivatedOffers = 0;
+    dbOffers.forEach((o) => {
+     if (!fileCodeSet.has(String(o.product_code).replace(/\D/g, ""))) {
+      inactivatedOffers += 1;
+     }
+    });
+
+    const expiryOffers = filRows.filter(r => /vencim/i.test(r.reason || "")).length;
+
+    filialSummaries.push({
+     code: filCode,
+     name: loc ? loc.name : "Não cadastrada",
+     validRows: filRows.length,
+     newOffers,
+     updatedOffers,
+     inactivatedOffers,
+     expiryOffers,
+     unmapped: !loc
+    });
+   });
+
+   const dryRun = {
+    filename: file.name,
+    format: parseResult.format,
+    formatLabel: parseResult.formatLabel,
+    totalRowsAnalyzed: parseResult.totalRowsAnalyzed,
+    ignoredRowsCount: parseResult.ignoredRowsCount,
+    totalRows: parsedRows.length,
+    validRows: nValid,
+    invalidRows: nInvalid,
+    duplicateRows: nDuplicates,
+    filiais: filialSummaries,
+    hasUnmappedFilials: hasUnmapped,
+    sampleRows: validRowsDeduplicated.slice(0, 6)
+   };
+
+   currentOfferSnapshotState = {
+    file,
+    buffer,
+    fileHash,
+    parsedRows: validRowsDeduplicated,
+    dryRun
+   };
+
+   els.previewOfferSnapshot.disabled = false;
+   els.importOfferSnapshot.disabled = nValid === 0;
+
+   definirInfoOfertas(
+    `Arquivo pronto: ${file.name}`,
+    renderDryRunOfertasHtml(dryRun),
+    { progress: 100 }
+   );
+  } catch (error) {
+   console.error("Falha ao analisar arquivo de ofertas SG:", error);
+   definirInfoOfertas("Não foi possível analisar o arquivo de ofertas", error.message || "Erro desconhecido.");
+   els.previewOfferSnapshot.disabled = true;
+   els.importOfferSnapshot.disabled = true;
+   alert(error.message || "Não foi possível analisar o arquivo de ofertas SG.");
+  }
+ });
+
+ els.previewOfferSnapshot.addEventListener("click", () => {
+  if (!currentOfferSnapshotState.dryRun) return;
+  definirInfoOfertas(
+   `Arquivo analisado: ${currentOfferSnapshotState.file?.name || "Ofertas SG"}`,
+   renderDryRunOfertasHtml(currentOfferSnapshotState.dryRun)
+  );
+ });
+
+ els.importOfferSnapshot.addEventListener("click", async () => {
+  if (els.importOfferSnapshot.disabled) return;
+  const { file, fileHash, parsedRows, dryRun } = currentOfferSnapshotState;
+  if (!file || !fileHash || !parsedRows || !parsedRows.length) {
+   return alert("Selecione e analise um arquivo de ofertas válido primeiro.");
+  }
+
+  const confirmMsg = `Deseja importar ${parsedRows.length.toLocaleString("pt-BR")} ofertas para ${dryRun?.filiais?.length || 1} filial(is)?\n\nAs ofertas ativas anteriores das filiais importadas que não estiverem neste arquivo serão inativadas com segurança.`;
+  if (!confirm(confirmMsg)) return;
+
+  els.importOfferSnapshot.disabled = true;
+  els.previewOfferSnapshot.disabled = true;
+  els.offerSnapshotFile.disabled = true;
+
+  definirInfoOfertas("Importando ofertas para o Supabase...", `Enviando ${parsedRows.length.toLocaleString("pt-BR")} ofertas em batch seguro...`, { progress: 40 });
+
+  try {
+   const result = await window.skaleeDb.importSGOffers(file.name, fileHash, parsedRows);
+
+   if (result.duplicate) {
+    definirInfoOfertas("Arquivo já importado", "Este arquivo de ofertas já foi processado anteriormente com sucesso. Nenhuma alteração realizada.", { progress: 100 });
+    alert("Este arquivo de ofertas já havia sido importado.");
+    return;
+   }
+
+   const summary = [
+    `Válidas: ${Number(result.valid_rows || 0).toLocaleString("pt-BR")}`,
+    `Novas: ${Number(result.new_offers || 0).toLocaleString("pt-BR")}`,
+    `Atualizadas: ${Number(result.updated_offers || 0).toLocaleString("pt-BR")}`,
+    `Inativadas: ${Number(result.inactivated_offers || 0).toLocaleString("pt-BR")}`,
+    `Inválidas: ${Number(result.invalid_rows || 0).toLocaleString("pt-BR")}`
+   ].join(" · ");
+
+   definirInfoOfertas(
+    `Carga de Ofertas concluída com sucesso!`,
+    `<b>${file.name}</b><br>${summary}<br><span style="color:#16a34a;font-weight:700">✓ Ofertas sincronizadas com os produtos de validade.</span>`,
+    { progress: 100 }
+   );
+
+   els.offerSnapshotFile.value = "";
+   currentOfferSnapshotState = { file: null, buffer: null, fileHash: null, parsedRows: [], dryRun: null };
+
+   if (window.skaleeDb?.clearSgOffersCache) {
+    window.skaleeDb.clearSgOffersCache();
+   }
+   await carregarOfertasSgDosProdutos(products, { force: true });
+   showToast("Carga de Ofertas SG importada com sucesso!", "success", "🏷️");
+  } catch (error) {
+   console.error("Falha ao importar ofertas SG:", error);
+   definirInfoOfertas("Erro ao importar ofertas SG", error.message || "Erro desconhecido.");
+   alert(error.message || "Não foi possível importar as ofertas SG.");
+  } finally {
+   els.importOfferSnapshot.disabled = false;
+   els.previewOfferSnapshot.disabled = false;
+   els.offerSnapshotFile.disabled = false;
+  }
+ });
 
 function resetScannerConfirmation() {
  scannerConfirmCode = "";
