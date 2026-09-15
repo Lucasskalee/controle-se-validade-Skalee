@@ -1915,6 +1915,19 @@ window.skaleeDb = {
     let currentBatchId = batchId || null;
     let accumulatedResult = null;
 
+    let resolvedHash = typeof fileHash === "string" ? fileHash.trim().toLowerCase() : "";
+    if (!/^[a-f0-9]{64}$/.test(resolvedHash)) {
+      try {
+        const hashSeed = `${snapshotDate}:${retailLocationId}:${kind}:${originalFilename || "estoque.xls"}:${totalRows}:${JSON.stringify(rows.slice(0, 50))}`;
+        const encoder = new TextEncoder();
+        const data = encoder.encode(hashSeed);
+        const digest = await crypto.subtle.digest("SHA-256", data);
+        resolvedHash = Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
+      } catch (_) {
+        resolvedHash = "0".repeat(64);
+      }
+    }
+
     for (let chunkIndex = startChunk; chunkIndex <= totalChunks; chunkIndex++) {
       const startIndex = (chunkIndex - 1) * safeChunkSize;
       const endIndex = Math.min(startIndex + safeChunkSize, totalRows);
@@ -1932,7 +1945,7 @@ window.skaleeDb = {
             p_retail_location_id: retailLocationId,
             p_kind: kind,
             p_original_filename: originalFilename,
-            p_file_hash: fileHash,
+            p_file_hash: resolvedHash,
             p_total_file_rows: totalRows,
             p_chunk_index: chunkIndex,
             p_total_chunks: totalChunks,
@@ -3253,12 +3266,24 @@ async listCatalogProducts(options = {}) {
    fileHash = secondArg;
    rows = thirdArg || [];
   }
-  if (!fileHash) throw new Error("Hash SHA-256 do arquivo obrigatório.");
   if (!Array.isArray(rows) || !rows.length) throw new Error("Nenhuma oferta para importar.");
+
+  let resolvedHash = typeof fileHash === "string" ? fileHash.trim().toLowerCase() : "";
+  if (!/^[a-f0-9]{64}$/.test(resolvedHash)) {
+   try {
+    const hashSeed = `${originalFilename}:${rows.length}:${JSON.stringify(rows.slice(0, 50))}`;
+    const encoder = new TextEncoder();
+    const data = encoder.encode(hashSeed);
+    const digest = await crypto.subtle.digest("SHA-256", data);
+    resolvedHash = Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
+   } catch (_) {
+    resolvedHash = "0".repeat(64);
+   }
+  }
 
   const { data, error } = await supabase.rpc("import_sg_offers_v1", {
    p_original_filename: originalFilename || "ofertas.xls",
-   p_file_hash: fileHash,
+   p_file_hash: resolvedHash,
    p_rows: rows
   });
 

@@ -6816,7 +6816,9 @@ els.importStockSnapshot.addEventListener("click", async () => {
  definirInfoEstoque(`Lendo carga de ${selectedLocationName}...`, file.name, { progress: 10 });
  try {
   await new Promise((resolve) => setTimeout(resolve, 40));
-  const rawRows = carregarSnapshotsArquivoEstoque(file, await file.arrayBuffer());
+  const buffer = await file.arrayBuffer();
+  const fileHash = await hashArquivoSg(buffer);
+  const rawRows = carregarSnapshotsArquivoEstoque(file, buffer);
   const totalFileRows = rawRows.length;
   definirInfoEstoque("Buscando produtos monitorados...", `${totalFileRows.toLocaleString("pt-BR")} linha(s) lida(s) do arquivo.`, { progress: 30 });
 
@@ -6898,6 +6900,7 @@ els.importStockSnapshot.addEventListener("click", async () => {
    retailLocationId,
    sourceName: "sg_stock",
    originalFilename: file.name,
+   fileHash,
    totalFileRows,
    monitoredCount: totalMonitoredCount,
    unlocatedCount,
