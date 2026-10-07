@@ -1,0 +1,31 @@
+const assert = require('node:assert/strict');
+const { analyze, statistics, fmt } = require('../product-detail.js');
+const movement = { snapshot_date: '2026-10-03', stock_quantity: 47, previous_snapshot_date: '2026-09-29', previous_stock_quantity: 53 };
+const history = [53, 51, 49, 47].map((stock_quantity, i) => ({ stock_quantity, snapshot_date: ['2026-09-29','2026-09-30','2026-10-01','2026-10-03'][i] }));
+const initial = JSON.stringify(movement);
+let a = analyze(18, movement, history, 3);
+assert.equal(fmt(a.percent), '38,3');
+assert.equal(a.rate, 1.5);
+assert.equal(a.outflow, 6);
+assert.equal(a.projection, 13.5);
+assert.equal(fmt(analyze(10, movement, history, 3).percent), '21,3');
+assert.equal(JSON.stringify(movement), initial, 'Analytics must never mutate stock');
+for (const stock of [null, undefined, 0, '', NaN]) {
+ a = analyze(18, { ...movement, stock_quantity: stock }, null, 3);
+ assert.equal(a.percent, null);
+ assert.match(statistics(a, 18, 3), /Estoque SG indisponível/);
+}
+a = analyze(18, { snapshot_date: '2026-10-03', stock_quantity: 47 }, [], 3);
+assert.equal(a.rate, null); assert.equal(a.outflow, null); assert.equal(a.projection, null);
+assert.match(statistics(a, 18, 3), /Dados insuficientes/);
+assert.equal(analyze(18, movement, history, 0).projection, 18);
+assert.equal(analyze(18, movement, history, -1).projection, null);
+assert.equal(analyze(18, movement, null, 3).outflow, null, 'Sparse first/previous/current is not cumulative history');
+assert.equal(analyze(18, movement, null, 3).rate, 1.5);
+assert.equal(analyze(18, { ...movement, previous_snapshot_date: '2026-10-03' }, null, 3).rate, null);
+assert.equal(analyze(18, { ...movement, previous_stock_quantity: 40 }, null, 3).rate, 0);
+const replenished = [{ snapshot_date:'2026-09-29', stock_quantity:53 },{ snapshot_date:'2026-09-30', stock_quantity:70 },{ snapshot_date:'2026-10-03',stock_quantity:47 }];
+assert.equal(analyze(18, movement, replenished, 3).outflow, 23, 'Observed reductions differ from net change after replenishment');
+assert.equal(analyze(100, movement, history, 3).percent > 100, true);
+assert.match(statistics(analyze(100, movement, history, 3), 100, 3), /supera o último saldo/);
+console.log('PASS: percentages, absent/zero stock, history, replenishment, daily rate, expiry, projections and immutable SG.');

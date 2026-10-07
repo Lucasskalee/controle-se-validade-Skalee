@@ -1,4 +1,4 @@
-const CACHE_VERSION = "skalee-v3.6-offers-and-no-offers";
+const CACHE_VERSION = "skalee-v3.18-audit-sync";
 const CACHE_NAME = CACHE_VERSION;
 
 const APP_SHELL = [
@@ -6,11 +6,15 @@ const APP_SHELL = [
   "/index.html",
   "/local-store.js",
   "/product-image-service.js",
+  "/product-detail.js",
+  "/product-gallery.js",
+  "/product-detail.css",
   "/local-query.js",
   "/skalito-demo.html",
   "/auth.css",
   "/theme-layout.css",
   "/auth.js",
+  "/audit-access.js",
   "/admin-cadastros.css",
   "/admin-cadastros.js",
   "/components/tour/SkalitoTour.js",
@@ -65,6 +69,14 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
 
   const url = new URL(request.url);
+
+  // Development / Localhost bypass: Network-first to prevent stale cache during evaluation
+  if (url.hostname === "localhost" || url.hostname === "127.0.0.1") {
+    event.respondWith(
+      fetch(request).catch(() => caches.match(request))
+    );
+    return;
+  }
 
   // 1. Navigation requests (App Shell)
   if (request.mode === "navigate") {

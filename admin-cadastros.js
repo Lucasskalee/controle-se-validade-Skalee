@@ -410,4 +410,12 @@ el("retailLocationForm").addEventListener("submit", (event) => {
   section.hidden = true;
   setMessage();
  });
+ window.addEventListener("skalee:permissions-updated", (event) => {
+  isPlatformAdminUser = event.detail?.accessRole === "platform_admin";
+  section.hidden = !isPlatformAdminUser;
+  if (!isPlatformAdminUser) {
+   registriesLoaded = false;
+   registriesPromise = null;
+  }
+ });
 })();

@@ -117,6 +117,8 @@ interface StockMovement {
   previous_stock_quantity?: number | null;
   snapshot_date?: string | null;
   previous_snapshot_date?: string | null;
+  first_snapshot_date?: string | null;
+  first_stock_quantity?: number | null;
   base_batch_id?: string;
   import_batch_id?: string;
   last_seen_at?: string;
@@ -196,5 +198,68 @@ interface SGOfferImportBatch {
   result_summary?: Record<string, unknown> | null;
   imported_at: string;
   completed_at?: string | null;
+}
+
+export type ValidityAuditStatus = "open" | "ready_for_review" | "completed";
+
+export interface ValidityAudit {
+  id: string;
+  retail_location_id: string;
+  competence_month: string;
+  status: ValidityAuditStatus;
+  created_by?: string | null;
+  responsible_user_id?: string | null;
+  closed_at?: string | null;
+  closed_by?: string | null;
+  reopened_at?: string | null;
+  reopened_by?: string | null;
+  notes?: string | null;
+  created_at: string;
+  updated_at: string;
+  retail_locations?: { name: string } | null;
+}
+
+export type ValidityAuditItemSource = "monitored" | "audit_found";
+
+export type ValidityAuditExpiryReason =
+  | "Falha no PVPS"
+  | "Excesso de compra"
+  | "Baixo giro"
+  | "Oferta tardia"
+  | "Falha de acompanhamento"
+  | "Divergência de estoque"
+  | "Produto não cadastrado no Controle de Validades"
+  | "Outro"
+  | "Sem classificação";
+
+export interface ValidityAuditItem {
+  id: string;
+  audit_id: string;
+  source_type: ValidityAuditItemSource;
+  validity_product_id?: string | null;
+  catalog_product_id?: string | null;
+  barcode?: string | null;
+  product_code?: string | null;
+  product_name: string;
+  expiry_date: string;
+  quantity_audited?: number | null;
+  stock_quantity_snapshot?: number | null;
+  stock_snapshot_date?: string | null;
+  unit_cost_snapshot?: number | null;
+  sale_price_snapshot?: number | null;
+  financial_reference_date?: string | null;
+  financial_snapshot_origin?: string | null;
+  financial_cost_impact?: number | null;
+  potential_sales_loss?: number | null;
+  expiry_reason: ValidityAuditExpiryReason;
+  expiry_reason_other?: string | null;
+  action_taken?: string | null;
+  notes?: string | null;
+  audited_by?: string | null;
+  item_status: "pending" | "counted" | "reviewed";
+  audited_at?: string | null;
+  photo_path?: string | null;
+  created_at: string;
+  updated_at: string;
 }
 

@@ -156,13 +156,13 @@ vm.runInContext(
  assert.match(badgeFirst, /Sem histórico anterior/);
 
  const badgeDecrease = context.stockMovementBadge({ snapshot_date: '2026-09-05', movement_type: 'decrease', estimated_outflow: 50 });
- assert.match(badgeDecrease, /↓ 50 un\. desde a última carga/);
+ assert.match(badgeDecrease, /↓ 50 un\. desde a carga anterior/);
 
  const badgeIncrease = context.stockMovementBadge({ snapshot_date: '2026-09-06', movement_type: 'increase', stock_change: 70 });
  assert.match(badgeIncrease, /↑ Estoque aumentou 70 un\./);
 
  const badgeStable = context.stockMovementBadge({ snapshot_date: '2026-09-07', movement_type: 'stable' });
- assert.match(badgeStable, /Estável desde a última carga/);
+ assert.match(badgeStable, /Estável desde a carga anterior/);
 
  // Check card render when product has snapshot vs no snapshot
  const renderedWithSnapshot = context.renderStockMovement({
@@ -171,12 +171,28 @@ vm.runInContext(
    stock_quantity: 62,
    previous_snapshot_date: null,
    previous_stock_quantity: null,
+   first_snapshot_date: '2026-09-05',
+   first_stock_quantity: 62,
    movement_type: 'no_previous_snapshot'
   }
  });
  assert.match(renderedWithSnapshot, /Estoque SG.*62 un\./);
  assert.match(renderedWithSnapshot, /Última carga.*05\/09\/2026/);
  assert.match(renderedWithSnapshot, /Sem histórico anterior/);
+
+ const renderedWithCumulative = context.renderStockMovement({
+  stockMovement: {
+   snapshot_date: '2026-09-19',
+   stock_quantity: 46,
+   previous_snapshot_date: '2026-09-18',
+   previous_stock_quantity: 51,
+   first_snapshot_date: '2026-09-10',
+   first_stock_quantity: 64,
+   movement_type: 'decrease',
+   estimated_outflow: 5
+  }
+ });
+ assert.match(renderedWithCumulative, /Acumulado desde 10\/09\/2026.*↓ 18 un\./);
 
  const renderedWithoutSnapshot = context.renderStockMovement({
   stockMovement: {
@@ -312,6 +328,7 @@ vm.runInContext(
          return q;
         },
         order: () => q,
+        lte: (col, val) => { filtered = filtered.filter(s => s[col] <= val); return q; },
         limit: (num) => {
          filtered = filtered.slice(0, num);
          return q;
@@ -583,15 +600,15 @@ vm.runInContext(
  console.log('TESTE 6.4 (Caso D - Nenhuma loja selecionada): PASS ("Selecione a loja para consultar o estoque SG.")');
 
  // TESTE 7: Feedback e cálculo de percentual (renderStockFeedbackMarkup)
- // Caso A: 120 un. de validade sobre 187 un. SG (120/187 = 64%)
+ // Caso A: 120 un. de validade sobre 187 un. SG (120/187 = 64,2%)
  const feedback64 = context.renderStockFeedbackMarkup(120, { snapshot_date: '2026-09-08', stock_quantity: 187 });
- assert.match(feedback64, /120 un\. representam aproximadamente.*64%.*do estoque atual SG \(187 un\.\)/);
+ assert.match(feedback64, /120 un\. representam aproximadamente.*64,2%.*do estoque atual SG \(187 un\.\)/);
  assert.doesNotMatch(feedback64, /stock-warning-alert/, 'Não deve exibir alerta de atenção para quantidade <= estoque SG');
- console.log('TESTE 7.1 (Cálculo 120 un. / 187 un. = 64%): PASS');
+ console.log('TESTE 7.1 (Cálculo 120 un. / 187 un. = 64,2%): PASS');
 
  // Caso B: Quantidade maior que estoque SG (220 un. > 187 un.)
  const feedbackWarning = context.renderStockFeedbackMarkup(220, { snapshot_date: '2026-09-08', stock_quantity: 187 });
- assert.match(feedbackWarning, /220 un\. representam aproximadamente.*118%.*do estoque atual SG \(187 un\.\)/);
+ assert.match(feedbackWarning, /220 un\. representam aproximadamente.*117,6%.*do estoque atual SG \(187 un\.\)/);
  assert.match(feedbackWarning, /stock-warning-alert/);
  assert.match(feedbackWarning, /A quantidade informada \(220 un\.\) é maior que o estoque atual registrado na última carga SG \(187 un\.\)/);
  console.log('TESTE 7.2 (Alerta visual quando quantidade > estoque SG: 220 un. > 187 un.): PASS');
@@ -656,6 +673,18 @@ vm.runInContext(
  });
  assert.equal(barcodeFallbackStock.stock_quantity, 68, 'Fallback por código de barras deve localizar 68 UN');
  console.log('TESTE 11 (Fallback por Código de Barras 7896423704204): PASS (68 UN localizadas)');
+
+ // Explicit removal must survive reload even when the catalog has a shared image.
+ const beforeRemoval = validityProductsTableData.get('vp-copacol');
+ beforeRemoval.catalog_products = { photo_path: 'shared/catalog.webp', image_url: 'https://example.test/shared.jpg' };
+ const removed = await authContext.window.skaleeDb.updateProduct('vp-copacol', { qty: 3, removePhoto: true });
+ assert.equal(validityProductsTableData.get('vp-copacol').photo_path, '');
+ assert.equal(removed.photo, '');
+ assert.equal(removed.photoPath, '');
+ assert.equal(removed.stockMovement.stock_quantity, 40);
+ const reloaded = await authContext.window.skaleeDb.updateProduct('vp-copacol', {});
+ assert.equal(reloaded.photoPath, '', 'Explicit removal must not inherit catalog photo again');
+ console.log('TESTE 12: PASS (Remoção persistente, foto compartilhada preservada e SG intacto)');
 
  console.log('\n=== RESULTADO DO TESTE DE IMPORTAÇÃO E PERFORMANCE ===');
  console.log(`1. Total de linhas do arquivo: ${submittedPayload.totalFileRows.toLocaleString('pt-BR')}`);

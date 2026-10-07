@@ -11,6 +11,8 @@
 <link rel="stylesheet" href="auth.css">
 <link rel="stylesheet" href="admin-cadastros.css">
 <link rel="stylesheet" href="components/tour/skalitoTour.css">
+<script src="product-detail.js"></script>
+<script src="product-gallery.js"></script>
 <script src="local-store.js"></script>
 <script src="product-image-service.js"></script>
 <script>
@@ -726,6 +728,7 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
 @media(max-width:620px){.app{padding:14px}.searchrow,.searchrow.with-layout,.stock-import-grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}header{align-items:flex-start;flex-direction:column;gap:5px}.photo{height:180px}.report-head{align-items:stretch;flex-direction:column}.report-controls{align-items:stretch;flex-direction:column}.product-layout-picker{justify-self:start}.theme-options,.user-create,.user-location-checks{grid-template-columns:1fr}.user-row,.user-locations-head,.user-actions,.user-location-actions{align-items:stretch;flex-direction:column}.user-row .btn2,.user-locations-head .btn2{width:100%}.install-banner{align-items:flex-start;flex-wrap:wrap}.install-copy{flex:1 1 calc(100% - 65px)}.install-actions{width:100%;justify-content:flex-end}.grid[data-columns="2"] .product-card-slot{min-height:350px}.grid[data-columns="3"] .product-card-slot{min-height:255px}.grid[data-columns="4"] .product-card-slot{min-height:200px}.grid[data-columns="2"] .photo{height:120px}.grid[data-columns="3"] .photo{height:90px}.grid[data-columns="4"] .photo{height:70px}.grid[data-columns="3"] .content,.grid[data-columns="4"] .content{padding:7px}.grid[data-columns="3"] .name,.grid[data-columns="4"] .name{min-height:0;font-size:10px}.grid[data-columns="3"] :is(.code,.card-codes),.grid[data-columns="4"] :is(.code,.card-codes){font-size:8px;min-height:0}.grid[data-columns="3"] :is(.code-supplier,.code-store),.grid[data-columns="4"] :is(.code-supplier,.code-store){font-size:7.5px}.grid[data-columns="3"] .info,.grid[data-columns="4"] .info{display:block;font-size:8px}.grid[data-columns="3"] .badge,.grid[data-columns="4"] .badge{font-size:7px;padding:4px}.grid[data-columns="3"] .card-actions .btn2,.grid[data-columns="4"] .card-actions .btn2{width:100%;padding:6px 3px;font-size:8px}}
 </style>
 <link rel="stylesheet" href="theme-layout.css">
+<link rel="stylesheet" href="product-detail.css">
 </head>
 <body class="auth-loading">
 <section id="authScreen" class="auth-screen" aria-labelledby="authTitle">
@@ -763,6 +766,7 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
  <button class="tab active" data-page="products" aria-current="page"><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span><span class="tab-label"><span class="label-desktop">Produtos</span><span class="label-mobile">Produtos</span></span></button>
  <button class="tab" data-page="register"><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 5v14"/><path d="M5 12h14"/><path d="M4 4h16v16H4z"/></svg></span><span class="tab-label"><span class="label-desktop">Registrar produto</span><span class="label-mobile">Registrar</span></span></button>
  <button id="reportTab" class="tab" data-page="report" hidden><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 19V5"/><path d="M8 17v-6"/><path d="M13 17V7"/><path d="M18 17v-3"/><path d="M4 19h17"/></svg></span><span class="tab-label"><span class="label-desktop">Relatórios</span><span class="label-mobile">Relat.</span></span></button>
+ <button id="auditTab" class="tab" data-page="audit" type="button" hidden><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="m9 14 2 2 4-4"/></svg></span><span class="tab-label"><span class="label-desktop">Auditoria</span><span class="label-mobile">Auditoria</span></span></button>
  <a id="posterTab" class="tab" href="poster.html" hidden><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8"/><path d="M8 12h8"/><path d="M8 16h5"/></svg></span><span class="tab-label"><span class="label-desktop">Cartaz</span><span class="label-mobile">Cartaz</span></span></a>
  <button id="personalSettingsButton" class="tab" type="button" aria-haspopup="dialog" aria-controls="personalPanel" aria-expanded="false"><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.6-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.6V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9v.1a1.7 1.7 0 0 0 1.6 1h.1a2 2 0 0 1 0 4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg></span><span class="tab-label"><span class="label-desktop">Configurações</span><span class="label-mobile">Config</span></span></button>
 </nav>
@@ -1011,6 +1015,8 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
   <div id="reportStatus" class="report-status" aria-live="polite"></div>
  </div>
 </section>
+
+<section class="page" id="audit" hidden></section>
 
 <section id="adminCentral" class="admin-central" hidden aria-hidden="true">
  <div class="admin-shell">
@@ -1305,7 +1311,7 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
 
 <div id="updateModal" class="update-modal" role="dialog" aria-modal="true" aria-labelledby="updateTitle">
  <div class="update-panel">
-  <h2 id="updateTitle">Atualizar produto</h2>
+  <button id="closeUpdateX" type="button" class="product-detail-close" aria-label="Fechar atualização">✕</button><h2 id="updateTitle">Atualizar produto</h2>
   <p id="updateProductName" class="update-product-name"></p>
 
   <div class="update-image-section" id="updateImageSection">
@@ -1314,10 +1320,12 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
     <div class="update-image-controls">
      <div class="update-image-actions">
       <button id="btnUpdatePhotoFile" class="btn2 btn-sm" type="button">📷 Foto</button>
+      <button id="btnUpdatePhotoGallery" class="btn2 btn-sm" type="button">📁 Arquivo</button>
       <button id="btnUpdatePhotoUrl" class="btn2 btn-sm" type="button">🔗 Link</button>
       <button id="btnUpdateKnownPhoto" class="btn2 btn-sm" type="button" hidden>✨ Conhecida</button>
       <button id="btnUpdateRemovePhoto" class="btn-danger btn-sm" type="button" hidden>🗑️ Remover</button>
      </div>
+     <input id="updateGalleryInput" type="file" accept="image/*" class="hidden">
      <input id="updatePhotoInput" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" class="hidden">
      <div id="updateImageStatus" class="update-image-status"></div>
     </div>
@@ -1731,6 +1739,7 @@ const els = {
  aboutClose: document.getElementById('aboutClose'),
  personalSignOut: document.getElementById('personalSignOut'),
  reportTab: document.getElementById('reportTab'),
+ auditTab: document.getElementById('auditTab'),
  posterTab: document.getElementById('posterTab'),
  layoutButtons: document.querySelectorAll('#layoutPicker .layout-button'),
  productLayoutButtons: document.querySelectorAll('.product-layout-button'),
@@ -3527,12 +3536,6 @@ function agendarCargaMaisProdutos() {
  productPageObserver.observe(sentinel);
 }
 
-const ADMIN_EMAILS = new Set(["skalee.razarth@gmail.com", "fabiana.bazan@sisten.com"]);
-
-function isAdminEmail(value) {
- return ADMIN_EMAILS.has(String(value || "").trim().toLowerCase());
-}
-
 function setUserMessage(text = "", type = "") {
  els.userMessage.textContent = text;
  els.userMessage.className = `user-message ${type}`.trim();
@@ -3605,7 +3608,7 @@ function renderUserLocationEditor(user, locations, assignments) {
  return editor;
 }
 
-function renderAdminUsers(users, locations = [], assignments = [], promoters = []) {
+function renderAdminUsers(users, locations = [], assignments = [], promoters = [], auditAssignments = null) {
  els.userList.replaceChildren();
  const activePromoterIds = new Set(promoters.filter((profile) => profile.active !== false).map((profile) => profile.user_id));
  users.sort((a, b) => Number(b.isAdmin) - Number(a.isAdmin) || a.email.localeCompare(b.email));
@@ -3691,6 +3694,7 @@ function renderAdminUsers(users, locations = [], assignments = [], promoters = [
   row.append(info, actions);
   card.append(row);
   if (!user.isAdmin && activePromoterIds.has(user.id)) card.append(renderUserLocationEditor(user, locations, assignments));
+  if (!user.isAdmin && window.skaleeAuditAccess) card.append(window.skaleeAuditAccess.createEditor(user, locations, auditAssignments));
   els.userList.appendChild(card);
  });
 }
@@ -3698,8 +3702,8 @@ function renderAdminUsers(users, locations = [], assignments = [], promoters = [
 async function loadAdminUsers() {
  setUserMessage("Carregando usuários...");
  try {
- const [users, locations, assignments, promoters] = await Promise.all([window.skaleeDb.listUsers(), window.skaleeDb.listRetailLocations(), window.skaleeDb.listPromoterLocationAssignments(), window.skaleeDb.listPromoterProfiles()]);
- renderAdminUsers(users, locations, assignments, promoters);
+ const [users, locations, assignments, promoters, auditAssignments] = await Promise.all([window.skaleeDb.listUsers(), window.skaleeDb.listRetailLocations(), window.skaleeDb.listPromoterLocationAssignments(), window.skaleeDb.listPromoterProfiles(), window.skaleeDb.listAuditAssignments().catch(() => null)]);
+ renderAdminUsers(users, locations, assignments, promoters, auditAssignments);
  updateAdminMetrics({ users, locations });
  setUserMessage(`${users.length} usuário(s) cadastrado(s).`);
  } catch (error) {
@@ -3742,13 +3746,36 @@ els.createUser.addEventListener("click", async () => {
  }
 });
 
+window.addEventListener("skalee:permissions-updated", (event) => {
+ const isPlatformAdmin = event.detail?.accessRole === "platform_admin";
+ isSkaleeAdmin = isPlatformAdmin;
+ canManageAdminUsers = isPlatformAdmin;
+ isViewer = event.detail?.accessRole === "viewer";
+ els.adminCentralButton.hidden = !isPlatformAdmin;
+ els.settingsUsersTab.hidden = !isPlatformAdmin;
+ els.settingsRegistriesTab.hidden = !isPlatformAdmin;
+ els.settingsManagementTab.hidden = !isPlatformAdmin;
+ els.adminUsersSection.hidden = !isPlatformAdmin;
+ els.stockImportSettingsSection.hidden = !isPlatformAdmin;
+ els.offerImportSettingsSection.hidden = !isPlatformAdmin;
+ els.posterTab.hidden = !isPlatformAdmin;
+ if (els.auditTab && isPlatformAdmin) els.auditTab.hidden = false;
+ document.querySelector('[data-page="register"]').hidden = isViewer;
+ if (!isPlatformAdmin) {
+  els.userList.replaceChildren();
+  adminUsersLoaded = false;
+  document.getElementById("adminCentral").hidden = true;
+  document.body.classList.remove("admin-open");
+ }
+});
+
 window.addEventListener("skalee:authenticated", async (event) => {
  appAuthenticated = true;
  isViewer = event.detail?.accessRole === "viewer";
  activeUserEmail = event.detail?.email || "";
- isSkaleeAdmin = isAdminEmail(event.detail?.email);
  const isPlatformAdmin = event.detail?.accessRole === "platform_admin";
- canManageAdminUsers = isSkaleeAdmin || isPlatformAdmin;
+ isSkaleeAdmin = isPlatformAdmin;
+ canManageAdminUsers = isPlatformAdmin;
  syncNotificationStores();
  updatePersonalPanelIdentity(event.detail || {});
  catalogLoadPromise = null;
@@ -3764,25 +3791,23 @@ window.addEventListener("skalee:authenticated", async (event) => {
  showInstallBannerWhenAvailable();
  armNotificationPermissionRequest();
 
- const isAdmin = canManageAdminUsers;
- const canUsePoster = isAdmin || isPlatformAdmin;
- const canOpenAdminSettings = isAdmin || isPlatformAdmin;
  const registerTab = document.querySelector('[data-page="register"]');
  registerTab.hidden = isViewer;
- els.adminCentralButton.hidden = !canOpenAdminSettings;
+ els.adminCentralButton.hidden = !isPlatformAdmin;
  els.reportTab.hidden = false;
- els.posterTab.hidden = !canUsePoster;
- els.settingsManagementTab.hidden = !canOpenAdminSettings;
- els.settingsUsersTab.hidden = !isAdmin;
+ els.posterTab.hidden = !isPlatformAdmin;
+ if (els.auditTab && isPlatformAdmin) els.auditTab.hidden = false;
+ els.settingsManagementTab.hidden = !isPlatformAdmin;
+ els.settingsUsersTab.hidden = !isPlatformAdmin;
  els.settingsRegistriesTab.hidden = !isPlatformAdmin;
  if (document.querySelector(".settings-tab.active")?.hidden) showSettingsPanel("overview");
  const activeTab = document.querySelector(".tab.active");
  if (isViewer || activeTab?.hidden) document.querySelector('[data-page="products"]').click();
- els.adminUsersSection.hidden = !isAdmin;
+ els.adminUsersSection.hidden = !isPlatformAdmin;
  els.catalogSettingsSection.hidden = true;
- els.stockImportSettingsSection.hidden = !isSkaleeAdmin;
- els.offerImportSettingsSection.hidden = !isSkaleeAdmin;
- if (isSkaleeAdmin) {
+ els.stockImportSettingsSection.hidden = !isPlatformAdmin;
+ els.offerImportSettingsSection.hidden = !isPlatformAdmin;
+ if (isPlatformAdmin) {
   if (els.stockSnapshotDate && !els.stockSnapshotDate.value) els.stockSnapshotDate.value = localDateKey(new Date());
   void carregarSituacaoCargasEstoque();
  }
@@ -3860,6 +3885,7 @@ window.addEventListener("skalee:signed-out", () => {
  els.settingsManagementTab.hidden = true;
  els.settingsRegistriesTab.hidden = true;
  els.reportTab.hidden = true;
+ if (els.auditTab) els.auditTab.hidden = true;
  els.posterTab.hidden = true;
  els.adminCentralButton.hidden = true;
  closeAdminCentral();
@@ -3917,8 +3943,12 @@ document.querySelectorAll(".tab[data-page]").forEach((button) => {
   document.querySelectorAll(".page").forEach((item) => item.classList.remove("active"));
   button.classList.add("active");
   button.setAttribute("aria-current", "page");
-  document.getElementById(button.dataset.page).classList.add("active");
+  document.getElementById(button.dataset.page)?.classList.add("active");
   if (button.dataset.page === "report") void carregarProdutosRelatorio();
+  if (button.dataset.page === "audit") {
+   if (location.hash !== "#audit") history.replaceState(null, "", "#audit");
+   if (window.skaleeAuditAccess?.open) void window.skaleeAuditAccess.open();
+  }
   if (!els.personalPanel.hidden) setPersonalPanelOpen(false);
  });
 });
@@ -4271,10 +4301,24 @@ function formatStockNumber(value) {
 function stockMovementBadge(movement) {
  if (!movement || !movement.snapshot_date) return '<span class="stock-movement-badge no_previous_snapshot">Sem carga SG</span>';
  const type = movement.movement_type || "no_previous_snapshot";
- if (type === "decrease") return `<span class="stock-movement-badge decrease">↓ ${formatStockNumber(movement.estimated_outflow)} un. desde a última carga</span>`;
+ if (type === "decrease") return `<span class="stock-movement-badge decrease">↓ ${formatStockNumber(movement.estimated_outflow)} un. desde a carga anterior</span>`;
  if (type === "increase") return `<span class="stock-movement-badge increase">↑ Estoque aumentou ${formatStockNumber(Math.abs(Number(movement.stock_change || 0)))} un.</span>`;
- if (type === "stable") return '<span class="stock-movement-badge stable">Estável desde a última carga</span>';
+ if (type === "stable") return '<span class="stock-movement-badge stable">Estável desde a carga anterior</span>';
  return '<span class="stock-movement-badge no_previous_snapshot">Sem histórico anterior</span>';
+}
+
+function stockCumulativeSummary(movement) {
+ if (!movement?.snapshot_date || !movement?.first_snapshot_date || movement.first_stock_quantity === null || movement.first_stock_quantity === undefined) return null;
+ if (movement.first_snapshot_date === movement.snapshot_date) return null;
+ const change = Number(movement.stock_quantity) - Number(movement.first_stock_quantity);
+ if (!Number.isFinite(change)) return null;
+ const date = new Date(`${movement.first_snapshot_date}T00:00:00`).toLocaleDateString("pt-BR");
+ const value = change < 0
+  ? `↓ ${formatStockNumber(Math.abs(change))} un.`
+  : change > 0
+   ? `↑ ${formatStockNumber(change)} un.`
+   : "Estável (0 un.)";
+ return { label: `Acumulado desde ${date}`, value };
 }
 
 function renderStockMovement(product) {
@@ -4301,6 +4345,7 @@ function renderStockMovement(product) {
    variationText = "Estável (0 un.)";
   }
  }
+ const cumulative = stockCumulativeSummary(movement);
 
  return `
       <div class="stock-movement">
@@ -4308,6 +4353,7 @@ function renderStockMovement(product) {
        <div class="info"><span>Última carga</span><b>${snapshotDate}</b></div>
        <div class="info"><span>Estoque anterior</span><b>${previousStock !== "--" && previousDate !== "--" ? `${previousStock} em ${previousDate}${interval}` : previousStock}</b></div>
        ${variationText !== "--" ? `<div class="info"><span>Variação</span><b>${variationText}</b></div>` : ""}
+       ${cumulative ? `<div class="info"><span>${cumulative.label}</span><b>${cumulative.value}</b></div>` : ""}
        ${stockMovementBadge(movement)}
       </div>`;
 }
@@ -4381,6 +4427,7 @@ function renderStockReferenceCardMarkup(movement, options = {}) {
    variationText = "Estável (0 un.)";
   }
  }
+ const cumulative = stockCumulativeSummary(movement);
 
  return `
   <div class="stock-reference-card">
@@ -4407,6 +4454,11 @@ function renderStockReferenceCardMarkup(movement, options = {}) {
      <small>Variação</small>
      <strong>${variationText}</strong>
     </div>` : ""}
+    ${cumulative ? `
+    <div class="stock-reference-item">
+     <small>${cumulative.label}</small>
+     <strong>${cumulative.value}</strong>
+    </div>` : ""}
    </div>
    ${stockMovementBadge(movement)}
   </div>`;
@@ -4422,7 +4474,7 @@ function renderStockFeedbackMarkup(qty, movement) {
  const elements = [];
 
  if (stockQty > 0) {
-  const percentage = Math.round((qty / stockQty) * 100);
+  const percentage = ((qty / stockQty) * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 });
   elements.push(`
    <div class="stock-percentage-pill">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
@@ -4645,6 +4697,7 @@ async function updateEditStockInfo(product) {
   }
  }
 
+ if (updatingProductId !== product.id) return;
  currentEditStockMovement = movement || { status: "not_found", notFound: true, movement_type: "not_found" };
  els.updateStockContainer.innerHTML = renderStockReferenceCardMarkup(currentEditStockMovement);
  renderEditStockFeedback();
@@ -5504,6 +5557,9 @@ async function buscarProdutoPorCodigo(codigoBarras) {
 }
 
 function closeUpdateModal() {
+ if (pendingProductUpdateIds.has(String(updatingProductId))) return;
+ updateImageRevision++;
+ updateImageBusy = false;
  updatingProductId = null;
  els.updateModal.classList.remove("show");
  els.updateError.textContent = "";
@@ -5513,6 +5569,8 @@ function closeUpdateModal() {
 let lastFocusedProductCard = null;
 let savedBodyOverflow = "";
 
+let updateImageRevision = 0;
+let updateImageBusy = false;
 let updatePhotoData = null;
 let updatePhotoPath = undefined;
 let updateRemovePhoto = false;
@@ -5521,6 +5579,7 @@ let updateKnownImage = null;
 function openUpdateModalForProduct(product) {
  if (!product) return;
  updatingProductId = product.id;
+ updateImageRevision++; updateImageBusy = false; els.confirmUpdate.disabled = false;
  updatePhotoData = null;
  updatePhotoPath = undefined;
  updateRemovePhoto = false;
@@ -5542,7 +5601,7 @@ function openUpdateModalForProduct(product) {
   els.updateImagePreview.textContent = "Carregando...";
   els.btnUpdateRemovePhoto.hidden = false;
   window.skaleeDb?.getProductPhotoUrl?.(product.photoPath).then((url) => {
-   if (updatingProductId === product.id) {
+   if (updatingProductId === product.id && !updatePhotoData && !updateRemovePhoto && !updateImageBusy) {
     if (url) els.updateImagePreview.innerHTML = `<img src="${url}" alt="">`;
     else els.updateImagePreview.textContent = "Sem foto";
    }
@@ -5630,60 +5689,74 @@ function openProductDetailModal(product, sourceCard) {
   : `<div class="detail-no-photo"><span>Sem foto</span></div>`;
  const updating = pendingProductUpdateIds.has(String(product.id));
 
+ const movement = product.stockMovement || window.skaleeDb?.getStockMovement?.(product.id, product) || null;
+ const row = (title, value) => `<div class="detail-row"><span>${title}</span><strong>${escapeHtml(String(value ?? '--'))}</strong></div>`;
  els.productDetailBody.innerHTML = `
-  <div class="detail-badges">
-   <span class="badge ${tone}">${days === 0 ? "Vence hoje" : label}</span>
-   ${renderOfferBadgesMarkup(product)}
-   ${product.qty >= 100 ? '<span class="badge high">QUANTIDADE ALTA</span>' : ''}
-  </div>
-  <div class="detail-grid">
-   <div class="detail-photo">
-    ${photoMarkup}
-   </div>
-   <div class="detail-info-wrap">
-    <h2 id="productDetailTitle" class="detail-title">${escapeHtml(product.name)}</h2>
-    <div class="detail-codes">
-     <div><span>Cód. interno: <b>${escapeHtml(firstCode)}</b></span></div>
-     <div><span>Cód. barras: <b>${escapeHtml(firstBarcode)}</b></span></div>
-     <div><span>Cód. fornecedor: <b>${escapeHtml(firstSupplierCode)}</b></span></div>
-     ${product.brandName ? `<div><span>Marca: <b>${escapeHtml(product.brandName)}</b></span></div>` : ""}
-    </div>
+  <header class="detail-header">
+   <div class="detail-badges"><span class="badge ${tone}">${days === 0 ? "Vence hoje" : label}</span>${renderOfferBadgesMarkup(product)}${product.qty >= 100 ? '<span class="badge high">QUANTIDADE ALTA</span>' : ''}</div>
+   <button type="button" class="detail-photo detail-gallery-trigger" aria-label="Abrir galeria de fotos do produto">${photoMarkup}<span class="detail-gallery-hint">⤢ Ver fotos</span></button>
+   <h2 id="productDetailTitle" class="detail-title" title="${escapeHtml(product.name)}">${escapeHtml(product.name)}</h2>
+   <div class="detail-codes">Int: ${escapeHtml(firstCode)} | Barras: ${escapeHtml(firstBarcode)} | Forn: ${escapeHtml(firstSupplierCode)}</div>
+   ${product.brandName ? `<div class="detail-brand">Marca: ${escapeHtml(product.brandName)}</div>` : ''}
+  </header>
+  <div class="detail-carousel" tabindex="0" role="region" aria-roledescription="carrossel" aria-label="Detalhes do produto; use as setas para navegar">
+   <section class="detail-slide" role="group" aria-label="1 de 3: Visão geral e validade">
+    <h3>▤ Visão Geral &amp; Validade <small>1 de 3</small></h3>
     <div class="detail-rows">
-     <div class="detail-row">
-      <span>Loja</span>
-      <strong>${escapeHtml(product.store || "--")}</strong>
-     </div>
-     <div class="detail-row">
-      <span>Quantidade</span>
-      <strong>${product.qty} un.</strong>
-     </div>
-     <div class="detail-row">
-      <span>Validade</span>
-      <strong>${expiryText}</strong>
-     </div>
-     <div class="detail-row">
-      <span>Faltam</span>
-      <strong>${days === 0 ? "Vence hoje" : (days === 1 ? "1 dia" : `${days} dias`)}</strong>
-     </div>
-     <div class="detail-row">
-      <span>Atualizado em</span>
-      <strong>${formatDateTime(product.updatedAt || product.createdAt)}</strong>
-     </div>
-     <div class="detail-row">
-      <span>Último usuário</span>
-      <strong>${displayUserName(product.updatedByEmail)}</strong>
-     </div>
+     ${row('Loja', product.store)}
+     ${row('Quantidade com validade curta', `${product.qty} un.`)}
+     ${row('Validade', expiryText)}
+     ${row('Prazo', days < 0 ? `Vencido há ${Math.abs(days)} dia(s)` : days === 0 ? 'Vence hoje' : `${days} dia${days === 1 ? '' : 's'} restantes`)}
+     ${row('Cadastrado em', formatDateTime(product.createdAt))}
+     ${row('Atualizado em', formatDateTime(product.updatedAt || product.createdAt))}
+     ${row('Último usuário', displayUserName(product.updatedByEmail))}
     </div>
     ${renderProductSgOfferDetailMarkup(product)}
-    ${renderStockMovement(product)}
-   </div>
+   </section>
+   <section class="detail-slide" role="group" aria-label="2 de 3: Logística e estoque SG">
+    <h3>▥ Logística &amp; Estoque SG <small>2 de 3</small></h3><div id="detailSgContent"></div>
+   </section>
+   <section class="detail-slide" role="group" aria-label="3 de 3: Estatísticas e desempenho">
+    <h3>▥ Estatísticas &amp; Desempenho <small>3 de 3</small></h3><div id="detailStatsContent"></div>
+   </section>
   </div>
-  <div class="detail-actions">
-   <button id="closeDetailAction" class="btn2" type="button">Fechar</button>
-   ${isViewer ? "" : `<button class="btn update-from-detail" type="button" data-product-id="${product.id}"${updating ? " disabled" : ""}>${updating ? "Atualizando..." : "Atualizar produto"}</button>`}
-  </div>
- `;
-
+  <footer class="detail-footer">
+   <nav class="detail-pagination" aria-label="Selecionar painel">${['Visão geral e validade','Logística e estoque SG','Estatísticas e desempenho'].map((title, i) => `<button type="button" class="detail-dot" aria-label="${title}" aria-current="${i === 0}"></button>`).join('')}</nav>
+   <div class="detail-actions"><button id="closeDetailAction" class="btn2" type="button">Fechar</button>${isViewer ? '' : `<button class="btn update-from-detail" type="button" data-product-id="${escapeHtml(product.id)}"${updating ? ' disabled' : ''}>${updating ? 'Atualizando...' : '✎ Atualizar produto'}</button>`}</div>
+  </footer>`;
+ const renderAnalysis = (sg, history) => {
+  const a = SkaleeProductDetail.analyze(product.qty, sg, history, days);
+  const cell = (title, value, css = '') => `<div><small>${title}</small><strong class="${css}">${value}</strong></div>`;
+  const variation = a.change === null ? 'Dados insuficientes' : `${a.change < 0 ? '↓' : a.change > 0 ? '↑' : '→'} ${formatStockNumber(Math.abs(a.change))} un.`;
+  els.productDetailBody.querySelector('#detailSgContent').innerHTML = `<div class="detail-sg-grid">
+   ${cell('Estoque atual SG', a.current === null ? 'Indisponível' : `${formatStockNumber(a.current)} un.`, 'sg-current')}
+   ${cell('Última carga', sg?.snapshot_date ? formatStockDateTime(sg) : '--')}
+   ${cell('Estoque anterior', a.previous === null ? 'Dados insuficientes' : `${formatStockNumber(a.previous)} un.`)}
+   ${cell('Carga anterior', sg?.previous_snapshot_date ? formatOfferDate(sg.previous_snapshot_date) : '--')}
+   ${cell('Variação entre cargas', variation)}
+  </div><div class="detail-sg-cumulative"><strong>Saída acumulada observada</strong><p>${a.outflow === null ? 'Dados insuficientes: histórico completo do período não disponível.' : `${formatStockNumber(a.outflow)} un. desde ${formatOfferDate(a.points[0].date)}`}</p></div><p class="detail-note">Saldo importado do SG, somente leitura. Reduções podem decorrer de venda, transferência, ajuste ou outras movimentações.</p>`;
+  els.productDetailBody.querySelector('#detailStatsContent').innerHTML = SkaleeProductDetail.statistics(a, product.qty, days);
+ };
+ renderAnalysis(movement, null);
+ SkaleeProductDetail.carousel(els.productDetailBody);
+ els.productDetailBody.querySelector('.detail-gallery-trigger').addEventListener('click', () => {
+  SkaleeProductGallery.open(product, effectivePhoto);
+ });
+ const detailSession = {};
+ els.productDetailBody.detailSession = detailSession;
+ // Load once on opening. Slide navigation never consults the database.
+ void (async () => {
+  try {
+   const sg = movement || await window.skaleeDb?.loadStockMovementForProduct?.({ store: product.store, retailLocationId: product.retailLocationId, productCode: product.code, catalogProductId: product.catalogProductId });
+   const history = await window.skaleeDb?.loadProductStockHistory?.(product, sg);
+   if (els.productDetailBody.detailSession !== detailSession) return;
+   const latest = history?.at(-1);
+   if (sg && latest?.snapshot_date === sg.snapshot_date) {
+    sg.created_at = latest.stock_import_batches?.imported_at || latest.updated_at || latest.created_at;
+   }
+   renderAnalysis(sg, history);
+  } catch (error) { console.warn('Histórico SG indisponível:', error); }
+ })();
  savedBodyOverflow = document.body.style.overflow;
  document.body.style.overflow = "hidden";
  els.productDetailModal.classList.add("show");
@@ -5695,6 +5768,8 @@ function openProductDetailModal(product, sourceCard) {
 
 function closeProductDetailModal() {
  if (!els.productDetailModal || !els.productDetailModal.classList.contains("show")) return;
+ SkaleeProductGallery.close();
+ els.productDetailBody.detailSession = null;
  els.productDetailModal.classList.remove("show");
  els.productDetailModal.setAttribute("aria-hidden", "true");
  document.body.style.overflow = savedBodyOverflow || "";
@@ -6000,9 +6075,18 @@ if (els.productDetailModal) {
 }
 
 window.addEventListener("keydown", (event) => {
+ if (document.querySelector('.product-gallery[open]')) return;
+ const activeModal = els.productDetailModal?.classList.contains('show') ? els.productDetailModal : els.updateModal?.classList.contains('show') ? els.updateModal : null;
+ if (event.key === 'Tab' && activeModal) {
+  const items = [...activeModal.querySelectorAll('button:not(:disabled), input:not(:disabled), [tabindex="0"], summary')].filter(el => el.getClientRects().length && !el.hidden && !el.closest('[hidden]'));
+  if (items.length && event.shiftKey && document.activeElement === items[0]) { event.preventDefault(); items.at(-1).focus(); }
+  else if (items.length && !event.shiftKey && document.activeElement === items.at(-1)) { event.preventDefault(); items[0].focus(); }
+ }
  if (event.key === "Escape") {
   if (els.productDetailModal?.classList.contains("show")) {
    closeProductDetailModal();
+  } else if (els.updateModal?.classList.contains('show')) {
+   closeUpdateModal();
   }
  }
 });
@@ -6016,27 +6100,48 @@ els.btnUpdatePhotoFile.addEventListener("click", () => {
  els.updatePhotoInput.click();
 });
 
-els.updatePhotoInput.addEventListener("change", async (event) => {
- const file = event.target.files && event.target.files[0] ? event.target.files[0] : null;
+document.getElementById("btnUpdatePhotoGallery").addEventListener("click", () => document.getElementById("updateGalleryInput").click());
+document.getElementById("closeUpdateX").addEventListener("click", () => { if (!els.confirmUpdate.disabled) closeUpdateModal(); });
+document.getElementById("updateGalleryInput").addEventListener("change", handleUpdatePhotoFile);
+els.updatePhotoInput.addEventListener("change", handleUpdatePhotoFile);
+async function handleUpdatePhotoFile(event) {
+ const file = event.target.files?.[0];
  if (!file) return;
- els.updateImageStatus.textContent = "Preparando foto...";
+ const session = updatingProductId;
+ if (!file.type.startsWith('image/')) {
+  els.updateImageStatus.textContent = 'Selecione um arquivo de imagem válido.';
+  event.target.value = '';
+  return;
+ }
+ const revision = ++updateImageRevision;
+ const previousPreview = els.updateImagePreview.innerHTML;
+ const preview = URL.createObjectURL(file);
+ els.updateImagePreview.innerHTML = `<img src="${preview}" alt="Prévia da nova foto">`;
+ els.updateImageStatus.textContent = 'Preparando foto...';
+ updateImageBusy = true;
+ els.confirmUpdate.disabled = true;
  try {
   const processed = await processPhoto(file);
+  if (session !== updatingProductId || revision !== updateImageRevision) return;
   updatePhotoData = processed;
   updatePhotoPath = undefined;
   updateRemovePhoto = false;
-  els.updateImagePreview.innerHTML = `<img src="${processed.previewUrl}" alt="">`;
-  els.updateImageStatus.textContent = "Nova foto selecionada";
+  els.updateImagePreview.innerHTML = `<img src="${processed.previewUrl}" alt="Prévia da nova foto">`;
+  els.updateImageStatus.textContent = 'Nova foto selecionada. Salve para confirmar.';
   els.btnUpdateRemovePhoto.hidden = false;
  } catch (err) {
-  console.error("Erro ao preparar foto na edição:", err);
-  alert(err.message || "Não foi possível carregar esta foto.");
-  els.updateImageStatus.textContent = "";
+  if (session !== updatingProductId || revision !== updateImageRevision) return;
+  els.updateImagePreview.innerHTML = previousPreview;
+  els.updateImageStatus.textContent = err.message || 'Não foi possível carregar esta imagem. Foto anterior mantida.';
  } finally {
-  event.target.value = "";
+  URL.revokeObjectURL(preview);
+  event.target.value = '';
+  if (session === updatingProductId && revision === updateImageRevision) {
+   updateImageBusy = false;
+   els.confirmUpdate.disabled = false;
+  }
  }
-});
-
+}
 els.btnUpdatePhotoUrl.addEventListener("click", () => {
  els.updateUrlPanel.hidden = !els.updateUrlPanel.hidden;
  if (!els.updateUrlPanel.hidden) {
@@ -6051,9 +6156,14 @@ els.btnUpdatePreviewUrl.addEventListener("click", async () => {
   return;
  }
  els.updateImageStatus.textContent = "Carregando imagem...";
+ const session = updatingProductId;
+ const revision = ++updateImageRevision;
+ updateImageBusy = true;
+ els.confirmUpdate.disabled = true;
  els.btnUpdatePreviewUrl.disabled = true;
  try {
   const processed = await processExternalImageUrl(url);
+  if (session !== updatingProductId || revision !== updateImageRevision) return;
   updatePhotoData = processed;
   updatePhotoPath = undefined;
   updateRemovePhoto = false;
@@ -6063,10 +6173,15 @@ els.btnUpdatePreviewUrl.addEventListener("click", async () => {
   els.btnUpdateRemovePhoto.hidden = false;
  } catch (err) {
   console.error("Erro ao processar URL na edição:", err);
+  if (session !== updatingProductId || revision !== updateImageRevision) return;
   alert(err.message || "Não foi possível carregar a imagem deste endereço.");
   els.updateImageStatus.textContent = "Falha ao carregar URL";
  } finally {
   els.btnUpdatePreviewUrl.disabled = false;
+  if (session === updatingProductId && revision === updateImageRevision) {
+   updateImageBusy = false;
+   els.confirmUpdate.disabled = false;
+  }
  }
 });
 
@@ -6079,6 +6194,7 @@ els.updateUrlInput.addEventListener("keydown", (event) => {
 
 els.btnUpdateKnownPhoto.addEventListener("click", () => {
  if (!updateKnownImage?.photoUrl) return;
+ updateImageRevision++; updateImageBusy = false; els.confirmUpdate.disabled = false;
  updatePhotoData = null;
  updatePhotoPath = updateKnownImage.photoPath;
  updateRemovePhoto = false;
@@ -6088,6 +6204,7 @@ els.btnUpdateKnownPhoto.addEventListener("click", () => {
 });
 
 els.btnUpdateRemovePhoto.addEventListener("click", () => {
+ updateImageRevision++; updateImageBusy = false; els.confirmUpdate.disabled = false;
  updatePhotoData = null;
  updatePhotoPath = null;
  updateRemovePhoto = true;
@@ -6097,7 +6214,7 @@ els.btnUpdateRemovePhoto.addEventListener("click", () => {
 });
 
 els.confirmUpdate.addEventListener("click", async () => {
- if (els.confirmUpdate.disabled) return;
+ if (els.confirmUpdate.disabled || updateImageBusy) return;
  const quantity = Number(els.updateQty.value);
  if (!Number.isInteger(quantity) || quantity < 1) {
   els.updateError.textContent = "Informe uma quantidade inteira maior que zero.";
@@ -6117,7 +6234,11 @@ els.confirmUpdate.addEventListener("click", async () => {
  let previewPhotoForOptimistic = previousProduct.photo || "";
  let photoPathForOptimistic = previousProduct.photoPath || "";
 
- if (updatePhotoData) {
+ if (updateRemovePhoto) {
+  photoChanges.removePhoto = true;
+  previewPhotoForOptimistic = "";
+  photoPathForOptimistic = "";
+ } else if (updatePhotoData) {
   photoChanges.processedPhoto = updatePhotoData;
   photoChanges.imageSource = "upload";
   previewPhotoForOptimistic = updatePhotoData.previewUrl || previewPhotoForOptimistic;
@@ -6126,10 +6247,6 @@ els.confirmUpdate.addEventListener("click", async () => {
   photoChanges.imageSource = "reused";
   photoPathForOptimistic = updatePhotoPath;
   if (updateKnownImage?.photoUrl) previewPhotoForOptimistic = updateKnownImage.photoUrl;
- } else if (updateRemovePhoto) {
-  photoChanges.removePhoto = true;
-  previewPhotoForOptimistic = "";
-  photoPathForOptimistic = "";
  }
 
  const optimisticProduct = {
@@ -6152,13 +6269,14 @@ els.confirmUpdate.addEventListener("click", async () => {
    const movement = updatedProduct.stockMovement || existingStockMovement || (typeof window.skaleeDb?.getStockMovement === "function" ? window.skaleeDb.getStockMovement(productId, updatedProduct) : null) || null;
    const finalProduct = {
     ...updatedProduct,
-    photo: updatedProduct.photo || previewPhotoForOptimistic || previousProduct.photo || "",
-    photoPath: updatedProduct.photoPath || photoPathForOptimistic || previousProduct.photoPath || "",
+    photo: photoChanges.removePhoto ? "" : (updatedProduct.photo || previewPhotoForOptimistic || previousProduct.photo || ""),
+    photoPath: photoChanges.removePhoto ? "" : (updatedProduct.photoPath || photoPathForOptimistic || previousProduct.photoPath || ""),
     photoLoaded: true,
     stockMovement: movement
    };
    mergeReportProduct(finalProduct);
    products = products.map((product) => product.id === productId ? finalProduct : product);
+   pendingProductUpdateIds.delete(String(productId));
    if (updatingProductId === productId) closeUpdateModal();
    showToast(`${productName} atualizado.`, "success", "✓");
   })
@@ -6186,6 +6304,9 @@ function setUpdateActionsDisabled(disabled) {
  els.completeProduct.disabled = disabled;
  els.deleteProduct.disabled = disabled;
  els.cancelUpdate.disabled = disabled;
+ document.getElementById('closeUpdateX').disabled = disabled;
+ els.updateQty.disabled = disabled;
+ document.querySelectorAll('#updateImageSection button, #updateImageSection input').forEach(el => { el.disabled = disabled; });
 }
 
 els.completeProduct.addEventListener("click", async () => {
@@ -9092,6 +9213,7 @@ els.updateQty.addEventListener("change", renderEditStockFeedback);
 render();
 </script>
 <script src="local-query.js"></script>
+<script src="audit-access.js"></script>
 <script type="module" src="auth.js"></script>
 <script type="module" src="components/tour/SkalitoTour.js"></script>
 <script src="admin-cadastros.js" defer></script>

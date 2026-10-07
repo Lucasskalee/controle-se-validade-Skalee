@@ -14,13 +14,18 @@ const MIME_TYPES = {
   ".jpg": "image/jpeg",
   ".jpeg": "image/jpeg",
   ".svg": "image/svg+xml; charset=utf-8",
-  ".ico": "image/x-icon"
+  ".ico": "image/x-icon",
+  ".webp": "image/webp",
+  ".webmanifest": "application/manifest+json; charset=utf-8",
+  ".mjs": "application/javascript; charset=utf-8"
 };
 
 const server = http.createServer((req, res) => {
   let reqPath = decodeURIComponent(req.url.split("?")[0]);
   
-  if (reqPath === "/" || reqPath === "/skalito-svg") {
+  if (reqPath === "/") {
+    reqPath = "/index.html";
+  } else if (reqPath === "/skalito-svg") {
     reqPath = "/skalito-svg.html";
   }
 
@@ -55,7 +60,8 @@ const server = http.createServer((req, res) => {
 
 server.listen(PORT, () => {
   console.log(`\n======================================================`);
-  console.log(`🚀 SERVIDOR DO SKALITO ANIMADO ATIVO!`);
-  console.log(`🌐 Abra no seu navegador: http://localhost:${PORT}/skalito-svg.html`);
+  console.log(`🚀 SERVIDOR LOCAL SKALEE ATIVO!`);
+  console.log(`🌐 Aplicação Principal: http://localhost:${PORT}/`);
+  console.log(`📋 Auditoria de Validades: http://localhost:${PORT}/#audit`);
   console.log(`======================================================\n`);
 });

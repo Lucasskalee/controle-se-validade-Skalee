@@ -24,7 +24,6 @@ const photoUrlCacheStats = {
 };
 window.skaleePhotoCacheStats = photoUrlCacheStats;
 const SHARED_CATALOG_OWNER_ID = "1d229a0e-7c6d-4b03-9505-95c50bb49cad";
-const SKALEE_ADMIN_EMAILS = new Set(["skalee.razarth@gmail.com", "fabiana.bazan@sisten.com"]);
 const body = document.body;
 const app = document.querySelector("#protectedApp");
 const form = document.querySelector("#authForm");
@@ -97,6 +96,8 @@ async function lookupExternalProductReferenceImage(ean) {
   return null;
 }
 const stockMovementByCodeStoreCache = new Map();
+const productStockHistoryCache = new Map();
+const productGalleryCache = new Map();
 
 function stockMovementStoreCodeKey(store, code) {
  const s = String(store || "").trim().toLowerCase();
@@ -271,21 +272,17 @@ let activeUserId;
 let activeUserEmail = "";
 let activeAccessRole = "editor";
 let manualAuthInProgress = false;
-
-function isSkaleeAdminEmail(value) {
- return SKALEE_ADMIN_EMAILS.has(String(value || "").trim().toLowerCase());
-}
+let hasDispatchedAuthenticated = false;
 
 function getAdminPermissions() {
  const isPlatformAdmin = activeAccessRole === "platform_admin";
- const isSkaleeAdmin = isSkaleeAdminEmail(activeUserEmail);
  return {
   accessRole: activeAccessRole,
   isPlatformAdmin,
-  isSkaleeAdmin,
-  canManageAdminUsers: isSkaleeAdmin || isPlatformAdmin,
-  canImportStock: isSkaleeAdmin || isPlatformAdmin,
-  canImportOffers: isSkaleeAdmin || isPlatformAdmin,
+  isSkaleeAdmin: isPlatformAdmin,
+  canManageAdminUsers: isPlatformAdmin,
+  canImportStock: isPlatformAdmin,
+  canImportOffers: isPlatformAdmin,
   isViewer: activeAccessRole === "viewer"
  };
 }
@@ -318,7 +315,8 @@ function fromDatabase(row) {
  const vpId = String(row.id || "");
  const storeCodeKey = stockMovementStoreCodeKey(row.store, row.product_code);
  const cachedMovement = (vpId ? stockMovementCache.get(vpId) : null) || (storeCodeKey ? stockMovementByCodeStoreCache.get(storeCodeKey) : null) || null;
- const effectivePhotoPath = row.photo_path || row.catalog_products?.photo_path || "";
+ // Empty string is an explicit per-record removal; null still inherits catalog images.
+ const effectivePhotoPath = row.photo_path === "" ? "" : (row.photo_path || row.catalog_products?.photo_path || "");
  return {
   id: row.id,
   barcode: row.barcode,
@@ -338,7 +336,7 @@ function fromDatabase(row) {
   imageProvider: row.catalog_products?.image_provider || null,
   imageOrigin: row.catalog_products?.image_origin || null,
   imageSource: row.image_source || row.catalog_products?.image_source || null,
-  photo: row.photo || (!effectivePhotoPath && row.catalog_products?.image_url ? row.catalog_products.image_url : ""),
+  photo: row.photo_path === "" ? "" : (row.photo || (!effectivePhotoPath && row.catalog_products?.image_url ? row.catalog_products.image_url : "")),
   photoLoaded: Object.prototype.hasOwnProperty.call(row, "photo") || Boolean(row.catalog_products?.image_url),
   createdAt: row.created_at,
   updatedAt: row.updated_at || row.created_at,
@@ -440,7 +438,7 @@ function productPhotoPath(product, extension) {
  // when an editor updates a product originally registered by someone else.
  const ownerId = activeUserId;
  if (!ownerId || !product.id || !extension) throw new Error("Não foi possível identificar o caminho da foto do produto.");
- return `${ownerId}/${product.id}/photo.${extension}`;
+ return `${ownerId}/${product.id}/photo-${crypto.randomUUID()}.${extension}`;
 }
 
 function localDateKeyFromOffset(days = 0) {
@@ -579,6 +577,8 @@ function photoCacheKey(path) {
  return PHOTO_CACHE_PREFIX + activeUserId + ":" + path;
 }
 function clearPhotoUrlCache() {
+ productGalleryCache.clear();
+ window.SkaleeProductGallery?.close();
  photoCacheGeneration += 1;
  signedPhotoUrlCache.clear();
  pendingSignedPhotoUrlRequests.clear();
@@ -754,6 +754,7 @@ async function uploadProductPhoto(product, processedPhoto) {
 }
 
 async function resolveProductPhoto(row) {
+ if (row.photo_path === "") return { id: row.id, photo: "", photoPath: "", ownPhotoPath: "", catalogPhotoPath: row.catalog_products?.photo_path || "" };
  const photoPath = row.photo_path || row.catalog_products?.photo_path || "";
  if (photoPath) {
   try {
@@ -779,6 +780,7 @@ function resolveProductImage(product) {
 }
 
 async function updateCatalogProductPhoto(criteria, photoPath, imageSource = "upload", metadata = {}) {
+ productGalleryCache.clear();
  const safeMetadata = metadata || {};
  const nextImageUrl = String(safeMetadata.imageUrl || safeMetadata.image_url || "").trim();
  const providerName = String(safeMetadata.imageProvider || safeMetadata.image_provider || "").trim();
@@ -1180,6 +1182,57 @@ window.skaleeDb = {
  getProductPhotoUrl,
  invalidateProductPhotoUrl,
  findKnownProductImage,
+ async loadProductGallery(product) {
+  const code = String(product.code || product.product_code || "").trim();
+  const catalogId = product.catalogProductId || product.catalog_product_id;
+  if (!code && !catalogId) return { images: [], partial: false };
+  const userId = activeUserId;
+  const key = JSON.stringify([userId, code || null, catalogId || null]);
+  const cached = productGalleryCache.get(key);
+  if (cached && Date.now() - cached.at < 60000) return cached.promise;
+  const promise = (async () => {
+   // Exact internal code, including letters/leading zeros. Queries use the signed-in
+   // client and its existing RLS, never a bucket listing or privileged credentials.
+   let validity = supabase.from("validity_products").select("id,photo_path,photo,updated_at")
+    .eq(code ? "product_code" : "catalog_product_id", code || catalogId)
+    .order("updated_at", { ascending: false }).limit(100);
+   let catalog = supabase.from("catalog_products").select("id,photo_path,image_url")
+    .eq(code ? "internal_code" : "id", code || catalogId).limit(20);
+   const results = await Promise.allSettled([validity, catalog]);
+   const refs = [], seen = new Set();
+   let partial = false;
+   for (const result of results) {
+    if (result.status === "rejected" || result.value.error) { partial = true; continue; }
+    const rows = result.value.data || [];
+    if (rows.length >= (result === results[0] ? 100 : 20)) partial = true;
+    for (const row of rows) {
+     // Explicit removal on a validity record is not a gallery photo.
+     if (result === results[0] && row.photo_path === "") continue;
+     const path = String(row.photo_path || "").trim();
+     const url = path ? "" : String(row.image_url || row.photo || "").trim();
+     if (!path && !url) continue;
+     const id = path ? `path:${path}` : `url:${url}`;
+     if (seen.has(id)) continue;
+     seen.add(id); refs.push({ photoPath: path, photoUrl: url });
+    }
+   }
+   // Bound signing concurrency; URLs reuse the existing signed-URL cache.
+   const images = [];
+   for (let offset = 0; offset < refs.length; offset += 6) {
+    const resolved = await Promise.all(refs.slice(offset, offset + 6).map(async ref => {
+     try { return { ...ref, photoUrl: ref.photoPath ? await getProductPhotoUrl(ref.photoPath) : ref.photoUrl }; }
+     catch { partial = true; return null; }
+    }));
+    images.push(...resolved.filter(image => image?.photoUrl));
+   }
+   if (activeUserId !== userId) return { images: [], partial: true };
+   if (partial) productGalleryCache.delete(key);
+   return { images, partial };
+  })();
+  productGalleryCache.set(key, { at: Date.now(), promise });
+  try { return await promise; }
+  catch (error) { productGalleryCache.delete(key); throw error; }
+ },
  updateCatalogProductPhoto,
  lookupExternalProductReferenceImage,
  checkIfPhotoPathIsShared,
@@ -1204,6 +1257,7 @@ window.skaleeDb = {
   if (storeCodeKey) stockMovementByCodeStoreCache.set(storeCodeKey, movement);
  },
  clearStockMovementCache() {
+  productStockHistoryCache.clear();
   stockMovementCache.clear();
   stockMovementByCodeStoreCache.clear();
  },
@@ -1225,7 +1279,7 @@ window.skaleeDb = {
   return supabase.removeChannel(channel);
  },
  async currentPromoterAccess() {
-  if (activeAccessRole === "platform_admin" || isSkaleeAdminEmail(activeUserEmail)) return null;
+  if (activeAccessRole === "platform_admin") return null;
   let userId = activeUserId;
   if (!userId) {
    const user = await getCurrentUser();
@@ -1233,7 +1287,7 @@ window.skaleeDb = {
    userId = user.id;
    activeUserEmail = user.email || "";
    activeAccessRole = user.app_metadata?.access_role || "editor";
-   if (activeAccessRole === "platform_admin" || isSkaleeAdminEmail(activeUserEmail)) return null;
+   if (activeAccessRole === "platform_admin") return null;
   }
   const { data: promoterProfile, error: profileError } = await supabase
    .from("promoter_profiles")
@@ -1398,6 +1452,29 @@ window.skaleeDb = {
    }
   });
  },
+  async loadProductStockHistory(product, movement) {
+    const catalogId = movement?.catalog_product_id || product.catalogProductId;
+    const locationId = movement?.retail_location_id || product.retailLocationId;
+    // Require a resolved product AND store, never merge different stores or ambiguous codes.
+    if (!catalogId || !locationId || !movement?.snapshot_date) return null;
+    const key = `${activeUserId}:${catalogId}:${locationId}:${movement.snapshot_date}:${movement.stock_quantity}`;
+    const cached = productStockHistoryCache.get(key);
+    if (cached && Date.now() - cached.at < 300000) return cached.promise;
+    const promise = (async () => {
+      const { data, error } = await supabase.from("product_stock_snapshots")
+        .select("snapshot_date,stock_quantity,created_at,updated_at,stock_import_batches(imported_at)")
+        .eq("catalog_product_id", catalogId)
+        .eq("retail_location_id", locationId)
+        .lte("snapshot_date", movement.snapshot_date)
+        .order("snapshot_date", { ascending: false })
+        .limit(90);
+      if (error) throw error;
+      return (data || []).reverse();
+    })();
+    productStockHistoryCache.set(key, { at: Date.now(), promise });
+    try { return await promise; }
+    catch (error) { productStockHistoryCache.delete(key); throw error; }
+  },
   async loadStockMovementsForValidityProducts(productIds = [], productListHint = []) {
     const ids = [...new Set((productIds || []).map((item) => (typeof item === "object" && item ? item.id : item)).map((id) => String(id || "").trim()).filter(Boolean))];
     if (!ids.length) return [];
@@ -1538,6 +1615,7 @@ window.skaleeDb = {
 
             const current = uniqueSnaps[0] || null;
             const previous = uniqueSnaps.length > 1 ? uniqueSnaps[1] : null;
+            const first = uniqueSnaps.length ? uniqueSnaps[uniqueSnaps.length - 1] : null;
 
             let movementType = "no_previous_snapshot";
             let stockChange = null;
@@ -1566,6 +1644,8 @@ window.skaleeDb = {
               stock_quantity: current ? Number(current.stock_quantity) : null,
               previous_snapshot_date: previous?.snapshot_date || null,
               previous_stock_quantity: previous ? Number(previous.stock_quantity) : null,
+              first_snapshot_date: first?.snapshot_date || null,
+              first_stock_quantity: first ? Number(first.stock_quantity) : null,
               stock_change: stockChange,
               estimated_outflow: estimatedOutflow,
               movement_type: movementType,
@@ -1602,6 +1682,8 @@ window.skaleeDb = {
       stock_quantity: null,
       previous_snapshot_date: null,
       previous_stock_quantity: null,
+      first_snapshot_date: null,
+      first_stock_quantity: null,
       stock_change: null,
       estimated_outflow: null,
       movement_type: "no_previous_snapshot",
@@ -1933,6 +2015,7 @@ window.skaleeDb = {
     if (error) throw error;
     stockMovementCache.clear();
     stockMovementByCodeStoreCache.clear();
+    productStockHistoryCache.clear();
     return data;
   },
   async loadProductDashboardStats(options = {}) {
@@ -2239,11 +2322,16 @@ window.skaleeDb = {
   return finalResult;
  },
  async updateProduct(id, changes = {}, options = {}) {
+  productGalleryCache.clear();
+  const localPhotoChanges = changes.removePhoto
+   ? { photo: "", photoPath: "", ownPhotoPath: "", imageUrl: null, photoLoaded: true }
+   : changes.processedPhoto?.previewUrl ? { photo: changes.processedPhoto.previewUrl, photoLoaded: true } : {};
   if (!navigator.onLine && !options.skipOfflineQueue && window.skaleeLocalStore) {
    const existing = await window.skaleeLocalStore.getProduct(id);
    const updatedLocal = {
     ...(existing || {}),
     ...changes,
+    ...localPhotoChanges,
     id,
     updatedAt: new Date().toISOString(),
     isOffline: true
@@ -2283,15 +2371,13 @@ window.skaleeDb = {
     const path = await uploadProductPhoto(existingData, changes.processedPhoto);
     updatePayload.photo_path = path;
     newPhotoPath = path;
-    void updateCatalogProductPhoto(existingData.catalog_product_id || { barcode: existingData.barcode, code: existingData.product_code }, path, changes.imageSource || "upload");
    } else if (changes.photoPath !== undefined) {
     updatePayload.photo_path = String(changes.photoPath || "").trim() || null;
     if (updatePayload.photo_path) {
      newPhotoPath = updatePayload.photo_path;
-     void updateCatalogProductPhoto(existingData.catalog_product_id || { barcode: existingData.barcode, code: existingData.product_code }, updatePayload.photo_path, changes.imageSource || "reused");
     }
    } else if (changes.removePhoto) {
-    updatePayload.photo_path = null;
+    updatePayload.photo_path = "";
     updatePayload.photo = "";
    }
 
@@ -2309,6 +2395,8 @@ window.skaleeDb = {
     .single();
    if (error) throw error;
    const resolved = await resolveProductPhoto(data);
+   // Publish reusable image only after the validity record was saved successfully.
+   if (newPhotoPath) void updateCatalogProductPhoto(existingData.catalog_product_id || { barcode: existingData.barcode, code: existingData.product_code }, newPhotoPath, changes.imageSource || "upload");
    const finalResult = fromDatabase({ ...data, photo: resolved.photo });
    if (window.skaleeLocalStore) void window.skaleeLocalStore.saveProduct(finalResult);
    return finalResult;
@@ -2319,6 +2407,7 @@ window.skaleeDb = {
     const updatedLocal = {
      ...(existing || {}),
      ...changes,
+     ...localPhotoChanges,
      id,
      updatedAt: new Date().toISOString(),
      isOffline: true
@@ -2358,6 +2447,7 @@ window.skaleeDb = {
   }
  },
  async deleteProduct(id, options = {}) {
+  productGalleryCache.clear();
   if (!navigator.onLine && !options.skipOfflineQueue && window.skaleeLocalStore) {
    await window.skaleeLocalStore.deleteProduct(id);
    await window.skaleeLocalStore.enqueueSyncOperation("delete", { id });
@@ -2404,6 +2494,134 @@ window.skaleeDb = {
   if (!error) return "Não foi possível chamar a função administrativa.";
   if (error.message?.includes("non-2xx")) return "A função admin-users respondeu com erro. Verifique se ela está publicada no Supabase e se sua conta tem permissão de Administrador Skalee.";
   return error.message || "Não foi possível chamar a função administrativa.";
+ },
+ async loadAuditAccessContext() {
+  if (!navigator.onLine) throw new Error("A Auditoria requer conexão com a internet.");
+  let currentUserId = activeUserId;
+  if (!currentUserId) {
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      currentUserId = sessionData?.session?.user?.id || null;
+    } catch (_) {}
+  }
+  const { data, error } = await supabase.rpc("get_audit_access_context");
+  if (error) throw error;
+  if (!data || (currentUserId && data.user_id !== currentUserId)) throw new Error("Sessão alterada. Atualize o acesso.");
+  if (!activeUserId && data.user_id) activeUserId = data.user_id;
+  if (data.is_admin || data.access_role === "platform_admin") {
+   activeAccessRole = "platform_admin";
+  } else if (data.access_role && data.access_role !== "postgres") {
+   activeAccessRole = data.access_role;
+  }
+  window.dispatchEvent(new CustomEvent("skalee:permissions-updated", { detail: { accessRole: activeAccessRole, audit: data } }));
+  return data;
+ },
+ async listAuditAssignments() {
+  if (!navigator.onLine) throw new Error("A gestão de Auditoria requer conexão com a internet.");
+  const rows = [];
+  for (let offset = 0; ; offset += 500) {
+   const { data, error } = await supabase.from("audit_user_location_assignments")
+    .select("user_id,retail_location_id,active,created_by,updated_by,created_at,updated_at")
+    .order("user_id").order("retail_location_id").range(offset, offset + 499);
+   if (error) throw error;
+   rows.push(...(data || []));
+   if (!data || data.length < 500) return rows;
+  }
+ },
+ async setAuditUserLocations(userId, locationIds) {
+  if (!navigator.onLine) throw new Error("A gestão de Auditoria requer conexão com a internet.");
+  const { error } = await supabase.rpc("set_audit_user_locations", {
+   p_user_id: userId, p_location_ids: [...new Set(locationIds)]
+  });
+  if (error) throw error;
+ },
+ async createOrGetMonthlyAudit(locationId, competenceMonth) {
+  if (!navigator.onLine) throw new Error("A Auditoria requer conexão com a internet.");
+  const { data, error } = await supabase.rpc("create_or_get_monthly_audit", {
+   p_retail_location_id: locationId,
+   p_competence_month: competenceMonth
+  });
+  if (error) throw error;
+  return data;
+ },
+ async syncMonitoredAuditItems(auditId) {
+  if (!navigator.onLine) throw new Error("A sincronização requer conexão com a internet.");
+  const { data, error } = await supabase.rpc("sync_validity_audit_monitored_items", {
+   p_audit_id: auditId
+  });
+  if (error) throw error;
+  return data;
+ },
+ async listAuditItems(auditId) {
+  if (!navigator.onLine) throw new Error("A consulta de itens requer conexão com a internet.");
+  const { data, error } = await supabase
+   .from("validity_audit_items")
+   .select("*")
+   .eq("audit_id", auditId)
+   .order("expiry_date", { ascending: true })
+   .order("product_name", { ascending: true });
+  if (error) throw error;
+  return data || [];
+ },
+ async recordAuditItemCount(itemId, payload) {
+  if (!navigator.onLine) throw new Error("O registro de apuração requer conexão com a internet.");
+  const { data, error } = await supabase.rpc("record_audit_item_count", {
+   p_item_id: itemId,
+   p_quantity_audited: payload.quantityAudited !== undefined ? payload.quantityAudited : null,
+   p_expiry_reason: payload.expiryReason || "Sem classificação",
+   p_expiry_reason_other: payload.expiryReasonOther || null,
+   p_action_taken: payload.actionTaken || null,
+   p_notes: payload.notes || null
+  });
+  if (error) throw error;
+  return data;
+ },
+ async addAuditFoundItem(auditId, payload) {
+  if (!navigator.onLine) throw new Error("O cadastro de produto encontrado requer conexão com a internet.");
+  const { data, error } = await supabase.rpc("add_audit_found_item", {
+   p_audit_id: auditId,
+   p_expiry_date: payload.expiryDate,
+   p_quantity_audited: payload.quantityAudited !== undefined ? payload.quantityAudited : null,
+   p_catalog_product_id: payload.catalogProductId || null,
+   p_barcode: payload.barcode || null,
+   p_product_code: payload.productCode || null,
+   p_product_name: payload.productName || null,
+   p_expiry_reason: payload.expiryReason || "Sem classificação",
+   p_expiry_reason_other: payload.expiryReasonOther || null,
+   p_action_taken: payload.actionTaken || null,
+   p_notes: payload.notes || null
+  });
+  if (error) throw error;
+  return data;
+ },
+ async closeValidityAudit(auditId) {
+  if (!navigator.onLine) throw new Error("O fechamento de auditoria requer conexão com a internet.");
+  const { data, error } = await supabase.rpc("close_validity_audit", { p_audit_id: auditId });
+  if (error) throw error;
+  return data;
+ },
+ async reopenValidityAudit(auditId) {
+  if (!navigator.onLine) throw new Error("A reabertura de auditoria requer conexão com a internet.");
+  const { data, error } = await supabase.rpc("reopen_validity_audit", { p_audit_id: auditId });
+  if (error) throw error;
+  return data;
+ },
+ async searchCatalogProducts(query) {
+  if (!navigator.onLine) throw new Error("A busca no catálogo requer conexão com a internet.");
+  const q = String(query || "").trim();
+  if (!q) return [];
+  let builder = supabase
+   .from("catalog_products")
+   .select("id,name,barcode,internal_code,photo_path")
+   .limit(20);
+  if (/^[0-9]+$/.test(q)) {
+   builder = builder.or(`barcode.eq.${q},internal_code.eq.${q},name.ilike.%${q}%`);
+  } else {
+   builder = builder.ilike("name", `%${q}%`);
+  }
+  const { data, error } = await builder;
+  if (error) throw error;
+  return data || [];
  },
  async listUsers() {
   const { data, error } = await supabase.functions.invoke("admin-users", { body: { action: "list" } });
@@ -2914,7 +3132,7 @@ async listCatalogProducts(options = {}) {
   if (userError) throw userError;
   if (!user) return [];
   const email = user.email || activeUserEmail || "";
-  if (user.app_metadata?.access_role === "platform_admin" || isSkaleeAdminEmail(email)) return this.listRetailLocations();
+  if (activeAccessRole === "platform_admin") return this.listRetailLocations();
   const access = await this.currentPromoterAccess();
   if (!access) return this.listRetailLocations();
   const { data: assignments, error: assignmentsError } = await supabase
@@ -3259,6 +3477,7 @@ function showSession(session) {
  const authenticated = Boolean(session?.user);
  const nextUserId = session?.user?.id || null;
  const previousUserId = activeUserId;
+ const previousAccessRole = activeAccessRole;
  body.classList.remove("auth-loading", "auth-anonymous", "auth-authenticated");
  body.classList.add(authenticated ? "auth-authenticated" : "auth-anonymous");
  app.setAttribute("aria-hidden", String(!authenticated));
@@ -3269,11 +3488,26 @@ function showSession(session) {
  activeAccessRole = accessRole;
  const roleLabels = { viewer: "Visualizador", platform_admin: "Administrador Skalee" };
  userLabel.textContent = authenticated ? `${session.user.email}${roleLabels[accessRole] ? ` · ${roleLabels[accessRole]}` : ""}` : "";
- if (!authenticated) password.value = "";
- if (previousUserId !== nextUserId) {
+ if (!authenticated) {
+  password.value = "";
+  hasDispatchedAuthenticated = false;
+ }
+ if (previousUserId !== nextUserId || previousAccessRole !== accessRole || (authenticated && !hasDispatchedAuthenticated)) {
+  hasDispatchedAuthenticated = authenticated;
   window.dispatchEvent(new CustomEvent(authenticated ? "skalee:authenticated" : "skalee:signed-out", {
    detail: { email: session?.user?.email || "", accessRole }
   }));
+ }
+ if (authenticated && (!session?.user?.app_metadata?.access_role || session.user.app_metadata.access_role !== "platform_admin")) {
+  supabase.auth.getUser().then(({ data: { user } }) => {
+   const freshRole = user?.app_metadata?.access_role;
+   if (freshRole && freshRole !== activeAccessRole) {
+    activeAccessRole = freshRole;
+    window.dispatchEvent(new CustomEvent("skalee:permissions-updated", {
+     detail: { accessRole: freshRole, email: user?.email || "" }
+    }));
+   }
+  }).catch(() => {});
  }
 }
 
