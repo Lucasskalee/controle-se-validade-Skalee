@@ -11,7 +11,8 @@
     "start": "node tools/server.js"
   },
   "devDependencies": {
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "vercel": "^62.7.0"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.8"
