@@ -1,4 +1,4 @@
-const CACHE_VERSION = "skalee-v4.0.0-audit-reports";
+const CACHE_VERSION = "skalee-v4.1.0-manual-cost-and-reports";
 const CACHE_NAME = CACHE_VERSION;
 
 const APP_SHELL = [

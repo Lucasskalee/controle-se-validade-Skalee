@@ -90,7 +90,12 @@
     // Agrupamento de itens com perda positiva por motivo para a Memória de Cálculo
     const lossItems = allItems.filter(i => Number(i.quantity_audited || 0) > 0);
     const zeroItems = allItems.filter(i => Number(i.quantity_audited) === 0);
-    const uncostedItems = lossItems.filter(i => i.unit_cost_snapshot === null || i.unit_cost_snapshot === undefined);
+    const uncostedItems = lossItems.filter(i => {
+      const eff = i.effective_unit_cost !== undefined && i.effective_unit_cost !== null
+        ? i.effective_unit_cost
+        : (i.cost_source === 'manual' ? i.manual_unit_cost : i.unit_cost_snapshot);
+      return eff === null || eff === undefined;
+    });
 
     const itemsByReason = {};
     lossItems.forEach(item => {
@@ -115,15 +120,33 @@
       });
 
       const rowsHtml = groupItems.map(item => {
-        const costUnitFormatted = item.unit_cost_snapshot !== null && item.unit_cost_snapshot !== undefined
-          ? formatBrl(item.unit_cost_snapshot)
-          : '<span class="text-warning">Não apurado</span>';
+        const effCost = item.effective_unit_cost !== undefined && item.effective_unit_cost !== null
+          ? item.effective_unit_cost
+          : (item.cost_source === 'manual' ? item.manual_unit_cost : item.unit_cost_snapshot);
+
+        const costUnitFormatted = effCost !== null && effCost !== undefined
+          ? formatBrl(effCost)
+          : '<span class="text-warning font-bold">Não apurado</span>';
+
         const impactFormatted = item.financial_cost_impact !== null && item.financial_cost_impact !== undefined
           ? formatBrl(item.financial_cost_impact)
-          : '<span class="text-warning">Não apurado</span>';
-        const originLabel = item.source_type === 'monitored'
-          ? '<span class="badge-tag tag-blue">Monitorado anteriormente</span>'
-          : '<span class="badge-tag tag-purple">Encontrado na auditoria</span>';
+          : '<span class="text-warning font-bold">Não apurado</span>';
+
+        let originLabel = '';
+        if (item.cost_source === 'manual') {
+          originLabel = `<span class="badge-tag tag-purple">Manual: ${escapeHtml(item.cost_source_detail || 'Informado')}</span>`;
+          if (item.cost_reference_notes) {
+            originLabel += `<div class="sub-text italic">${escapeHtml(item.cost_reference_notes)}</div>`;
+          }
+        } else if (item.unit_cost_snapshot !== null && item.unit_cost_snapshot !== undefined) {
+          originLabel = `<span class="badge-tag tag-blue">SG (${escapeHtml(item.financial_snapshot_origin || 'Carga SG')})</span>`;
+        } else {
+          originLabel = `<span class="badge-tag text-warning">Sem custo</span>`;
+        }
+
+        const sourceTag = item.source_type === 'monitored'
+          ? '<div class="sub-text">Monitorado</div>'
+          : '<div class="sub-text" style="color:#7e22ce; font-weight:600;">Achado físico</div>';
 
         return `
           <tr>
@@ -131,6 +154,7 @@
               <strong>${escapeHtml(item.product_name)}</strong>
               ${item.product_code || item.barcode ? `<div class="sub-text">Cód: ${escapeHtml(item.product_code || '—')} • EAN: ${escapeHtml(item.barcode || '—')}</div>` : ''}
               ${item.expiry_reason === 'Outro' && item.expiry_reason_other ? `<div class="sub-text italic">Motivo: ${escapeHtml(item.expiry_reason_other)}</div>` : ''}
+              ${sourceTag}
             </td>
             <td class="text-center">${formatDate(item.expiry_date)}</td>
             <td class="text-center"><strong>${formatNumber(item.quantity_audited)}</strong> un.</td>
@@ -193,21 +217,33 @@
     `).join('');
 
     // Linhas do Top Maiores Impactos
-    const topImpactsRows = topImpacts.map((item, idx) => `
-      <tr>
-        <td class="text-center font-bold" style="width: 30px;">#${idx + 1}</td>
-        <td>
-          <strong>${escapeHtml(item.product_name)}</strong>
-          <div class="sub-text">Cód: ${escapeHtml(item.product_code || '—')} • EAN: ${escapeHtml(item.barcode || '—')}</div>
-        </td>
-        <td class="text-center">${formatDate(item.expiry_date)}</td>
-        <td class="text-center"><strong>${formatNumber(item.quantity_audited)}</strong> un.</td>
-        <td class="text-right">${formatBrl(item.unit_cost_snapshot)}</td>
-        <td class="text-right font-bold text-danger">${formatBrl(item.financial_cost_impact)}</td>
-        <td><span class="badge-tag">${escapeHtml(item.expiry_reason)}</span></td>
-        <td class="text-center">${item.source_type === 'monitored' ? '<span class="badge-tag tag-blue">Monitorado</span>' : '<span class="badge-tag tag-purple">Auditoria</span>'}</td>
-      </tr>
-    `).join('');
+    const topImpactsRows = topImpacts.map((item, idx) => {
+      const effCost = item.effective_unit_cost !== undefined && item.effective_unit_cost !== null
+        ? item.effective_unit_cost
+        : (item.cost_source === 'manual' ? item.manual_unit_cost : item.unit_cost_snapshot);
+      const costFormatted = effCost !== null && effCost !== undefined
+        ? formatBrl(effCost)
+        : '<span class="text-warning">Não apurado</span>';
+      const originTag = item.cost_source === 'manual'
+        ? '<span class="badge-tag tag-purple">Manual</span>'
+        : (item.source_type === 'monitored' ? '<span class="badge-tag tag-blue">Monitorado</span>' : '<span class="badge-tag tag-purple">Auditoria</span>');
+
+      return `
+        <tr>
+          <td class="text-center font-bold" style="width: 30px;">#${idx + 1}</td>
+          <td>
+            <strong>${escapeHtml(item.product_name)}</strong>
+            <div class="sub-text">Cód: ${escapeHtml(item.product_code || '—')} • EAN: ${escapeHtml(item.barcode || '—')}</div>
+          </td>
+          <td class="text-center">${formatDate(item.expiry_date)}</td>
+          <td class="text-center"><strong>${formatNumber(item.quantity_audited)}</strong> un.</td>
+          <td class="text-right">${costFormatted}</td>
+          <td class="text-right font-bold text-danger">${item.financial_cost_impact !== null && item.financial_cost_impact !== undefined ? formatBrl(item.financial_cost_impact) : '<span class="text-warning">Não apurado</span>'}</td>
+          <td><span class="badge-tag">${escapeHtml(item.expiry_reason)}</span></td>
+          <td class="text-center">${originTag}</td>
+        </tr>
+      `;
+    }).join('');
 
     // Linhas do Plano de Ação
     const actionPlanRows = (actionPlan || []).map(action => `
@@ -663,6 +699,20 @@
       </div>
     </div>
 
+    <!-- 2.1 Alertas Executivos de Impacto Parcial e Custo Manual -->
+    ${(exec.is_partial_impact || exec.has_uncosted_loss || uncostedItems.length > 0) ? `
+      <div style="background: #fffbeb; border: 1px solid #fde68a; border-left: 4px solid #f59e0b; padding: 10px 14px; border-radius: 8px; margin-bottom: 14px; font-size: 9.5px; color: #92400e;">
+        <strong>⚠️ Alerta de Impacto Financeiro Parcial:</strong> Esta apuração possui <strong>${exec.uncosted_items_count || uncostedItems.length} produto(s)</strong> com perda física confirmada sem custo unitário disponível (impacto registrado como Não Apurado).
+        ${exec.partial_closure_confirmed ? `<div style="margin-top: 5px; font-weight: 600; color: #78350f;">✓ Fechamento com impacto parcial aprovado pelo administrador (${escapeHtml(exec.partial_closure_confirmed_by || 'Admin')}${exec.partial_closure_confirmed_at ? ` em ${formatDateTime(exec.partial_closure_confirmed_at)}` : ''}): <em>"${escapeHtml(exec.partial_closure_justification || 'Aprovado fechamento com perdas parciais não apuradas.')}"</em></div>` : ''}
+      </div>
+    ` : ''}
+
+    ${(exec.manual_cost_items_count > 0) ? `
+      <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-left: 4px solid #0284c7; padding: 8px 14px; border-radius: 8px; margin-bottom: 14px; font-size: 9.5px; color: #0369a1;">
+        ℹ️ <strong>Custo Manual de Referência:</strong> <strong>${exec.manual_cost_items_count} produto(s)</strong> auditados com custo unitário informado manualmente (Total apurado por custo manual: <strong>${formatBrl(exec.manual_cost_total_impact)}</strong>).
+      </div>
+    ` : ''}
+
     <!-- 3. Eficiência Preventiva -->
     <div class="section-title">
       <span>1. Eficiência Preventiva do Controle de Validades</span>
@@ -851,11 +901,11 @@
     <!-- 10. Pendências da Auditoria (se houver itens sem custo) -->
     ${uncostedItems.length > 0 ? `
       <div class="section-title keep-together" style="border-bottom-color: #f59e0b;">
-        <span style="color: #b45309;">6. Pendências da Auditoria — Produtos Sem Custo SG</span>
+        <span style="color: #b45309;">6. Pendências da Auditoria — Produtos Sem Custo de Referência</span>
         <span class="badge" style="color: #b45309;">Atenção Contábil</span>
       </div>
       <p style="font-size: 9px; color: #b45309; margin-top: -6px; margin-bottom: 8px;">
-        Os seguintes produtos apresentaram perda física na auditoria, porém não possuem custo unitário cadastrado no snapshot SG desta loja. O impacto financeiro foi registrado como "Não apurado" e não foi mascarado como R$ 0,00.
+        Os seguintes produtos apresentaram perda física na auditoria, porém não possuem custo unitário disponível na carga SG nem informado manualmente pelo auditor. O impacto financeiro permanece registrado como "Não apurado" e não foi mascarado como R$ 0,00.
       </p>
       <table class="report-table keep-together">
         <thead>

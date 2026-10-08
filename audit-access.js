@@ -533,12 +533,80 @@
 
           <div>
             <label class="audit-field-label" for="countQuantityInput">Quantidade Vencida Auditada</label>
-            <input type="number" id="countQuantityInput" class="audit-input" style="width: 100%;" min="0" step="1" placeholder="Ex: 0 para sem vencidos, 5 para unidades encontradas">
+            <input type="number" id="countQuantityInput" class="audit-input" style="width: 100%; font-size: 16px; font-weight: 700;" min="0" step="1" placeholder="Ex: 0 para sem vencidos, 5 para unidades encontradas">
             <small style="color: var(--muted); font-size: 11px; margin-top: 4px; display: block; line-height: 1.3;">
               • <strong>Vazio:</strong> Mantém o produto como <em>Pendente</em> (ainda não apurado fisicamente).<br>
               • <strong>0:</strong> Confirma fisicamente que <strong>não havia unidades vencidas</strong> (sem perda).<br>
               • <strong>> 0:</strong> Quantidade de unidades efetivamente encontradas vencidas.
             </small>
+          </div>
+
+          <!-- Seção Fase 4.1: Referência de Custo e Estoque -->
+          <div class="audit-cost-reference-section" style="border: 1px solid var(--line, #cbd5e1); border-radius: 10px; padding: 12px; background: rgba(148,163,184,0.06); display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+              <strong style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text); display: flex; align-items: center; gap: 6px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px; height:15px; color: var(--primary);"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                Referência de Custo e Estoque
+              </strong>
+              <span id="modalCostOriginBadge" class="audit-badge" style="font-size: 11px;"></span>
+            </div>
+
+            <div id="modalSgReferenceBox" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; font-size: 12px; padding: 8px 10px; background: rgba(255,255,255,0.7); border: 1px solid var(--line, #e2e8f0); border-radius: 8px;">
+              <div><span style="color: var(--muted); display: block; font-size: 11px;">Estoque SG:</span> <strong id="modalSgStockVal">—</strong></div>
+              <div><span style="color: var(--muted); display: block; font-size: 11px;">Custo Unitário SG:</span> <strong id="modalSgCostVal">—</strong></div>
+              <div><span style="color: var(--muted); display: block; font-size: 11px;">Data da Carga:</span> <span id="modalSgDateVal" style="font-weight: 600;">—</span></div>
+            </div>
+
+            <div id="modalCostAlertBox" style="display: none; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: 600;"></div>
+
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button type="button" id="btnRefreshSgRef" class="btn2" style="font-size: 12px; padding: 5px 10px; display: inline-flex; align-items: center; gap: 4px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px; height:13px;"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                <span>Atualizar referência SG</span>
+              </button>
+              <button type="button" id="btnToggleManualCost" class="btn2" style="font-size: 12px; padding: 5px 10px; display: inline-flex; align-items: center; gap: 4px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px; height:13px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                <span id="btnToggleManualCostText">Informar custo manualmente</span>
+              </button>
+              <button type="button" id="btnRevertToSg" class="btn2" style="display: none; font-size: 12px; padding: 5px 10px; color: #dc2626; border-color: rgba(220,38,38,0.3);">
+                Reverter para Custo SG
+              </button>
+            </div>
+
+            <!-- Formulário de Custo Manual (Colapsável) -->
+            <div id="modalManualCostPanel" style="display: none; border-top: 1px dashed var(--line, #cbd5e1); padding-top: 10px; flex-direction: column; gap: 8px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                  <label class="audit-field-label" for="manualCostUnitInput">Custo Unitário (R$) *</label>
+                  <input type="number" id="manualCostUnitInput" class="audit-input" style="width: 100%; font-weight: 700;" min="0" step="0.01" placeholder="0,00">
+                </div>
+                <div>
+                  <label class="audit-field-label" for="manualCostDetailSelect">Origem da Informação *</label>
+                  <select id="manualCostDetailSelect" class="audit-select" style="width: 100%;">
+                    <option value="Nota fiscal de compra">Nota fiscal de compra</option>
+                    <option value="Consulta ao sistema SG">Consulta ao sistema SG</option>
+                    <option value="Informação do setor de compras">Informação do setor de compras</option>
+                    <option value="Outra fonte">Outra fonte</option>
+                  </select>
+                </div>
+              </div>
+
+              <div id="manualCostOtherWrap" style="display: none;">
+                <label class="audit-field-label" for="manualCostOtherInput">Descrição da Outra Fonte *</label>
+                <input type="text" id="manualCostOtherInput" class="audit-input" style="width: 100%;" placeholder="Ex: Tabela de preços do fornecedor...">
+              </div>
+
+              <div>
+                <label class="audit-field-label" for="manualCostNotesInput">Observação da Referência</label>
+                <input type="text" id="manualCostNotesInput" class="audit-input" style="width: 100%;" placeholder="Ex: NF-e 12345 / Setor Comercial...">
+              </div>
+            </div>
+
+            <!-- Impacto Financeiro Calculado em Tempo Real -->
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(0,217,255,0.06); border: 1px solid rgba(0,217,255,0.25); border-radius: 8px;">
+              <span style="font-size: 12px; color: var(--text); font-weight: 600;">Impacto Financeiro Estimado:</span>
+              <strong id="modalRealtimeImpactVal" style="font-size: 15px; color: #dc2626;">—</strong>
+            </div>
           </div>
 
           <div>
@@ -785,6 +853,23 @@
                 <tbody id="closeActionPlanTableBody"></tbody>
               </table>
             </div>
+          <!-- Seção de Confirmação Explícita de Impacto Financeiro Parcial -->
+          <div id="closePartialClosureBox" style="display: none; padding: 12px; border-radius: 8px; background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.35);">
+            <div style="display: flex; gap: 10px; align-items: flex-start;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 22px; height: 22px; color: #b45309; flex-shrink: 0; margin-top: 2px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <div style="flex: 1;">
+                <strong style="color: #b45309; font-size: 13px; display: block; margin-bottom: 2px;">Confirmação de Fechamento com Impacto Financeiro Parcial</strong>
+                <p id="closePartialClosureMsg" style="font-size: 12px; color: var(--text); margin: 0 0 8px 0; line-height: 1.4;"></p>
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; cursor: pointer; color: #78350f;">
+                  <input type="checkbox" id="closeConfirmPartialCheck" style="width: 16px; height: 16px; cursor: pointer;">
+                  <span>Autorizo formalmente o fechamento desta auditoria com perdas físicas sem custo disponível</span>
+                </label>
+                <div style="margin-top: 8px;">
+                  <label class="audit-field-label" for="closePartialJustificationInput" style="font-size: 11px;">Justificativa da Aprovação do Impacto Parcial</label>
+                  <input type="text" id="closePartialJustificationInput" class="audit-input" style="width: 100%; font-size: 12px;" placeholder="Ex: Produtos descontinuados sem notas fiscais recentes / apuração aprovada">
+                </div>
+              </div>
+            </div>
           </div>
 
           <div id="modalCloseError" style="display: none; padding: 8px 12px; border-radius: 8px; background: rgba(220,38,38,0.1); color: #dc2626; font-size: 13px;"></div>
@@ -921,6 +1006,10 @@
   const closeActionPlanBody = panel.querySelector('#closeActionPlanTableBody');
   const closeAuditSubmitBtn = panel.querySelector('#closeAuditSubmitBtn');
   const modalCloseError = panel.querySelector('#modalCloseError');
+  const closePartialClosureBox = panel.querySelector('#closePartialClosureBox');
+  const closePartialClosureMsg = panel.querySelector('#closePartialClosureMsg');
+  const closeConfirmPartialCheck = panel.querySelector('#closeConfirmPartialCheck');
+  const closePartialJustificationInput = panel.querySelector('#closePartialJustificationInput');
 
   // Modal 5 (Reopen) elements
   const modalReopenAudit = panel.querySelector('#modalReopenAudit');
@@ -978,6 +1067,28 @@
   const countStockSnapshot = panel.querySelector('#modalCountStockSnapshot');
   const countUnitCost = panel.querySelector('#modalCountUnitCost');
 
+  // Modal 1 - Referência de Custo e Estoque (Fase 4.1)
+  const modalCostOriginBadge = panel.querySelector('#modalCostOriginBadge');
+  const modalSgStockVal = panel.querySelector('#modalSgStockVal');
+  const modalSgCostVal = panel.querySelector('#modalSgCostVal');
+  const modalSgDateVal = panel.querySelector('#modalSgDateVal');
+  const modalCostAlertBox = panel.querySelector('#modalCostAlertBox');
+  const btnRefreshSgRef = panel.querySelector('#btnRefreshSgRef');
+  const btnToggleManualCost = panel.querySelector('#btnToggleManualCost');
+  const btnToggleManualCostText = panel.querySelector('#btnToggleManualCostText');
+  const btnRevertToSg = panel.querySelector('#btnRevertToSg');
+  const modalManualCostPanel = panel.querySelector('#modalManualCostPanel');
+  const manualCostUnitInput = panel.querySelector('#manualCostUnitInput');
+  const manualCostDetailSelect = panel.querySelector('#manualCostDetailSelect');
+  const manualCostOtherWrap = panel.querySelector('#manualCostOtherWrap');
+  const manualCostOtherInput = panel.querySelector('#manualCostOtherInput');
+  const manualCostNotesInput = panel.querySelector('#manualCostNotesInput');
+  const modalRealtimeImpactVal = panel.querySelector('#modalRealtimeImpactVal');
+
+  let currentItemBeingCounted = null;
+  let manualCostModeActive = false;
+  let costRevertToSgRequested = false;
+
   // Modal 2 elements
   const modalAddFound = panel.querySelector('#modalAddFound');
   const formAddFound = panel.querySelector('#formAddFoundItem');
@@ -1007,6 +1118,155 @@
 
   foundReason.addEventListener('change', () => {
     foundReasonOtherWrap.style.display = foundReason.value === 'Outro' ? 'block' : 'none';
+  });
+
+  manualCostDetailSelect.addEventListener('change', () => {
+    manualCostOtherWrap.style.display = manualCostDetailSelect.value === 'Outra fonte' ? 'block' : 'none';
+  });
+
+  function getEffectiveModalCost() {
+    if (manualCostModeActive) {
+      const val = manualCostUnitInput.value.trim();
+      return val !== '' ? Number(val) : null;
+    }
+    if (costRevertToSgRequested) {
+      return currentItemBeingCounted?.unit_cost_snapshot !== null && currentItemBeingCounted?.unit_cost_snapshot !== undefined
+        ? Number(currentItemBeingCounted.unit_cost_snapshot)
+        : null;
+    }
+    if (currentItemBeingCounted?.cost_source === 'manual' && currentItemBeingCounted?.manual_unit_cost !== null && currentItemBeingCounted?.manual_unit_cost !== undefined) {
+      return Number(currentItemBeingCounted.manual_unit_cost);
+    }
+    return currentItemBeingCounted?.unit_cost_snapshot !== null && currentItemBeingCounted?.unit_cost_snapshot !== undefined
+      ? Number(currentItemBeingCounted.unit_cost_snapshot)
+      : null;
+  }
+
+  function recalculateModalRealtimeImpact() {
+    const rawQty = countQty.value.trim();
+    if (rawQty === '') {
+      modalRealtimeImpactVal.textContent = '—';
+      modalRealtimeImpactVal.style.color = 'var(--muted)';
+      return;
+    }
+    const qty = Number(rawQty);
+    if (qty <= 0) {
+      modalRealtimeImpactVal.textContent = 'R$ 0,00';
+      modalRealtimeImpactVal.style.color = '#16a34a';
+      return;
+    }
+    const effCost = getEffectiveModalCost();
+    if (effCost !== null && !isNaN(effCost)) {
+      modalRealtimeImpactVal.textContent = formatCurrency(qty * effCost);
+      modalRealtimeImpactVal.style.color = '#dc2626';
+    } else {
+      modalRealtimeImpactVal.textContent = 'Não apurado';
+      modalRealtimeImpactVal.style.color = '#d97706';
+    }
+  }
+
+  countQty.addEventListener('input', recalculateModalRealtimeImpact);
+  manualCostUnitInput.addEventListener('input', recalculateModalRealtimeImpact);
+
+  btnToggleManualCost?.addEventListener('click', () => {
+    if (modalManualCostPanel.style.display === 'none') {
+      modalManualCostPanel.style.display = 'flex';
+      manualCostModeActive = true;
+      costRevertToSgRequested = false;
+      btnToggleManualCostText.textContent = 'Ocultar custo manual';
+      manualCostUnitInput.focus();
+    } else {
+      modalManualCostPanel.style.display = 'none';
+      const hasManualCost = currentItemBeingCounted?.cost_source === 'manual' && currentItemBeingCounted?.manual_unit_cost !== null;
+      if (!hasManualCost) {
+        manualCostModeActive = false;
+        btnToggleManualCostText.textContent = 'Informar custo manualmente';
+      } else {
+        btnToggleManualCostText.textContent = 'Editar custo manual';
+      }
+    }
+    recalculateModalRealtimeImpact();
+  });
+
+  btnRefreshSgRef?.addEventListener('click', async () => {
+    if (!currentItemBeingCounted) return;
+    const itemId = currentItemBeingCounted.id;
+    btnRefreshSgRef.disabled = true;
+    const spanText = btnRefreshSgRef.querySelector('span');
+    const prevText = spanText ? spanText.textContent : 'Atualizar referência SG';
+    if (spanText) spanText.textContent = 'Consultando SG...';
+
+    try {
+      const refreshedItem = await window.skaleeDb.refreshAuditItemSgReference(itemId, false);
+      if (refreshedItem) {
+        currentItemBeingCounted.stock_quantity_snapshot = refreshedItem.stock_quantity_snapshot;
+        currentItemBeingCounted.unit_cost_snapshot = refreshedItem.unit_cost_snapshot;
+        currentItemBeingCounted.sg_reference_loaded_at = refreshedItem.sg_reference_loaded_at;
+
+        modalSgStockVal.textContent = refreshedItem.stock_quantity_snapshot !== null && refreshedItem.stock_quantity_snapshot !== undefined
+          ? `${refreshedItem.stock_quantity_snapshot} un.`
+          : 'Não disponível';
+        modalSgCostVal.textContent = refreshedItem.unit_cost_snapshot !== null && refreshedItem.unit_cost_snapshot !== undefined
+          ? formatCurrency(refreshedItem.unit_cost_snapshot)
+          : 'Não disponível';
+        modalSgDateVal.textContent = refreshedItem.sg_reference_loaded_at
+          ? formatDate(refreshedItem.sg_reference_loaded_at)
+          : 'Não disponível';
+
+        // Update in auditItems array
+        const idx = auditItems.findIndex(i => i.id === itemId);
+        if (idx !== -1) {
+          auditItems[idx].stock_quantity_snapshot = refreshedItem.stock_quantity_snapshot;
+          auditItems[idx].unit_cost_snapshot = refreshedItem.unit_cost_snapshot;
+          auditItems[idx].sg_reference_loaded_at = refreshedItem.sg_reference_loaded_at;
+        }
+
+        recalculateModalRealtimeImpact();
+        alert(`Referência SG consultada com sucesso!\nEstoque SG: ${refreshedItem.stock_quantity_snapshot ?? 'Não localizado'}\nCusto SG: ${refreshedItem.unit_cost_snapshot !== null ? formatCurrency(refreshedItem.unit_cost_snapshot) : 'Não localizado'}`);
+      }
+    } catch (err) {
+      console.error('Erro ao atualizar referência SG:', err);
+      alert(err.message || 'Erro ao consultar referência SG.');
+    } finally {
+      btnRefreshSgRef.disabled = false;
+      if (spanText) spanText.textContent = prevText;
+    }
+  });
+
+  btnRevertToSg?.addEventListener('click', () => {
+    if (!currentItemBeingCounted) return;
+    const hasSgCost = currentItemBeingCounted.unit_cost_snapshot !== null && currentItemBeingCounted.unit_cost_snapshot !== undefined;
+
+    if (!hasSgCost) {
+      const ok = confirm(
+        '⚠️ ATENÇÃO: Este produto NÃO possui custo unitário válido na carga SG.\n\n' +
+        'Se você reverter para o SG, o impacto financeiro ficará registrado como "Não apurado".\n\n' +
+        'Deseja realmente remover o custo manual e reverter para a referência SG?'
+      );
+      if (!ok) return;
+    } else {
+      const ok = confirm(
+        `Deseja remover o custo manual e voltar a utilizar o custo unitário do SG (${formatCurrency(currentItemBeingCounted.unit_cost_snapshot)})?`
+      );
+      if (!ok) return;
+    }
+
+    costRevertToSgRequested = true;
+    manualCostModeActive = false;
+    modalManualCostPanel.style.display = 'none';
+    btnRevertToSg.style.display = 'none';
+    btnToggleManualCostText.textContent = 'Informar custo manualmente';
+
+    modalCostOriginBadge.textContent = 'Origem: Carga SG (Reversão pendente)';
+    modalCostOriginBadge.style.cssText = 'background: rgba(37, 99, 235, 0.12); color: #2563eb; border: 1px solid rgba(37, 99, 235, 0.3); font-weight: 700;';
+
+    modalCostAlertBox.style.display = 'block';
+    modalCostAlertBox.style.background = 'rgba(37, 99, 235, 0.08)';
+    modalCostAlertBox.style.color = '#1d4ed8';
+    modalCostAlertBox.style.border = '1px solid rgba(37, 99, 235, 0.25)';
+    modalCostAlertBox.innerHTML = '<strong>Reversão para SG selecionada:</strong> O custo manual será cancelado ao clicar em "Salvar Apuração".';
+
+    recalculateModalRealtimeImpact();
   });
 
   // Modal close handlers for all modals
@@ -1390,6 +1650,7 @@
     let noReasonCount = 0;
     let totalCostImpact = 0;
     let totalSalesLoss = 0;
+    let hasUncostedLoss = false;
 
     auditItems.forEach(item => {
       if (item.source_type === 'audit_found') foundCount++;
@@ -1410,6 +1671,8 @@
 
           if (item.financial_cost_impact !== null && item.financial_cost_impact !== undefined) {
             totalCostImpact += Number(item.financial_cost_impact);
+          } else {
+            hasUncostedLoss = true;
           }
           if (item.potential_sales_loss !== null && item.potential_sales_loss !== undefined) {
             totalSalesLoss += Number(item.potential_sales_loss);
@@ -1424,7 +1687,11 @@
     if (kpiLossUnits) kpiLossUnits.textContent = `${totalLossUnits} un.`;
     if (kpiCounted) kpiCounted.textContent = counted;
     if (kpiCountedSub) kpiCountedSub.textContent = `${lossCount} com perda • ${noLossCount} sem perda`;
-    kpiFinancial.textContent = formatCurrency(totalCostImpact);
+    if (hasUncostedLoss) {
+      kpiFinancial.innerHTML = `${formatCurrency(totalCostImpact)} <small style="display:block; font-size:11px; font-weight:700; color:#ea580c;">(Impacto parcial)</small>`;
+    } else {
+      kpiFinancial.textContent = formatCurrency(totalCostImpact);
+    }
     if (kpiSalesLossSub) kpiSalesLossSub.textContent = `Venda potencial: ${formatCurrency(totalSalesLoss)}`;
     kpiPending.textContent = pending;
 
@@ -1538,6 +1805,20 @@
 
       badgesRow.append(sourceBadge, statusBadge);
 
+      if (item.cost_source === 'manual') {
+        const manualBadge = document.createElement('span');
+        manualBadge.className = 'audit-badge';
+        manualBadge.style.cssText = 'background: rgba(147, 51, 234, 0.12); color: #9333ea; border: 1px solid rgba(147, 51, 234, 0.3); font-weight: 700;';
+        manualBadge.textContent = item.cost_source_detail ? `Custo Manual (${item.cost_source_detail})` : 'Custo Manual';
+        badgesRow.append(manualBadge);
+      } else if (hasLoss && (item.unit_cost_snapshot === null || item.unit_cost_snapshot === undefined)) {
+        const noCostBadge = document.createElement('span');
+        noCostBadge.className = 'audit-badge';
+        noCostBadge.style.cssText = 'background: rgba(234, 88, 12, 0.12); color: #ea580c; border: 1px solid rgba(234, 88, 12, 0.3); font-weight: 700;';
+        noCostBadge.textContent = 'Sem Custo SG';
+        badgesRow.append(noCostBadge);
+      }
+
       const nameLabel = document.createElement('strong');
       nameLabel.style.fontSize = '14px';
       nameLabel.style.color = 'var(--text)';
@@ -1586,11 +1867,25 @@
       mobileSummary.style.fontSize = '12px';
       mobileSummary.style.paddingTop = '6px';
       mobileSummary.style.borderTop = '1px dashed var(--line, #cbd5e1)';
+
+      let impactMobileText = '—';
+      let impactMobileColor = 'var(--muted)';
+      if (Number(item.financial_cost_impact) > 0) {
+        impactMobileText = formatCurrency(item.financial_cost_impact);
+        impactMobileColor = '#dc2626';
+      } else if (isZeroLoss) {
+        impactMobileText = 'R$ 0,00';
+        impactMobileColor = '#16a34a';
+      } else if (hasLoss && (item.financial_cost_impact === null || item.financial_cost_impact === undefined)) {
+        impactMobileText = 'Não apurado';
+        impactMobileColor = '#ea580c';
+      }
+
       mobileSummary.innerHTML = `
         <span>Val: <strong style="color: #dc2626;">${formatDateShort(item.expiry_date)}</strong></span>
         <span>SG: <strong>${item.stock_quantity_snapshot !== null && item.stock_quantity_snapshot !== undefined ? `${item.stock_quantity_snapshot}` : '—'}</strong></span>
         <span>Apurado: <strong style="color: ${hasLoss ? '#dc2626' : (isZeroLoss ? '#16a34a' : 'var(--muted)')};">${isCounted ? `${qtyAudited} un.` : 'Pendente'}</strong></span>
-        <span>Impacto: <strong style="color: ${Number(item.financial_cost_impact) > 0 ? '#dc2626' : 'var(--muted)'};">${formatCurrency(item.financial_cost_impact)}</strong></span>
+        <span>Impacto: <strong style="color: ${impactMobileColor};">${impactMobileText}</strong></span>
       `;
       idCol.append(mobileSummary);
 
@@ -1632,6 +1927,8 @@
         finCol.innerHTML = `<span style="color: #dc2626; font-weight: 800;">${formatCurrency(item.financial_cost_impact)}</span>`;
       } else if (isZeroLoss) {
         finCol.innerHTML = `<span style="color: #16a34a; font-weight: 600;">R$ 0,00</span>`;
+      } else if (hasLoss && (item.financial_cost_impact === null || item.financial_cost_impact === undefined)) {
+        finCol.innerHTML = `<span style="color: #ea580c; font-weight: 700; font-size: 11px;" title="Produto com perda física sem custo unitário disponível">Não apurado</span>`;
       } else {
         finCol.innerHTML = `<span style="color: var(--muted);">—</span>`;
       }
@@ -1664,6 +1961,10 @@
 
   // Open Count Modal
   function openCountModal(item) {
+    currentItemBeingCounted = item;
+    manualCostModeActive = false;
+    costRevertToSgRequested = false;
+
     countItemId.value = item.id;
     countError.style.display = 'none';
     countError.textContent = '';
@@ -1672,7 +1973,7 @@
     countProdCodes.textContent = `${item.product_code ? `Cód: ${item.product_code} • ` : ''}${item.barcode ? `EAN: ${item.barcode}` : ''}`;
     countExpiry.textContent = `Validade: ${formatDate(item.expiry_date)}`;
     countStockSnapshot.textContent = `• SG: ${item.stock_quantity_snapshot !== null && item.stock_quantity_snapshot !== undefined ? `${item.stock_quantity_snapshot} un` : '—'}`;
-    countUnitCost.textContent = `• Custo: ${formatCurrency(item.unit_cost_snapshot)}`;
+    countUnitCost.textContent = `• Custo SG: ${formatCurrency(item.unit_cost_snapshot)}`;
 
     if (item.photo_path && window.skaleeDb?.getProductPhotoUrl) {
       window.skaleeDb.getProductPhotoUrl(item.photo_path).then(url => {
@@ -1684,12 +1985,64 @@
       countThumb.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:24px; height:24px; color:var(--muted);"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;
     }
 
+    // Populate SG Reference Box
+    modalSgStockVal.textContent = item.stock_quantity_snapshot !== null && item.stock_quantity_snapshot !== undefined
+      ? `${item.stock_quantity_snapshot} un.`
+      : 'Não disponível';
+    modalSgCostVal.textContent = item.unit_cost_snapshot !== null && item.unit_cost_snapshot !== undefined
+      ? formatCurrency(item.unit_cost_snapshot)
+      : 'Não disponível';
+    modalSgDateVal.textContent = item.sg_reference_loaded_at
+      ? formatDate(item.sg_reference_loaded_at)
+      : 'Não disponível';
+
+    const hasManualCost = item.cost_source === 'manual' && item.manual_unit_cost !== null && item.manual_unit_cost !== undefined;
+    const hasSgCost = item.unit_cost_snapshot !== null && item.unit_cost_snapshot !== undefined;
+
+    // Reset manual form fields
+    manualCostUnitInput.value = hasManualCost ? item.manual_unit_cost : '';
+    manualCostDetailSelect.value = hasManualCost ? (item.cost_source_detail || 'Nota fiscal de compra') : 'Nota fiscal de compra';
+    manualCostOtherInput.value = hasManualCost ? (item.cost_source_other || '') : '';
+    manualCostOtherWrap.style.display = manualCostDetailSelect.value === 'Outra fonte' ? 'block' : 'none';
+    manualCostNotesInput.value = hasManualCost ? (item.cost_reference_notes || '') : '';
+    modalManualCostPanel.style.display = 'none';
+
+    if (hasManualCost) {
+      modalCostOriginBadge.textContent = `Origem: Manual (${item.cost_source_detail || 'Informado'})`;
+      modalCostOriginBadge.style.cssText = 'background: rgba(147, 51, 234, 0.12); color: #9333ea; border: 1px solid rgba(147, 51, 234, 0.3); font-weight: 700;';
+      btnToggleManualCostText.textContent = 'Editar custo manual';
+      btnRevertToSg.style.display = 'inline-flex';
+      modalCostAlertBox.style.display = 'block';
+      modalCostAlertBox.style.background = 'rgba(147, 51, 234, 0.08)';
+      modalCostAlertBox.style.color = '#7e22ce';
+      modalCostAlertBox.style.border = '1px solid rgba(147, 51, 234, 0.25)';
+      modalCostAlertBox.innerHTML = `<strong>Custo manual ativo:</strong> ${formatCurrency(item.manual_unit_cost)} (${escapeHtml(item.cost_source_detail || 'Informado')}).`;
+    } else {
+      btnToggleManualCostText.textContent = 'Informar custo manualmente';
+      btnRevertToSg.style.display = 'none';
+      if (hasSgCost) {
+        modalCostOriginBadge.textContent = 'Origem: Carga SG';
+        modalCostOriginBadge.style.cssText = 'background: rgba(37, 99, 235, 0.12); color: #2563eb; border: 1px solid rgba(37, 99, 235, 0.3); font-weight: 700;';
+        modalCostAlertBox.style.display = 'none';
+      } else {
+        modalCostOriginBadge.textContent = 'Origem: Indisponível';
+        modalCostOriginBadge.style.cssText = 'background: rgba(234, 88, 12, 0.12); color: #ea580c; border: 1px solid rgba(234, 88, 12, 0.3); font-weight: 700;';
+        modalCostAlertBox.style.display = 'block';
+        modalCostAlertBox.style.background = 'rgba(234, 88, 12, 0.08)';
+        modalCostAlertBox.style.color = '#c2410c';
+        modalCostAlertBox.style.border = '1px solid rgba(234, 88, 12, 0.25)';
+        modalCostAlertBox.innerHTML = '<strong>Aviso:</strong> Custo não encontrado na carga SG. Informe o custo manualmente para apurar o impacto financeiro.';
+      }
+    }
+
     countQty.value = item.quantity_audited !== null && item.quantity_audited !== undefined ? item.quantity_audited : '';
     countReason.value = item.expiry_reason || 'Sem classificação';
     countReasonOther.value = item.expiry_reason_other || '';
     countReasonOtherWrap.style.display = countReason.value === 'Outro' ? 'block' : 'none';
     countAction.value = item.action_taken || '';
     countNotes.value = item.notes || '';
+
+    recalculateModalRealtimeImpact();
 
     modalCount.classList.add('show');
     countQty.focus();
@@ -1702,19 +2055,70 @@
     if (!itemId) return;
 
     countError.style.display = 'none';
+
+    const rawQty = countQty.value.trim();
+    const quantityAudited = rawQty === '' ? null : Number(rawQty);
+
+    let costSource = null; // null = preserve existing cost in database!
+    let manualUnitCost = null;
+    let costSourceDetail = null;
+    let costSourceOther = null;
+    let costReferenceNotes = null;
+    let confirmRevertWithoutSgCost = false;
+
+    if (costRevertToSgRequested) {
+      costSource = 'sg';
+      confirmRevertWithoutSgCost = true;
+    } else if (manualCostModeActive) {
+      const rawCost = manualCostUnitInput.value.trim();
+      if (rawCost === '' || isNaN(Number(rawCost)) || Number(rawCost) < 0) {
+        countError.textContent = 'Por favor, informe um custo unitário válido (R$ maior ou igual a zero).';
+        countError.style.display = 'block';
+        manualCostUnitInput.focus();
+        return;
+      }
+      manualUnitCost = Number(rawCost);
+      costSourceDetail = manualCostDetailSelect.value;
+      if (costSourceDetail === 'Outra fonte') {
+        costSourceOther = manualCostOtherInput.value.trim();
+        if (!costSourceOther) {
+          countError.textContent = 'Para a opção "Outra fonte", a descrição é obrigatória.';
+          countError.style.display = 'block';
+          manualCostOtherInput.focus();
+          return;
+        }
+      }
+      costReferenceNotes = manualCostNotesInput.value.trim() || null;
+
+      // Confirmação antes de substituir um custo manual já existente
+      if (
+        currentItemBeingCounted?.cost_source === 'manual' &&
+        currentItemBeingCounted?.manual_unit_cost !== null &&
+        Number(currentItemBeingCounted.manual_unit_cost) !== manualUnitCost
+      ) {
+        const ok = confirm(`Deseja substituir o custo manual atual de ${formatCurrency(currentItemBeingCounted.manual_unit_cost)} pelo novo valor de ${formatCurrency(manualUnitCost)}?`);
+        if (!ok) return;
+      }
+
+      costSource = 'manual';
+    }
+
     countSubmitBtn.disabled = true;
     countSubmitBtn.textContent = 'Salvando...';
 
     try {
-      const rawQty = countQty.value.trim();
-      const quantityAudited = rawQty === '' ? null : Number(rawQty);
-
       const payload = {
         quantityAudited,
         expiryReason: countReason.value,
         expiryReasonOther: countReason.value === 'Outro' ? countReasonOther.value.trim() : null,
         actionTaken: countAction.value.trim() || null,
-        notes: countNotes.value.trim() || null
+        notes: countNotes.value.trim() || null,
+        costSource,
+        manualUnitCost,
+        costSourceDetail,
+        costSourceOther,
+        costReferenceNotes,
+        confirmRevertWithoutSgCost
       };
 
       const updated = await window.skaleeDb.recordAuditItemCount(itemId, payload);
@@ -1973,6 +2377,25 @@
     closeRecommendations.value = currentAudit.conclusion_recommendations || '';
     closeNotes.value = currentAudit.conclusion_notes || '';
 
+    // Check for items with loss > 0 and no cost
+    const uncostedLossItems = auditItems.filter(i => {
+      const qty = Number(i.quantity_audited || 0);
+      return qty > 0 && (i.financial_cost_impact === null || i.financial_cost_impact === undefined);
+    });
+
+    if (uncostedLossItems.length > 0) {
+      closePartialClosureBox.style.display = 'block';
+      if (closePartialClosureMsg) {
+        closePartialClosureMsg.textContent = `Atenção: Esta auditoria possui ${uncostedLossItems.length} produto(s) com perda física registrada sem custo unitário disponível. O fechamento será formalizado com IMPACTO FINANCEIRO PARCIAL.`;
+      }
+      closeConfirmPartialCheck.checked = false;
+      closePartialJustificationInput.value = '';
+    } else {
+      closePartialClosureBox.style.display = 'none';
+      closeConfirmPartialCheck.checked = false;
+      closePartialJustificationInput.value = '';
+    }
+
     closeActionPlanBody.replaceChildren();
     if (Array.isArray(currentAudit.action_plan) && currentAudit.action_plan.length > 0) {
       currentAudit.action_plan.forEach(item => addActionPlanRow(item));
@@ -1998,6 +2421,33 @@
       return;
     }
 
+    // Check for uncosted losses confirmation
+    const uncostedLossItems = auditItems.filter(i => {
+      const qty = Number(i.quantity_audited || 0);
+      return qty > 0 && (i.financial_cost_impact === null || i.financial_cost_impact === undefined);
+    });
+
+    let confirmPartialClosure = false;
+    let partialClosureJustification = null;
+
+    if (uncostedLossItems.length > 0) {
+      if (!closeConfirmPartialCheck.checked) {
+        modalCloseError.textContent = 'Para fechar com perdas sem custo, é obrigatório marcar a confirmação explícita de Impacto Financeiro Parcial.';
+        modalCloseError.style.display = 'block';
+        closeConfirmPartialCheck.focus();
+        return;
+      }
+      const justif = closePartialJustificationInput.value.trim();
+      if (!justif || justif.length < 5) {
+        modalCloseError.textContent = 'Por favor, informe uma justificativa válida (mínimo 5 caracteres) para o fechamento com impacto financeiro parcial.';
+        modalCloseError.style.display = 'block';
+        closePartialJustificationInput.focus();
+        return;
+      }
+      confirmPartialClosure = true;
+      partialClosureJustification = justif;
+    }
+
     // Collect action plan
     const actionPlan = [];
     closeActionPlanBody.querySelectorAll('tr').forEach(tr => {
@@ -2021,7 +2471,9 @@
         conclusionCriticalPoints: closeCriticalPoints.value.trim() || null,
         conclusionRecommendations: closeRecommendations.value.trim() || null,
         conclusionNotes: closeNotes.value.trim() || null,
-        actionPlan
+        actionPlan,
+        confirmPartialClosure,
+        partialClosureJustification
       });
 
       currentAudit = closed;
@@ -2188,7 +2640,15 @@
         const revText = `Rev. ${row.revision_number || 1}`;
         const totalItemsText = row.total_items_count !== null ? String(row.total_items_count) : '—';
         const lossUnitsText = row.total_loss_units !== null ? `${row.total_loss_units} un.` : '—';
-        const costImpactText = row.total_cost_impact !== null ? formatCurrency(row.total_cost_impact) : (row.has_uncosted_loss ? 'Não apurado' : 'R$ 0,00');
+        let costImpactText = 'R$ 0,00';
+        if (row.total_cost_impact !== null) {
+          costImpactText = formatCurrency(row.total_cost_impact);
+          if (row.has_uncosted_loss) {
+            costImpactText += ' <span style="font-size: 10px; color: #ea580c; display: block; font-weight: 600;">(Parcial)</span>';
+          }
+        } else if (row.has_uncosted_loss) {
+          costImpactText = '<span style="color: #ea580c; font-size: 11px; font-weight: 700;">Não apurado</span>';
+        }
 
         let closedInfo = '—';
         if (row.closed_at) {
@@ -2223,7 +2683,7 @@
 
         tr.querySelector('.btn-report-history')?.addEventListener('click', async () => {
           try {
-            const repData = await window.skaleeDb.getValidityAuditReportData(row.id);
+            const repData = await window.skaleeDb.getValidityAuditReportData(row.id, row.revision_number || null);
             if (window.skaleeAuditReport?.buildExecutiveAuditHtml) {
               const htmlDoc = window.skaleeAuditReport.buildExecutiveAuditHtml(repData);
               reportPreviewIframe.srcdoc = htmlDoc;
@@ -2238,7 +2698,7 @@
 
         tr.querySelector('.btn-pdf-history')?.addEventListener('click', async () => {
           try {
-            const repData = await window.skaleeDb.getValidityAuditReportData(row.id);
+            const repData = await window.skaleeDb.getValidityAuditReportData(row.id, row.revision_number || null);
             if (window.skaleeAuditReport?.openPrintableReportWindow) {
               window.skaleeAuditReport.openPrintableReportWindow(repData);
             }

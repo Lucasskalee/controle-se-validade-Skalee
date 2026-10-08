@@ -2571,7 +2571,22 @@ window.skaleeDb = {
    p_expiry_reason: payload.expiryReason || "Sem classificação",
    p_expiry_reason_other: payload.expiryReasonOther || null,
    p_action_taken: payload.actionTaken || null,
-   p_notes: payload.notes || null
+   p_notes: payload.notes || null,
+   p_cost_source: payload.costSource !== undefined ? payload.costSource : null,
+   p_manual_unit_cost: payload.manualUnitCost !== undefined ? payload.manualUnitCost : null,
+   p_cost_source_detail: payload.costSourceDetail || null,
+   p_cost_source_other: payload.costSourceOther || null,
+   p_cost_reference_notes: payload.costReferenceNotes || null,
+   p_confirm_revert_without_sg_cost: Boolean(payload.confirmRevertWithoutSgCost)
+  });
+  if (error) throw error;
+  return data;
+ },
+ async refreshAuditItemSgReference(itemId, applyToCost = false) {
+  if (!navigator.onLine) throw new Error("A atualização de referência SG requer conexão com a internet.");
+  const { data, error } = await supabase.rpc("refresh_audit_item_sg_reference", {
+   p_item_id: itemId,
+   p_apply_to_cost: Boolean(applyToCost)
   });
   if (error) throw error;
   return data;
@@ -2614,7 +2629,9 @@ window.skaleeDb = {
    p_conclusion_critical_points: options.conclusionCriticalPoints || options.criticalPoints || null,
    p_conclusion_recommendations: options.conclusionRecommendations || options.recommendations || null,
    p_conclusion_notes: options.conclusionNotes || options.notes || null,
-   p_action_plan: options.actionPlan || []
+   p_action_plan: options.actionPlan || [],
+   p_confirm_partial_closure: Boolean(options.confirmPartialClosure),
+   p_partial_closure_justification: options.partialClosureJustification || null
   });
   if (error) throw error;
   return data;
@@ -2639,9 +2656,13 @@ window.skaleeDb = {
   if (error) throw error;
   return data || [];
  },
- async getValidityAuditReportData(auditId) {
+ async getValidityAuditReportData(auditId, revisionNumber = null) {
   if (!navigator.onLine) throw new Error("A emissão do relatório requer conexão com a internet.");
-  const { data, error } = await supabase.rpc("get_validity_audit_report_data", { p_audit_id: auditId });
+  const params = { p_audit_id: auditId };
+  if (revisionNumber !== null && revisionNumber !== undefined) {
+   params.p_revision_number = Number(revisionNumber);
+  }
+  const { data, error } = await supabase.rpc("get_validity_audit_report_data", params);
   if (error) throw error;
   return data;
  },
