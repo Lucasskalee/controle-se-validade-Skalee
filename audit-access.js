@@ -200,11 +200,34 @@
       html[data-theme="light"] .status-tag-open { background: rgba(37,99,235,0.1); color: #2563eb; border-color: rgba(37,99,235,0.25); }
       .status-tag-ready { background: rgba(245,158,11,0.12); color: #d97706; border: 1px solid rgba(245,158,11,0.3); }
       .status-tag-completed { background: rgba(34,197,94,0.12); color: #16a34a; border: 1px solid rgba(34,197,94,0.3); }
+      
+      .audit-subnav { display: flex; gap: 8px; margin-bottom: 2px; }
+      .audit-subtab { padding: 9px 18px; border-radius: 12px; border: 1px solid var(--line, #e2e8f0); background: var(--card, #fff); color: var(--muted, #64748b); font-size: 13px; font-weight: 700; cursor: pointer; transition: all .15s ease; }
+      .audit-subtab:hover { color: var(--text); border-color: var(--blue, #2563eb); }
+      .audit-subtab.active { background: var(--blue, #2563eb); color: #fff; border-color: var(--blue, #2563eb); }
+      html[data-theme="dark"] .audit-subtab { background: #0c1421; border-color: rgba(255,255,255,0.1); color: #94a3b8; }
+      html[data-theme="dark"] .audit-subtab.active { background: #2563eb; color: #fff; }
+
+      .audit-history-card { background: var(--card, #fff); border: 1px solid var(--line, #e2e8f0); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+      html[data-theme="dark"] .audit-history-card { background: var(--card, #101827); border-color: rgba(255,255,255,0.08); }
+      .audit-history-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+      .audit-history-table th { padding: 10px 12px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted, #64748b); border-bottom: 2px solid var(--line, #e2e8f0); text-align: left; }
+      .audit-history-table td { padding: 12px; border-bottom: 1px solid var(--line, #e2e8f0); color: var(--text); }
+      html[data-theme="dark"] .audit-history-table th, html[data-theme="dark"] .audit-history-table td { border-color: rgba(255,255,255,0.08); }
+      .audit-modal-panel.large { max-width: 1050px; width: 95%; height: 92vh; }
     </style>
 
     <div class="audit-wrap">
-      <!-- Top Card: Context and Selectors (Mockup top section) -->
-      <div class="audit-card">
+      <!-- Top Sub-Navigation -->
+      <div class="audit-subnav">
+        <button type="button" id="auditTabActive" class="audit-subtab active">Apuração Mensal</button>
+        <button type="button" id="auditTabHistory" class="audit-subtab">Auditorias Anteriores (Histórico)</button>
+      </div>
+
+      <!-- Active Audit Section -->
+      <div id="auditActiveSection" style="display: flex; flex-direction: column; gap: 18px;">
+        <!-- Top Card: Context and Selectors (Mockup top section) -->
+        <div class="audit-card">
         <div class="audit-header">
           <div>
             <h2 class="audit-title">
@@ -306,6 +329,13 @@
                 <span>+ Produto encontrado</span>
               </button>
 
+              <button type="button" id="auditReviewBtn" class="btn2" style="display: inline-flex; align-items: center; gap: 6px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 15px; height: 15px; color: #2563eb;">
+                  <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                </svg>
+                <span>Revisão do Fechamento</span>
+              </button>
+
               <button type="button" id="auditCloseBtn" class="btn" style="display: inline-flex; align-items: center; gap: 6px; background: #16a34a;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 15px; height: 15px;">
                   <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
@@ -321,6 +351,44 @@
                 </svg>
                 <span>Reabrir Auditoria (Admin)</span>
               </button>
+            </div>
+          </div>
+
+          <!-- Seção Oficial Visível: Relatório Mensal -->
+          <div id="auditReportSection" style="margin-top: 14px; background: linear-gradient(135deg, rgba(15, 39, 68, 0.05) 0%, rgba(0, 217, 255, 0.06) 100%); border: 1px solid rgba(0, 217, 255, 0.28); border-radius: 12px; padding: 14px 18px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(0, 217, 255, 0.12); display: flex; align-items: center; justify-content: center; color: var(--sk-cyan, #00d9ff); flex-shrink: 0;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 22px; height: 22px;">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+                  </svg>
+                </div>
+                <div>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <strong style="font-size: 15px; color: var(--text, #0f172a);">Relatório Mensal</strong>
+                    <span id="auditReportStatusPill" class="audit-status-tag status-tag-open" style="font-size: 11px;">Prévia em Andamento</span>
+                  </div>
+                  <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--muted, #64748b);">
+                    Relatório executivo auditável com resumo gerencial, análise por motivos e memória de cálculo A4.
+                  </p>
+                </div>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <button type="button" id="auditViewReportBtn" class="btn2" style="min-height: 38px; padding: 0 16px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; color: #2563eb; border: 1.5px solid rgba(37,99,235,0.4); background: rgba(37,99,235,0.06);">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 15px; height: 15px;">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                  </svg>
+                  <span>Visualizar Relatório</span>
+                </button>
+
+                <button type="button" id="auditPrintReportBtn" class="btn" style="min-height: 38px; padding: 0 18px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 15px; height: 15px;">
+                    <path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
+                  </svg>
+                  <span>Gerar PDF</span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -362,6 +430,82 @@
         <div id="auditItemsContainer" class="audit-items-list"></div>
       </div>
     </div>
+
+    <!-- History Section Wrapper -->
+    <div id="auditHistorySection" style="display: none; flex-direction: column; gap: 18px;">
+      <div class="audit-card">
+        <div class="audit-header">
+          <div>
+            <h2 class="audit-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px; color:var(--sk-cyan, #00d9ff);">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+              Histórico Oficial de Auditorias Mensais
+            </h2>
+            <p class="audit-subtitle">Consultas, relatórios congelados e versionamento de fechamento</p>
+          </div>
+        </div>
+
+        <div class="audit-bar" style="margin-top: 14px; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
+          <div class="audit-field-group" style="flex: 1 1 200px;">
+            <label class="audit-field-label" for="historyStoreSelect">LOJA</label>
+            <select id="historyStoreSelect" class="audit-select">
+              <option value="">Todas as lojas autorizadas</option>
+            </select>
+          </div>
+
+          <div class="audit-field-group" style="max-width: 140px;">
+            <label class="audit-field-label" for="historyYearSelect">ANO</label>
+            <select id="historyYearSelect" class="audit-select">
+              <option value="">Todos</option>
+            </select>
+          </div>
+
+          <div class="audit-field-group" style="max-width: 190px;">
+            <label class="audit-field-label" for="historyStatusSelect">STATUS</label>
+            <select id="historyStatusSelect" class="audit-select">
+              <option value="">Todos os status</option>
+              <option value="completed">Finalizada</option>
+              <option value="reopened">Reaberta</option>
+              <option value="ready_for_review">Pronta p/ Fechamento</option>
+              <option value="open">Em andamento</option>
+            </select>
+          </div>
+
+          <button type="button" id="historyRefreshBtn" class="btn2" style="min-height: 42px; padding: 0 18px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+            </svg>
+            <span>Atualizar</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="audit-card">
+        <div style="overflow-x: auto;">
+          <table class="audit-history-table">
+            <thead>
+              <tr>
+                <th>Loja</th>
+                <th>Competência</th>
+                <th>Status</th>
+                <th style="text-align: center;">Revisão</th>
+                <th style="text-align: center;">Itens</th>
+                <th style="text-align: center;">Qtd Vencida</th>
+                <th style="text-align: right;">Impacto Custo</th>
+                <th>Fechamento</th>
+                <th style="text-align: right;">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody">
+              <tr><td colspan="9" style="text-align: center; color: var(--muted); padding: 30px;">Clique em "Atualizar" ou selecione os filtros para consultar o histórico.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 
     <!-- Modal 1: Apuração Física -->
     <div id="modalCount" class="audit-modal-overlay">
@@ -529,6 +673,188 @@
         </form>
       </div>
     </div>
+
+    <!-- Modal 3: Diagnóstico e Revisão de Fechamento -->
+    <div id="modalReview" class="audit-modal-overlay">
+      <div class="audit-modal-panel" style="max-width: 680px;">
+        <div class="audit-modal-head">
+          <div>
+            <h3 class="audit-modal-title">Diagnóstico Pré-Fechamento</h3>
+            <p style="margin: 2px 0 0; color: var(--muted); font-size: 12px;">Validação de pendências, itens sem custo e integridade antes do fechamento oficial</p>
+          </div>
+          <button type="button" class="audit-modal-close" data-close-modal="review">&times;</button>
+        </div>
+
+        <!-- Diagnostic Metrics Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-top: 6px;">
+          <div style="padding: 10px; border-radius: 10px; background: rgba(148,163,184,0.08); border: 1px solid var(--line, #e2e8f0); text-align: center;">
+            <span style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase;">Total Itens</span>
+            <strong id="reviewTotalItems" style="display: block; font-size: 18px; color: var(--text); margin-top: 2px;">0</strong>
+          </div>
+          <div style="padding: 10px; border-radius: 10px; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); text-align: center;">
+            <span style="font-size: 11px; font-weight: 700; color: #16a34a; text-transform: uppercase;">Apurados</span>
+            <strong id="reviewCountedItems" style="display: block; font-size: 18px; color: #16a34a; margin-top: 2px;">0</strong>
+          </div>
+          <div id="reviewPendingCard" style="padding: 10px; border-radius: 10px; background: rgba(234,88,12,0.08); border: 1px solid rgba(234,88,12,0.2); text-align: center;">
+            <span style="font-size: 11px; font-weight: 700; color: #ea580c; text-transform: uppercase;">Pendentes</span>
+            <strong id="reviewPendingItems" style="display: block; font-size: 18px; color: #ea580c; margin-top: 2px;">0</strong>
+          </div>
+          <div style="padding: 10px; border-radius: 10px; background: rgba(220,38,38,0.08); border: 1px solid rgba(220,38,38,0.2); text-align: center;">
+            <span style="font-size: 11px; font-weight: 700; color: #dc2626; text-transform: uppercase;">Com Perda</span>
+            <strong id="reviewLossItems" style="display: block; font-size: 18px; color: #dc2626; margin-top: 2px;">0</strong>
+          </div>
+          <div style="padding: 10px; border-radius: 10px; background: rgba(37,99,235,0.08); border: 1px solid rgba(37,99,235,0.2); text-align: center;">
+            <span style="font-size: 11px; font-weight: 700; color: #2563eb; text-transform: uppercase;">Impacto Custo</span>
+            <strong id="reviewCostImpact" style="display: block; font-size: 15px; color: #2563eb; margin-top: 4px;">R$ 0,00</strong>
+          </div>
+        </div>
+
+        <!-- Diagnostic Alerts & Warnings List -->
+        <div id="reviewAlertsContainer" style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;"></div>
+
+        <!-- Action Shortcuts -->
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 10px; padding-top: 12px; border-top: 1px solid var(--line, #e2e8f0); flex-wrap: wrap;">
+          <div>
+            <button type="button" id="reviewFilterPendingBtn" class="btn2" style="display: none; font-size: 12px;">
+              <span>🔍 Filtrar Pendentes na Lista</span>
+            </button>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" class="btn2" data-close-modal="review">Fechar</button>
+            <button type="button" id="reviewMarkReadyBtn" class="btn2" style="color: #d97706; border-color: rgba(245,158,11,0.4);">
+              <span>Pronta para Fechamento</span>
+            </button>
+            <button type="button" id="reviewProceedCloseBtn" class="btn" style="background: #16a34a;">
+              <span>Prosseguir para Fechamento</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 4: Fechamento Oficial da Auditoria -->
+    <div id="modalCloseAudit" class="audit-modal-overlay">
+      <div class="audit-modal-panel" style="max-width: 750px;">
+        <div class="audit-modal-head">
+          <div>
+            <h3 class="audit-modal-title">Fechamento Mensal Oficial</h3>
+            <p style="margin: 2px 0 0; color: var(--muted); font-size: 12px;">Formalização de controladoria, parecer executivo, plano de ação e congelamento dos dados</p>
+          </div>
+          <button type="button" class="audit-modal-close" data-close-modal="close-audit">&times;</button>
+        </div>
+
+        <form id="formCloseAudit" style="display: flex; flex-direction: column; gap: 14px;">
+          <div>
+            <label class="audit-field-label" for="closeSummaryInput">Sumário Executivo / Parecer da Auditoria *</label>
+            <textarea id="closeSummaryInput" class="audit-input" style="width: 100%; min-height: 70px; font-family: inherit;" required placeholder="Apresente uma síntese executiva da apuração do mês, causas predominantes e desempenho da loja..."></textarea>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div>
+              <label class="audit-field-label" for="closeCriticalPointsInput">Pontos Críticos Identificados</label>
+              <textarea id="closeCriticalPointsInput" class="audit-input" style="width: 100%; min-height: 55px; font-family: inherit;" placeholder="Seções, categorias ou produtos com maior concentração de perdas..."></textarea>
+            </div>
+            <div>
+              <label class="audit-field-label" for="closeRecommendationsInput">Recomendações da Controladoria</label>
+              <textarea id="closeRecommendationsInput" class="audit-input" style="width: 100%; min-height: 55px; font-family: inherit;" placeholder="Medidas de ajuste de compras, reforço do PVPS ou acompanhamento..."></textarea>
+            </div>
+          </div>
+
+          <div>
+            <label class="audit-field-label" for="closeNotesInput">Observações Complementares</label>
+            <textarea id="closeNotesInput" class="audit-input" style="width: 100%; min-height: 45px; font-family: inherit;" placeholder="Ressalvas ou notas internas adicionais..."></textarea>
+          </div>
+
+          <!-- Action Plan Section -->
+          <div style="border: 1px solid var(--line, #e2e8f0); border-radius: 10px; padding: 12px; background: rgba(148,163,184,0.04);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <label class="audit-field-label" style="margin: 0;">Plano de Ação Corretiva</label>
+              <button type="button" id="closeAddActionBtn" class="btn2" style="font-size: 11px; padding: 4px 10px;">+ Adicionar Medida</button>
+            </div>
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
+                <thead>
+                  <tr style="border-bottom: 1px solid var(--line, #e2e8f0); color: var(--muted); text-align: left; font-size: 11px;">
+                    <th style="padding: 4px 6px;">Ação Corretiva</th>
+                    <th style="padding: 4px 6px; width: 140px;">Responsável</th>
+                    <th style="padding: 4px 6px; width: 115px;">Prazo</th>
+                    <th style="padding: 4px 6px; width: 100px;">Prioridade</th>
+                    <th style="padding: 4px 6px; width: 40px; text-align: center;"></th>
+                  </tr>
+                </thead>
+                <tbody id="closeActionPlanTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="modalCloseError" style="display: none; padding: 8px 12px; border-radius: 8px; background: rgba(220,38,38,0.1); color: #dc2626; font-size: 13px;"></div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px;">
+            <button type="button" class="btn2" data-close-modal="close-audit">Cancelar</button>
+            <button type="submit" id="closeAuditSubmitBtn" class="btn" style="background: #16a34a;">Confirmar Fechamento e Congelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal 5: Reabertura Controlada da Auditoria -->
+    <div id="modalReopenAudit" class="audit-modal-overlay">
+      <div class="audit-modal-panel" style="max-width: 550px;">
+        <div class="audit-modal-head">
+          <div>
+            <h3 class="audit-modal-title">Reabertura de Auditoria</h3>
+            <p style="margin: 2px 0 0; color: #ea580c; font-size: 12px; font-weight: 700;">Ação restrita ao Administrador Skalee</p>
+          </div>
+          <button type="button" class="audit-modal-close" data-close-modal="reopen-audit">&times;</button>
+        </div>
+
+        <div style="padding: 10px 14px; border-radius: 8px; background: rgba(234,88,12,0.08); border: 1px solid rgba(234,88,12,0.25); font-size: 12px; color: #ea580c; line-height: 1.4;">
+          <strong>⚠️ Registro de Auditoria & Versionamento</strong><br>
+          A reabertura incrementará a versão da auditoria (ex: Revisão 1 → 2) e registrará um evento imutável com usuário, data e justificativa. O snapshot anterior permanecerá preservado no histórico de controladoria.
+        </div>
+
+        <form id="formReopenAudit" style="display: flex; flex-direction: column; gap: 12px; margin-top: 4px;">
+          <div>
+            <label class="audit-field-label" for="reopenReasonInput">Justificativa da Reabertura *</label>
+            <textarea id="reopenReasonInput" class="audit-input" style="width: 100%; min-height: 80px; font-family: inherit;" required minlength="5" placeholder="Explique formalmente o motivo da reabertura (ex: recontagem solicitada pela gerência, divergência física confirmada)..."></textarea>
+          </div>
+
+          <div id="modalReopenError" style="display: none; padding: 8px 12px; border-radius: 8px; background: rgba(220,38,38,0.1); color: #dc2626; font-size: 13px;"></div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px;">
+            <button type="button" class="btn2" data-close-modal="reopen-audit">Cancelar</button>
+            <button type="submit" id="reopenAuditSubmitBtn" class="btn" style="background: #ea580c;">Confirmar Reabertura</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal 6: Visualização Prévia do Relatório Executivo -->
+    <div id="modalReportPreview" class="audit-modal-overlay">
+      <div class="audit-modal-panel large">
+        <div class="audit-modal-head" style="margin-bottom: 8px;">
+          <div>
+            <h3 class="audit-modal-title" style="display: flex; align-items: center; gap: 8px;">
+              <span>Relatório Mensal de Auditoria</span>
+              <span id="reportPreviewBadge" class="audit-status-tag status-tag-completed" style="font-size: 11px;">Versão 1</span>
+            </h3>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <button type="button" id="previewPrintActionBtn" class="btn" style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 6px 14px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                <path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
+              </svg>
+              <span>Imprimir / Salvar PDF</span>
+            </button>
+            <button type="button" class="audit-modal-close" data-close-modal="report-preview">&times;</button>
+          </div>
+        </div>
+
+        <div style="flex: 1; border: 1px solid var(--line, #e2e8f0); border-radius: 10px; overflow: hidden; background: #fff; position: relative;">
+          <iframe id="reportPreviewIframe" title="Visualização do Relatório" style="width: 100%; height: 100%; border: 0;"></iframe>
+        </div>
+      </div>
+    </div>
   `;
 
   // Place panel in DOM if not already present
@@ -552,9 +878,64 @@
   const competenceLabel = panel.querySelector('#auditCompetenceLabel');
   const syncBtn = panel.querySelector('#auditSyncBtn');
   const addFoundBtn = panel.querySelector('#auditAddFoundBtn');
+  const reviewBtn = panel.querySelector('#auditReviewBtn');
   const closeBtn = panel.querySelector('#auditCloseBtn');
   const reopenBtn = panel.querySelector('#auditReopenBtn');
+  const viewReportBtn = panel.querySelector('#auditViewReportBtn');
+  const printReportBtn = panel.querySelector('#auditPrintReportBtn');
+  const reportSectionWrap = panel.querySelector('#auditReportSection');
+  const reportStatusPill = panel.querySelector('#auditReportStatusPill');
   const completedNotice = panel.querySelector('#auditCompletedNotice');
+
+  // Subnav & History elements
+  const tabActive = panel.querySelector('#auditTabActive');
+  const tabHistory = panel.querySelector('#auditTabHistory');
+  const activeSection = panel.querySelector('#auditActiveSection');
+  const historySection = panel.querySelector('#auditHistorySection');
+  const historyStore = panel.querySelector('#historyStoreSelect');
+  const historyYear = panel.querySelector('#historyYearSelect');
+  const historyStatus = panel.querySelector('#historyStatusSelect');
+  const historyRefreshBtn = panel.querySelector('#historyRefreshBtn');
+  const historyTableBody = panel.querySelector('#historyTableBody');
+
+  // Modal 3 (Review) elements
+  const modalReview = panel.querySelector('#modalReview');
+  const reviewTotal = panel.querySelector('#reviewTotalItems');
+  const reviewCounted = panel.querySelector('#reviewCountedItems');
+  const reviewPending = panel.querySelector('#reviewPendingItems');
+  const reviewLoss = panel.querySelector('#reviewLossItems');
+  const reviewCostImpact = panel.querySelector('#reviewCostImpact');
+  const reviewAlertsContainer = panel.querySelector('#reviewAlertsContainer');
+  const reviewFilterPendingBtn = panel.querySelector('#reviewFilterPendingBtn');
+  const reviewMarkReadyBtn = panel.querySelector('#reviewMarkReadyBtn');
+  const reviewProceedCloseBtn = panel.querySelector('#reviewProceedCloseBtn');
+
+  // Modal 4 (Close) elements
+  const modalCloseAudit = panel.querySelector('#modalCloseAudit');
+  const formCloseAudit = panel.querySelector('#formCloseAudit');
+  const closeSummary = panel.querySelector('#closeSummaryInput');
+  const closeCriticalPoints = panel.querySelector('#closeCriticalPointsInput');
+  const closeRecommendations = panel.querySelector('#closeRecommendationsInput');
+  const closeNotes = panel.querySelector('#closeNotesInput');
+  const closeAddActionBtn = panel.querySelector('#closeAddActionBtn');
+  const closeActionPlanBody = panel.querySelector('#closeActionPlanTableBody');
+  const closeAuditSubmitBtn = panel.querySelector('#closeAuditSubmitBtn');
+  const modalCloseError = panel.querySelector('#modalCloseError');
+
+  // Modal 5 (Reopen) elements
+  const modalReopenAudit = panel.querySelector('#modalReopenAudit');
+  const formReopenAudit = panel.querySelector('#formReopenAudit');
+  const reopenReason = panel.querySelector('#reopenReasonInput');
+  const reopenAuditSubmitBtn = panel.querySelector('#reopenAuditSubmitBtn');
+  const modalReopenError = panel.querySelector('#modalReopenError');
+
+  // Modal 6 (Report Preview) elements
+  const modalReportPreview = panel.querySelector('#modalReportPreview');
+  const reportPreviewBadge = panel.querySelector('#reportPreviewBadge');
+  const reportPreviewIframe = panel.querySelector('#reportPreviewIframe');
+  const previewPrintActionBtn = panel.querySelector('#previewPrintActionBtn');
+
+  let lastReportData = null;
 
   // KPI elements
   const kpiTotal = panel.querySelector('#kpiTotalItems');
@@ -628,16 +1009,17 @@
     foundReasonOtherWrap.style.display = foundReason.value === 'Outro' ? 'block' : 'none';
   });
 
-  // Modal close handlers
-  panel.querySelectorAll('[data-close-modal="count"]').forEach(btn => {
-    btn.addEventListener('click', () => { modalCount.classList.remove('show'); });
+  // Modal close handlers for all modals
+  const allModals = [modalCount, modalAddFound, modalReview, modalCloseAudit, modalReopenAudit, modalReportPreview].filter(Boolean);
+
+  panel.querySelectorAll('[data-close-modal]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const m = btn.closest('.audit-modal-overlay');
+      if (m) m.classList.remove('show');
+    });
   });
 
-  panel.querySelectorAll('[data-close-modal="found"]').forEach(btn => {
-    btn.addEventListener('click', () => { modalAddFound.classList.remove('show'); });
-  });
-
-  [modalCount, modalAddFound].forEach(m => {
+  allModals.forEach(m => {
     m.addEventListener('click', (e) => {
       if (e.target === m) m.classList.remove('show');
     });
@@ -645,9 +1027,24 @@
 
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-      modalCount.classList.remove('show');
-      modalAddFound.classList.remove('show');
+      allModals.forEach(m => m.classList.remove('show'));
     }
+  });
+
+  // Subnav handling
+  tabActive?.addEventListener('click', () => {
+    tabActive.classList.add('active');
+    tabHistory.classList.remove('active');
+    activeSection.style.display = 'flex';
+    historySection.style.display = 'none';
+  });
+
+  tabHistory?.addEventListener('click', () => {
+    tabHistory.classList.add('active');
+    tabActive.classList.remove('active');
+    historySection.style.display = 'flex';
+    activeSection.style.display = 'none';
+    void loadAuditHistory();
   });
 
   // Filters
@@ -728,6 +1125,12 @@
     storeSelect.replaceChildren();
     roleBadge.textContent = '';
     roleBadge.style.display = 'none';
+    historyStoresPopulated = false;
+    lastReportData = null;
+    historyStore?.replaceChildren();
+    if (historyTableBody) {
+      historyTableBody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: var(--muted); padding: 30px;">Clique em "Atualizar" ou selecione os filtros para consultar o histórico.</td></tr>';
+    }
     const statusMsg = panel.querySelector('#auditStatusMsg');
     const locationsList = panel.querySelector('#auditLocationsList');
     if (statusMsg) statusMsg.textContent = '';
@@ -793,6 +1196,19 @@
       opt.textContent = loc.name;
       return opt;
     }));
+
+    if (historyStore) {
+      historyStore.replaceChildren(
+        Object.assign(document.createElement('option'), { value: '', textContent: 'Todas as lojas autorizadas' }),
+        ...activeLocations.map(loc => {
+          const opt = document.createElement('option');
+          opt.value = loc.id;
+          opt.textContent = loc.name;
+          return opt;
+        })
+      );
+      historyStoresPopulated = true;
+    }
 
     if (currentSelected && activeLocations.some(l => l.id === currentSelected)) {
       storeSelect.value = currentSelected;
@@ -892,36 +1308,71 @@
     storeTitle.textContent = `Auditoria • ${storeName} • ${compFormatted}`;
     if (competenceLabel) competenceLabel.textContent = `Competência: ${compFormatted}`;
 
-    // Status tag
+    // Status tag & action buttons
+    const isCompleted = currentAudit.status === 'completed';
+    const isReady = currentAudit.status === 'ready_for_review';
+    const isReopened = currentAudit.status === 'reopened';
+    const isAdmin = Boolean(context?.is_admin || context?.access_role === 'platform_admin');
+    const revNum = currentAudit.revision_number || 1;
+
     statusTag.className = 'audit-status-tag';
-    if (currentAudit.status === 'completed') {
-      statusTag.textContent = '● Finalizada';
+    // Seção Oficial Relatório Mensal: sempre visível no workspace
+    if (reportSectionWrap) reportSectionWrap.style.display = 'block';
+    if (viewReportBtn) viewReportBtn.style.display = 'inline-flex';
+    if (printReportBtn) printReportBtn.style.display = 'inline-flex';
+
+    if (isCompleted) {
+      statusTag.textContent = `● Finalizada (Rev. ${revNum})`;
       statusTag.classList.add('status-tag-completed');
       completedNotice.style.display = 'block';
       closeBtn.style.display = 'none';
+      reviewBtn.style.display = 'none';
       syncBtn.disabled = true;
       addFoundBtn.disabled = true;
-      if (context.is_admin) {
-        reopenBtn.style.display = 'inline-flex';
-      } else {
-        reopenBtn.style.display = 'none';
+      reopenBtn.style.display = isAdmin ? 'inline-flex' : 'none';
+      if (reportStatusPill) {
+        reportStatusPill.textContent = `● Oficial Congelado (Rev. ${revNum})`;
+        reportStatusPill.className = 'audit-status-tag status-tag-completed';
       }
-    } else if (currentAudit.status === 'ready_for_review') {
-      statusTag.textContent = '● Pronta para Fechamento';
+    } else if (isReady) {
+      statusTag.textContent = `● Pronta para Fechamento (Rev. ${revNum})`;
       statusTag.classList.add('status-tag-ready');
       completedNotice.style.display = 'none';
-      closeBtn.style.display = 'inline-flex';
+      reviewBtn.style.display = 'inline-flex';
+      closeBtn.style.display = isAdmin ? 'inline-flex' : 'none';
       reopenBtn.style.display = 'none';
       syncBtn.disabled = false;
       addFoundBtn.disabled = false;
-    } else {
-      statusTag.textContent = '● Em andamento';
+      if (reportStatusPill) {
+        reportStatusPill.textContent = `● Pronta p/ Fechamento (Rev. ${revNum})`;
+        reportStatusPill.className = 'audit-status-tag status-tag-ready';
+      }
+    } else if (isReopened) {
+      statusTag.textContent = `● Reaberta (Rev. ${revNum})`;
       statusTag.classList.add('status-tag-open');
       completedNotice.style.display = 'none';
-      closeBtn.style.display = 'inline-flex';
+      reviewBtn.style.display = 'inline-flex';
+      closeBtn.style.display = isAdmin ? 'inline-flex' : 'none';
       reopenBtn.style.display = 'none';
       syncBtn.disabled = false;
       addFoundBtn.disabled = false;
+      if (reportStatusPill) {
+        reportStatusPill.textContent = `● Reaberta em Andamento (Rev. ${revNum})`;
+        reportStatusPill.className = 'audit-status-tag status-tag-open';
+      }
+    } else {
+      statusTag.textContent = `● Em andamento (Rev. ${revNum})`;
+      statusTag.classList.add('status-tag-open');
+      completedNotice.style.display = 'none';
+      reviewBtn.style.display = 'inline-flex';
+      closeBtn.style.display = isAdmin ? 'inline-flex' : 'none';
+      reopenBtn.style.display = 'none';
+      syncBtn.disabled = false;
+      addFoundBtn.disabled = false;
+      if (reportStatusPill) {
+        reportStatusPill.textContent = `● Prévia em Andamento (Rev. ${revNum})`;
+        reportStatusPill.className = 'audit-status-tag status-tag-open';
+      }
     }
 
     updateKPIs();
@@ -1375,48 +1826,439 @@
     foundProdName.focus();
   });
 
-  // Close Audit
-  closeBtn.addEventListener('click', async () => {
+  // ==========================================
+  // FASE 4: DIAGNÓSTICO E REVISÃO PRÉ-FECHAMENTO
+  // ==========================================
+  reviewBtn.addEventListener('click', async () => {
     if (!currentAudit) return;
-    const pendingCount = auditItems.filter(i => i.quantity_audited === null && i.item_status === 'pending').length;
-    let msg = 'Deseja finalizar esta auditoria mensal?';
-    if (pendingCount > 0) {
-      msg += `\n\nAtenção: Ainda existem ${pendingCount} produto(s) com contagem pendente. Após a finalização, a auditoria torna-se imutável.`;
-    }
-    if (!confirm(msg)) return;
-
-    closeBtn.disabled = true;
+    reviewBtn.disabled = true;
     try {
-      const closed = await window.skaleeDb.closeValidityAudit(currentAudit.id);
-      currentAudit = closed;
+      const diag = await window.skaleeDb.reviewValidityAudit(currentAudit.id);
+
+      // Populate metrics
+      reviewTotal.textContent = String(diag.total_items || 0);
+      reviewCounted.textContent = String(diag.counted_items || 0);
+      reviewPending.textContent = String(diag.pending_items || 0);
+      reviewLoss.textContent = String(diag.items_with_loss || 0);
+      reviewCostImpact.textContent = diag.total_cost_impact !== null ? formatCurrency(diag.total_cost_impact) : 'Não apurado';
+
+      if (diag.pending_items > 0) {
+        reviewPendingCard.style.borderColor = 'rgba(234,88,12,0.4)';
+        reviewPendingCard.style.background = 'rgba(234,88,12,0.12)';
+        reviewFilterPendingBtn.style.display = 'inline-flex';
+      } else {
+        reviewPendingCard.style.borderColor = 'rgba(148,163,184,0.2)';
+        reviewPendingCard.style.background = 'rgba(148,163,184,0.08)';
+        reviewFilterPendingBtn.style.display = 'none';
+      }
+
+      // Render diagnostic alerts
+      reviewAlertsContainer.replaceChildren();
+
+      if (diag.pending_items > 0) {
+        const alert = document.createElement('div');
+        alert.style.cssText = 'padding: 10px 14px; border-radius: 8px; background: rgba(234,88,12,0.08); border: 1px solid rgba(234,88,12,0.3); font-size: 12px; color: #ea580c; line-height: 1.4;';
+        alert.innerHTML = `<strong>⚠️ ${diag.pending_items} produto(s) com contagem pendente:</strong> Para auditoria auditável e sem distorções, recomenda-se realizar a apuração física (inclusive confirmar 0 para itens sem perda) antes do fechamento.`;
+        reviewAlertsContainer.append(alert);
+      } else {
+        const ok = document.createElement('div');
+        ok.style.cssText = 'padding: 10px 14px; border-radius: 8px; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25); font-size: 12px; color: #16a34a; line-height: 1.4;';
+        ok.innerHTML = `<strong>✓ Apuração completa:</strong> Todos os ${diag.total_items} produtos foram verificados e possuem apuração registrada.`;
+        reviewAlertsContainer.append(ok);
+      }
+
+      if (diag.uncosted_loss_items > 0) {
+        const info = document.createElement('div');
+        info.style.cssText = 'padding: 10px 14px; border-radius: 8px; background: rgba(37,99,235,0.08); border: 1px solid rgba(37,99,235,0.25); font-size: 12px; color: #2563eb; line-height: 1.4;';
+        info.innerHTML = `<strong>ℹ️ ${diag.uncosted_loss_items} produto(s) com perda sem custo unitário no SG:</strong> Estes itens constam na memória de cálculo como <em>"Não apurado"</em>, assegurando que o custo total não seja distorcido com R$ 0,00.`;
+        reviewAlertsContainer.append(info);
+      }
+
+      if (diag.no_reason_loss_items > 0) {
+        const warn = document.createElement('div');
+        warn.style.cssText = 'padding: 10px 14px; border-radius: 8px; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3); font-size: 12px; color: #d97706; line-height: 1.4;';
+        warn.innerHTML = `<strong>⚠️ ${diag.no_reason_loss_items} produto(s) com perda registrada sem motivo classificado:</strong> A classificação auxilia na precisão da análise de causas no relatório de Controladoria.`;
+        reviewAlertsContainer.append(warn);
+      }
+
+      if (Array.isArray(diag.blocking_reasons) && diag.blocking_reasons.length > 0) {
+        const block = document.createElement('div');
+        block.style.cssText = 'padding: 10px 14px; border-radius: 8px; background: rgba(220,38,38,0.08); border: 1px solid rgba(220,38,38,0.3); font-size: 12px; color: #dc2626; line-height: 1.4;';
+        block.innerHTML = `<strong>Bloqueios:</strong> ${diag.blocking_reasons.map(escapeHtml).join('<br>')}`;
+        reviewAlertsContainer.append(block);
+      }
+
+      const isAdmin = Boolean(context?.is_admin || context?.access_role === 'platform_admin');
+      reviewProceedCloseBtn.style.display = isAdmin ? 'inline-flex' : 'none';
+
+      modalReview.classList.add('show');
+    } catch (err) {
+      console.error('Erro ao revisar auditoria:', err);
+      alert(err.message || 'Erro ao realizar diagnóstico pré-fechamento.');
+    } finally {
+      reviewBtn.disabled = false;
+    }
+  });
+
+  reviewFilterPendingBtn.addEventListener('click', () => {
+    modalReview.classList.remove('show');
+    filterChips.forEach(chip => chip.classList.toggle('active', chip.dataset.filter === 'pending'));
+    currentFilter = 'pending';
+    renderItems();
+  });
+
+  reviewMarkReadyBtn.addEventListener('click', async () => {
+    if (!currentAudit) return;
+    reviewMarkReadyBtn.disabled = true;
+    try {
+      const updated = await window.skaleeDb.markAuditReadyForReview(currentAudit.id);
+      currentAudit = updated;
       renderAuditWorkspace();
-      alert('Auditoria finalizada com sucesso! Seus dados foram congelados como histórico oficial.');
+      modalReview.classList.remove('show');
+      alert('Auditoria sinalizada com sucesso como Pronta para Fechamento!');
+    } catch (err) {
+      console.error('Erro ao sinalizar auditoria:', err);
+      alert(err.message || 'Erro ao marcar auditoria como pronta para fechamento.');
+    } finally {
+      reviewMarkReadyBtn.disabled = false;
+    }
+  });
+
+  reviewProceedCloseBtn.addEventListener('click', () => {
+    modalReview.classList.remove('show');
+    openCloseModal();
+  });
+
+  // ==========================================
+  // FASE 4: FECHAMENTO OFICIAL E PLANO DE AÇÃO
+  // ==========================================
+  function addActionPlanRow(item = { action: '', owner: '', due_date: '', priority: 'Média' }) {
+    const tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid var(--line, #e2e8f0)';
+    tr.innerHTML = `
+      <td style="padding: 4px 6px;">
+        <input type="text" class="audit-input plan-action" style="width: 100%; font-size: 12px; padding: 4px 8px;" placeholder="Ex: Reforçar PVPS na seção" value="${escapeHtml(item.action || '')}">
+      </td>
+      <td style="padding: 4px 6px;">
+        <input type="text" class="audit-input plan-owner" style="width: 100%; font-size: 12px; padding: 4px 8px;" placeholder="Ex: Gerente da Loja" value="${escapeHtml(item.owner || '')}">
+      </td>
+      <td style="padding: 4px 6px;">
+        <input type="date" class="audit-input plan-due-date" style="width: 100%; font-size: 12px; padding: 4px 6px;" value="${escapeHtml(item.due_date || '')}">
+      </td>
+      <td style="padding: 4px 6px;">
+        <select class="audit-select plan-priority" style="width: 100%; font-size: 12px; padding: 4px 6px;">
+          <option value="Baixa"${item.priority === 'Baixa' ? ' selected' : ''}>Baixa</option>
+          <option value="Média"${item.priority === 'Média' || !item.priority ? ' selected' : ''}>Média</option>
+          <option value="Alta"${item.priority === 'Alta' ? ' selected' : ''}>Alta</option>
+          <option value="Urgente"${item.priority === 'Urgente' ? ' selected' : ''}>Urgente</option>
+        </select>
+      </td>
+      <td style="padding: 4px 6px; text-align: center;">
+        <button type="button" class="plan-row-delete" style="background: none; border: 0; color: #dc2626; font-size: 18px; cursor: pointer; padding: 0 4px; line-height: 1;" title="Remover item">&times;</button>
+      </td>
+    `;
+    tr.querySelector('.plan-row-delete').addEventListener('click', () => tr.remove());
+    closeActionPlanBody.append(tr);
+  }
+
+  closeAddActionBtn.addEventListener('click', () => addActionPlanRow());
+
+  function openCloseModal() {
+    if (!currentAudit) return;
+    formCloseAudit.reset();
+    modalCloseError.style.display = 'none';
+
+    closeSummary.value = currentAudit.conclusion_summary || '';
+    closeCriticalPoints.value = currentAudit.conclusion_critical_points || '';
+    closeRecommendations.value = currentAudit.conclusion_recommendations || '';
+    closeNotes.value = currentAudit.conclusion_notes || '';
+
+    closeActionPlanBody.replaceChildren();
+    if (Array.isArray(currentAudit.action_plan) && currentAudit.action_plan.length > 0) {
+      currentAudit.action_plan.forEach(item => addActionPlanRow(item));
+    } else {
+      addActionPlanRow();
+    }
+
+    modalCloseAudit.classList.add('show');
+    closeSummary.focus();
+  }
+
+  closeBtn.addEventListener('click', () => openCloseModal());
+
+  formCloseAudit.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!currentAudit) return;
+
+    const summary = closeSummary.value.trim();
+    if (!summary) {
+      modalCloseError.textContent = 'O Sumário Executivo é obrigatório para formalizar o fechamento.';
+      modalCloseError.style.display = 'block';
+      closeSummary.focus();
+      return;
+    }
+
+    // Collect action plan
+    const actionPlan = [];
+    closeActionPlanBody.querySelectorAll('tr').forEach(tr => {
+      const action = tr.querySelector('.plan-action')?.value?.trim();
+      if (!action) return;
+      actionPlan.push({
+        action,
+        owner: tr.querySelector('.plan-owner')?.value?.trim() || null,
+        due_date: tr.querySelector('.plan-due-date')?.value || null,
+        priority: tr.querySelector('.plan-priority')?.value || 'Média'
+      });
+    });
+
+    closeAuditSubmitBtn.disabled = true;
+    closeAuditSubmitBtn.textContent = 'Finalizando e congelando dados...';
+    modalCloseError.style.display = 'none';
+
+    try {
+      const closed = await window.skaleeDb.closeValidityAudit(currentAudit.id, {
+        conclusionSummary: summary,
+        conclusionCriticalPoints: closeCriticalPoints.value.trim() || null,
+        conclusionRecommendations: closeRecommendations.value.trim() || null,
+        conclusionNotes: closeNotes.value.trim() || null,
+        actionPlan
+      });
+
+      currentAudit = closed;
+      modalCloseAudit.classList.remove('show');
+      renderAuditWorkspace();
+      alert('Auditoria finalizada com sucesso! Seus dados e memória de cálculo foram congelados como histórico oficial da Controladoria.');
     } catch (err) {
       console.error('Erro ao finalizar auditoria:', err);
-      alert(err.message || 'Erro ao finalizar auditoria.');
+      modalCloseError.textContent = err.message || 'Erro ao finalizar auditoria.';
+      modalCloseError.style.display = 'block';
     } finally {
-      closeBtn.disabled = false;
+      closeAuditSubmitBtn.disabled = false;
+      closeAuditSubmitBtn.textContent = 'Confirmar Fechamento e Congelar';
     }
   });
 
-  // Reopen Audit (Admin only)
-  reopenBtn.addEventListener('click', async () => {
+  // ==========================================
+  // FASE 4: REABERTURA CONTROLADA
+  // ==========================================
+  reopenBtn.addEventListener('click', () => {
     if (!currentAudit) return;
-    if (!confirm('Deseja reabrir esta auditoria? A edição de contagens e itens será restaurada para os responsáveis autorizados.')) return;
+    formReopenAudit.reset();
+    modalReopenError.style.display = 'none';
+    modalReopenAudit.classList.add('show');
+    reopenReason.focus();
+  });
 
-    reopenBtn.disabled = true;
+  formReopenAudit.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!currentAudit) return;
+
+    const reason = reopenReason.value.trim();
+    if (!reason || reason.length < 5) {
+      modalReopenError.textContent = 'Por favor, informe uma justificativa válida com pelo menos 5 caracteres.';
+      modalReopenError.style.display = 'block';
+      reopenReason.focus();
+      return;
+    }
+
+    reopenAuditSubmitBtn.disabled = true;
+    reopenAuditSubmitBtn.textContent = 'Reabrindo...';
+    modalReopenError.style.display = 'none';
+
     try {
-      const reopened = await window.skaleeDb.reopenValidityAudit(currentAudit.id);
+      const reopened = await window.skaleeDb.reopenValidityAudit(currentAudit.id, reason);
       currentAudit = reopened;
+      modalReopenAudit.classList.remove('show');
       renderAuditWorkspace();
-      alert('Auditoria reaberta com sucesso! Edições liberadas.');
+      alert(`Auditoria reaberta com sucesso! Nova revisão criada: Revisão ${reopened.revision_number}. As edições foram desbloqueadas.`);
     } catch (err) {
       console.error('Erro ao reabrir auditoria:', err);
-      alert(err.message || 'Erro ao reabrir auditoria.');
+      modalReopenError.textContent = err.message || 'Erro ao reabrir auditoria.';
+      modalReopenError.style.display = 'block';
     } finally {
-      reopenBtn.disabled = false;
+      reopenAuditSubmitBtn.disabled = false;
+      reopenAuditSubmitBtn.textContent = 'Confirmar Reabertura';
     }
   });
+
+  // ==========================================
+  // FASE 4: RELATÓRIO EXECUTIVO & PDF
+  // ==========================================
+  viewReportBtn.addEventListener('click', async () => {
+    if (!currentAudit) return;
+    viewReportBtn.disabled = true;
+    try {
+      const repData = await window.skaleeDb.getValidityAuditReportData(currentAudit.id);
+      lastReportData = repData;
+      if (window.skaleeAuditReport?.buildExecutiveAuditHtml) {
+        const htmlDoc = window.skaleeAuditReport.buildExecutiveAuditHtml(repData);
+        reportPreviewIframe.srcdoc = htmlDoc;
+        reportPreviewBadge.textContent = `Versão ${repData.revision_number || 1}`;
+        modalReportPreview.classList.add('show');
+      } else {
+        alert('Módulo de geração de relatórios indisponível.');
+      }
+    } catch (err) {
+      console.error('Erro ao visualizar relatório:', err);
+      alert(err.message || 'Erro ao carregar dados do relatório.');
+    } finally {
+      viewReportBtn.disabled = false;
+    }
+  });
+
+  async function triggerPrintReport() {
+    try {
+      let data = lastReportData;
+      if (!data || data.id !== currentAudit?.id) {
+        if (!currentAudit) return;
+        data = await window.skaleeDb.getValidityAuditReportData(currentAudit.id);
+        lastReportData = data;
+      }
+      if (window.skaleeAuditReport?.openPrintableReportWindow) {
+        window.skaleeAuditReport.openPrintableReportWindow(data);
+      }
+    } catch (err) {
+      console.error('Erro ao imprimir relatório:', err);
+      alert(err.message || 'Erro ao gerar relatório para impressão.');
+    }
+  }
+
+  printReportBtn.addEventListener('click', triggerPrintReport);
+  previewPrintActionBtn.addEventListener('click', triggerPrintReport);
+
+  // ==========================================
+  // FASE 4: HISTÓRICO DE AUDITORIAS
+  // ==========================================
+  let historyStoresPopulated = false;
+
+  async function loadAuditHistory() {
+    if (!historyTableBody) return;
+
+    if (!historyStoresPopulated && context?.locations?.length) {
+      const activeLocs = context.locations.filter(l => l.active !== false);
+      const currentVal = historyStore.value;
+      historyStore.replaceChildren(
+        Object.assign(document.createElement('option'), { value: '', textContent: 'Todas as lojas autorizadas' }),
+        ...activeLocs.map(l => Object.assign(document.createElement('option'), { value: l.id, textContent: l.name }))
+      );
+      if (currentVal) historyStore.value = currentVal;
+      historyStoresPopulated = true;
+    }
+
+    if (!historyYear.options.length || historyYear.options.length <= 1) {
+      const currentYear = new Date().getFullYear();
+      const years = [currentYear, currentYear - 1, currentYear - 2];
+      historyYear.replaceChildren(
+        Object.assign(document.createElement('option'), { value: '', textContent: 'Todos os anos' }),
+        ...years.map(y => Object.assign(document.createElement('option'), { value: String(y), textContent: String(y) }))
+      );
+    }
+
+    historyTableBody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: var(--muted); padding: 25px;">Carregando histórico oficial...</td></tr>';
+
+    try {
+      const filters = {
+        retailLocationId: historyStore.value || null,
+        year: historyYear.value ? Number(historyYear.value) : null,
+        status: historyStatus.value || null
+      };
+      const list = await window.skaleeDb.listValidityAuditsHistory(filters);
+
+      if (!list || !list.length) {
+        historyTableBody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: var(--muted); padding: 30px;">Nenhuma auditoria encontrada para os filtros selecionados.</td></tr>';
+        return;
+      }
+
+      historyTableBody.replaceChildren(...list.map(row => {
+        const tr = document.createElement('tr');
+        tr.style.borderBottom = '1px solid var(--line, #e2e8f0)';
+
+        const storeName = row.store_name || 'Loja';
+        const compFormatted = formatCompetence(row.competence_month);
+
+        let statusBadgeHtml = '<span class="audit-status-tag status-tag-open">Em andamento</span>';
+        if (row.status === 'completed') {
+          statusBadgeHtml = '<span class="audit-status-tag status-tag-completed">Finalizada</span>';
+        } else if (row.status === 'reopened') {
+          statusBadgeHtml = '<span class="audit-status-tag status-tag-open" style="border-color: rgba(234,88,12,0.4); color: #ea580c;">Reaberta</span>';
+        } else if (row.status === 'ready_for_review') {
+          statusBadgeHtml = '<span class="audit-status-tag status-tag-ready">Pronta p/ Fechamento</span>';
+        }
+
+        const revText = `Rev. ${row.revision_number || 1}`;
+        const totalItemsText = row.total_items_count !== null ? String(row.total_items_count) : '—';
+        const lossUnitsText = row.total_loss_units !== null ? `${row.total_loss_units} un.` : '—';
+        const costImpactText = row.total_cost_impact !== null ? formatCurrency(row.total_cost_impact) : (row.has_uncosted_loss ? 'Não apurado' : 'R$ 0,00');
+
+        let closedInfo = '—';
+        if (row.closed_at) {
+          const d = new Date(row.closed_at).toLocaleDateString('pt-BR');
+          closedInfo = `${d}${row.closed_by_email ? ` (${row.closed_by_email.split('@')[0]})` : ''}`;
+        }
+
+        tr.innerHTML = `
+          <td style="padding: 10px 12px; font-weight: 700;">${escapeHtml(storeName)}</td>
+          <td style="padding: 10px 12px;">${escapeHtml(compFormatted)}</td>
+          <td style="padding: 10px 12px;">${statusBadgeHtml}</td>
+          <td style="padding: 10px 12px; text-align: center;"><span style="font-size: 11px; font-weight: 700; color: var(--muted);">${escapeHtml(revText)}</span></td>
+          <td style="padding: 10px 12px; text-align: center;">${totalItemsText}</td>
+          <td style="padding: 10px 12px; text-align: center; font-weight: 700; color: #dc2626;">${lossUnitsText}</td>
+          <td style="padding: 10px 12px; text-align: right; font-weight: 700; color: #2563eb;">${costImpactText}</td>
+          <td style="padding: 10px 12px; font-size: 12px; color: var(--muted);">${escapeHtml(closedInfo)}</td>
+          <td style="padding: 10px 12px; text-align: right;">
+            <div style="display: inline-flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end;">
+              <button type="button" class="btn2 btn-open-history" style="font-size: 11px; padding: 4px 8px;">Abrir</button>
+              <button type="button" class="btn2 btn-report-history" style="font-size: 11px; padding: 4px 8px; color: #2563eb; border-color: rgba(37,99,235,0.3);">Visualizar</button>
+              <button type="button" class="btn btn-pdf-history" style="font-size: 11px; padding: 4px 8px; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff;">Gerar PDF</button>
+            </div>
+          </td>
+        `;
+
+        tr.querySelector('.btn-open-history')?.addEventListener('click', () => {
+          storeSelect.value = row.retail_location_id;
+          monthInput.value = row.competence_month;
+          tabActive.click();
+          void loadAudit(true);
+        });
+
+        tr.querySelector('.btn-report-history')?.addEventListener('click', async () => {
+          try {
+            const repData = await window.skaleeDb.getValidityAuditReportData(row.id);
+            if (window.skaleeAuditReport?.buildExecutiveAuditHtml) {
+              const htmlDoc = window.skaleeAuditReport.buildExecutiveAuditHtml(repData);
+              reportPreviewIframe.srcdoc = htmlDoc;
+              reportPreviewBadge.textContent = `Versão ${repData.revision_number || 1}`;
+              lastReportData = repData;
+              modalReportPreview.classList.add('show');
+            }
+          } catch (e) {
+            alert(e.message || 'Erro ao carregar relatório da auditoria.');
+          }
+        });
+
+        tr.querySelector('.btn-pdf-history')?.addEventListener('click', async () => {
+          try {
+            const repData = await window.skaleeDb.getValidityAuditReportData(row.id);
+            if (window.skaleeAuditReport?.openPrintableReportWindow) {
+              window.skaleeAuditReport.openPrintableReportWindow(repData);
+            }
+          } catch (e) {
+            alert(e.message || 'Erro ao gerar PDF da auditoria.');
+          }
+        });
+
+        return tr;
+      }));
+    } catch (err) {
+      console.error('Erro ao listar histórico de auditorias:', err);
+      historyTableBody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: #dc2626; padding: 25px;">${escapeHtml(err.message || 'Erro ao consultar histórico.')}</td></tr>`;
+    }
+  }
+
+  historyRefreshBtn?.addEventListener('click', () => void loadAuditHistory());
+  historyStore?.addEventListener('change', () => void loadAuditHistory());
+  historyYear?.addEventListener('change', () => void loadAuditHistory());
+  historyStatus?.addEventListener('change', () => void loadAuditHistory());
 
   // Selectors event listeners
   storeSelect.addEventListener('change', () => {
@@ -1437,6 +2279,12 @@
 
   // Open Tab
   async function open() {
+    if (!signedIn && !context) {
+      if (location.hash === '#audit') {
+        history.replaceState(null, '', location.pathname + location.search);
+      }
+      return;
+    }
     let result = context;
     if (!result || !selectedLocationId) {
       result = await refresh();
@@ -1513,6 +2361,8 @@
     }
     if (event.detail?.audit) {
       applyAuditContext(event.detail.audit);
+    } else {
+      void refresh();
     }
     if (signedIn && location.hash === '#audit' && (!currentAudit || panel.hidden)) {
       void open();

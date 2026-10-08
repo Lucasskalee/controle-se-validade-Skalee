@@ -1,4 +1,4 @@
-const CACHE_VERSION = "skalee-v3.18-audit-sync";
+const CACHE_VERSION = "skalee-v4.0.0-audit-reports";
 const CACHE_NAME = CACHE_VERSION;
 
 const APP_SHELL = [
@@ -14,6 +14,7 @@ const APP_SHELL = [
   "/auth.css",
   "/theme-layout.css",
   "/auth.js",
+  "/audit-report-generator.js",
   "/audit-access.js",
   "/admin-cadastros.css",
   "/admin-cadastros.js",

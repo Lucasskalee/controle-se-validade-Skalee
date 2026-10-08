@@ -2594,15 +2594,54 @@ window.skaleeDb = {
   if (error) throw error;
   return data;
  },
- async closeValidityAudit(auditId) {
-  if (!navigator.onLine) throw new Error("O fechamento de auditoria requer conexão com a internet.");
-  const { data, error } = await supabase.rpc("close_validity_audit", { p_audit_id: auditId });
+ async reviewValidityAudit(auditId) {
+  if (!navigator.onLine) throw new Error("A revisão de auditoria requer conexão com a internet.");
+  const { data, error } = await supabase.rpc("review_validity_audit", { p_audit_id: auditId });
   if (error) throw error;
   return data;
  },
- async reopenValidityAudit(auditId) {
+ async markAuditReadyForReview(auditId) {
+  if (!navigator.onLine) throw new Error("A alteração de status requer conexão com a internet.");
+  const { data, error } = await supabase.rpc("mark_audit_ready_for_review", { p_audit_id: auditId });
+  if (error) throw error;
+  return data;
+ },
+ async closeValidityAudit(auditId, options = {}) {
+  if (!navigator.onLine) throw new Error("O fechamento de auditoria requer conexão com a internet.");
+  const { data, error } = await supabase.rpc("close_validity_audit", {
+   p_audit_id: auditId,
+   p_conclusion_summary: options.conclusionSummary || options.summary || null,
+   p_conclusion_critical_points: options.conclusionCriticalPoints || options.criticalPoints || null,
+   p_conclusion_recommendations: options.conclusionRecommendations || options.recommendations || null,
+   p_conclusion_notes: options.conclusionNotes || options.notes || null,
+   p_action_plan: options.actionPlan || []
+  });
+  if (error) throw error;
+  return data;
+ },
+ async reopenValidityAudit(auditId, reason) {
   if (!navigator.onLine) throw new Error("A reabertura de auditoria requer conexão com a internet.");
-  const { data, error } = await supabase.rpc("reopen_validity_audit", { p_audit_id: auditId });
+  if (!reason || !String(reason).trim()) throw new Error("Informe o motivo obrigatório da reabertura.");
+  const { data, error } = await supabase.rpc("reopen_validity_audit", {
+   p_audit_id: auditId,
+   p_reason: String(reason).trim()
+  });
+  if (error) throw error;
+  return data;
+ },
+ async listValidityAuditsHistory(filters = {}) {
+  if (!navigator.onLine) throw new Error("A consulta de histórico requer conexão com a internet.");
+  const { data, error } = await supabase.rpc("list_validity_audits_history", {
+   p_retail_location_id: filters.retailLocationId || filters.storeId || null,
+   p_year: filters.year ? Number(filters.year) : null,
+   p_status: filters.status || null
+  });
+  if (error) throw error;
+  return data || [];
+ },
+ async getValidityAuditReportData(auditId) {
+  if (!navigator.onLine) throw new Error("A emissão do relatório requer conexão com a internet.");
+  const { data, error } = await supabase.rpc("get_validity_audit_report_data", { p_audit_id: auditId });
   if (error) throw error;
   return data;
  },

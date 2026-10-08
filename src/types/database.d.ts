@@ -202,17 +202,91 @@ interface SGOfferImportBatch {
 
 export type ValidityAuditStatus = "open" | "ready_for_review" | "completed";
 
+export interface ValidityAuditActionPlanItem {
+  point: string;
+  action: string;
+  responsible: string;
+  deadline: string;
+  status: "Pendente" | "Em andamento" | "Concluído" | string;
+}
+
+export interface ValidityAuditReviewResult {
+  audit_id: string;
+  status: ValidityAuditStatus;
+  revision_number: number;
+  total_items: number;
+  audited_items: number;
+  pending_items: number;
+  positive_loss_items: number;
+  zero_loss_items: number;
+  total_units_audited: number;
+  total_loss_cost: number;
+  potential_sales_loss: number;
+  missing_cost_count: number;
+  missing_reason_count: number;
+  missing_other_detail_count: number;
+  can_close: boolean;
+  can_mark_ready: boolean;
+  blocking_errors: string[];
+  warnings: string[];
+}
+
+export interface ValidityAuditLifecycleEvent {
+  id: string;
+  audit_id: string;
+  event_type: "created" | "status_change" | "ready_for_review" | "closed" | "reopened";
+  from_status?: string | null;
+  to_status?: string | null;
+  actor_id?: string | null;
+  actor_name?: string | null;
+  reason?: string | null;
+  revision_number: number;
+  metadata?: Record<string, unknown> | null;
+  created_at: string;
+}
+
+export interface ValidityAuditHistoryItem {
+  id: string;
+  retail_location_id: string;
+  store_name: string;
+  competence_month: string;
+  competence_date: string;
+  status: ValidityAuditStatus;
+  revision_number: number;
+  created_at: string;
+  closed_at?: string | null;
+  closed_by_email?: string | null;
+  reopened_at?: string | null;
+  reopen_reason?: string | null;
+  total_items: number;
+  audited_items: number;
+  pending_items: number;
+  total_units_audited: number;
+  total_loss_cost: number;
+  potential_sales_loss: number;
+  monitored_count: number;
+  found_count: number;
+}
+
 export interface ValidityAudit {
   id: string;
   retail_location_id: string;
   competence_month: string;
   status: ValidityAuditStatus;
+  revision_number: number;
   created_by?: string | null;
   responsible_user_id?: string | null;
   closed_at?: string | null;
   closed_by?: string | null;
   reopened_at?: string | null;
   reopened_by?: string | null;
+  reopen_reason?: string | null;
+  conclusion_summary?: string | null;
+  conclusion_critical_points?: string | null;
+  conclusion_recommendations?: string | null;
+  conclusion_notes?: string | null;
+  action_plan?: ValidityAuditActionPlanItem[];
+  closure_snapshot?: Record<string, unknown> | null;
   notes?: string | null;
   created_at: string;
   updated_at: string;
