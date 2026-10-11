@@ -854,14 +854,14 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
 
  <div class="searchrow with-layout">
   <div class="clearable-field">
-   <input id="search" placeholder="Buscar por nome ou código interno...">
+   <input id="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Buscar por nome ou código interno...">
    <button id="clearSearch" class="clear-input" type="button" aria-label="Limpar busca" title="Limpar busca" hidden>×</button>
   </div>
   <select id="storeFilter">
    <option value="">Todas as lojas</option>
   </select>
   <div class="clearable-field">
-   <input id="supplierFilter" inputmode="numeric" maxlength="160" placeholder="Cód. forn. Ex: 209, 223">
+   <input id="supplierFilter" inputmode="numeric" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" maxlength="160" placeholder="Cód. forn. Ex: 209, 223">
    <button id="clearSupplierFilter" class="clear-input" type="button" aria-label="Limpar fornecedores" title="Limpar fornecedores" hidden>×</button>
   </div>
   <div class="layout-picker product-layout-picker" aria-label="Colunas dos produtos">
@@ -1892,9 +1892,9 @@ function saveCurrentUiState() {
  const activePage = activeTabBtn ? activeTabBtn.dataset.page : "products";
  const state = {
   activePage,
-  search: els.search ? els.search.value : "",
+  search: "",
   store: els.storeFilter ? els.storeFilter.value : "",
-  supplier: els.supplierFilter ? els.supplierFilter.value : "",
+  supplier: "",
   sort: els.sort ? els.sort.value : "expiry",
   activeFilters: { ...activeFilters },
   scrollPosition: window.scrollY || document.documentElement.scrollTop || 0,
@@ -1914,19 +1914,17 @@ async function restoreSavedUiState() {
   const defaultPage = isMobile ? "register" : "products";
   const state = await window.skaleeLocalStore.getUiState();
   if (state) {
-   if (state.search && els.search) {
-    els.search.value = state.search;
-    if (els.clearSearch) els.clearSearch.hidden = false;
-   }
+   // A pesquisa e o filtro de fornecedor iniciam sempre vazios na inicialização
+   // até o usuário digitar ou utilizar intencionalmente o scanner.
+   if (els.search) els.search.value = "";
+   if (els.clearSearch) els.clearSearch.hidden = true;
+   if (els.supplierFilter) els.supplierFilter.value = "";
+   if (els.clearSupplierFilter) els.clearSupplierFilter.hidden = true;
    if (state.sort && els.sort) {
     els.sort.value = state.sort;
    }
    if (state.store && els.storeFilter) {
     els.storeFilter.value = state.store;
-   }
-   if (state.supplier && els.supplierFilter) {
-    els.supplierFilter.value = state.supplier;
-    if (els.clearSupplierFilter) els.clearSupplierFilter.hidden = false;
    }
    if (state.activeFilters) {
     activeFilters = { ...activeFilters, ...state.activeFilters };
@@ -3051,7 +3049,6 @@ function handleValidityProductsRealtime(payload) {
  mergeReportProduct(nextProduct);
  if (mergeRealtimeProduct(nextProduct)) {
   realtimeStats.incrementalUpdates += 1;
-  preencherFornecedorPelosProdutos();
   render();
  } else {
   realtimeStats.ignored += 1;
@@ -3220,7 +3217,6 @@ async function carregarProdutosOnline() {
   queryStats.rowsReceived += firstPage.length;
   productPageOffset += rawLength;
   productHasMorePages = rawLength === PRODUCT_PAGE_SIZE;
-  preencherFornecedorPelosProdutos();
   productPageLoading = false;
   render();
   void carregarMovimentacaoEstoqueDosProdutos(firstPage);
@@ -3381,22 +3377,12 @@ function popularFornecedoresPermitidos(suppliers) {
  const activeSuppliers = Array.isArray(suppliers) ? suppliers.filter((supplier) => supplier.active !== false) : null;
  allowedSuppliers = activeSuppliers;
  updatePersonalPanelScope();
- if (!activeSuppliers || activeSuppliers.length !== 1 || els.supplierFilter.value.trim()) return;
- els.supplierFilter.value = activeSuppliers[0].code || "";
  render();
 }
 
 function preencherFornecedorPelosProdutos() {
- if (els.supplierFilter.value.trim()) return;
- const codes = new Map();
- products.forEach((product) => {
-  const aliases = Array.isArray(product.supplierAliases) ? product.supplierAliases : [];
-  [product.supplierCode, ...aliases.map((alias) => alias.code)].forEach((code) => {
-   const value = String(code || "").trim();
-   if (value) codes.set(value, true);
-  });
- });
- if (codes.size === 1) els.supplierFilter.value = [...codes.keys()][0];
+ // Mantido como no-op: o campo de pesquisa e o filtro de fornecedor nunca devem
+ // ser preenchidos automaticamente sem ação intencional do usuário.
 }
 
 function markProductPhotoLoaded(id, photo = "") {
@@ -9213,8 +9199,8 @@ els.updateQty.addEventListener("change", renderEditStockFeedback);
 render();
 </script>
 <script src="local-query.js"></script>
-<script src="audit-report-generator.js?v=4.1.0"></script>
-<script src="audit-access.js?v=4.1.0"></script>
+<script src="audit-report-generator.js?v=4.2.0"></script>
+<script src="audit-access.js?v=4.2.1"></script>
 <script type="module" src="auth.js"></script>
 <script type="module" src="components/tour/SkalitoTour.js"></script>
 <script src="admin-cadastros.js" defer></script>
