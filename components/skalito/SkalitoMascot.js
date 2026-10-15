@@ -62,10 +62,12 @@ const PARTS = [
     part: "torso-tail",
     label: "Corpo e Cauda",
     asset: ASSET_PATHS.body,
-    x: 132,
-    y: 335,
-    width: 236,
-    height: 350,
+    // Production header: 251×327 body at 0.9 scale, relative to a 288px head.
+    // Map its proportions and neck placement to this rig's 284px head.
+    x: 138.62,
+    y: 387.11,
+    width: 222.76,
+    height: 290.21,
     pivot: { x: 250, y: 460 }
   },
   {

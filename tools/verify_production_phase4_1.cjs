@@ -307,3 +307,4 @@ run().catch((err) => {
   console.error("\n❌ FALHA NO TESTE DA FASE 4.1:", err);
   process.exit(1);
 });
+

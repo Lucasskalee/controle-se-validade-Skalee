@@ -10,6 +10,9 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="auth.css">
 <link rel="stylesheet" href="admin-cadastros.css">
+<link rel="stylesheet" href="notification-center.css">
+<link rel="stylesheet" href="components/skalito/skalito.css">
+<link rel="stylesheet" href="components/skalito/skalitoAnimations.css">
 <link rel="stylesheet" href="components/tour/skalitoTour.css">
 <script src="product-detail.js"></script>
 <script src="product-gallery.js"></script>
@@ -758,7 +761,7 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
 <main id="protectedApp" class="app" aria-hidden="true">
 <header>
  <div class="app-brand"><img class="app-header-logo" src="skalee-symbol-transparent.png" alt="Skalee"><div><h1>Controle de Validades | Skalee</h1><div class="sub">Acompanhe primeiro o que está mais perto de vencer.</div></div></div>
- <div class="user-area"><span id="syncStatusIndicator" class="sync-status-indicator is-synced" title="Status de Sincronização"><span class="sync-dot"></span><span id="syncStatusText">Sincronizado</span></span><div class="user-copy"><span id="authUser" class="sub"></span><div class="sub" id="today"></div></div><button id="signOut" class="btn2" type="button">Sair</button><button id="adminCentralButton" class="header-admin-button" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M12 3 20 7v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7l8-4Z"/><path d="M9 12l2 2 4-4"/></svg><span>Central Administrativa</span></button><button id="headerProfileButton" class="header-profile-button" type="button" aria-label="Abrir perfil" aria-haspopup="dialog" aria-controls="personalPanel"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></button></div>
+ <div class="user-area"><span id="syncStatusIndicator" class="sync-status-indicator is-synced" title="Status de Sincronização"><span class="sync-dot"></span><span id="syncStatusText">Sincronizado</span></span><div class="user-copy"><span id="authUser" class="sub"></span><div class="sub" id="today"></div></div><button id="signOut" class="btn2" type="button">Sair</button><button id="adminCentralButton" class="header-admin-button" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M12 3 20 7v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7l8-4Z"/><path d="M9 12l2 2 4-4"/></svg><span>Central Administrativa</span></button><button id="headerProfileButton" class="header-profile-button" type="button" aria-label="Abrir central de notificações" aria-haspopup="dialog" aria-controls="personalPanel"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span id="notificationPendingBadge" class="notification-pending-badge" aria-label="0 notificações pendentes" hidden>0</span></button></div>
 </header>
 
 <nav class="main-nav" aria-label="Navegação principal">
@@ -776,13 +779,38 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
  <div class="personal-header">
   <img class="personal-logo" src="skalee-symbol-transparent.png" alt="Skalee">
   <div class="personal-title">
-   <h2 id="personalPanelTitle">Configurações</h2>
+   <h2 id="personalPanelTitle">Central Skalee</h2>
    <span id="personalUserName">Usuário</span>
    <span id="personalUserRole">Perfil</span>
   </div>
-  <button id="personalClose" class="personal-close" type="button" aria-label="Fechar configurações">×</button>
+  <button id="personalClose" class="personal-close" type="button" aria-label="Fechar painel">×</button>
  </div>
- <div class="personal-body">
+ <div class="personal-panel-tabs" role="tablist" aria-label="Central do usuário">
+  <button id="personalNotificationsTab" class="personal-panel-tab active" type="button" role="tab" aria-selected="true" aria-controls="personalNotificationsPane">Notificações</button>
+  <button id="personalSettingsTab" class="personal-panel-tab" type="button" role="tab" aria-selected="false" aria-controls="personalSettingsPane">Configurações</button>
+ </div>
+ <section id="personalNotificationsPane" class="personal-tab-pane notification-center-pane" role="tabpanel" aria-labelledby="personalNotificationsTab">
+  <div class="notification-center-summary" aria-label="Resumo das notificações">
+   <div><strong id="notificationPendingTotal">0</strong><span>Pendentes</span></div>
+   <div><strong id="notificationVerifiedTotal">0</strong><span>Verificadas</span></div>
+   <div><strong id="notificationProgressValue">0%</strong><span>Progresso</span></div>
+  </div>
+  <div class="notification-progress" aria-hidden="true"><span id="notificationProgressBar"></span></div>
+  <div class="notification-center-filters">
+   <label>Loja<select id="notificationCenterStore"><option value="">Todas as lojas</option></select></label>
+   <label>Período<select id="notificationCenterDays"><option value="3">Até 3 dias</option><option value="7">Até 7 dias</option><option value="15">Até 15 dias</option></select></label>
+  </div>
+  <div class="notification-view-toggle" role="group" aria-label="Exibir notificações">
+   <button id="notificationPendingView" class="active" type="button" aria-pressed="true">Pendentes <span id="notificationPendingViewCount">0</span></button>
+   <button id="notificationVerifiedView" type="button" aria-pressed="false">Verificadas <span id="notificationVerifiedViewCount">0</span></button>
+  </div>
+  <div id="notificationCelebration" class="notification-celebration" role="status" hidden>
+   <div><strong>🎉 Parabéns! Missão cumprida!</strong><p>Você concluiu todas as verificações de validade curta. Sua atenção faz a diferença!</p><span id="notificationCelebrationCount"></span></div>
+  </div>
+  <div id="notificationCenterStatus" class="notification-center-status" role="status" aria-live="polite"></div>
+  <div id="notificationCenterList" class="notification-center-list"></div>
+ </section>
+ <div id="personalSettingsPane" class="personal-tab-pane personal-body" role="tabpanel" aria-labelledby="personalSettingsTab" hidden>
   <section class="personal-section" aria-labelledby="personalAppearanceTitle">
    <h3 id="personalAppearanceTitle">Aparência</h3>
    <div class="personal-theme" role="group" aria-label="Tema do aplicativo">
@@ -1716,6 +1744,7 @@ const els = {
  adminMetricSuppliers: document.getElementById('adminMetricSuppliers'),
  adminMetricBrands: document.getElementById('adminMetricBrands'),
  headerProfileButton: document.getElementById('headerProfileButton'),
+ notificationPendingBadge: document.getElementById('notificationPendingBadge'),
  personalSettingsButton: document.getElementById('personalSettingsButton'),
  personalOverlay: document.getElementById('personalOverlay'),
  personalPanel: document.getElementById('personalPanel'),
@@ -1725,6 +1754,24 @@ const els = {
  personalProfileEmail: document.getElementById('personalProfileEmail'),
  personalSupplierSection: document.getElementById('personalSupplierSection'),
  personalSupplierDetails: document.getElementById('personalSupplierDetails'),
+ personalNotificationsTab: document.getElementById('personalNotificationsTab'),
+ personalSettingsTab: document.getElementById('personalSettingsTab'),
+ personalNotificationsPane: document.getElementById('personalNotificationsPane'),
+ personalSettingsPane: document.getElementById('personalSettingsPane'),
+ notificationPendingTotal: document.getElementById('notificationPendingTotal'),
+ notificationVerifiedTotal: document.getElementById('notificationVerifiedTotal'),
+ notificationProgressValue: document.getElementById('notificationProgressValue'),
+ notificationProgressBar: document.getElementById('notificationProgressBar'),
+ notificationCenterStore: document.getElementById('notificationCenterStore'),
+ notificationCenterDays: document.getElementById('notificationCenterDays'),
+ notificationPendingView: document.getElementById('notificationPendingView'),
+ notificationVerifiedView: document.getElementById('notificationVerifiedView'),
+ notificationPendingViewCount: document.getElementById('notificationPendingViewCount'),
+ notificationVerifiedViewCount: document.getElementById('notificationVerifiedViewCount'),
+ notificationCenterStatus: document.getElementById('notificationCenterStatus'),
+ notificationCenterList: document.getElementById('notificationCenterList'),
+ notificationCelebration: document.getElementById('notificationCelebration'),
+ notificationCelebrationCount: document.getElementById('notificationCelebrationCount'),
  personalNotificationsButton: document.getElementById('personalNotificationsButton'),
  personalNotificationsSummary: document.getElementById('personalNotificationsSummary'),
  notificationsModal: document.getElementById('notificationsModal'),
@@ -2005,14 +2052,16 @@ themeMedia.addEventListener("change", () => {
 applyThemePreference(themePreference);
 
 function syncNotificationStores() {
- if (!els.notificationStore) return;
  const settings = readNotificationSettings();
  const activeLocations = (allowedLocations || []).filter((location) => location.active !== false);
- els.notificationStore.replaceChildren(new Option("Todas as lojas", ""));
- activeLocations.forEach((location) => els.notificationStore.add(new Option(location.name, location.name)));
- els.notificationStore.value = [...els.notificationStore.options].some((option) => option.value === settings.store) ? settings.store : "";
- if (els.notificationStore.value !== settings.store) writeNotificationSettings({ ...settings, store: "" });
+ [els.notificationStore, els.notificationCenterStore].filter(Boolean).forEach((select) => {
+  select.replaceChildren(new Option("Todas as lojas", ""));
+  activeLocations.forEach((location) => select.add(new Option(location.name, location.name)));
+  select.value = [...select.options].some((option) => option.value === settings.store) ? settings.store : "";
+ });
+ if (els.notificationStore && els.notificationStore.value !== settings.store) writeNotificationSettings({ ...settings, store: "" });
  else updateNotificationSettingsUI();
+ syncNotificationCenterControls();
 }
 
 let personalPanelPreviousFocus = null;
@@ -2060,8 +2109,24 @@ function restoreActivePageTab() {
  });
 }
 
-function setPersonalPanelOpen(open) {
+function setPersonalPanelTab(tabName = "notifications") {
+ const showNotifications = tabName !== "settings";
+ els.personalNotificationsTab.classList.toggle("active", showNotifications);
+ els.personalNotificationsTab.setAttribute("aria-selected", String(showNotifications));
+ els.personalSettingsTab.classList.toggle("active", !showNotifications);
+ els.personalSettingsTab.setAttribute("aria-selected", String(!showNotifications));
+ els.personalNotificationsPane.hidden = !showNotifications;
+ els.personalSettingsPane.hidden = showNotifications;
+ if (showNotifications) {
+  syncNotificationCenterControls();
+  renderNotificationCenter();
+  void loadNotificationCenterProducts();
+ }
+}
+
+function setPersonalPanelOpen(open, tabName = "notifications") {
  if (open) {
+  setPersonalPanelTab(tabName);
   personalPanelPreviousFocus = document.activeElement;
   els.personalPanel.hidden = false;
   els.personalOverlay.hidden = false;
@@ -2142,11 +2207,13 @@ els.signOut.addEventListener("click", (event) => {
 }, true);
 
 els.personalSettingsButton.addEventListener("click", () => {
- setPersonalPanelOpen(true);
+ setPersonalPanelOpen(true, "settings");
 });
 els.headerProfileButton.addEventListener("click", () => {
- setPersonalPanelOpen(true);
+ setPersonalPanelOpen(true, "notifications");
 });
+els.personalNotificationsTab.addEventListener("click", () => setPersonalPanelTab("notifications"));
+els.personalSettingsTab.addEventListener("click", () => setPersonalPanelTab("settings"));
 els.personalClose.addEventListener("click", () => setPersonalPanelOpen(false));
 els.personalOverlay.addEventListener("click", () => setPersonalPanelOpen(false));
 function setAboutModalOpen(open) {
@@ -2189,11 +2256,45 @@ els.notificationDays.addEventListener("input", () => {
  const current = readNotificationSettings();
  writeNotificationSettings({ ...current, days: clampNotificationDays(els.notificationDays.value) });
  maybeShowValidityNotification();
+ scheduleNotificationCenterReload();
 });
 els.notificationStore.addEventListener("change", () => {
  const current = readNotificationSettings();
  writeNotificationSettings({ ...current, store: els.notificationStore.value });
  maybeShowValidityNotification(true);
+ scheduleNotificationCenterReload(0);
+});
+els.notificationCenterDays.addEventListener("change", () => {
+ const current = readNotificationSettings();
+ writeNotificationSettings({ ...current, days: clampNotificationDays(els.notificationCenterDays.value) });
+ scheduleNotificationCenterReload(0);
+});
+els.notificationCenterStore.addEventListener("change", () => {
+ const current = readNotificationSettings();
+ writeNotificationSettings({ ...current, store: els.notificationCenterStore.value });
+ scheduleNotificationCenterReload(0);
+});
+els.notificationPendingView.addEventListener("click", () => {
+ notificationCenterView = "pending";
+ renderNotificationCenter();
+});
+els.notificationVerifiedView.addEventListener("click", () => {
+ notificationCenterView = "verified";
+ renderNotificationCenter();
+});
+els.notificationCenterList.addEventListener("change", (event) => {
+ const checkbox = event.target.closest("[data-notification-check]");
+ if (!checkbox) return;
+ const product = notificationProducts.find((item) => String(item.id) === String(checkbox.dataset.notificationCheck));
+ if (!product) return;
+ setNotificationProductChecked(product, checkbox.checked);
+ const eligible = notificationEligibleProducts();
+ const verifiedCount = eligible.filter(isNotificationProductChecked).length;
+ renderNotificationCenter();
+ if (checkbox.checked) maybeCelebrateNotificationCompletion(eligible, verifiedCount);
+});
+window.addEventListener("storage", (event) => {
+ if (event.key?.startsWith(NOTIFICATION_CHECKLIST_PREFIX)) renderNotificationCenter();
 });
 const personalTourBtn = document.getElementById("personalTourButton");
 if (personalTourBtn) {
@@ -2254,6 +2355,8 @@ const NOTIFICATION_LAST_SHOWN_KEY = "skalee.notification.lastShown";
 const NOTIFICATION_ENABLED_KEY = "skalee.notification.enabled";
 const NOTIFICATION_DAYS_KEY = "skalee.notification.days";
 const NOTIFICATION_STORE_KEY = "skalee.notification.store";
+const NOTIFICATION_CHECKLIST_PREFIX = "skalee.notification-checklist.v1";
+const NOTIFICATION_CELEBRATION_PREFIX = "skalee.notification-celebration.v1";
 let deferredInstallPrompt = null;
 let appAuthenticated = false;
 let notificationPermissionArmed = false;
@@ -2554,6 +2657,13 @@ let scannerConfirmCount = 0;
 let scannerConfirmAt = 0;
 let scannerCanvas = null;
 let products = [];
+let notificationProducts = [];
+let notificationCenterLoading = false;
+let notificationCenterLoadedScope = "";
+let notificationCenterLoadedAt = 0;
+let notificationCenterView = "pending";
+let notificationPhotoObserver = null;
+let notificationCenterReloadTimer = null;
 const resolvedProductPhotoState = new Map();
 
 function preserveProductPhotoState(targetProduct, sourceProduct = null) {
@@ -3015,10 +3125,12 @@ function handleValidityProductsRealtime(payload) {
   console.debug("[REALTIME] DELETE", id);
   const existing = products.find((product) => String(product.id) === id);
   const deletedProduct = normalizeRealtimeProduct(payload?.old) || existing || null;
+  if (deletedProduct) setNotificationProductChecked(deletedProduct, false);
   if (existing?.photoPath && typeof window.skaleeDb?.invalidateProductPhotoUrl === "function") window.skaleeDb.invalidateProductPhotoUrl(existing.photoPath);
   applyDashboardStatsDelta(deletedProduct, null);
   products = products.filter((product) => String(product.id) !== id);
   removeReportProduct(id);
+  updateNotificationProductFromRealtime(null, id);
   requestedProductPhotoIds.delete(id);
   queuedProductPhotoIdSet.delete(id);
   realtimeStats.incrementalUpdates += 1;
@@ -3032,6 +3144,7 @@ function handleValidityProductsRealtime(payload) {
   return;
  }
  const id = String(nextProduct.id);
+ if (nextProduct.completedAt) setNotificationProductChecked(nextProduct, false);
  const existingProduct = products.find((product) => String(product.id) === id);
  const oldRow = payload?.old || {};
  const oldProduct = oldRow.expiry_date || oldRow.expiry ? normalizeRealtimeProduct(oldRow) : null;
@@ -3047,6 +3160,7 @@ function handleValidityProductsRealtime(payload) {
   console.debug("[DASHBOARD] update skipped: previous row unavailable", id);
  }
  mergeReportProduct(nextProduct);
+ updateNotificationProductFromRealtime(nextProduct);
  if (mergeRealtimeProduct(nextProduct)) {
   realtimeStats.incrementalUpdates += 1;
   render();
@@ -3400,6 +3514,7 @@ function markProductPhotoLoaded(id, photo = "") {
   changed = true;
   return { ...item, photo: photo || "", photoLoaded: true };
  });
+ notificationProducts = notificationProducts.map((item) => String(item.id) === normId ? { ...item, photo: photo || "", photoLoaded: true } : item);
  return changed;
 }
 
@@ -3410,7 +3525,7 @@ async function carregarFotosProdutosOnline(productIds) {
   const photoById = new Map();
   for (const id of ids) {
    const normId = String(id);
-   const product = products.find((item) => String(item.id) === normId);
+   const product = products.find((item) => String(item.id) === normId) || notificationProducts.find((item) => String(item.id) === normId);
    if (!product) continue;
    const currentPath = String(product.photoPath || "").trim();
    const registered = resolvedProductPhotoState.get(normId);
@@ -3435,7 +3550,7 @@ async function carregarFotosProdutosOnline(productIds) {
 function aplicarFotosCarregadas(photoById) {
  photoById.forEach((photo, id) => {
   const normId = String(id);
-  const slots = els.grid.querySelectorAll(`.photo[data-photo-id="${normId}"]`);
+  const slots = document.querySelectorAll(`.photo[data-photo-id="${normId}"],.notification-product-photo[data-photo-id="${normId}"]`);
   slots.forEach((slot) => {
    slot.removeAttribute("data-photo-id");
    slot.replaceChildren();
@@ -3460,7 +3575,7 @@ function queueProductPhotoLoad(id) {
  const normalizedId = String(id || "");
  if (!normalizedId) return;
  const registered = resolvedProductPhotoState.get(normalizedId);
- const product = products.find((item) => String(item.id) === normalizedId);
+ const product = products.find((item) => String(item.id) === normalizedId) || notificationProducts.find((item) => String(item.id) === normalizedId);
  const currentPath = String(product?.photoPath || "").trim();
  if (registered && String(registered.photoPath || "").trim() === currentPath && (registered.photo || registered.photoLoaded)) {
   aplicarFotosCarregadas(new Map([[normalizedId, registered.photo || ""]]));
@@ -3758,7 +3873,13 @@ window.addEventListener("skalee:permissions-updated", (event) => {
 window.addEventListener("skalee:authenticated", async (event) => {
  appAuthenticated = true;
  isViewer = event.detail?.accessRole === "viewer";
+ const previousNotificationUser = activeUserEmail;
  activeUserEmail = event.detail?.email || "";
+ if (previousNotificationUser && previousNotificationUser !== activeUserEmail) {
+  notificationProducts = [];
+  notificationCenterLoadedScope = "";
+  notificationCenterLoadedAt = 0;
+ }
  const isPlatformAdmin = event.detail?.accessRole === "platform_admin";
  isSkaleeAdmin = isPlatformAdmin;
  canManageAdminUsers = isPlatformAdmin;
@@ -3831,7 +3952,7 @@ window.addEventListener("skalee:authenticated", async (event) => {
  }
 
  // Phase 3, 4, 5, 6: Background Network Sync & Offline Queue
- void carregarOpcoesPermitidas();
+ void carregarOpcoesPermitidas().finally(() => loadNotificationCenterProducts(true));
  void carregarProdutosOnline();
  void carregarDashboardStats();
  if (window.skaleeDb?.processOfflineSyncQueue) {
@@ -3863,6 +3984,10 @@ window.addEventListener("skalee:signed-out", () => {
  resolvedProductPhotoState.clear();
  resetProductPhotoQueue();
  products = [];
+ notificationProducts = [];
+ notificationCenterLoadedScope = "";
+ notificationCenterLoadedAt = 0;
+ notificationCenterView = "pending";
  reportProducts = [];
  reportProductsLoaded = false;
  reportProductsLoading = false;
@@ -4213,6 +4338,261 @@ function renderCardExtraInfo(product) {
 
 function activeProducts() {
  return products.filter((product) => remaining(product.expiry) >= 0);
+}
+
+function notificationChecklistUserKey() {
+ return encodeURIComponent(String(activeUserEmail || "usuario").trim().toLowerCase());
+}
+
+function notificationProductStoreKey(product) {
+ return encodeURIComponent(String(product?.retailLocationId || product?.retail_location_id || product?.store || "sem-loja").trim().toLowerCase());
+}
+
+function notificationChecklistStorageKey(product) {
+ return `${NOTIFICATION_CHECKLIST_PREFIX}:${notificationChecklistUserKey()}:${notificationProductStoreKey(product)}`;
+}
+
+function notificationProductRecordId(product) {
+ return String(product?.id || "").trim();
+}
+
+function notificationProductSignature(product) {
+ return [
+  notificationProductRecordId(product),
+  String(product?.retailLocationId || product?.retail_location_id || product?.store || "").trim(),
+  String(product?.expiry || "").slice(0, 10),
+  Number(product?.qty || 0),
+  String(product?.code || product?.product_code || "").trim()
+ ].join("|");
+}
+
+function readNotificationChecks(product) {
+ try {
+  const value = JSON.parse(localStorage.getItem(notificationChecklistStorageKey(product)) || "{}");
+  return value && typeof value === "object" && !Array.isArray(value) ? value : {};
+ } catch (_) {
+  return {};
+ }
+}
+
+function isNotificationProductChecked(product) {
+ return Boolean(readNotificationChecks(product)[notificationProductSignature(product)]);
+}
+
+function setNotificationProductChecked(product, checked) {
+ const storageKey = notificationChecklistStorageKey(product);
+ const checks = readNotificationChecks(product);
+ const signature = notificationProductSignature(product);
+ const recordPrefix = `${notificationProductRecordId(product)}|`;
+ Object.keys(checks).forEach((key) => {
+  if (key.startsWith(recordPrefix) && key !== signature) delete checks[key];
+ });
+ if (checked) checks[signature] = { checkedAt: new Date().toISOString() };
+ else delete checks[signature];
+ try {
+  if (Object.keys(checks).length) localStorage.setItem(storageKey, JSON.stringify(checks));
+  else localStorage.removeItem(storageKey);
+ } catch (error) {
+  console.warn("[NOTIFICATION CENTER] Não foi possível salvar a verificação local.", error);
+ }
+}
+
+function notificationCenterScope() {
+ const settings = readNotificationSettings();
+ return { store: settings.store || "", days: clampNotificationDays(settings.days) };
+}
+
+function syncNotificationCenterControls() {
+ if (!els.notificationCenterDays || !els.notificationCenterStore) return;
+ const settings = notificationCenterScope();
+ const currentOptions = [...els.notificationCenterDays.options].map((option) => option.value);
+ for (let days = 3; days <= 15; days += 1) {
+  if (!currentOptions.includes(String(days))) els.notificationCenterDays.add(new Option(`Até ${days} dias`, String(days)));
+ }
+ [...els.notificationCenterDays.options].sort((a, b) => Number(a.value) - Number(b.value)).forEach((option) => els.notificationCenterDays.add(option));
+ els.notificationCenterDays.value = String(settings.days);
+ els.notificationCenterStore.value = [...els.notificationCenterStore.options].some((option) => option.value === settings.store) ? settings.store : "";
+}
+
+function notificationEligibleProducts() {
+ const { store, days } = notificationCenterScope();
+ const unique = new Map();
+ notificationProducts.forEach((product) => {
+  if (!product || product.completedAt || !notificationProductRecordId(product)) return;
+  if (!productBelongsToKnownScope(product)) return;
+  if (store && product.store !== store) return;
+  const daysRemaining = remaining(product.expiry);
+  if (!Number.isFinite(daysRemaining) || daysRemaining < 0 || daysRemaining > days) return;
+  unique.set(notificationProductRecordId(product), product);
+ });
+ return [...unique.values()].sort((a, b) => remaining(a.expiry) - remaining(b.expiry) || String(a.name || "").localeCompare(String(b.name || "")));
+}
+
+function notificationPriority(product) {
+ const days = remaining(product.expiry);
+ if (days < 0) return { className: "priority-expired", label: `Vencido há ${Math.abs(days)} dia${Math.abs(days) === 1 ? "" : "s"}` };
+ if (days === 0) return { className: "priority-today", label: "Vence hoje" };
+ if (days <= 3) return { className: "priority-urgent", label: `${days} dia${days === 1 ? "" : "s"} restante${days === 1 ? "" : "s"}` };
+ if (days <= 7) return { className: "priority-attention", label: `${days} dias restantes` };
+ return { className: "priority-tracking", label: `${days} dias restantes` };
+}
+
+function notificationCollectionFingerprint(items) {
+ return items.map(notificationProductSignature).sort().join(";;");
+}
+
+function maybeCelebrateNotificationCompletion(items, verifiedCount) {
+ if (!items.length || verifiedCount !== items.length) return;
+ const { store, days } = notificationCenterScope();
+ const celebrationKey = `${NOTIFICATION_CELEBRATION_PREFIX}:${notificationChecklistUserKey()}:${encodeURIComponent(store || "todas")}:${days}`;
+ const fingerprint = notificationCollectionFingerprint(items);
+ try {
+  if (localStorage.getItem(celebrationKey) === fingerprint) return;
+  localStorage.setItem(celebrationKey, fingerprint);
+ } catch (_) {}
+ lancarConfetes({ quantidade: 36, alcanceX: 520, alcanceY: 420, subida: 180, duracao: 1700 });
+}
+
+function renderNotificationCenter() {
+ if (!els.notificationCenterList) return;
+ const eligible = notificationEligibleProducts();
+ const checkedById = new Map(eligible.map((product) => [notificationProductRecordId(product), isNotificationProductChecked(product)]));
+ const verified = eligible.filter((product) => checkedById.get(notificationProductRecordId(product)));
+ const pending = eligible.filter((product) => !checkedById.get(notificationProductRecordId(product)));
+ const progress = eligible.length ? Math.round((verified.length / eligible.length) * 100) : 0;
+ els.notificationPendingTotal.textContent = String(pending.length);
+ els.notificationVerifiedTotal.textContent = String(verified.length);
+ els.notificationProgressValue.textContent = `${progress}%`;
+ els.notificationProgressBar.style.width = `${progress}%`;
+ els.notificationPendingViewCount.textContent = String(pending.length);
+ els.notificationVerifiedViewCount.textContent = String(verified.length);
+ els.notificationPendingView.classList.toggle("active", notificationCenterView === "pending");
+ els.notificationVerifiedView.classList.toggle("active", notificationCenterView === "verified");
+ els.notificationPendingView.setAttribute("aria-pressed", String(notificationCenterView === "pending"));
+ els.notificationVerifiedView.setAttribute("aria-pressed", String(notificationCenterView === "verified"));
+ els.notificationPendingBadge.hidden = pending.length === 0;
+ els.notificationPendingBadge.textContent = pending.length > 99 ? "99+" : String(pending.length);
+ els.notificationPendingBadge.setAttribute("aria-label", `${pending.length} notificação${pending.length === 1 ? "" : "ões"} pendente${pending.length === 1 ? "" : "s"}`);
+ const complete = eligible.length > 0 && verified.length === eligible.length;
+ els.notificationCelebration.hidden = !complete;
+ els.notificationCelebrationCount.textContent = complete ? `${verified.length} verificação${verified.length === 1 ? "" : "ões"} realizada${verified.length === 1 ? "" : "s"} · 100% concluído` : "";
+
+ if (notificationCenterLoading) {
+  els.notificationCenterStatus.textContent = "Atualizando produtos próximos do vencimento...";
+ } else {
+  const { store, days } = notificationCenterScope();
+  const suggestedCount = pending.filter((product) => remaining(product.expiry) <= 3).length;
+  els.notificationCenterStatus.textContent = `${store || "Todas as lojas"} · vencem de hoje até ${days} dias${suggestedCount ? ` · Sugestão: verificar ${suggestedCount} pendente${suggestedCount === 1 ? "" : "s"} que vence${suggestedCount === 1 ? "" : "m"} em até 3 dias.` : ""}`;
+ }
+
+ const visible = notificationCenterView === "verified" ? verified : pending;
+ if (!eligible.length && notificationCenterLoading) {
+  els.notificationCenterList.innerHTML = '<div class="notification-empty"><strong>Carregando notificações...</strong><p>Consultando os produtos elegíveis deste período.</p></div>';
+  return;
+ }
+ if (!eligible.length && !notificationCenterLoading) {
+  els.notificationCenterList.innerHTML = '<div class="notification-empty"><strong>Tudo em dia! 💙</strong><p>Nenhum produto próximo do vencimento encontrado.</p></div>';
+  return;
+ }
+ if (!visible.length) {
+  const text = notificationCenterView === "verified" ? "Nenhuma notificação foi verificada ainda." : "Todas as notificações deste período foram verificadas.";
+  els.notificationCenterList.innerHTML = `<div class="notification-empty"><strong>${notificationCenterView === "pending" ? "Checklist concluído" : "Sem verificações"}</strong><p>${text}</p></div>`;
+  return;
+ }
+
+ els.notificationCenterList.innerHTML = visible.map((product) => {
+  const id = notificationProductRecordId(product);
+  const priority = notificationPriority(product);
+  const checked = checkedById.get(id);
+  const registered = resolvedProductPhotoState.get(id);
+  const samePath = registered && String(registered.photoPath || "").trim() === String(product.photoPath || "").trim();
+  const photo = samePath ? (registered.photo || product.photo || "") : (product.photo || "");
+  const photoLoaded = samePath ? (registered.photoLoaded || product.photoLoaded) : product.photoLoaded;
+  const photoMarkup = photo ? `<img src="${escapeHtml(photo)}" loading="lazy" decoding="async" alt="">` : (photoLoaded ? "Sem foto" : "Carregando...");
+  const photoAttrs = !photo && !photoLoaded ? ` data-photo-id="${escapeHtml(id)}"` : "";
+  const code = extractFirstInternalCode(product.code) || "Não informado";
+  const expiryText = new Date(`${product.expiry}T00:00:00`).toLocaleDateString("pt-BR");
+  return `<article class="notification-item ${priority.className}${checked ? " is-verified" : ""}" data-notification-product-id="${escapeHtml(id)}">
+   <div class="notification-product-photo"${photoAttrs}>${photoMarkup}</div>
+   <div class="notification-item-copy">
+    <h3 class="notification-item-title">${escapeHtml(product.name || "Produto")}</h3>
+    ${!checked && remaining(product.expiry) <= 3 ? '<p class="notification-suggestion">Sugestão · verificar em prioridade</p>' : ""}
+    <div class="notification-item-meta"><span>Cód. ${escapeHtml(code)}</span><span>${escapeHtml(product.store || "Loja não informada")}</span><span>${Number(product.qty || 0).toLocaleString("pt-BR")} un.</span></div>
+    <div class="notification-item-expiry"><span>Validade <strong>${escapeHtml(expiryText)}</strong></span><span class="notification-priority">${escapeHtml(priority.label)}</span></div>
+   </div>
+   <label class="notification-check" title="${checked ? "Restaurar como pendente" : "Marcar como verificado"}"><input type="checkbox" data-notification-check="${escapeHtml(id)}"${checked ? " checked" : ""} aria-label="${checked ? "Desmarcar" : "Verificar"} ${escapeHtml(product.name || "produto")}"><span aria-hidden="true">✓</span></label>
+  </article>`;
+ }).join("");
+ observeNotificationPhotos();
+}
+
+function observeNotificationPhotos() {
+ if (notificationPhotoObserver) notificationPhotoObserver.disconnect();
+ const pendingPhotos = [...els.notificationCenterList.querySelectorAll(".notification-product-photo[data-photo-id]")];
+ if (!pendingPhotos.length) return;
+ if (!("IntersectionObserver" in window)) {
+  pendingPhotos.forEach((item) => queueProductPhotoLoad(item.dataset.photoId));
+  return;
+ }
+ notificationPhotoObserver = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+   if (!entry.isIntersecting) return;
+   notificationPhotoObserver.unobserve(entry.target);
+   queueProductPhotoLoad(entry.target.dataset.photoId);
+  });
+ }, { root: els.personalNotificationsPane, rootMargin: "160px 0px" });
+ pendingPhotos.forEach((item) => notificationPhotoObserver.observe(item));
+}
+
+async function loadNotificationCenterProducts(force = false) {
+ if (!appAuthenticated || !window.skaleeDb?.loadProducts || notificationCenterLoading) return;
+ const scope = notificationCenterScope();
+ const scopeKey = `${activeUserEmail.toLowerCase()}|${scope.store}|${scope.days}`;
+ if (!force && notificationCenterLoadedScope === scopeKey && Date.now() - notificationCenterLoadedAt < 60000) return;
+ notificationCenterLoading = true;
+ renderNotificationCenter();
+ try {
+  const rows = await window.skaleeDb.loadProducts({
+   store: scope.store,
+   filters: { expiryRange: String(scope.days) },
+   sort: "expiry",
+   includeExpired: false
+  });
+  if (`${activeUserEmail.toLowerCase()}|${notificationCenterScope().store}|${notificationCenterScope().days}` !== scopeKey) {
+   scheduleNotificationCenterReload(0);
+   return;
+  }
+  notificationProducts = mergeProductsPreservingPhotoState(rows, notificationProducts);
+  notificationCenterLoadedScope = scopeKey;
+  notificationCenterLoadedAt = Date.now();
+ } catch (error) {
+  console.error("Não foi possível carregar a Central de Notificações.", error);
+  els.notificationCenterStatus.textContent = "Não foi possível atualizar as notificações agora. Os dados disponíveis foram mantidos.";
+ } finally {
+  notificationCenterLoading = false;
+  renderNotificationCenter();
+ }
+}
+
+function scheduleNotificationCenterReload(delay = 220) {
+ if (notificationCenterReloadTimer) clearTimeout(notificationCenterReloadTimer);
+ notificationCenterReloadTimer = setTimeout(() => {
+  notificationCenterReloadTimer = null;
+  notificationCenterLoadedScope = "";
+  syncNotificationCenterControls();
+  renderNotificationCenter();
+  void loadNotificationCenterProducts(true);
+ }, delay);
+}
+
+function updateNotificationProductFromRealtime(nextProduct, deletedId = "") {
+ const id = String(deletedId || nextProduct?.id || "");
+ if (!id) return;
+ notificationProducts = notificationProducts.filter((product) => String(product.id) !== id);
+ if (nextProduct && !nextProduct.completedAt && productBelongsToKnownScope(nextProduct) && remaining(nextProduct.expiry) >= 0 && remaining(nextProduct.expiry) <= notificationCenterScope().days) {
+  notificationProducts.push(preserveProductPhotoState(nextProduct));
+ }
+ renderNotificationCenter();
 }
 
 function formatDateTime(value) {
@@ -5112,6 +5492,7 @@ function render() {
   els.grid.innerHTML = activeCards ? activeCards + moreProducts : '<div class="empty">Nenhum produto encontrado com esses filtros.</div>';
  agendarCargaFotosVisiveis();
  agendarCargaMaisProdutos();
+ renderNotificationCenter();
 }
 
 els.reportStore.addEventListener("change", () => {

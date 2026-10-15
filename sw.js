@@ -1,4 +1,4 @@
-const CACHE_VERSION = "skalee-v4.2.2-fix-product-search-supplier-autofill";
+const CACHE_VERSION = "skalee-v4.3.3-upcoming-checklist";
 const CACHE_NAME = CACHE_VERSION;
 
 const APP_SHELL = [
@@ -17,6 +17,7 @@ const APP_SHELL = [
   "/audit-report-generator.js",
   "/audit-access.js",
   "/admin-cadastros.css",
+  "/notification-center.css",
   "/admin-cadastros.js",
   "/components/tour/SkalitoTour.js",
   "/components/tour/skalitoTourSteps.js",

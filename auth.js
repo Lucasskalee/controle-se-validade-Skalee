@@ -525,8 +525,9 @@ function applyProductQueryCriteria(query, criteria = {}) {
   query = query.eq("expiry_date", today);
  } else if (/^\d+$/.test(String(expiryRange))) {
   const days = Number(expiryRange);
-  query = query.gte("expiry_date", today).lte("expiry_date", localDateKeyFromOffset(days));
- } else {
+  if (!criteria.includeExpired) query = query.gte("expiry_date", today);
+  query = query.lte("expiry_date", localDateKeyFromOffset(days));
+ } else if (!criteria.includeExpired) {
   query = query.gte("expiry_date", today);
  }
 
@@ -1038,7 +1039,7 @@ function filterAndSortProductsLocally(allProducts = [], options = {}) {
   if (supplierFilter && !productHasSupplier(product, supplierFilter)) return false;
 
   const days = remainingDays(product.expiry);
-  if (days < 0) return false;
+  if (days < 0 && !options.includeExpired) return false;
 
   if (searchQuery) {
    const haystack = [product.name, product.code, product.barcode, product.supplierCode, product.supplierName, product.store].join(" ").toLowerCase();
@@ -1046,9 +1047,7 @@ function filterAndSortProductsLocally(allProducts = [], options = {}) {
   }
 
   if (activeFilters.expiryRange === "today" && days !== 0) return false;
-  if (activeFilters.expiryRange === "3" && days > 3) return false;
-  if (activeFilters.expiryRange === "7" && days > 7) return false;
-  if (activeFilters.expiryRange === "15" && days > 15) return false;
+  if (/^\d+$/.test(String(activeFilters.expiryRange)) && days > Number(activeFilters.expiryRange)) return false;
 
   if (activeFilters.offerStatus === "offer" && !product.offer) return false;
   if (activeFilters.offerStatus === "no_offer" && product.offer) return false;
@@ -2565,7 +2564,9 @@ window.skaleeDb = {
  },
  async recordAuditItemCount(itemId, payload) {
   if (!navigator.onLine) throw new Error("O registro de apuração requer conexão com a internet.");
-  const { data, error } = await supabase.rpc("record_audit_item_count", {
+  const { data, error } = await supabase.rpc("record_audit_item_count_with_sale", {
+   p_sale_price: payload.salePrice ?? null,
+   p_update_sale_price: Boolean(payload.updateSalePrice),
    p_item_id: itemId,
    p_quantity_audited: payload.quantityAudited !== undefined ? payload.quantityAudited : null,
    p_expiry_reason: payload.expiryReason || "Sem classificação",

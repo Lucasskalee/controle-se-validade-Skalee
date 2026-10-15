@@ -73,13 +73,13 @@
    */
   function buildExecutiveAuditHtml(data) {
     const store = data.store || {};
-    const exec = data.executive_summary || {};
-    const prev = data.preventive_efficiency || {};
-    const reasons = data.reasons_summary || [];
+    const rawExec = data.executive_summary || {};
+    const rawPrev = data.preventive_efficiency || {};
+    const rawReasons = data.reasons_summary || [];
     const topImpacts = data.top_impacts || [];
     const conclusion = data.conclusion || {};
     const actionPlan = data.action_plan || [];
-    const reconciliation = data.reconciliation || {};
+    const rawReconciliation = data.reconciliation || {};
     const allItems = data.items || [];
     const dates = data.audit_dates || {};
 
@@ -87,15 +87,129 @@
     const auditCode = data.code || `AUD-${data.competence_month || ''}-${store.code || 'LOJA'}`;
     const revision = data.revision_number ? `Versão ${data.revision_number}` : 'Versão 1';
 
-    // Agrupamento de itens com perda positiva por motivo para a Memória de Cálculo
-    const lossItems = allItems.filter(i => Number(i.quantity_audited || 0) > 0);
-    const zeroItems = allItems.filter(i => Number(i.quantity_audited) === 0);
+    // =========================================================================
+    // 1. CÁLCULO E NORMALIZAÇÃO DINÂMICA EM TEMPO REAL (FONTE DA VERDADE)
+    // =========================================================================
+    // Agrupamento de itens
+    const isPresent = v => v !== null && v !== undefined && v !== '';
+    const pendingItems = allItems.filter(i => !isPresent(i.quantity_audited));
+    const auditedItems = allItems.filter(i => isPresent(i.quantity_audited));
+    const lossItems = auditedItems.filter(i => Number(i.quantity_audited) > 0);
+    const zeroItems = auditedItems.filter(i => Number(i.quantity_audited) === 0);
+
     const uncostedItems = lossItems.filter(i => {
       const eff = i.effective_unit_cost !== undefined && i.effective_unit_cost !== null
         ? i.effective_unit_cost
         : (i.cost_source === 'manual' ? i.manual_unit_cost : i.unit_cost_snapshot);
-      return eff === null || eff === undefined;
+      return eff === null || eff === undefined || i.financial_cost_impact === null || i.financial_cost_impact === undefined;
     });
+
+    const manualCostItems = lossItems.filter(i => i.cost_source === 'manual' && i.manual_unit_cost !== null && i.manual_unit_cost !== undefined);
+    const manualCostTotalImpact = manualCostItems.reduce((acc, i) => acc + Number(i.financial_cost_impact || 0), 0);
+
+    const calculatedTotalLossUnits = lossItems.reduce((acc, i) => acc + Number(i.quantity_audited || 0), 0);
+    const calculatedTotalLossCost = lossItems.reduce((acc, i) => {
+      return (i.financial_cost_impact !== null && i.financial_cost_impact !== undefined)
+        ? acc + Number(i.financial_cost_impact)
+        : acc;
+    }, 0);
+
+    const pricedLossItems = lossItems.filter(i => isPresent(i.sale_price_snapshot) && Number.isFinite(Number(i.sale_price_snapshot)) && Number(i.sale_price_snapshot) >= 0);
+    const missingSalePriceCount = lossItems.length - pricedLossItems.length;
+    const calculatedPotentialSalesLoss = pricedLossItems.reduce((acc, i) => acc + Number(i.quantity_audited) * Number(i.sale_price_snapshot), 0);
+    const salesCoverageKnown = Array.isArray(data.items);
+
+    // Normalização do Resumo Executivo
+    const exec = {
+      total_loss_cost: (rawExec.total_loss_cost !== undefined && rawExec.total_loss_cost !== null)
+        ? Number(rawExec.total_loss_cost)
+        : ((rawExec.total_financial_cost_loss !== undefined && rawExec.total_financial_cost_loss !== null)
+          ? Number(rawExec.total_financial_cost_loss)
+          : calculatedTotalLossCost),
+
+      total_units_audited: (rawExec.total_units_audited !== undefined && rawExec.total_units_audited !== null)
+        ? Number(rawExec.total_units_audited)
+        : ((rawExec.total_loss_units !== undefined && rawExec.total_loss_units !== null)
+          ? Number(rawExec.total_loss_units)
+          : calculatedTotalLossUnits),
+
+      positive_loss_items_count: (rawExec.positive_loss_items_count !== undefined && rawExec.positive_loss_items_count !== null)
+        ? Number(rawExec.positive_loss_items_count)
+        : ((rawExec.total_items_with_loss !== undefined && rawExec.total_items_with_loss !== null)
+          ? Number(rawExec.total_items_with_loss)
+          : lossItems.length),
+
+      total_items_audited_count: (rawExec.audited_items !== undefined && rawExec.audited_items !== null)
+        ? Number(rawExec.audited_items)
+        : (auditedItems.length > 0 ? auditedItems.length : (allItems.length || Number(rawExec.total_items_audited || 0))),
+
+      total_items_count: (rawExec.total_items_count !== undefined && rawExec.total_items_count !== null)
+        ? Number(rawExec.total_items_count)
+        : (allItems.length || Number(rawExec.total_items_audited || 0)),
+
+      zero_loss_items_count: (rawExec.zero_loss_items_count !== undefined && rawExec.zero_loss_items_count !== null)
+        ? Number(rawExec.zero_loss_items_count)
+        : ((rawExec.total_items_without_loss !== undefined && rawExec.total_items_without_loss !== null)
+          ? Number(rawExec.total_items_without_loss)
+          : zeroItems.length),
+
+      pending_items_count: (rawExec.pending_items !== undefined && rawExec.pending_items !== null)
+        ? Number(rawExec.pending_items)
+        : pendingItems.length,
+
+      potential_sales_loss: salesCoverageKnown
+        ? (lossItems.length > 0 && pricedLossItems.length === 0 ? null : calculatedPotentialSalesLoss)
+        : (rawExec.potential_sales_loss !== undefined && rawExec.potential_sales_loss !== null)
+        ? Number(rawExec.potential_sales_loss)
+        : ((rawExec.total_sales_value_loss !== undefined && rawExec.total_sales_value_loss !== null)
+          ? Number(rawExec.total_sales_value_loss)
+          : (calculatedPotentialSalesLoss > 0 ? calculatedPotentialSalesLoss : null)),
+
+      uncosted_items_count: (rawExec.uncosted_items_count !== undefined && rawExec.uncosted_items_count !== null)
+        ? Number(rawExec.uncosted_items_count)
+        : ((rawExec.missing_cost_count !== undefined && rawExec.missing_cost_count !== null)
+          ? Number(rawExec.missing_cost_count)
+          : uncostedItems.length),
+
+      has_uncosted_loss: Boolean(rawExec.has_uncosted_loss || rawExec.is_partial_impact || uncostedItems.length > 0),
+      is_partial_impact: Boolean(rawExec.is_partial_impact || rawExec.has_uncosted_loss || uncostedItems.length > 0),
+
+      manual_cost_items_count: Number(rawExec.manual_cost_items_count ?? manualCostItems.length),
+      manual_cost_total_impact: Number(rawExec.manual_cost_total_impact ?? manualCostTotalImpact),
+
+      partial_closure_confirmed: Boolean(rawExec.partial_closure_confirmed),
+      partial_closure_confirmed_by: rawExec.partial_closure_confirmed_by,
+      partial_closure_confirmed_at: rawExec.partial_closure_confirmed_at,
+      partial_closure_justification: rawExec.partial_closure_justification
+    };
+
+    // Eficiência Preventiva normalizada e calculada
+    const monitoredLossItems = lossItems.filter(i => i.source_type === 'monitored');
+    const foundLossItems = lossItems.filter(i => i.source_type === 'audit_found');
+    const calcMonitoredCost = monitoredLossItems.reduce((acc, i) => acc + Number(i.financial_cost_impact || 0), 0);
+    const calcFoundCost = foundLossItems.reduce((acc, i) => acc + Number(i.financial_cost_impact || 0), 0);
+    const calcMonitoredUnits = monitoredLossItems.reduce((acc, i) => acc + Number(i.quantity_audited || 0), 0);
+    const calcFoundUnits = foundLossItems.reduce((acc, i) => acc + Number(i.quantity_audited || 0), 0);
+
+    const prevMonitoredCost = Number(rawPrev.monitored_cost_impact ?? calcMonitoredCost);
+    const prevFoundCost = Number(rawPrev.found_cost_impact ?? calcFoundCost);
+    const prevCostTotal = prevMonitoredCost + prevFoundCost;
+
+    const prev = {
+      monitored_products_count: Number(rawPrev.monitored_products_count ?? rawPrev.monitored_items_count ?? monitoredLossItems.length),
+      monitored_units: Number(rawPrev.monitored_units ?? rawPrev.monitored_units_with_loss ?? calcMonitoredUnits),
+      monitored_cost_impact: prevMonitoredCost,
+      monitored_percent: (rawPrev.monitored_percent !== undefined && rawPrev.monitored_percent !== null)
+        ? Number(rawPrev.monitored_percent)
+        : (prevCostTotal > 0 ? (prevMonitoredCost / prevCostTotal) * 100 : (lossItems.length > 0 ? (monitoredLossItems.length / lossItems.length) * 100 : 100)),
+
+      found_products_count: Number(rawPrev.found_products_count ?? rawPrev.found_in_audit_items_count ?? foundLossItems.length),
+      found_units: Number(rawPrev.found_units ?? rawPrev.found_in_audit_units ?? calcFoundUnits),
+      found_cost_impact: prevFoundCost,
+      found_percent: (rawPrev.found_percent !== undefined && rawPrev.found_percent !== null)
+        ? Number(rawPrev.found_percent)
+        : (prevCostTotal > 0 ? (prevFoundCost / prevCostTotal) * 100 : (lossItems.length > 0 ? (foundLossItems.length / lossItems.length) * 100 : 0))
+    };
 
     const itemsByReason = {};
     lossItems.forEach(item => {
@@ -104,7 +218,46 @@
       itemsByReason[r].push(item);
     });
 
-    // Renderiza grupos da memória de cálculo
+    // Normalização das razões/classificações
+    let normalizedReasons = [];
+    if (Array.isArray(rawReasons) && rawReasons.length > 0) {
+      normalizedReasons = rawReasons.map(r => {
+        const reasonName = r.expiry_reason || r.reason || 'Sem classificação';
+        const costImpact = Number(r.subtotal_cost_impact ?? r.financial_cost_impact ?? 0);
+        const percent = (r.percent_of_total_cost !== undefined && r.percent_of_total_cost !== null)
+          ? Number(r.percent_of_total_cost)
+          : ((r.percent_of_total_loss !== undefined && r.percent_of_total_loss !== null)
+            ? Number(r.percent_of_total_loss)
+            : (exec.total_loss_cost > 0 ? (costImpact / exec.total_loss_cost) * 100 : 0));
+        return {
+          expiry_reason: reasonName,
+          products_count: Number(r.products_count ?? r.items_count ?? (itemsByReason[reasonName]?.length || 0)),
+          units_audited: Number(r.units_audited ?? r.total_loss_units ?? (itemsByReason[reasonName]?.reduce((a, b) => a + Number(b.quantity_audited || 0), 0) || 0)),
+          subtotal_cost_impact: costImpact,
+          percent_of_total_cost: percent,
+          uncosted_items_count: Number(r.uncosted_items_count || 0)
+        };
+      });
+    } else {
+      normalizedReasons = Object.keys(itemsByReason).map(reasonName => {
+        const group = itemsByReason[reasonName];
+        const units = group.reduce((a, b) => a + Number(b.quantity_audited || 0), 0);
+        const cost = group.reduce((a, b) => a + Number(b.financial_cost_impact || 0), 0);
+        return {
+          expiry_reason: reasonName,
+          products_count: group.length,
+          units_audited: units,
+          subtotal_cost_impact: cost,
+          percent_of_total_cost: exec.total_loss_cost > 0 ? (cost / exec.total_loss_cost) * 100 : 0,
+          uncosted_items_count: group.filter(i => i.financial_cost_impact === null || i.financial_cost_impact === undefined).length
+        };
+      });
+    }
+
+    const sumItemsImpact = calculatedTotalLossCost;
+    const sumReasonsImpact = normalizedReasons.reduce((acc, r) => acc + Number(r.subtotal_cost_impact || 0), 0);
+
+    // Renderiza grupos da memória de cálculo (ANEXO I)
     const calculationMemorySections = Object.keys(itemsByReason).map(reason => {
       const groupItems = itemsByReason[reason];
       const groupUnits = groupItems.reduce((acc, i) => acc + Number(i.quantity_audited || 0), 0);
@@ -205,28 +358,43 @@
       `;
     }).join('');
 
-    // Linhas de conciliação matemática
-    const reconciliationRows = reasons.map(r => `
+    // Linhas de conciliação matemática (Seção 2)
+    const reconciliationRows = normalizedReasons.map(r => `
       <tr>
-        <td>${escapeHtml(r.expiry_reason)}</td>
+        <td><strong>${escapeHtml(r.expiry_reason)}</strong></td>
         <td class="text-center">${formatNumber(r.products_count)}</td>
         <td class="text-center">${formatNumber(r.units_audited)} un.</td>
-        <td class="text-right font-bold">${formatBrl(r.subtotal_cost_impact)}</td>
+        <td class="text-right font-bold">${r.subtotal_cost_impact > 0 ? formatBrl(r.subtotal_cost_impact) : (r.uncosted_items_count > 0 ? '<span class="text-warning font-bold">Não apurado</span>' : 'R$ 0,00')}</td>
         <td class="text-right">${formatNumber(r.percent_of_total_cost, 1)}%</td>
       </tr>
     `).join('');
 
     // Linhas do Top Maiores Impactos
-    const topImpactsRows = topImpacts.map((item, idx) => {
+    const effectiveTopImpacts = (topImpacts && topImpacts.length > 0)
+      ? topImpacts
+      : [...lossItems].sort((a, b) => {
+          const impactA = Number(a.financial_cost_impact || 0);
+          const impactB = Number(b.financial_cost_impact || 0);
+          if (impactB !== impactA) return impactB - impactA;
+          return Number(b.quantity_audited || 0) - Number(a.quantity_audited || 0);
+        }).slice(0, 10);
+
+    const topImpactsRows = effectiveTopImpacts.map((item, idx) => {
       const effCost = item.effective_unit_cost !== undefined && item.effective_unit_cost !== null
         ? item.effective_unit_cost
         : (item.cost_source === 'manual' ? item.manual_unit_cost : item.unit_cost_snapshot);
       const costFormatted = effCost !== null && effCost !== undefined
         ? formatBrl(effCost)
         : '<span class="text-warning">Não apurado</span>';
-      const originTag = item.cost_source === 'manual'
-        ? '<span class="badge-tag tag-purple">Manual</span>'
-        : (item.source_type === 'monitored' ? '<span class="badge-tag tag-blue">Monitorado</span>' : '<span class="badge-tag tag-purple">Auditoria</span>');
+      
+      let originTag = '';
+      if (item.cost_source === 'manual') {
+        originTag = '<span class="badge-tag tag-purple">Manual</span>';
+      } else if (item.unit_cost_snapshot !== null && item.unit_cost_snapshot !== undefined) {
+        originTag = '<span class="badge-tag tag-blue">SG</span>';
+      } else {
+        originTag = '<span class="badge-tag text-warning">Sem custo</span>';
+      }
 
       return `
         <tr>
@@ -675,9 +843,9 @@
     <!-- 2. Cards Grandes de Indicadores Executivos -->
     <div class="kpi-cards-grid">
       <div class="kpi-card danger">
-        <div class="kpi-value">${formatBrl(exec.total_loss_cost)}</div>
+        <div class="kpi-value">${(exec.total_loss_cost > 0) ? formatBrl(exec.total_loss_cost) : (exec.uncosted_items_count > 0 ? '<span class="text-warning" style="font-size: 18px; font-weight: 800;">Não apurado</span>' : formatBrl(0))}</div>
         <div class="kpi-label">Impacto pelo Custo</div>
-        <div class="kpi-sub">Total oficial apurado</div>
+        <div class="kpi-sub">${exec.uncosted_items_count > 0 ? `<span style="color:#b45309; font-weight:700;">⚠️ Impacto apurado parcial (${formatNumber(exec.uncosted_items_count)} sem custo)</span>` : 'Total oficial apurado'}</div>
       </div>
 
       <div class="kpi-card warning">
@@ -687,15 +855,15 @@
       </div>
 
       <div class="kpi-card success">
-        <div class="kpi-value">${formatNumber(exec.total_items_count)}</div>
+        <div class="kpi-value">${formatNumber(exec.total_items_audited_count)}</div>
         <div class="kpi-label">Produtos Auditados</div>
-        <div class="kpi-sub">${formatNumber(exec.zero_loss_items_count)} conferidos sem perda</div>
+        <div class="kpi-sub">${formatNumber(exec.zero_loss_items_count)} conferidos sem perda${exec.pending_items_count > 0 ? ` • ${formatNumber(exec.pending_items_count)} pendente(s)` : ''}</div>
       </div>
 
       <div class="kpi-card purple">
-        <div class="kpi-value">${formatBrl(exec.potential_sales_loss)}</div>
-        <div class="kpi-label">Valor Potencial de Venda</div>
-        <div class="kpi-sub">${formatNumber(prev.found_products_count || 0)} avulso(s) na auditoria</div>
+        <div class="kpi-value">${(exec.potential_sales_loss !== null && exec.potential_sales_loss !== undefined) ? formatBrl(exec.potential_sales_loss) : '<span style="color: #64748b; font-size: 18px; font-weight: 700;">Não apurado</span>'}</div>
+        <div class="kpi-label">Valor Potencial de Venda${missingSalePriceCount > 0 ? ' — Parcial' : ''}</div>
+        <div class="kpi-sub">${salesCoverageKnown ? `${pricedLossItems.length} de ${lossItems.length} produto(s) com perda têm preço${missingSalePriceCount > 0 ? ` • ${missingSalePriceCount} sem preço de venda` : ''}` : 'Cobertura de preços não informada'}</div>
       </div>
     </div>
 
@@ -894,7 +1062,8 @@
         </tfoot>
       </table>
       <div style="font-size: 8.5px; color: #166534; font-weight: 700; margin-top: 4px;">
-        ✓ Validação da Controladoria: Soma dos Itens (${formatBrl(reconciliation.sum_items_cost || exec.total_loss_cost)}) = Soma dos Subtotais (${formatBrl(reconciliation.sum_reasons_cost || exec.total_loss_cost)}) = Total Executivo (${formatBrl(exec.total_loss_cost)}).
+        ✓ Validação da Controladoria: Soma dos Itens (${formatBrl(sumItemsImpact)}) = Soma dos Subtotais (${formatBrl(sumReasonsImpact)}) = Total Executivo (${formatBrl(exec.total_loss_cost)}).
+        ${exec.uncosted_items_count > 0 ? `<div style="color: #b45309; margin-top: 2px;">⚠️ Nota: Apuração com ${formatNumber(exec.uncosted_items_count)} produto(s) com perda sem custo unitário disponível (impacto financeiro parcial apurado).</div>` : ''}
       </div>
     </div>
 
@@ -1006,4 +1175,3 @@
     formatDateTime
   };
 })();
-

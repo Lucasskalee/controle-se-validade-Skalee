@@ -130,6 +130,7 @@ async function run() {
 
   console.log('2. Aplicando migration corrigida da Fase 4.1 (Custo Manual & SG Refresh)...');
   await db.exec(manualCostMigration.replace(/notify pgrst.*/g, ''));
+  await db.exec(fs.readFileSync(path.resolve(__dirname, '../supabase/migrations/20261008175603_audit_manual_sale_price.sql'), 'utf8'));
   console.log('   ✓ Migration 4.1 aplicada com sucesso no PostgreSQL!');
 
   // 3. Criar usuário admin e loja de teste
@@ -189,6 +190,47 @@ async function run() {
     ) returning id;
   `);
   const item3Id = item3Res.rows[0].id;
+
+  // Sale and cost save atomically; leave old scenarios unchanged after rollback.
+  await db.exec('begin');
+  const saveSale = async (qty, price, update = true) => (await db.query(`
+    select public.record_audit_item_count_with_sale(
+      p_item_id => '${item2Id}', p_quantity_audited => ${qty},
+      p_update_sale_price => ${update}, p_sale_price => ${price}
+    ) as item`)).rows[0].item;
+  let saleItem = await saveSale(4, 12.50);
+  assert.equal(Number(saleItem.potential_sales_loss), 50);
+  assert.equal(saleItem.sale_price_source, 'manual');
+  assert.equal(saleItem.sale_price_updated_by, adminId);
+  await db.exec(`
+    update public.validity_audit_items set product_code = 'SALE-TEST' where id = '${item2Id}';
+    insert into public.product_stock_snapshots(retail_location_id, internal_code, stock_quantity, cost_price, sale_price, snapshot_date)
+    values ('${locId}', 'SALE-TEST', 20, 8, 99, '2026-10-08');
+  `);
+  const saleRefresh = (await db.query(`select private.refresh_audit_item_sg_reference('${item2Id}', false) as ref`)).rows[0].ref;
+  assert.equal(saleRefresh.found, true);
+  assert.equal(Number(saleRefresh.item.sale_price_snapshot), 12.5, 'SG must preserve the manual sale price');
+  saleItem = await saveSale(2, 999, false);
+  assert.equal(Number(saleItem.sale_price_snapshot), 12.5);
+  assert.equal(Number(saleItem.potential_sales_loss), 25);
+  saleItem = await saveSale(2, 0);
+  assert.equal(Number(saleItem.potential_sales_loss), 0);
+  saleItem = await saveSale(2, 'null');
+  assert.equal(saleItem.potential_sales_loss, null);
+  await db.exec('savepoint invalid_price');
+  await assert.rejects(() => saveSale(99, -1), /Preço de venda inválido/);
+  await db.exec('rollback to savepoint invalid_price');
+  assert.equal(Number((await db.query(`select quantity_audited from public.validity_audit_items where id = '${item2Id}'`)).rows[0].quantity_audited), 2);
+  await db.exec(`select set_config('request.jwt.claim.sub', '', false)`);
+  await db.exec('savepoint unauthenticated');
+  await assert.rejects(() => saveSale(1, 10), /Autenticação/);
+  await db.exec('rollback to savepoint unauthenticated');
+  await db.exec('rollback');
+  await db.exec('begin');
+  await db.exec(`select set_config('request.jwt.claim.sub', '22222222-2222-2222-2222-222222222222', false); select set_config('request.jwt.claims', '{}', false);`);
+  await assert.rejects(() => saveSale(1, 10), /Acesso negado/);
+  await db.exec('rollback');
+  console.log('   ✓ Venda manual: cálculo, preservação, zero, ausente, rollback e autenticação.');
 
   // --------------------------------------------------------------------------
   // CENÁRIO 1: Apuração de Item 1 (com custo SG)
@@ -643,6 +685,8 @@ async function run() {
   assert.equal(checkRev1.items.length, 3);
   assert.equal(Number(checkRev1.items.find(i => i.id === item1Id).quantity_audited), 5);
   console.log('   ✓ Ambas as revisões (Rev 1 com 3 itens e Rev 2 com 4 itens) coexistem imutáveis e auditáveis!');
+  await assert.rejects(() => db.query(`select public.record_audit_item_count_with_sale(p_item_id => '${item1Id}', p_quantity_audited => 8, p_update_sale_price => true, p_sale_price => 20)`), /imutável/);
+  await db.close();
 
   console.log('\n=============================================================');
   console.log(' TODOS OS 19 TESTES LOCAIS PASSARAM COM 100% DE SUCESSO! 🎉');

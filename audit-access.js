@@ -602,6 +602,12 @@
               </div>
             </div>
 
+            <div>
+              <label class="audit-field-label" for="countSalePrice">Preço de venda unitário (R$)</label>
+              <input type="number" id="countSalePrice" class="audit-input" style="width:100%;" min="0" step="0.01" placeholder="Não informado">
+              <small id="countSalePriceHelp">Opcional. Usado para calcular a venda potencial das unidades vencidas.</small>
+            </div>
+
             <!-- Impacto Financeiro Calculado em Tempo Real -->
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(0,217,255,0.06); border: 1px solid rgba(0,217,255,0.25); border-radius: 8px;">
               <span style="font-size: 12px; color: var(--text); font-weight: 600;">Impacto Financeiro Estimado:</span>
@@ -853,6 +859,7 @@
                 <tbody id="closeActionPlanTableBody"></tbody>
               </table>
             </div>
+          </div>
           <!-- Seção de Confirmação Explícita de Impacto Financeiro Parcial -->
           <div id="closePartialClosureBox" style="display: none; padding: 12px; border-radius: 8px; background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.35);">
             <div style="display: flex; gap: 10px; align-items: flex-start;">
@@ -1079,6 +1086,8 @@
   const btnRevertToSg = panel.querySelector('#btnRevertToSg');
   const modalManualCostPanel = panel.querySelector('#modalManualCostPanel');
   const manualCostUnitInput = panel.querySelector('#manualCostUnitInput');
+  const countSalePrice = panel.querySelector('#countSalePrice');
+  const countSalePriceHelp = panel.querySelector('#countSalePriceHelp');
   const manualCostDetailSelect = panel.querySelector('#manualCostDetailSelect');
   const manualCostOtherWrap = panel.querySelector('#manualCostOtherWrap');
   const manualCostOtherInput = panel.querySelector('#manualCostOtherInput');
@@ -1197,8 +1206,12 @@
     if (spanText) spanText.textContent = 'Consultando SG...';
 
     try {
-      const refreshedItem = await window.skaleeDb.refreshAuditItemSgReference(itemId, false);
+      const refreshResult = await window.skaleeDb.refreshAuditItemSgReference(itemId, false);
+      const refreshedItem = refreshResult?.item || refreshResult;
       if (refreshedItem) {
+        const salePriceEdited = countSalePrice.value !== (currentItemBeingCounted.sale_price_snapshot == null ? '' : String(currentItemBeingCounted.sale_price_snapshot));
+        currentItemBeingCounted.sale_price_snapshot = refreshedItem.sale_price_snapshot;
+        if (!salePriceEdited) countSalePrice.value = refreshedItem.sale_price_snapshot ?? '';
         currentItemBeingCounted.stock_quantity_snapshot = refreshedItem.stock_quantity_snapshot;
         currentItemBeingCounted.unit_cost_snapshot = refreshedItem.unit_cost_snapshot;
         currentItemBeingCounted.sg_reference_loaded_at = refreshedItem.sg_reference_loaded_at;
@@ -1216,12 +1229,14 @@
         // Update in auditItems array
         const idx = auditItems.findIndex(i => i.id === itemId);
         if (idx !== -1) {
+          Object.assign(auditItems[idx], refreshedItem);
           auditItems[idx].stock_quantity_snapshot = refreshedItem.stock_quantity_snapshot;
           auditItems[idx].unit_cost_snapshot = refreshedItem.unit_cost_snapshot;
           auditItems[idx].sg_reference_loaded_at = refreshedItem.sg_reference_loaded_at;
         }
 
         recalculateModalRealtimeImpact();
+        updateKPIs();
         alert(`Referência SG consultada com sucesso!\nEstoque SG: ${refreshedItem.stock_quantity_snapshot ?? 'Não localizado'}\nCusto SG: ${refreshedItem.unit_cost_snapshot !== null ? formatCurrency(refreshedItem.unit_cost_snapshot) : 'Não localizado'}`);
       }
     } catch (err) {
@@ -1283,6 +1298,9 @@
     m.addEventListener('click', (e) => {
       if (e.target === m) m.classList.remove('show');
     });
+    // Keep fixed dialogs outside the animated app container, which creates
+    // a containing block and can place them off-screen after mobile scrolling.
+    document.body.append(m);
   });
 
   window.addEventListener('keydown', (e) => {
@@ -1376,6 +1394,7 @@
 
   // Clear state
   function clear() {
+    allModals.forEach(m => m.classList.remove('show'));
     context = null;
     currentAudit = null;
     auditItems = [];
@@ -1640,6 +1659,8 @@
   }
 
   function updateKPIs() {
+    let pricedLossCount = 0;
+    lastReportData = null;
     const total = auditItems.length;
     let pending = 0;
     let counted = 0;
@@ -1674,8 +1695,9 @@
           } else {
             hasUncostedLoss = true;
           }
-          if (item.potential_sales_loss !== null && item.potential_sales_loss !== undefined) {
-            totalSalesLoss += Number(item.potential_sales_loss);
+          if (item.sale_price_snapshot !== null && item.sale_price_snapshot !== undefined && item.sale_price_snapshot !== '' && Number.isFinite(Number(item.sale_price_snapshot)) && Number(item.sale_price_snapshot) >= 0) {
+            totalSalesLoss += Number(item.quantity_audited) * Number(item.sale_price_snapshot);
+            pricedLossCount++;
           }
         } else {
           noLossCount++;
@@ -1692,7 +1714,7 @@
     } else {
       kpiFinancial.textContent = formatCurrency(totalCostImpact);
     }
-    if (kpiSalesLossSub) kpiSalesLossSub.textContent = `Venda potencial: ${formatCurrency(totalSalesLoss)}`;
+    if (kpiSalesLossSub) kpiSalesLossSub.textContent = `Venda potencial${pricedLossCount < lossCount ? ' parcial' : ''}: ${lossCount > 0 && pricedLossCount === 0 ? 'Não apurada' : formatCurrency(totalSalesLoss)} • ${pricedLossCount} de ${lossCount} produtos com perda têm preço`;
     kpiPending.textContent = pending;
 
     if (countAll) countAll.textContent = total;
@@ -1961,6 +1983,8 @@
 
   // Open Count Modal
   function openCountModal(item) {
+    countSalePrice.value = item.sale_price_snapshot ?? '';
+    countSalePriceHelp.textContent = `Origem: ${item.sale_price_source === 'manual' ? 'Manual' : item.sale_price_snapshot != null ? 'Carga SG' : 'Não informado'}. Alterar este campo registra um preço manual. Em branco, a venda fica não apurada.`;
     currentItemBeingCounted = item;
     manualCostModeActive = false;
     costRevertToSgRequested = false;
@@ -2058,6 +2082,14 @@
 
     const rawQty = countQty.value.trim();
     const quantityAudited = rawQty === '' ? null : Number(rawQty);
+    const rawSalePrice = countSalePrice.value.trim();
+    const salePrice = rawSalePrice === '' ? null : Number(rawSalePrice);
+    if (salePrice !== null && (!Number.isFinite(salePrice) || salePrice < 0)) {
+      countError.textContent = 'Informe um preço de venda válido, maior ou igual a zero.';
+      countError.style.display = 'block';
+      return;
+    }
+    const oldSalePrice = currentItemBeingCounted.sale_price_snapshot == null ? null : Number(currentItemBeingCounted.sale_price_snapshot);
 
     let costSource = null; // null = preserve existing cost in database!
     let manualUnitCost = null;
@@ -2108,6 +2140,8 @@
 
     try {
       const payload = {
+        salePrice,
+        updateSalePrice: salePrice !== oldSalePrice,
         quantityAudited,
         expiryReason: countReason.value,
         expiryReasonOther: countReason.value === 'Outro' ? countReasonOther.value.trim() : null,
