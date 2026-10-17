@@ -1,10 +1,15 @@
-const CACHE_VERSION = "skalee-v4.3.3-upcoming-checklist";
+const CACHE_VERSION = "skalee-v4.3.5-native-camera";
 const CACHE_NAME = CACHE_VERSION;
 
 const APP_SHELL = [
   "/",
   "/index.html",
   "/local-store.js",
+  "/product-drafts.js",
+  "/registration-draft-ui.js",
+  "/native-camera.js",
+  "/android-ui.js",
+  "/android-ui.css",
   "/product-image-service.js",
   "/product-detail.js",
   "/product-gallery.js",

@@ -8,13 +8,29 @@
     "build:ts": "tsc",
     "typecheck": "tsc --noEmit",
     "watch:ts": "tsc --watch",
-    "start": "node tools/server.js"
+    "start": "node tools/server.js",
+    "build:web": "npm run build:ts && node tools/build_web.cjs",
+    "android:sync": "npm run build:web && cap sync android",
+    "android:open": "cap open android",
+    "test:drafts": "node tools/test_product_drafts.cjs",
+    "test:android": "node tools/test_product_drafts.cjs && node tools/test_native_camera.cjs && node tools/test_android_save_safety.cjs && node tools/verify_android_web.cjs",
+    "test:android:browser": "node tools/test_android_drafts_browser.cjs && node tools/verify_android_ui.cjs"
   },
   "devDependencies": {
+    "@capacitor/cli": "8.5.3",
+    "esbuild": "0.28.2",
+    "fake-indexeddb": "6.2.5",
     "typescript": "^5.7.3",
     "vercel": "^62.7.0"
   },
   "dependencies": {
-    "@electric-sql/pglite": "^0.5.8"
+    "@capacitor/android": "8.5.3",
+    "@capacitor/app": "8.1.2",
+    "@capacitor/camera": "8.2.5",
+    "@capacitor/core": "8.5.3",
+    "@electric-sql/pglite": "^0.5.8",
+    "@supabase/supabase-js": "2.55.0",
+    "@zxing/browser": "0.2.1",
+    "html5-qrcode": "2.3.8"
   }
 }

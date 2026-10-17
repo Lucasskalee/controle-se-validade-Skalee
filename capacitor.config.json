@@ -1,0 +1,6 @@
+{
+  "appId": "dev.skalee.validades",
+  "appName": "Skalee Validades",
+  "webDir": "dist",
+  "server": { "androidScheme": "https" }
+}

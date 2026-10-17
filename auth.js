@@ -433,12 +433,13 @@ function toDatabase(product) {
  };
 }
 
-function productPhotoPath(product, extension) {
+function productPhotoPath(product, extension, uploadId) {
  // Storage authorizes uploads under the current user's folder, including
  // when an editor updates a product originally registered by someone else.
  const ownerId = activeUserId;
  if (!ownerId || !product.id || !extension) throw new Error("Não foi possível identificar o caminho da foto do produto.");
- return `${ownerId}/${product.id}/photo-${crypto.randomUUID()}.${extension}`;
+ const stableId = /^[a-f0-9-]{36}$/i.test(uploadId || '') ? uploadId : crypto.randomUUID();
+ return `${ownerId}/${product.id}/photo-${stableId}.${extension}`;
 }
 
 function localDateKeyFromOffset(days = 0) {
@@ -718,7 +719,7 @@ async function uploadProductPhoto(product, processedPhoto) {
  }
  const userId = activeUserId;
  const productId = product.id;
- const path = productPhotoPath(product, processed.extension);
+ const path = productPhotoPath(product, processed.extension, processedPhoto.uploadId);
  if (!processed.blob || !processed.contentType || !processed.extension || !userId || !productId || !path || path.endsWith(".undefined")) {
   throw new Error("Dados da foto incompletos antes do upload");
  }
@@ -1132,14 +1133,31 @@ async function processOfflineSyncQueue() {
   }
   console.log(`[SYNC_QUEUE] Processando ${queue.length} operações pendentes...`);
   for (const item of queue) {
+   if (item.payload?.draftUserId && item.payload.draftUserId !== activeUserId) continue;
+   if (item.payload?.draftUserId && item.status === "processing" && !item.payload.recoveryProductId) {
+    // A process death during INSERT has an unknown outcome: never blindly replay it.
+    await window.skaleeLocalStore.updateSyncQueueItem(item.id, { status: "failed", lastError: "Envio interrompido sem confirmação. Confira o cadastro antes de repetir." });
+    await window.skaleeRegistrationDraft?.syncUncertain(item);
+    continue;
+   }
+   if (item.payload?.draftUserId && item.status === "failed" && !item.payload.recoveryProductId) { await window.skaleeRegistrationDraft?.syncUncertain(item); continue; }
    try {
     await window.skaleeLocalStore.updateSyncQueueItem(item.id, { status: "processing" });
     if (item.operation === "create") {
-     const saved = await window.skaleeDb.saveProduct(item.payload, { skipOfflineQueue: true });
+     const saved = item.payload.draftUserId && item.payload.recoveryProductId
+      ? await window.skaleeDb.updateProduct(item.payload.recoveryProductId, { processedPhoto: item.payload.processedPhoto, imageSource: item.payload.imageSource }, { skipOfflineQueue: true })
+      : await window.skaleeDb.saveProduct(item.payload, {
+         skipOfflineQueue: true,
+         onCreated: item.payload.draftUserId ? async id => {
+          item.payload.recoveryProductId = id;
+          await window.skaleeLocalStore.updateSyncQueueItem(item.id, { payload: item.payload });
+         } : undefined
+        });
      if (item.payload.temporaryId && saved?.id) {
       await window.skaleeLocalStore.deleteProduct(item.payload.temporaryId);
      }
      await window.skaleeLocalStore.saveProduct(saved);
+     await window.skaleeRegistrationDraft?.synced(item.payload.temporaryId, { ...saved, draftStoreId: item.payload.draftStoreId }, item.payload.draftUserId);
     } else if (item.operation === "update") {
      const updated = await window.skaleeDb.updateProduct(item.payload.id, item.payload.changes, { skipOfflineQueue: true });
      await window.skaleeLocalStore.saveProduct(updated);
@@ -1155,10 +1173,11 @@ async function processOfflineSyncQueue() {
     console.warn(`[SYNC_QUEUE] Falha na operação ${item.id}:`, opError);
     const retries = (item.retries || 0) + 1;
     await window.skaleeLocalStore.updateSyncQueueItem(item.id, {
-     status: retries >= 5 ? "failed" : "pending",
+     status: (item.payload?.draftUserId && !item.payload.recoveryProductId) || retries >= 5 ? "failed" : "pending",
      retries,
      lastError: opError?.message || "Erro de rede"
     });
+    if (item.payload?.draftUserId && !item.payload.recoveryProductId) await window.skaleeRegistrationDraft?.syncUncertain(item);
    }
   }
   const remaining = await window.skaleeLocalStore.countPendingSyncQueue();
@@ -2212,6 +2231,7 @@ window.skaleeDb = {
  },
  async saveProduct(product, options = {}) {
   const access = await this.currentPromoterAccess();
+  if (product.draftUserId && product.draftUserId !== activeUserId) throw new Error("A sessão mudou. Entre na conta original para recuperar este cadastro.");
   if (access) {
    if (access.supplierCodes.length) {
     if (!product.supplierCode || !access.supplierCodes.includes(product.supplierCode)) {
@@ -2238,6 +2258,7 @@ window.skaleeDb = {
    };
    await window.skaleeLocalStore.saveProduct(localProduct);
    await window.skaleeLocalStore.enqueueSyncOperation("create", { ...product, temporaryId: tempId });
+   await options.onQueued?.(tempId);
    return localProduct;
   }
 
@@ -2257,7 +2278,7 @@ window.skaleeDb = {
    if (res.error) throw res.error;
    data = res.data;
   } catch (error) {
-   if (!options.skipOfflineQueue && window.skaleeLocalStore && isNetworkError(error)) {
+   if (!product.draftUserId && !options.skipOfflineQueue && window.skaleeLocalStore && isNetworkError(error)) {
     console.warn("[DB] Falha de conexão ao salvar produto online. Salvando offline:", error);
     const tempId = `offline_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
     const localProduct = {
@@ -2272,6 +2293,7 @@ window.skaleeDb = {
     };
     await window.skaleeLocalStore.saveProduct(localProduct);
     await window.skaleeLocalStore.enqueueSyncOperation("create", { ...product, temporaryId: tempId });
+    await options.onQueued?.(tempId);
     return localProduct;
    }
    logPhotoDiagnosticError(error);
@@ -2279,6 +2301,7 @@ window.skaleeDb = {
   }
 
   console.log("[PHOTO] produto criado", data?.id);
+  await options.onCreated?.(data.id);
   const storeCodeKey = stockMovementStoreCodeKey(data?.store, data?.product_code);
   const existingMovement = (storeCodeKey ? stockMovementByCodeStoreCache.get(storeCodeKey) : null) || null;
   if (existingMovement && data?.id) {
@@ -3556,7 +3579,7 @@ function showSession(session) {
  if (previousUserId !== nextUserId || previousAccessRole !== accessRole || (authenticated && !hasDispatchedAuthenticated)) {
   hasDispatchedAuthenticated = authenticated;
   window.dispatchEvent(new CustomEvent(authenticated ? "skalee:authenticated" : "skalee:signed-out", {
-   detail: { email: session?.user?.email || "", accessRole }
+   detail: { userId: nextUserId, email: session?.user?.email || "", accessRole }
   }));
  }
  if (authenticated && (!session?.user?.app_metadata?.access_role || session.user.app_metadata.access_role !== "platform_admin")) {

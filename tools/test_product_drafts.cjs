@@ -1,0 +1,21 @@
+const assert = require('node:assert/strict');
+const { indexedDB } = require('fake-indexeddb');
+const { createStore } = require('../product-drafts.js');
+(async () => {
+ const first = createStore(indexedDB);
+ const photo = new Blob(['photo-bytes'], { type: 'image/jpeg' });
+ await first.write('alice', 'store-a', { fields: { qty: '7' }, photoData: { blob: photo }, checkpoint: { state: 'photo-pending', id: 'saved-id' } });
+ await first.write('alice', 'store-b', { fields: { qty: '3' } });
+ const reopened = createStore(indexedDB);
+ const recovered = await reopened.read('alice', 'store-a');
+ assert.equal(recovered.fields.qty, '7');
+ assert.equal(await recovered.photoData.blob.text(), 'photo-bytes');
+ assert.equal(recovered.checkpoint.id, 'saved-id');
+ assert.equal(await reopened.read('bob', 'store-a'), undefined);
+ assert.equal((await reopened.read('alice', 'store-b')).fields.qty, '3');
+ await assert.rejects(first.write('', 'store-a', {}), /autenticado/);
+ await first.remove('alice', 'store-a');
+ assert.equal(await reopened.read('alice', 'store-a'), undefined);
+ assert.equal((await reopened.read('alice', 'store-b')).fields.qty, '3');
+ console.log('PASS: durable draft, Blob, pending upload, user/store isolation and scoped completion.');
+})().catch(error => { console.error(error); process.exitCode = 1; });

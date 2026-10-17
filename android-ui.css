@@ -1,0 +1,1442 @@
+/* ==========================================================================
+   SKALEE VALIDADES ANDROID 1.0 — Camada Visual Exclusiva Capacitor Android
+   Escopo estrito: html.android-app (NUNCA afeta o PWA ou navegadores web)
+   ========================================================================== */
+
+html.android-app,
+html.android-app body {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100vw !important;
+  min-height: 100dvh !important;
+  margin: 0 !important;
+  overflow-x: hidden !important;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+html.android-app body {
+  padding-top: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* Oculta cabeçalho, barra de abas e banners de instalação do PWA apenas no app Android */
+html.android-app #protectedApp > header:not(#androidHeader),
+html.android-app #protectedApp > nav.main-nav,
+html.android-app #installBanner,
+html.android-app #iosInstallModal {
+  display: none !important;
+}
+
+/* Oculta header e bottom nav Android durante login/carregamento ou na Central Administrativa */
+html.android-app body.auth-loading #androidHeader,
+html.android-app body.auth-anonymous #androidHeader,
+html.android-app body.admin-open #androidHeader,
+html.android-app body.auth-loading #androidBottomNav,
+html.android-app body.auth-anonymous #androidBottomNav,
+html.android-app body.admin-open #androidBottomNav {
+  display: none !important;
+}
+
+/* Ajusta o container principal (#protectedApp) para ocupar toda a viewport sem criar containing block fixo */
+html.android-app #protectedApp {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 100dvh !important;
+  margin: 0 !important;
+  padding: 0 14px calc(98px + env(safe-area-inset-bottom, 0px)) !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
+  animation: none !important;
+  transform: none !important;
+  filter: none !important;
+  opacity: 1 !important;
+}
+
+html.android-app body.auth-loading #protectedApp,
+html.android-app body.auth-anonymous #protectedApp {
+  display: none !important;
+}
+
+/* Isolamento estrito de páginas: somente a tela .page.active pode ser exibida */
+html.android-app .page,
+html.android-app .page:not(.active),
+html.android-app .page[hidden],
+html.android-app #audit:not(.active),
+html.android-app #audit[hidden] {
+  display: none !important;
+}
+
+html.android-app .page.active:not([hidden]) {
+  display: block !important;
+  width: 100% !important;
+  max-width: 1200px !important;
+  box-sizing: border-box !important;
+  margin: 12px auto 0 !important;
+  position: relative;
+  z-index: 1;
+}
+
+/* Garante que modais de auditoria fechados nunca ocupem área na tela */
+html.android-app .audit-modal-overlay:not(.show) {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+html.android-app .audit-modal-overlay.show {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+html.android-app .product-load-toast {
+  bottom: calc(82px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* ==========================================================================
+   1. CABEÇALHO COMPACTO ANDROID (#androidHeader)
+   ========================================================================== */
+html.android-app #androidHeader,
+html.android-app .android-header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 900 !important;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  width: auto !important;
+  margin: 0 -14px !important;
+  padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 10px !important;
+  background: rgba(15, 23, 42, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+  box-shadow: 0 4px 18px rgba(2, 6, 23, 0.18);
+  color: #f8fafc;
+  box-sizing: border-box !important;
+}
+
+html.android-app[data-theme="light"] #androidHeader,
+html.android-app[data-theme="light"] .android-header {
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
+  color: #0f172a;
+}
+
+html.android-app .android-header-brand {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 10px !important;
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+  overflow: hidden !important;
+}
+
+html.android-app .android-header-logo {
+  width: 34px !important;
+  height: 34px !important;
+  flex: 0 0 34px !important;
+  border-radius: 10px;
+  object-fit: contain;
+  flex-shrink: 0 !important;
+  background: rgba(37, 99, 235, 0.12);
+  padding: 2px;
+  box-sizing: border-box;
+}
+
+html.android-app .android-header-titles {
+  display: flex !important;
+  flex-direction: column !important;
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+  overflow: hidden !important;
+}
+
+html.android-app .android-header-brand-name {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+html.android-app .android-header-store-row {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 5px !important;
+  margin-top: 2px !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+html.android-app .android-header-store-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+  flex-shrink: 0;
+}
+
+html.android-app .android-header-store-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: none;
+  padding: 2px 15px 2px 0;
+  margin: 0;
+  min-height: 24px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #38bdf8;
+  min-width: 0;
+  max-width: min(200px, calc(100vw - 125px));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right center;
+}
+
+html.android-app[data-theme="light"] .android-header-store-select {
+  color: #2563eb;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+}
+
+html.android-app .android-header-store-select option {
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+html.android-app[data-theme="light"] .android-header-store-select option {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+html.android-app .android-header-actions {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex: 0 0 auto !important;
+  flex-shrink: 0 !important;
+  margin-left: auto !important;
+}
+
+html.android-app .android-header-icon-btn {
+  position: relative;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  flex: 0 0 40px !important;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(30, 41, 59, 0.65);
+  color: #f8fafc;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+html.android-app[data-theme="light"] .android-header-icon-btn {
+  background: #f1f5f9;
+  border-color: rgba(15, 23, 42, 0.1);
+  color: #0f172a;
+}
+
+html.android-app .android-header-icon-btn:active {
+  transform: scale(0.94);
+}
+
+html.android-app .android-header-icon-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+html.android-app .android-header-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #0f172a;
+  box-sizing: border-box;
+}
+
+html.android-app[data-theme="light"] .android-header-badge {
+  border-color: #ffffff;
+}
+
+/* ==========================================================================
+   2. NAVEGAÇÃO INFERIOR FIXA (#androidBottomNav)
+   ========================================================================== */
+html.android-app #androidBottomNav,
+html.android-app .android-bottom-nav {
+  position: fixed !important;
+  top: auto !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100% !important;
+  max-width: none !important;
+  height: auto !important;
+  min-height: 66px !important;
+  max-height: calc(84px + env(safe-area-inset-bottom, 0px)) !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  transform: none !important;
+  overflow: visible !important;
+  z-index: 950 !important;
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  align-items: end !important;
+  gap: 0 !important;
+  padding: 6px 8px calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+  background: rgba(15, 23, 42, 0.96) !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: none !important;
+  border-top: 1px solid rgba(148, 163, 184, 0.18) !important;
+  box-shadow: 0 -6px 24px rgba(2, 6, 23, 0.28) !important;
+  box-sizing: border-box !important;
+}
+
+html.android-app[data-theme="light"] #androidBottomNav,
+html.android-app[data-theme="light"] .android-bottom-nav {
+  background: rgba(255, 255, 255, 0.97) !important;
+  border-top: 1px solid rgba(15, 23, 42, 0.09) !important;
+  box-shadow: 0 -4px 20px rgba(15, 23, 42, 0.08) !important;
+}
+
+html.android-app .android-nav-item {
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 50px;
+  padding: 4px 2px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.1;
+  transition: color 0.18s ease, transform 0.15s ease;
+  position: relative;
+}
+
+html.android-app[data-theme="light"] .android-nav-item {
+  color: #64748b;
+}
+
+html.android-app .android-nav-item svg {
+  width: 22px;
+  height: 22px;
+  stroke-width: 2;
+  transition: transform 0.18s ease;
+}
+
+html.android-app .android-nav-item.active {
+  color: #38bdf8;
+  font-weight: 800;
+}
+
+html.android-app[data-theme="light"] .android-nav-item.active {
+  color: #2563eb;
+}
+
+html.android-app .android-nav-item.active:not(.android-nav-item-center)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 24px;
+  height: 3px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+html.android-app .android-nav-item:active {
+  transform: scale(0.95);
+}
+
+/* Botão central Cadastrar destacado em formato circular azul */
+html.android-app .android-nav-item-center {
+  position: relative;
+  padding-top: 0;
+  color: #e2e8f0;
+  font-weight: 700;
+}
+
+html.android-app[data-theme="light"] .android-nav-item-center {
+  color: #1e293b;
+}
+
+html.android-app .android-nav-fab {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2563eb 0%, #0284c7 100%);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: -22px;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.45), 0 0 0 4px rgba(15, 23, 42, 0.95);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+html.android-app[data-theme="light"] .android-nav-fab {
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.35), 0 0 0 4px #ffffff;
+}
+
+html.android-app .android-nav-item-center.active .android-nav-fab {
+  background: linear-gradient(135deg, #1d4ed8 0%, #0ea5e9 100%);
+  transform: translateY(-2px) scale(1.04);
+}
+
+html.android-app .android-nav-fab svg {
+  width: 26px;
+  height: 26px;
+  stroke-width: 2.6;
+}
+
+/* ==========================================================================
+   3. TELA INICIAL ANDROID (#android-home)
+   ========================================================================== */
+html.android-app .android-home-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+html.android-app .android-home-greeting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+html.android-app .android-home-greeting-text h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+html.android-app .android-home-greeting-text p {
+  margin: 3px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+html.android-app .android-home-store-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.12);
+  border: 1px solid rgba(37, 99, 235, 0.28);
+  color: #38bdf8;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+html.android-app[data-theme="light"] .android-home-store-pill {
+  color: #1d4ed8;
+  background: rgba(37, 99, 235, 0.08);
+}
+
+/* Alerta de rascunho / recuperação na Home */
+html.android-app [hidden],
+html.android-app .android-home-draft-banner[hidden] {
+  display: none !important;
+}
+
+html.android-app .android-home-draft-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.14) 0%, rgba(234, 88, 12, 0.1) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.38);
+  color: var(--text);
+}
+
+html.android-app .android-home-draft-banner strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+html.android-app .android-home-draft-banner small {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* Indicadores principais (Vencidos, Próximos do vencimento, Em oferta) */
+html.android-app .android-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+html.android-app .android-kpi-card {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid var(--line, rgba(148, 163, 184, 0.18));
+  background: var(--card, #1e293b);
+  border-radius: 16px;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 6px;
+  text-align: left;
+  cursor: pointer;
+  color: var(--text);
+  font-family: inherit;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+html.android-app .android-kpi-card:active {
+  transform: scale(0.97);
+}
+
+html.android-app .android-kpi-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 6px;
+}
+
+html.android-app .android-kpi-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+html.android-app .android-kpi-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+html.android-app .android-kpi-value {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+html.android-app .android-kpi-label {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text);
+  word-break: break-word;
+}
+
+html.android-app .android-kpi-sub {
+  font-size: 10.5px;
+  color: var(--muted);
+  line-height: 1.15;
+}
+
+html.android-app .android-kpi-card.kpi-expired {
+  border-color: rgba(239, 68, 68, 0.34);
+  background: linear-gradient(160deg, rgba(239, 68, 68, 0.12) 0%, var(--card, #1e293b) 85%);
+}
+
+html.android-app .android-kpi-card.kpi-expired .android-kpi-icon {
+  background: rgba(239, 68, 68, 0.18);
+  color: #f87171;
+}
+
+html.android-app[data-theme="light"] .android-kpi-card.kpi-expired .android-kpi-icon {
+  color: #dc2626;
+}
+
+html.android-app .android-kpi-card.kpi-expiring {
+  border-color: rgba(245, 158, 11, 0.34);
+  background: linear-gradient(160deg, rgba(245, 158, 11, 0.12) 0%, var(--card, #1e293b) 85%);
+}
+
+html.android-app .android-kpi-card.kpi-expiring .android-kpi-icon {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fbbf24;
+}
+
+html.android-app[data-theme="light"] .android-kpi-card.kpi-expiring .android-kpi-icon {
+  color: #d97706;
+}
+
+html.android-app .android-kpi-card.kpi-offer {
+  border-color: rgba(14, 165, 233, 0.34);
+  background: linear-gradient(160deg, rgba(14, 165, 233, 0.12) 0%, var(--card, #1e293b) 85%);
+}
+
+html.android-app .android-kpi-card.kpi-offer .android-kpi-icon {
+  background: rgba(14, 165, 233, 0.18);
+  color: #38bdf8;
+}
+
+html.android-app[data-theme="light"] .android-kpi-card.kpi-offer .android-kpi-icon {
+  color: #0284c7;
+}
+
+/* Seção Produtos em Acompanhamento */
+html.android-app .android-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+html.android-app .android-section-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+html.android-app .android-section-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+html.android-app .android-section-count {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.15);
+  color: var(--muted);
+}
+
+html.android-app .android-section-link {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: #38bdf8;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 6px;
+}
+
+html.android-app[data-theme="light"] .android-section-link {
+  color: #2563eb;
+}
+
+html.android-app .android-home-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+html.android-app .android-home-card {
+  display: grid;
+  grid-template-columns: 78px minmax(0, 1fr);
+  gap: 12px;
+  padding: 12px;
+  border-radius: 16px;
+  background: var(--card, #1e293b);
+  border: 1px solid var(--line, rgba(148, 163, 184, 0.18));
+  cursor: pointer;
+  align-items: center;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+  box-sizing: border-box;
+}
+
+html.android-app .android-home-card:active {
+  transform: scale(0.985);
+}
+
+html.android-app .android-home-card .photo {
+  width: 78px !important;
+  height: 78px !important;
+  min-height: 78px !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+  background: rgba(15, 23, 42, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+  padding: 4px;
+  box-sizing: border-box;
+}
+
+html.android-app[data-theme="light"] .android-home-card .photo {
+  background: #f1f5f9;
+}
+
+html.android-app .android-home-card .photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+html.android-app .android-home-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+html.android-app .android-home-card-name {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+html.android-app .android-home-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+html.android-app .android-home-card-meta b {
+  color: var(--text);
+  font-weight: 700;
+}
+
+html.android-app .android-home-card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+/* ==========================================================================
+   4. PRODUTOS (#products) — Visualização em Grade (2/3/4 col) e Lista (1 col)
+   ========================================================================== */
+html.android-app #products .stats {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+  margin-bottom: 12px !important;
+}
+
+html.android-app #products .stats .stat:first-child {
+  grid-column: 1 / -1;
+}
+
+html.android-app #products .product-layout-picker {
+  display: none !important;
+}
+
+html.android-app #products .searchrow {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 8px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+html.android-app #products .filters {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+}
+
+/* Barra de ordenação e alternância Grade / Lista */
+html.android-app #products .android-products-toolbar {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  margin: 4px 0 12px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+html.android-app #products .android-products-toolbar .resultline {
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  color: var(--muted) !important;
+  flex: 1 1 auto !important;
+  min-width: 110px !important;
+}
+
+html.android-app #products .android-products-toolbar-controls {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex: 1 1 auto !important;
+  justify-content: flex-end !important;
+  min-width: 0 !important;
+}
+
+html.android-app #products .android-products-toolbar-controls #sort {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  max-width: 230px !important;
+  min-height: 38px !important;
+  padding: 6px 10px !important;
+  font-size: 12.5px !important;
+  border-radius: 10px !important;
+}
+
+html.android-app .android-view-toggle {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 2px !important;
+  padding: 3px !important;
+  border-radius: 11px !important;
+  background: rgba(15, 23, 42, 0.08) !important;
+  border: 1px solid var(--line, rgba(148, 163, 184, 0.22)) !important;
+  flex-shrink: 0 !important;
+}
+
+html.android-app[data-theme="dark"] .android-view-toggle {
+  background: rgba(15, 23, 42, 0.65) !important;
+}
+
+html.android-app .android-view-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--muted, #64748b);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 32px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.16s ease, color 0.16s ease, box-shadow 0.16s ease;
+  white-space: nowrap;
+}
+
+html.android-app .android-view-btn svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+html.android-app .android-view-btn.active {
+  background: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+}
+
+/* Visualização em GRADE (padrão: 2 colunas em smartphones, 3/4 em tablets) */
+html.android-app #products #grid:not([data-android-view="list"]) {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  align-items: stretch !important;
+}
+
+html.android-app #products #grid .product-card-slot {
+  min-height: 0 !important;
+  height: 100% !important;
+}
+
+html.android-app #products #grid:not([data-android-view="list"]) .card {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+  padding: 9px !important;
+  gap: 7px !important;
+  width: 100% !important;
+  height: 100% !important;
+  box-sizing: border-box !important;
+}
+
+html.android-app #products #grid:not([data-android-view="list"]) .card .photo {
+  width: 100% !important;
+  height: 106px !important;
+  min-height: 106px !important;
+  max-height: 106px !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+}
+
+html.android-app #products #grid:not([data-android-view="list"]) .card .photo img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+}
+
+html.android-app #products #grid:not([data-android-view="list"]) .card .content {
+  padding: 0 !important;
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  min-width: 0 !important;
+  gap: 4px !important;
+}
+
+html.android-app #products #grid:not([data-android-view="list"]) .card .name {
+  font-size: 12.5px !important;
+  font-weight: 800 !important;
+  line-height: 1.26 !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  min-height: calc(1.26em * 2) !important;
+  max-height: calc(1.26em * 2) !important;
+  margin-bottom: 2px !important;
+  overflow: hidden !important;
+}
+
+html.android-app #products #grid:not([data-android-view="list"]) .card .card-codes {
+  min-height: 0 !important;
+  margin-bottom: 2px !important;
+  font-size: 10.5px !important;
+  gap: 1px !important;
+}
+
+html.android-app #products #grid:not([data-android-view="list"]) .card .info {
+  font-size: 11px !important;
+  padding: 3px 0 !important;
+  gap: 4px !important;
+}
+
+html.android-app #products #grid:not([data-android-view="list"]) .card .badges {
+  margin-top: 5px !important;
+  min-height: 0 !important;
+  gap: 4px !important;
+}
+
+html.android-app #products #grid:not([data-android-view="list"]) .card .badge {
+  font-size: 10px !important;
+  padding: 3px 6px !important;
+}
+
+/* Visualização em LISTA (1 coluna com imagem à esquerda e dados à direita) */
+html.android-app #products #grid[data-android-view="list"] {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 10px !important;
+}
+
+html.android-app #products #grid[data-android-view="list"] .product-card-slot {
+  min-height: 0 !important;
+  height: auto !important;
+}
+
+html.android-app #products #grid[data-android-view="list"] .card {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+  padding: 10px 12px !important;
+  gap: 12px !important;
+  width: 100% !important;
+  height: auto !important;
+  box-sizing: border-box !important;
+}
+
+html.android-app #products #grid[data-android-view="list"] .card .photo {
+  width: 76px !important;
+  min-width: 76px !important;
+  max-width: 76px !important;
+  height: 76px !important;
+  min-height: 76px !important;
+  max-height: 76px !important;
+  flex: 0 0 76px !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+}
+
+html.android-app #products #grid[data-android-view="list"] .card .photo img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+}
+
+html.android-app #products #grid[data-android-view="list"] .card .content {
+  padding: 0 !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 3px !important;
+}
+
+html.android-app #products #grid[data-android-view="list"] .card .name {
+  font-size: 13.5px !important;
+  font-weight: 800 !important;
+  line-height: 1.25 !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  min-height: 0 !important;
+  max-height: calc(1.25em * 2) !important;
+  margin-bottom: 0 !important;
+  overflow: hidden !important;
+}
+
+html.android-app #products #grid[data-android-view="list"] .card .card-codes {
+  min-height: 0 !important;
+  margin-bottom: 0 !important;
+  font-size: 11px !important;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  gap: 2px 10px !important;
+}
+
+html.android-app #products #grid[data-android-view="list"] .card .card-bottom {
+  margin-top: 2px !important;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 4px 10px !important;
+}
+
+html.android-app #products #grid[data-android-view="list"] .card .card-summary {
+  margin-top: 0 !important;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 4px 12px !important;
+}
+
+html.android-app #products #grid[data-android-view="list"] .card .info {
+  border-top: none !important;
+  padding: 0 !important;
+  gap: 4px !important;
+  font-size: 11.5px !important;
+}
+
+html.android-app #products #grid[data-android-view="list"] .card .badges {
+  margin-top: 0 !important;
+  min-height: 0 !important;
+  gap: 4px !important;
+}
+
+html.android-app #products #grid[data-android-view="list"] .card .badge {
+  font-size: 10px !important;
+  padding: 3px 7px !important;
+}
+
+/* ==========================================================================
+   5. CADASTRO (#register) E AUDITORIA (#audit) — Ajustes Responsivos Mobile
+   ========================================================================== */
+html.android-app #register .form,
+html.android-app #register .scan,
+html.android-app #register .actions {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+html.android-app #register .scan {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+html.android-app #register .scan input {
+  flex: 1 1 100%;
+  min-width: 0;
+}
+
+html.android-app #register .scan button {
+  flex: 1 1 calc(50% - 4px);
+}
+
+html.android-app #audit .audit-wrap,
+html.android-app #audit .audit-shell {
+  padding: 4px 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+  box-sizing: border-box !important;
+}
+
+html.android-app #audit .audit-kpi-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+
+html.android-app #audit .audit-bar {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+}
+
+html.android-app #audit .audit-field-group {
+  flex: 1 1 100% !important;
+  max-width: 100% !important;
+}
+
+html.android-app .android-audit-restricted {
+  padding: 20px 16px;
+  border-radius: 16px;
+  background: var(--card, #1e293b);
+  border: 1px solid var(--line, rgba(148, 163, 184, 0.2));
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+html.android-app .android-audit-restricted h3 {
+  margin: 8px 0 6px;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+html.android-app .android-audit-restricted p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+/* ==========================================================================
+   6. PERFIL ANDROID (#android-profile)
+   ========================================================================== */
+html.android-app .android-profile-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+html.android-app .android-profile-hero {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 18px;
+  background: var(--card, #1e293b);
+  border: 1px solid var(--line, rgba(148, 163, 184, 0.18));
+}
+
+html.android-app .android-profile-avatar {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%);
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+html.android-app .android-profile-identity {
+  min-width: 0;
+  flex: 1;
+}
+
+html.android-app .android-profile-identity h2 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+html.android-app .android-profile-identity p {
+  margin: 3px 0 6px;
+  font-size: 13px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+html.android-app .android-profile-role-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.15);
+  color: #38bdf8;
+}
+
+html.android-app[data-theme="light"] .android-profile-role-badge {
+  color: #1d4ed8;
+}
+
+html.android-app .android-profile-card {
+  padding: 15px;
+  border-radius: 16px;
+  background: var(--card, #1e293b);
+  border: 1px solid var(--line, rgba(148, 163, 184, 0.18));
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+html.android-app .android-profile-card-title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+html.android-app .android-profile-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+html.android-app .android-profile-tag {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 10px;
+  background: rgba(148, 163, 184, 0.12);
+  color: var(--text);
+}
+
+html.android-app .android-theme-Segment {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+html.android-app .android-theme-btn {
+  appearance: none;
+  border: 1px solid var(--line, rgba(148, 163, 184, 0.22));
+  background: transparent;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 8px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+html.android-app .android-theme-btn.active {
+  background: rgba(37, 99, 235, 0.16);
+  border-color: #2563eb;
+  color: #38bdf8;
+}
+
+html.android-app[data-theme="light"] .android-theme-btn.active {
+  color: #1d4ed8;
+}
+
+html.android-app .android-profile-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+html.android-app .android-profile-action-btn {
+  appearance: none;
+  width: 100%;
+  border: 1px solid var(--line, rgba(148, 163, 184, 0.18));
+  background: rgba(148, 163, 184, 0.06);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 13px 14px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+html.android-app .android-profile-action-btn.danger {
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.08);
+}
+
+html.android-app[data-theme="light"] .android-profile-action-btn.danger {
+  color: #dc2626;
+}
+
+/* ==========================================================================
+   7. RESPONSIVIDADE — Celulares (360px, 390px) e Tablets (600px, 800px, 1024px)
+   ========================================================================== */
+@media (max-width: 400px) {
+  html.android-app #protectedApp {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+  html.android-app #androidHeader,
+  html.android-app .android-header {
+    margin-left: -10px !important;
+    margin-right: -10px !important;
+    padding-left: calc(10px + env(safe-area-inset-top, 0px)) 10px 10px !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+  html.android-app .android-kpi-grid {
+    gap: 7px;
+  }
+  html.android-app .android-kpi-card {
+    padding: 10px 8px;
+  }
+  html.android-app .android-kpi-value {
+    font-size: 19px;
+  }
+  html.android-app .android-kpi-label {
+    font-size: 11px;
+  }
+}
+
+@media (min-width: 600px) {
+  html.android-app #protectedApp {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+  html.android-app #androidHeader,
+  html.android-app .android-header {
+    margin-left: -20px !important;
+    margin-right: -20px !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+  html.android-app .android-home-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  html.android-app #products #grid:not([data-android-view="list"]) {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+  }
+  html.android-app #products #grid[data-android-view="list"] {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+  html.android-app #products .stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+  html.android-app #products .stats .stat:first-child {
+    grid-column: auto;
+  }
+  html.android-app #products .searchrow.with-layout {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) !important;
+  }
+  html.android-app #audit .audit-kpi-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+  html.android-app #audit .audit-field-group {
+    flex: 1 1 180px !important;
+  }
+  html.android-app #androidBottomNav,
+  html.android-app .android-bottom-nav {
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    transform: none !important;
+    padding-left: max(16px, calc((100% - 720px) / 2)) !important;
+    padding-right: max(16px, calc((100% - 720px) / 2)) !important;
+  }
+}
+
+@media (min-width: 960px) {
+  html.android-app .android-home-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  html.android-app #products #grid:not([data-android-view="list"]) {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+  }
+  html.android-app #products #grid[data-android-view="list"] {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+  html.android-app #products .stats {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  }
+}
+
+

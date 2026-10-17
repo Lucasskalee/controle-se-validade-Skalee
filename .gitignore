@@ -12,3 +12,4 @@ test-results/
 dev/chrome-tour-profile/
 dev/chrome-tour-profile-mobile/
 node_modules/
+dist/

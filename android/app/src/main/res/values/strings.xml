@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Skalee Validades</string>
+    <string name="title_activity_main">Skalee Validades</string>
+    <string name="package_name">dev.skalee.validades</string>
+    <string name="custom_url_scheme">dev.skalee.validades</string>
+</resources>

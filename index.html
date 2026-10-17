@@ -17,6 +17,7 @@
 <script src="product-detail.js"></script>
 <script src="product-gallery.js"></script>
 <script src="local-store.js"></script>
+<script src="product-drafts.js"></script>
 <script src="product-image-service.js"></script>
 <script>
 (() => {
@@ -732,6 +733,7 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
 </style>
 <link rel="stylesheet" href="theme-layout.css">
 <link rel="stylesheet" href="product-detail.css">
+<link rel="stylesheet" href="android-ui.css">
 </head>
 <body class="auth-loading">
 <section id="authScreen" class="auth-screen" aria-labelledby="authTitle">
@@ -936,6 +938,9 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
 <section class="page" id="register">
  <div class="form">
   <h2>Registrar produto</h2>
+  <p id="draftStatus" class="sub" role="status" aria-live="polite"></p>
+  <button id="draftReview" class="btn2" type="button" hidden>Conferi o envio interrompido</button>
+  <button id="draftPending" class="btn2" type="button" hidden>Recuperar cadastro pendente</button>
   <div class="sub">Localize pelo código de barras e registre somente as informações da validade.</div>
 
   <label class="label">Código de barras</label>
@@ -2480,7 +2485,7 @@ if (els.iosInstallModal) {
  });
 }
 
-if ("serviceWorker" in navigator) {
+if ("serviceWorker" in navigator && !window.Capacitor?.isNativePlatform?.()) {
  window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch((error) => console.error("Falha ao registrar PWA.", error)));
 }
 
@@ -8694,6 +8699,7 @@ document.addEventListener("keydown", (event) => {
   void stopScanner();
  }
 });
+window.addEventListener('skalee:native-background', () => { if (scannerIsActive) void stopScanner(); });
 
 function canvasToBlob(canvas, type, quality) {
  return new Promise((resolve) => canvas.toBlob(resolve, type, quality));
@@ -8726,6 +8732,7 @@ function validarFotoProcessada(processedPhoto) {
 
 function criarFotoProcessada(blob, extension, contentType, width, height) {
  return validarFotoProcessada({
+  uploadId: crypto.randomUUID(),
   blob,
   extension,
   contentType,
@@ -9233,12 +9240,15 @@ els.photo.addEventListener("change", async (event) => {
  const file = event.target.files[0];
  if (!file) return;
  photoFile = file;
+ const captureToken = window.skaleeRegistrationDraft?.token();
  console.log("[PHOTO] arquivo selecionado", photoFile);
  console.log("[PHOTO] tipo original", photoFile?.type);
  console.log("[PHOTO] tamanho original", photoFile?.size);
  els.preview.textContent = "Preparando foto...";
  try {
-  photoData = await processPhoto(photoFile);
+  const processed = await processPhoto(photoFile);
+  if (captureToken !== window.skaleeRegistrationDraft?.token()) { URL.revokeObjectURL(processed.previewUrl); return; }
+  photoData = processed;
   selectedImageState = {
    type: "processed",
    photoData,
@@ -9248,6 +9258,7 @@ els.photo.addEventListener("change", async (event) => {
   photoPreviewUrl = photoData.previewUrl;
   els.preview.innerHTML = `<img src="${photoPreviewUrl}" alt="">`;
  } catch (error) {
+  if (captureToken !== window.skaleeRegistrationDraft?.token()) return;
   console.error("Não foi possível preparar a foto.", error);
   logPhotoDiagnosticError(error);
   photoFile = null;
@@ -9446,8 +9457,20 @@ if (els.btnCancelDuplicate) {
 
 async function executarSalvarProduto(novoProduto) {
  setSavingProduct(true);
+ let draftToken;
+ let completed = false;
  try {
-  const produtoSalvo = await window.skaleeDb.saveProduct(novoProduto);
+  const recovery = await window.skaleeRegistrationDraft?.begin();
+  draftToken = window.skaleeRegistrationDraft?.token();
+  const scope = window.skaleeRegistrationDraft?.scope();
+  const produtoSalvo = recovery?.retryId
+   ? await window.skaleeDb.updateProduct(recovery.retryId, { processedPhoto: novoProduto.processedPhoto, imageSource: novoProduto.imageSource }, { skipOfflineQueue: true })
+   : await window.skaleeDb.saveProduct({ ...novoProduto, draftUserId: scope?.userId, draftStoreId: scope?.storeId }, {
+      onCreated: id => window.skaleeRegistrationDraft?.created(id, recovery.context),
+      onQueued: id => window.skaleeRegistrationDraft?.created(id, recovery.context, 'queued')
+     });
+  completed = await window.skaleeRegistrationDraft?.finish(produtoSalvo, recovery.context) ?? true;
+  if (draftToken !== window.skaleeRegistrationDraft?.token()) return;
   applyDashboardStatsDelta(null, produtoSalvo);
   mergeReportProduct(produtoSalvo);
   locallyCountedRealtimeIds.add(String(produtoSalvo.id));
@@ -9470,15 +9493,18 @@ async function executarSalvarProduto(novoProduto) {
   setSavingProduct(false);
   alert(mensagemErroCadastroProduto(error));
   return;
+ } finally {
+  setSavingProduct(false);
  }
- setSavingProduct(false);
- resetForm();
+ if (completed) resetForm();
  render();
+ if (!completed) return;
  if (els.barcode) els.barcode.focus();
  celebrarProdutoSalvo();
 }
 
 els.save.addEventListener("click", async () => {
+ if (photoFile && !photoData) return alert("Aguarde a preparação da foto antes de salvar.");
  if (!selected) return alert("Primeiro localize o produto pelo código de barras.");
  if (!els.qty.value || !els.expiry.value) return alert("Informe quantidade e data de vencimento.");
  if (!els.store.value) return alert("Selecione o local ou loja.");
@@ -9538,7 +9564,8 @@ els.save.addEventListener("click", async () => {
   expiry: els.expiry.value
  };
 
- const duplicateResult = await window.skaleeDb?.findActiveDuplicateValidityProduct?.(checkCriteria);
+ const duplicateResult = window.skaleeRegistrationDraft?.pending()
+  ? null : await window.skaleeDb?.findActiveDuplicateValidityProduct?.(checkCriteria);
  if (duplicateResult?.isDuplicate && duplicateResult.product) {
   showDuplicateModal(duplicateResult.product, {
    duplicate: duplicateResult.product,
@@ -9579,9 +9606,12 @@ els.updateQty.addEventListener("change", renderEditStockFeedback);
 
 render();
 </script>
+<script src="registration-draft-ui.js"></script>
+<script src="native-camera.js"></script>
 <script src="local-query.js"></script>
 <script src="audit-report-generator.js?v=4.2.0"></script>
 <script src="audit-access.js?v=4.2.1"></script>
+<script src="android-ui.js"></script>
 <script type="module" src="auth.js"></script>
 <script type="module" src="components/tour/SkalitoTour.js"></script>
 <script src="admin-cadastros.js" defer></script>

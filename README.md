@@ -19,3 +19,4 @@ Autenticação, catálogo de produtos, produtos registrados e permissões são g
 ## Documentação
 
 - [Arquitetura do módulo de promotores](docs/arquitetura-promotores.md)
+- [Android com Capacitor: build, recuperação e validações](docs/android-capacitor.md)

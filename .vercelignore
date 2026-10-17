@@ -1,4 +1,6 @@
 .venv
+android
+dist
 .tmp
 deploy-*.log
 .git
