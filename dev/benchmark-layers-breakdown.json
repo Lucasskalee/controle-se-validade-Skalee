@@ -1,0 +1,34 @@
+[
+  {
+    "label": "A. WebGL + Desfoques Top/Bottom + Cards com blur + Cápsula Liquid Glass",
+    "frames": 78,
+    "avgDeltaMs": "18.49",
+    "p95Ms": "33.30",
+    "jankFrames": 9,
+    "fps": 54
+  },
+  {
+    "label": "B. WebGL + Desfoques Top/Bottom + Cards SEM blur individual + Cápsula Liquid Glass",
+    "frames": 77,
+    "avgDeltaMs": "18.58",
+    "p95Ms": "33.30",
+    "jankFrames": 9,
+    "fps": 54
+  },
+  {
+    "label": "C. WebGL + Sem desfoques contextuais + Cards SEM blur + Cápsula Liquid Glass",
+    "frames": 85,
+    "avgDeltaMs": "16.82",
+    "p95Ms": "16.80",
+    "jankFrames": 1,
+    "fps": 59
+  },
+  {
+    "label": "D. Fundo Estático + Sem desfoques + Cards sem blur + Cápsula Liquid Glass",
+    "frames": 82,
+    "avgDeltaMs": "17.59",
+    "p95Ms": "33.30",
+    "jankFrames": 5,
+    "fps": 57
+  }
+]

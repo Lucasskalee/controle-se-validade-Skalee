@@ -11,14 +11,14 @@ const files = ['index.html', 'poster.html', 'skalito-demo.html', 'skalito-svg.ht
  'styles.css', 'auth.css', 'theme-layout.css', 'admin-cadastros.css', 'notification-center.css',
  'product-detail.css', 'android-ui.css', 'auth.js', 'admin-cadastros.js', 'audit-access.js', 'audit-report-generator.js',
  'local-store.js', 'local-query.js', 'product-image-service.js', 'product-detail.js', 'product-gallery.js',
- 'product-drafts.js', 'registration-draft-ui.js', 'native-camera.js', 'android-ui.js', 'sw.js', 'manifest.webmanifest'];
+ 'product-drafts.js', 'registration-draft-ui.js', 'native-camera.js', 'android-ui.js', 'report-assets.js', 'sw.js', 'manifest.webmanifest'];
 for (const file of fs.readdirSync(root)) if (/^skalee-[\w-]+\.png$/.test(file)) files.push(file);
 for (const file of files) fs.copyFileSync(path.join(root, file), path.join(out, file));
 for (const dir of ['components', 'assets']) fs.cpSync(path.join(root, dir), path.join(out, dir), {
  recursive: true, filter: source => fs.statSync(source).isDirectory() || /\.(js|css|svg|png|jpg|jpeg|webp|gif|json|woff2?|ttf|html)$/.test(source)
 });
 async function main() {
- await esbuild.build({ stdin: { contents: 'import { Camera } from "@capacitor/camera"; import { App } from "@capacitor/app"; window.skaleeNativePlugins = { Camera, App };', resolveDir: root },
+ await esbuild.build({ stdin: { contents: 'import { Camera } from "@capacitor/camera"; import { App } from "@capacitor/app"; import { Filesystem, Directory, Encoding } from "@capacitor/filesystem"; import { Share } from "@capacitor/share"; window.skaleeNativePlugins = { Camera, App, Filesystem, Directory, Encoding, Share };', resolveDir: root },
   bundle: true, format: 'iife', platform: 'browser', target: 'es2020', outfile: path.join(out, 'vendor/native-plugins.js') });
  await esbuild.build({ stdin: { contents: 'export { createClient } from "@supabase/supabase-js";', resolveDir: root },
   bundle: true, format: 'esm', platform: 'browser', target: 'es2020', outfile: path.join(out, 'vendor/supabase.js') });

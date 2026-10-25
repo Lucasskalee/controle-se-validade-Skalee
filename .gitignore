@@ -11,5 +11,9 @@ test-results/
 .tmp/
 dev/chrome-tour-profile/
 dev/chrome-tour-profile-mobile/
+dev/chrome-*/
+*.apk
+tools/*.pdf
+graphify-out/
 node_modules/
 dist/

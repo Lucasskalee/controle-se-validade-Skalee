@@ -513,7 +513,7 @@ function applyProductQueryCriteria(query, criteria = {}) {
  let highQuantity = structuredFilters ? Boolean(structuredFilters.highQuantity) : false;
 
  if (!structuredFilters && legacyFilter && legacyFilter !== "all") {
-  if (legacyFilter === "today" || /^\d+$/.test(legacyFilter)) {
+  if (legacyFilter === "expired_today" || legacyFilter === "today" || /^\d+$/.test(legacyFilter)) {
    expiryRange = legacyFilter;
   } else if (legacyFilter === "offer" || legacyFilter === "no_offer") {
    offerStatus = legacyFilter;
@@ -522,7 +522,9 @@ function applyProductQueryCriteria(query, criteria = {}) {
   }
  }
 
- if (expiryRange === "today") {
+ if (expiryRange === "expired_today") {
+  query = query.lte("expiry_date", today);
+ } else if (expiryRange === "today") {
   query = query.eq("expiry_date", today);
  } else if (/^\d+$/.test(String(expiryRange))) {
   const days = Number(expiryRange);
@@ -1040,13 +1042,14 @@ function filterAndSortProductsLocally(allProducts = [], options = {}) {
   if (supplierFilter && !productHasSupplier(product, supplierFilter)) return false;
 
   const days = remainingDays(product.expiry);
-  if (days < 0 && !options.includeExpired) return false;
+  if (days < 0 && !options.includeExpired && activeFilters.expiryRange !== "expired_today") return false;
 
   if (searchQuery) {
    const haystack = [product.name, product.code, product.barcode, product.supplierCode, product.supplierName, product.store].join(" ").toLowerCase();
    if (!haystack.includes(searchQuery)) return false;
   }
 
+  if (activeFilters.expiryRange === "expired_today" && days > 0) return false;
   if (activeFilters.expiryRange === "today" && days !== 0) return false;
   if (/^\d+$/.test(String(activeFilters.expiryRange)) && days > Number(activeFilters.expiryRange)) return false;
 

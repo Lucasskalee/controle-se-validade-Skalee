@@ -1,4 +1,4 @@
-const CACHE_VERSION = "skalee-v4.3.5-native-camera";
+const CACHE_VERSION = "skalee-v4.3.7-report-assets";
 const CACHE_NAME = CACHE_VERSION;
 
 const APP_SHELL = [
@@ -15,6 +15,7 @@ const APP_SHELL = [
   "/product-gallery.js",
   "/product-detail.css",
   "/local-query.js",
+  "/report-assets.js",
   "/skalito-demo.html",
   "/auth.css",
   "/theme-layout.css",
@@ -38,7 +39,8 @@ const APP_SHELL = [
   "/skalee-icon-maskable-512.png",
   "/skalee-symbol-enhanced.png",
   "/skalee-symbol-transparent.png",
-  "/skalee-wordmark-login.png"
+  "/skalee-wordmark-login.png",
+  "/skalee-logo-official.png"
 ];
 
 const EXTERNAL_CDN_HOSTS = new Set([

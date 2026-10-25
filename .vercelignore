@@ -1,11 +1,14 @@
 .venv
 android
+*.apk
 dist
 .tmp
 deploy-*.log
 .git
 .agents
 .codex
+AGENTS.md
+DESIGN.md
 .vscode
 .npm-cache
 docs

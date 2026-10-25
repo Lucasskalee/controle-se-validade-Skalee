@@ -1,0 +1,74 @@
+{
+  "setupOk": true,
+  "initial": {
+    "url": "http://127.0.0.1:8196/index.html",
+    "activeTab": "android-home",
+    "androidActive": true,
+    "themeButtons": 5,
+    "backgroundButtons": 3,
+    "visibleButtons": [
+      "",
+      "2\nVencidos / Hoje\nAção imediata",
+      "3\nPróximos 7 dias\nAtenção",
+      "1\nEm oferta\nOfertas ativas",
+      "Bipar",
+      "Novo Lote",
+      "Relatórios",
+      "Auditoria",
+      "Ver todos →",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "Início",
+      "Produtos",
+      "Cadastrar",
+      "Relatórios",
+      "Perfil"
+    ],
+    "errors": []
+  },
+  "profileState": {
+    "activeTab": "android-profile",
+    "profileHidden": false,
+    "visibleThemeButtons": [
+      "dark",
+      "light",
+      "industrial",
+      "creative",
+      "executive"
+    ],
+    "visibleBackgroundButtons": [
+      "titanium",
+      "titanium",
+      "image"
+    ]
+  },
+  "minimum": [
+    {
+      "expected": "dark",
+      "theme": "dark",
+      "preference": "dark",
+      "stored": "dark",
+      "applied": true
+    },
+    {
+      "expected": "light",
+      "theme": "light",
+      "preference": "light",
+      "stored": "light",
+      "applied": true
+    }
+  ],
+  "consoleErrors": []
+}

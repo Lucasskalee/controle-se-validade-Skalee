@@ -1,0 +1,26 @@
+[
+  {
+    "label": "1. Titanium Glass 2.3 — Aurora Suave (CSS Mesh Otimizada)",
+    "frames": 68,
+    "avgDeltaMs": "21.25",
+    "p95Ms": "33.40",
+    "jankFrames": 18,
+    "fps": 47
+  },
+  {
+    "label": "2. Titanium Glass 2.3 — Aurora Dinâmica (WebGL Shader)",
+    "frames": 88,
+    "avgDeltaMs": "16.54",
+    "p95Ms": "16.70",
+    "jankFrames": 0,
+    "fps": 60
+  },
+  {
+    "label": "3. Titanium Glass 2.3 — Modo Econômico (Fundo estático)",
+    "frames": 86,
+    "avgDeltaMs": "16.77",
+    "p95Ms": "16.80",
+    "jankFrames": 1,
+    "fps": 60
+  }
+]

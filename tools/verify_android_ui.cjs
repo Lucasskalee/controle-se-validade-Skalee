@@ -65,12 +65,16 @@ async function runBrowserSession({ port, debugPort, isAndroid, testFn }) {
     let targets;
     for (let i = 0; i < 40; i++) {
       try {
-        targets = await (await fetch(`http://127.0.0.1:${debugPort}/json`)).json();
-        if (targets.length) break;
+        const res = await fetch(`http://127.0.0.1:${debugPort}/json`);
+        const json = await res.json();
+        if (Array.isArray(json) && json.some((t) => t.type === 'page')) {
+          targets = json;
+          break;
+        }
       } catch {}
       await wait(150);
     }
-    const pageTarget = targets.find((t) => t.type === 'page');
+    const pageTarget = targets?.find((t) => t.type === 'page');
     assert.ok(pageTarget, 'Chrome page target must be available');
 
     socket = new WebSocket(pageTarget.webSocketDebuggerUrl);
@@ -491,8 +495,8 @@ async function run() {
         await evaluate(`document.querySelector('#androidProductsViewToggle [data-android-view="grid"]').click()`);
         await wait(50);
 
-        // Navigate through remaining tabs (register, audit, android-profile, android-home)
-        for (const tabId of ['register', 'audit', 'android-profile', 'android-home']) {
+        // Audit now lives in Profile; the main navigation always retains Reports.
+        for (const tabId of ['register', 'report', 'android-profile', 'android-home']) {
           await evaluate(`document.querySelector('#androidBottomNav [data-android-page="${tabId}"]').click()`);
           await wait(80);
           await checkLayoutInvariants(tabId, `tab-${tabId}`);
@@ -823,7 +827,7 @@ async function run() {
     }
   });
 
-  // 2. Validate PWA preservation (when window.androidBridge / Capacitor is absent)
+  // 2. Preserve the original desktop web UI. Mobile web is tested in test_mobile_navigation.cjs.
   await runBrowserSession({
     port: 3362,
     debugPort: 9362,
@@ -831,7 +835,7 @@ async function run() {
     testFn: async ({ send, evaluate, port }) => {
       for (const vp of [
         { name: 'pwa-tablet-1024x600', width: 1024, height: 600 },
-        { name: 'pwa-phone-360x800', width: 360, height: 800 }
+        { name: 'pwa-desktop-1440x900', width: 1440, height: 900 }
       ]) {
         await send('Emulation.setDeviceMetricsOverride', {
           width: vp.width,
@@ -865,10 +869,11 @@ async function run() {
     }
   });
 
-  console.log('PASS: Phase 1, 1.1 & 1.2 verified (Single-line header, Grade/Lista views, Central Skalee store sync & per-user persistence with fallback, IndexedDB draft banner accuracy & user/store isolation, and PWA preservation).');
+  console.log('PASS: Android layout, Grade/Lista views, Central Skalee store sync, per-user persistence, IndexedDB draft banners, user/store isolation and desktop web preservation.');
 }
 
-run().catch((error) => {
+module.exports = { runBrowserSession };
+if (require.main === module) run().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });

@@ -22,6 +22,7 @@
     }
   ],
   "rewrites": [
+    { "source": "/portal", "destination": "/portal.html" },
     { "source": "/skaleedemo", "destination": "/skalito-demo.html" },
     { "source": "/demo", "destination": "/skalito-demo.html" },
     { "source": "/skalito", "destination": "/skalito-demo.html" },

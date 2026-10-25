@@ -1,0 +1,15 @@
+{
+  "refinedDark": {
+    "theme": "dark",
+    "engine": "css",
+    "fps": 68,
+    "frameTimeMs": 0
+  },
+  "refinedLight": {
+    "theme": "light",
+    "engine": "webgl",
+    "fps": 30,
+    "frameTimeMs": 0.08,
+    "canvasRes": "197x426"
+  }
+}

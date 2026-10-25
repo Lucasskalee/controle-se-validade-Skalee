@@ -1,0 +1,2671 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Skalee Titanium Glass 2.1 — Validação A/B no Android</title>
+<style>
+/* ==========================================================================
+   SKALEE TITANIUM GLASS 2.1 — DESIGN TOKENS
+   ========================================================================== */
+:root {
+  --sk-font: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* Tema Escuro (Obsidiana, Grafite e Titânio) */
+  --bg-deep: #06090e;
+  --bg-surface: #0a0f18;
+  --text: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --muted: #94a3b8;
+  --primary: #38bdf8;
+  --border-glass: rgba(255, 255, 255, 0.08);
+  --border-zenital: rgba(255, 255, 255, 0.22);
+  
+  --electric-blue: #0077ff;
+  --electric-cyan: #00d9ff;
+  
+  /* LIQUID GLASS (Inspirado no iOS Folder) — Tema Escuro */
+  /* KPIs (Vidro Grafite Mais Translúcido com Profundidade) */
+  --kpi-glass-bg: linear-gradient(180deg, rgba(26, 36, 54, 0.44) 0%, rgba(13, 20, 36, 0.58) 100%);
+  --kpi-glass-border: 1px solid rgba(255, 255, 255, 0.08);
+  --kpi-glass-border-top: 1px solid rgba(255, 255, 255, 0.22);
+  --kpi-glass-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
+
+  /* Ações Rápidas (Placas Acetinadas de Vidro Fino) */
+  --qa-glass-bg: linear-gradient(180deg, rgba(26, 36, 54, 0.48) 0%, rgba(13, 20, 36, 0.62) 100%);
+  --qa-glass-border: 1px solid rgba(255, 255, 255, 0.08);
+  --qa-glass-border-top: 1px solid rgba(255, 255, 255, 0.20);
+  --qa-glass-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.10);
+
+  /* Cards de Produtos (Equilíbrio Óptico + 100% Legibilidade Operacional) */
+  --product-glass-bg: linear-gradient(180deg, rgba(22, 32, 48, 0.52) 0%, rgba(11, 17, 30, 0.66) 100%);
+  --product-glass-border: 1px solid rgba(255, 255, 255, 0.08);
+  --product-glass-border-top: 1px solid rgba(255, 255, 255, 0.18);
+  --product-glass-shadow: 0 6px 24px -3px rgba(0, 0, 0, 0.40), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+
+  /* Cápsula de Navegação Inferior (Cápsula Translúcida Contínua) */
+  --nav-glass-bg: linear-gradient(180deg, rgba(24, 34, 52, 0.68) 0%, rgba(11, 17, 30, 0.82) 100%);
+  --nav-glass-border: 1px solid rgba(255, 255, 255, 0.09);
+  --nav-glass-border-top: 1px solid rgba(255, 255, 255, 0.25);
+  --nav-glass-shadow: 0 12px 36px -4px rgba(0, 0, 0, 0.60), inset 0 1px 0 0 rgba(255, 255, 255, 0.14);
+  
+  --kpi-danger: #fca5a5;
+  --kpi-danger-bg: rgba(239, 68, 68, 0.14);
+  --kpi-warning: #fcd34d;
+  --kpi-warning-bg: rgba(245, 158, 11, 0.14);
+  --kpi-offer: #93c5fd;
+  --kpi-offer-bg: rgba(59, 130, 246, 0.14);
+  --kpi-safe: #6ee7b7;
+  --kpi-safe-bg: rgba(16, 185, 129, 0.14);
+}
+
+html[data-theme="light"] {
+  /* Tema Claro (Azul-gelo e Branco Perolado) */
+  --bg-deep: #ebf3fa;
+  --bg-surface: #ffffff;
+  --text: #0f172a;
+  --text-secondary: #334155;
+  --muted: #64748b;
+  --primary: #0284c7;
+  --border-glass: rgba(15, 23, 42, 0.07);
+  --border-zenital: rgba(255, 255, 255, 0.98);
+
+  /* LIQUID GLASS (Inspirado no iOS Folder) — Tema Claro */
+  /* KPIs (Vidro Branco Translúcido / Sem Sensação de Bloco Sólido) */
+  --kpi-glass-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.68) 0%, rgba(240, 247, 255, 0.52) 100%);
+  --kpi-glass-border: 1px solid rgba(148, 163, 184, 0.18);
+  --kpi-glass-border-top: 1px solid rgba(255, 255, 255, 0.98);
+  --kpi-glass-shadow: 0 6px 24px -2px rgba(15, 23, 42, 0.05), inset 0 1px 0 0 rgba(255, 255, 255, 0.95);
+
+  /* Ações Rápidas */
+  --qa-glass-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.72) 0%, rgba(240, 247, 255, 0.58) 100%);
+  --qa-glass-border: 1px solid rgba(148, 163, 184, 0.16);
+  --qa-glass-border-top: 1px solid rgba(255, 255, 255, 0.98);
+  --qa-glass-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.04), inset 0 1px 0 0 rgba(255, 255, 255, 0.95);
+
+  /* Cards de Produtos */
+  --product-glass-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.74) 0%, rgba(240, 247, 255, 0.60) 100%);
+  --product-glass-border: 1px solid rgba(148, 163, 184, 0.16);
+  --product-glass-border-top: 1px solid rgba(255, 255, 255, 0.98);
+  --product-glass-shadow: 0 6px 20px -3px rgba(15, 23, 42, 0.05), inset 0 1px 0 0 rgba(255, 255, 255, 0.90);
+
+  /* Cápsula de Navegação Inferior */
+  --nav-glass-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.84) 0%, rgba(240, 247, 255, 0.72) 100%);
+  --nav-glass-border: 1px solid rgba(148, 163, 184, 0.20);
+  --nav-glass-border-top: 1px solid rgba(255, 255, 255, 0.98);
+  --nav-glass-shadow: 0 10px 30px -4px rgba(15, 23, 42, 0.08), inset 0 1px 0 0 rgba(255, 255, 255, 0.95);
+
+  --kpi-danger: #b91c1c;
+  --kpi-danger-bg: rgba(239, 68, 68, 0.08);
+  --kpi-warning: #92400e;
+  --kpi-warning-bg: rgba(245, 158, 11, 0.08);
+  --kpi-offer: #0369a1;
+  --kpi-offer-bg: rgba(2, 132, 199, 0.08);
+  --kpi-safe: #047857;
+  --kpi-safe-bg: rgba(16, 185, 129, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--sk-font);
+  background: #04060a;
+  color: #f8fafc;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  -webkit-font-smoothing: antialiased;
+  padding: 16px 12px 48px;
+}
+
+/* Modo Mobile Nativo no Android (Largura <= 768px ou em tela cheia) */
+@media (max-width: 768px) {
+  body {
+    padding: 0 !important;
+    background: var(--bg-deep) !important;
+    overflow: hidden;
+  }
+  .testbed-toolbar-desktop {
+    display: none !important;
+  }
+  .viewport-outer {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    margin: 0 !important;
+  }
+  .device-viewport {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    max-height: none !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  .sim-status-bar {
+    display: none !important; /* Dispositivo real já possui status bar nativa */
+  }
+  .sim-header {
+    padding-top: calc(12px + env(safe-area-inset-top, 0px)) !important;
+  }
+  .mobile-ab-pill {
+    display: flex !important;
+  }
+}
+
+/* ==========================================================================
+   TOOLBAR DESKTOP
+   ========================================================================== */
+.testbed-toolbar-desktop {
+  width: 100%;
+  max-width: 920px;
+  background: #0f172a;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 16px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+  z-index: 1000;
+}
+
+.toolbar-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #38bdf8;
+}
+.toolbar-badge {
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.toolbar-badge.fallback-badge {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: rgba(245, 158, 11, 0.5);
+  color: #fbbf24;
+}
+
+.toolbar-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.tool-group {
+  display: inline-flex;
+  background: #1e293b;
+  border-radius: 10px;
+  padding: 3px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.tool-btn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.tool-btn:hover { color: #f8fafc; }
+.tool-btn.active {
+  background: #38bdf8;
+  color: #04060a;
+  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.3);
+}
+
+.tool-slider-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #1e293b;
+  padding: 4px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.06);
+  font-size: 12px;
+  font-weight: 700;
+  color: #94a3b8;
+}
+.tool-slider-wrap input[type="range"] {
+  width: 80px;
+  accent-color: #38bdf8;
+  cursor: pointer;
+}
+
+.fps-monitor {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #34d399;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.fps-monitor.low {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #f87171;
+}
+
+/* ==========================================================================
+   BOTÃO FLUTUANTE ERGONÔMICO PARA DISPOSITIVO FÍSICO ANDROID
+   ========================================================================== */
+.mobile-ab-pill {
+  display: none;
+  position: fixed;
+  top: max(14px, env(safe-area-inset-top, 14px));
+  right: 14px;
+  z-index: 9999;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  color: #38bdf8;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 6px 12px;
+  border-radius: 999px;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+}
+html[data-theme="light"] .mobile-ab-pill {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(29, 78, 216, 0.3);
+  color: #1d4ed8;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.15);
+}
+
+/* BOTTOM SHEET DE CONTROLES NO ANDROID */
+.bottom-sheet-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 10000;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.bottom-sheet-overlay.open {
+  display: block;
+  opacity: 1;
+}
+
+.bottom-sheet-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #0f172a;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 24px 24px 0 0;
+  padding: 16px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+  z-index: 10001;
+  transform: translateY(100%);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.7);
+  max-height: 85vh;
+  overflow-y: auto;
+}
+.bottom-sheet-panel.open {
+  transform: translateY(0);
+}
+html[data-theme="light"] .bottom-sheet-panel {
+  background: #ffffff;
+  border-top: 1px solid rgba(15, 23, 42, 0.12);
+  color: #0f172a;
+}
+
+.sheet-handle {
+  width: 40px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.4);
+  margin: 0 auto 16px;
+}
+.sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.sheet-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #38bdf8;
+}
+html[data-theme="light"] .sheet-title { color: #1d4ed8; }
+
+.sheet-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.sheet-section-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.sheet-btn-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.sheet-btn {
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #1e293b;
+  color: #e2e8f0;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+}
+html[data-theme="light"] .sheet-btn {
+  background: #f1f5f9;
+  color: #1e293b;
+  border-color: rgba(15, 23, 42, 0.1);
+}
+.sheet-btn.active {
+  background: #38bdf8;
+  color: #04060a;
+  border-color: #38bdf8;
+}
+html[data-theme="light"] .sheet-btn.active {
+  background: #1d4ed8;
+  color: #ffffff;
+}
+
+.sheet-danger-btn {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #fca5a5;
+  padding: 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  margin-top: 4px;
+}
+.sheet-danger-btn:active {
+  background: rgba(239, 68, 68, 0.3);
+}
+
+.telemetry-box {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: #cbd5e1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+html[data-theme="light"] .telemetry-box {
+  background: #f8fafc;
+  border-color: rgba(15, 23, 42, 0.08);
+  color: #334155;
+}
+.telemetry-line {
+  display: flex;
+  justify-content: space-between;
+}
+.telemetry-val {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: #38bdf8;
+}
+html[data-theme="light"] .telemetry-val { color: #1d4ed8; }
+
+/* ==========================================================================
+   VIEWPORT SIMULADA / CONTAINER
+   ========================================================================== */
+.viewport-outer {
+  position: relative;
+  transition: width 0.25s ease;
+  margin: 0 auto;
+}
+
+.device-viewport {
+  width: 393px;
+  height: 840px;
+  max-height: 88vh;
+  background: var(--bg-deep);
+  position: relative;
+  overflow: hidden;
+  border-radius: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75), 0 0 0 8px rgba(30, 41, 59, 0.4);
+  display: flex;
+  flex-direction: column;
+}
+
+html[data-theme="light"] .device-viewport {
+  border: 1px solid rgba(15, 23, 42, 0.15);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.25), 0 0 0 8px rgba(226, 232, 240, 0.6);
+}
+
+/* ==========================================================================
+   CAMADA SOFT AURORA (FUNDOS ANIMADOS ISOLADOS)
+   ========================================================================== */
+.aurora-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* ALTERNATIVA A: WebGL Aurora Canvas */
+#webglAuroraCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 1;
+  transition: opacity 0.35s ease;
+}
+
+/* ALTERNATIVA B: CSS Aurora Mesh */
+.css-aurora-mesh {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: none;
+  opacity: 1;
+  transition: opacity 0.35s ease;
+  contain: strict;
+}
+
+.aurora-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(55px);
+  -webkit-filter: blur(55px);
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Blobs Dark Mode */
+.blob-1 {
+  top: -10%;
+  left: -20%;
+  width: 360px;
+  height: 360px;
+  background: radial-gradient(circle, rgba(0, 119, 255, 0.48) 0%, rgba(0, 119, 255, 0) 70%);
+  animation: auroraFloat1 18s ease-in-out infinite alternate;
+}
+
+.blob-2 {
+  top: 15%;
+  right: -25%;
+  width: 340px;
+  height: 340px;
+  background: radial-gradient(circle, rgba(0, 217, 255, 0.38) 0%, rgba(0, 217, 255, 0) 70%);
+  animation: auroraFloat2 22s ease-in-out infinite alternate;
+}
+
+.blob-3 {
+  bottom: 10%;
+  left: -15%;
+  width: 380px;
+  height: 380px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.32) 0%, rgba(99, 102, 241, 0) 70%);
+  animation: auroraFloat3 26s ease-in-out infinite alternate;
+}
+
+.blob-4 {
+  bottom: -15%;
+  right: -10%;
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, rgba(14, 165, 233, 0.35) 0%, rgba(14, 165, 233, 0) 70%);
+  animation: auroraFloat1 20s ease-in-out infinite alternate-reverse;
+}
+
+/* Blobs Light Mode */
+html[data-theme="light"] .blob-1 {
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.32) 0%, rgba(56, 189, 248, 0) 70%);
+}
+html[data-theme="light"] .blob-2 {
+  background: radial-gradient(circle, rgba(14, 165, 233, 0.26) 0%, rgba(14, 165, 233, 0) 70%);
+}
+html[data-theme="light"] .blob-3 {
+  background: radial-gradient(circle, rgba(129, 140, 248, 0.22) 0%, rgba(129, 140, 248, 0) 70%);
+}
+html[data-theme="light"] .blob-4 {
+  background: radial-gradient(circle, rgba(96, 165, 250, 0.28) 0%, rgba(96, 165, 250, 0) 70%);
+}
+
+@keyframes auroraFloat1 {
+  0% { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
+  50% { transform: translate3d(50px, 60px, 0) scale(1.18) rotate(45deg); }
+  100% { transform: translate3d(-30px, 110px, 0) scale(0.92) rotate(90deg); }
+}
+
+@keyframes auroraFloat2 {
+  0% { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
+  50% { transform: translate3d(-60px, -40px, 0) scale(1.12) rotate(-50deg); }
+  100% { transform: translate3d(-20px, 70px, 0) scale(0.96) rotate(-95deg); }
+}
+
+@keyframes auroraFloat3 {
+  0% { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
+  50% { transform: translate3d(40px, -70px, 0) scale(1.15) rotate(35deg); }
+  100% { transform: translate3d(70px, -20px, 0) scale(0.90) rotate(70deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora-blob { animation: none !important; }
+}
+.aurora-paused .aurora-blob { animation-play-state: paused !important; }
+
+/* ==========================================================================
+   CONTEÚDO DA HOME (TITANIUM GLASS 2.0)
+   ========================================================================== */
+.viewport-content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+/* Status Bar Realista */
+.sim-status-bar {
+  height: 38px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+.status-right {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.status-right svg { width: 14px; height: 14px; fill: currentColor; }
+
+/* Header Compacto */
+.sim-header {
+  padding: 6px 18px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.brand-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.brand-mark {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #0077ff, #00d9ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 119, 255, 0.4);
+}
+.brand-mark svg { width: 18px; height: 18px; stroke: #ffffff; stroke-width: 2.2; fill: none; }
+.brand-title {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+.header-icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: rgba(148, 163, 184, 0.1);
+  border: 1px solid var(--border-glass);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+}
+.header-icon-btn svg { width: 17px; height: 17px; stroke: currentColor; stroke-width: 2; fill: none; }
+
+/* Área de Rolagem Prolongada */
+.scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 16px 115px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  scrollbar-width: none;
+}
+.scroll-area::-webkit-scrollbar { display: none; }
+
+/* Toast de Alerta de Fallback */
+.fallback-toast {
+  display: none;
+  background: rgba(245, 158, 11, 0.16);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #fbbf24;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  align-items: center;
+  gap: 8px;
+  animation: slideDown 0.2s ease;
+}
+.fallback-toast.visible {
+  display: flex;
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Saudação e Loja */
+.greeting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.greeting-text h2 {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+.greeting-text p {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.store-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.12);
+  border: 1px solid rgba(37, 99, 235, 0.28);
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* Indicadores KPI (Titanium Glass 2.0 - React Bits Minimalist) */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr 1fr;
+  gap: 10px;
+}
+
+.kpi-card {
+  background: var(--kpi-glass-bg);
+  border: var(--kpi-glass-border);
+  border-top: var(--kpi-glass-border-top);
+  box-shadow: var(--kpi-glass-shadow);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 14px 10px;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  gap: 8px;
+  color: var(--text);
+  transition: transform 0.15s ease;
+  position: relative;
+  overflow: hidden;
+}
+.kpi-top { display: flex; justify-content: flex-end; width: 100%; }
+.kpi-icon-pill {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.kpi-icon-pill svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 2; fill: none; }
+.kpi-val {
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+.kpi-card.hero-kpi .kpi-val { font-size: 34px; }
+.kpi-title { font-size: 12px; font-weight: 700; color: var(--text); line-height: 1.35; }
+.kpi-subtitle { font-size: 11px; color: var(--muted); line-height: 1.35; }
+
+.kpi-card.danger { color: var(--kpi-danger); }
+.kpi-card.danger .kpi-icon-pill { background: var(--kpi-danger-bg); color: var(--kpi-danger); }
+.kpi-card.warning { color: var(--kpi-warning); }
+.kpi-card.warning .kpi-icon-pill { background: var(--kpi-warning-bg); color: var(--kpi-warning); }
+.kpi-card.offer { color: var(--kpi-offer); }
+.kpi-card.offer .kpi-icon-pill { background: var(--kpi-offer-bg); color: var(--kpi-offer); }
+
+/* Ações Rápidas */
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.qa-card {
+  background: var(--qa-glass-bg);
+  border: var(--qa-glass-border);
+  border-top: var(--qa-glass-border-top);
+  box-shadow: var(--qa-glass-shadow);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 10px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  color: var(--text);
+  cursor: pointer;
+}
+.qa-icon {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+}
+.qa-icon svg { width: 19px; height: 19px; stroke: currentColor; stroke-width: 2; fill: none; }
+.qa-label { font-size: 11px; font-weight: 700; }
+
+/* Seção de Produtos */
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+.section-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+}
+.section-counter {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.15);
+  color: var(--muted);
+}
+.section-all-link {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary);
+  text-decoration: none;
+}
+
+/* Lista de Produtos Prolongada (16 itens para teste de rolagem contínua) */
+.product-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.product-card {
+  display: grid;
+  grid-template-columns: 78px 1fr;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 20px;
+  background: var(--product-glass-bg);
+  border: var(--product-glass-border);
+  border-top: var(--product-glass-border-top);
+  box-shadow: var(--product-glass-shadow);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  align-items: center;
+  transition: transform 0.15s ease;
+}
+
+.product-thumb {
+  width: 78px;
+  height: 78px;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.45);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+html[data-theme="light"] .product-thumb {
+  background: rgba(241, 245, 249, 0.65);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+}
+.product-thumb svg { width: 32px; height: 32px; stroke: var(--muted); stroke-width: 1.5; fill: none; }
+
+.product-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.product-name {
+  font-size: 14px;
+  font-weight: 750;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.product-meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+.product-bottom-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+.product-qty {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.status-pill.danger {
+  background: var(--kpi-danger-bg);
+  color: var(--kpi-danger);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+.status-pill.warning {
+  background: var(--kpi-warning-bg);
+  color: var(--kpi-warning);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+.status-pill.offer {
+  background: var(--kpi-offer-bg);
+  color: var(--kpi-offer);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+}
+.status-pill.safe {
+  background: var(--kpi-safe-bg);
+  color: var(--kpi-safe);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+/* ==========================================================================
+   CÁPSULA DE NAVEGAÇÃO FLUTUANTE (TITANIUM GLASS 2.0)
+   ========================================================================== */
+.floating-bottom-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 76px;
+  padding: 0 12px 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 60px 1fr 1fr;
+  align-items: center;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.floating-bottom-nav::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: 0;
+  bottom: 10px;
+  border-radius: 26px;
+  background: var(--nav-glass-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: var(--nav-glass-border);
+  border-top: var(--nav-glass-border-top);
+  box-shadow: var(--nav-glass-shadow);
+  pointer-events: auto;
+  z-index: 0;
+}
+
+.nav-tab-btn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-height: 50px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+}
+html[data-theme="light"] .nav-tab-btn { color: #64748b; }
+.nav-tab-btn svg { width: 22px; height: 22px; stroke: currentColor; stroke-width: 2; fill: none; }
+.nav-tab-btn.active { color: #38bdf8; font-weight: 800; }
+html[data-theme="light"] .nav-tab-btn.active { color: #1d4ed8; }
+
+.nav-tab-btn.active::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  width: 16px;
+  height: 3px;
+  border-radius: 999px;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.center-fab-btn {
+  position: relative;
+  padding-top: 0;
+  color: #e2e8f0;
+  font-weight: 700;
+  z-index: 2;
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.fab-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0077ff 0%, #00d9ff 100%);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: -20px;
+  box-shadow: 0 6px 18px rgba(0, 119, 255, 0.40), 0 0 0 3.5px rgba(15, 23, 42, 0.90);
+}
+html[data-theme="light"] .fab-circle {
+  background: linear-gradient(135deg, #1d4ed8 0%, #0284c7 100%);
+  box-shadow: 0 6px 16px rgba(29, 78, 216, 0.35), 0 0 0 3.5px #ffffff;
+}
+.fab-circle svg { width: 24px; height: 24px; stroke: #ffffff; stroke-width: 2.6; fill: none; }
+.center-fab-btn span { font-size: 11px; margin-top: 3px; }
+
+/* ==========================================================================
+   SKALEE TITANIUM GLASS 2.2 — REFINAMENTO DE TRANSPARÊNCIA & DESFOQUE CONTEXTUAL
+   ========================================================================== */
+
+/* 1. AURORA MAIS DINÂMICA E VIBRANTE (CSS MESH 5 BLOBS & LUMINOSIDADE) */
+.css-aurora-mesh {
+  background: #030712 !important;
+}
+
+.blob-1 {
+  top: -15% !important;
+  left: -20% !important;
+  width: 480px !important;
+  height: 480px !important;
+  background: radial-gradient(circle, rgba(0, 102, 255, 0.85) 0%, rgba(0, 102, 255, 0.38) 45%, rgba(0, 102, 255, 0) 75%) !important;
+  filter: blur(65px) !important;
+  -webkit-filter: blur(65px) !important;
+  animation: auroraFloat1 18s ease-in-out infinite alternate !important;
+}
+
+.blob-2 {
+  top: 10% !important;
+  right: -25% !important;
+  width: 440px !important;
+  height: 440px !important;
+  background: radial-gradient(circle, rgba(0, 229, 255, 0.82) 0%, rgba(0, 210, 255, 0.35) 45%, rgba(0, 210, 255, 0) 75%) !important;
+  filter: blur(60px) !important;
+  -webkit-filter: blur(60px) !important;
+  animation: auroraFloat2 22s ease-in-out infinite alternate !important;
+}
+
+.blob-3 {
+  bottom: 8% !important;
+  left: -20% !important;
+  width: 460px !important;
+  height: 460px !important;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.75) 0%, rgba(124, 58, 237, 0.30) 45%, rgba(124, 58, 237, 0) 75%) !important;
+  filter: blur(65px) !important;
+  -webkit-filter: blur(65px) !important;
+  animation: auroraFloat3 24s ease-in-out infinite alternate !important;
+}
+
+.blob-4 {
+  bottom: -15% !important;
+  right: -15% !important;
+  width: 420px !important;
+  height: 420px !important;
+  background: radial-gradient(circle, rgba(14, 165, 233, 0.80) 0%, rgba(14, 165, 233, 0.32) 45%, rgba(14, 165, 233, 0) 75%) !important;
+  filter: blur(60px) !important;
+  -webkit-filter: blur(60px) !important;
+  animation: auroraFloat1 20s ease-in-out infinite alternate-reverse !important;
+}
+
+.blob-5 {
+  position: absolute;
+  top: 22% !important;
+  left: -10% !important;
+  width: 520px !important;
+  height: 380px !important;
+  border-radius: 50% !important;
+  background: radial-gradient(ellipse, rgba(0, 180, 255, 0.65) 0%, rgba(0, 102, 255, 0.25) 48%, rgba(0, 102, 255, 0) 75%) !important;
+  filter: blur(60px) !important;
+  -webkit-filter: blur(60px) !important;
+  animation: auroraFloat2 26s ease-in-out infinite alternate-reverse !important;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+html[data-theme="light"] .css-aurora-mesh {
+  background: #f8fafc !important;
+}
+html[data-theme="light"] .blob-1 {
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.55) 0%, rgba(56, 189, 248, 0) 70%) !important;
+}
+html[data-theme="light"] .blob-2 {
+  background: radial-gradient(circle, rgba(14, 165, 233, 0.45) 0%, rgba(14, 165, 233, 0) 70%) !important;
+}
+html[data-theme="light"] .blob-3 {
+  background: radial-gradient(circle, rgba(167, 139, 250, 0.40) 0%, rgba(167, 139, 250, 0) 70%) !important;
+}
+html[data-theme="light"] .blob-4 {
+  background: radial-gradient(circle, rgba(96, 165, 250, 0.48) 0%, rgba(96, 165, 250, 0) 70%) !important;
+}
+html[data-theme="light"] .blob-5 {
+  background: radial-gradient(ellipse, rgba(56, 189, 248, 0.48) 0%, rgba(56, 189, 248, 0) 70%) !important;
+}
+
+/* 2. REFINAMENTO DE TRANSPARÊNCIA DOS MATERIAIS LIQUID GLASS (DARK MODE) */
+:root {
+  --kpi-glass-bg: linear-gradient(135deg, rgba(18, 28, 48, 0.20) 0%, rgba(10, 16, 28, 0.28) 100%) !important;
+  --kpi-glass-border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  --kpi-glass-border-top: 1px solid rgba(255, 255, 255, 0.22) !important;
+  --kpi-glass-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.14) !important;
+
+  --qa-glass-bg: linear-gradient(135deg, rgba(18, 28, 48, 0.22) 0%, rgba(11, 18, 32, 0.28) 100%) !important;
+  --qa-glass-border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  --qa-glass-border-top: 1px solid rgba(255, 255, 255, 0.20) !important;
+  --qa-glass-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.25), inset 0 1px 0 0 rgba(255, 255, 255, 0.12) !important;
+
+  --product-glass-bg: linear-gradient(135deg, rgba(16, 26, 44, 0.22) 0%, rgba(10, 16, 28, 0.30) 100%) !important;
+  --product-glass-border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  --product-glass-border-top: 1px solid rgba(255, 255, 255, 0.22) !important;
+  --product-glass-shadow: 0 8px 28px -4px rgba(0, 0, 0, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.12) !important;
+
+  --nav-glass-bg: linear-gradient(135deg, rgba(16, 25, 42, 0.24) 0%, rgba(10, 16, 30, 0.34) 100%) !important;
+}
+
+/* REFINAMENTO DE TRANSPARÊNCIA DOS MATERIAIS LIQUID GLASS (LIGHT MODE) */
+html[data-theme="light"] {
+  --kpi-glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.36) 0%, rgba(240, 248, 255, 0.22) 100%) !important;
+  --kpi-glass-border: 1px solid rgba(255, 255, 255, 0.60) !important;
+  --kpi-glass-border-top: 1px solid rgba(255, 255, 255, 0.95) !important;
+  --kpi-glass-shadow: 0 6px 24px -2px rgba(15, 23, 42, 0.04), inset 0 1px 0 0 rgba(255, 255, 255, 0.90) !important;
+
+  --qa-glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.38) 0%, rgba(240, 248, 255, 0.24) 100%) !important;
+  --qa-glass-border: 1px solid rgba(255, 255, 255, 0.60) !important;
+  --qa-glass-border-top: 1px solid rgba(255, 255, 255, 0.95) !important;
+  --qa-glass-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.03), inset 0 1px 0 0 rgba(255, 255, 255, 0.90) !important;
+
+  --product-glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.38) 0%, rgba(240, 248, 255, 0.24) 100%) !important;
+  --product-glass-border: 1px solid rgba(255, 255, 255, 0.60) !important;
+  --product-glass-border-top: 1px solid rgba(255, 255, 255, 0.95) !important;
+  --product-glass-shadow: 0 8px 24px -2px rgba(15, 23, 42, 0.05), inset 0 1px 0 0 rgba(255, 255, 255, 0.85) !important;
+
+  --nav-glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.40) 0%, rgba(240, 248, 255, 0.26) 100%) !important;
+}
+
+/* 3. CABEÇALHO 100% TRANSLÚCIDO E SEMPRE NÍTIDO (SEM BARRA SÓLIDA, SEM BORRÃO) */
+.sim-header-wrap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000 !important; /* Sempre no topo de todas as camadas */
+  pointer-events: none;
+}
+
+.sim-status-bar {
+  pointer-events: auto;
+  background: transparent !important;
+  color: #ffffff !important;
+  font-weight: 600;
+  padding: 8px 18px 2px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+}
+html[data-theme="light"] .sim-status-bar {
+  color: #0f172a !important;
+  text-shadow: none;
+}
+
+.sim-header {
+  pointer-events: auto;
+  padding: 4px 18px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+.brand-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.brand-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  background: linear-gradient(135deg, #0066ff, #00d4ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(0, 102, 255, 0.45);
+  flex-shrink: 0;
+}
+.brand-mark svg {
+  width: 20px;
+  height: 20px;
+  stroke: #ffffff;
+  stroke-width: 2.3;
+  fill: none;
+}
+.brand-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.brand-title {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #ffffff !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  line-height: 1.15;
+}
+html[data-theme="light"] .brand-title {
+  color: #0f172a !important;
+  text-shadow: none;
+}
+.brand-subtitle {
+  font-size: 11px;
+  font-weight: 600;
+  color: #38bdf8;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+html[data-theme="light"] .brand-subtitle {
+  color: #0284c7;
+}
+.brand-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.8);
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.header-icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.10) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff !important;
+  cursor: pointer;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.header-icon-btn:active {
+  transform: scale(0.94);
+}
+html[data-theme="light"] .header-icon-btn {
+  background: rgba(255, 255, 255, 0.60) !important;
+  border: 1px solid rgba(148, 163, 184, 0.28) !important;
+  color: #0f172a !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+}
+.header-notif-badge {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 9.5px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #030712;
+}
+
+/* 4. CAMADA DE DESFOQUE CONTEXTUAL SUPERIOR (DESFOCA SOMENTE O CONTEÚDO QUE ROLA) */
+.liquid-blur-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 125px;
+  pointer-events: none;
+  z-index: 500; /* Fica acima de .scroll-area (10), mas abaixo do header (1000) */
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  -webkit-mask-image: linear-gradient(to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.92) 42px,
+    rgba(0, 0, 0, 0.40) 80px,
+    rgba(0, 0, 0, 0) 125px
+  );
+  mask-image: linear-gradient(to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.92) 42px,
+    rgba(0, 0, 0, 0.40) 80px,
+    rgba(0, 0, 0, 0) 125px
+  );
+  transition: opacity 0.25s ease;
+}
+
+/* 5. CAMADA DE DESFOQUE CONTEXTUAL INFERIOR (FOCUS GRADUAL ANTES DO MENU) */
+.liquid-blur-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 155px;
+  pointer-events: none;
+  z-index: 940; /* Fica acima do scroll (10), mas abaixo da bottom nav (950) */
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  -webkit-mask-image: linear-gradient(to top,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.92) 55px,
+    rgba(0, 0, 0, 0.50) 100px,
+    rgba(0, 0, 0, 0.15) 130px,
+    rgba(0, 0, 0, 0) 155px
+  );
+  mask-image: linear-gradient(to top,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.92) 55px,
+    rgba(0, 0, 0, 0.50) 100px,
+    rgba(0, 0, 0, 0.15) 130px,
+    rgba(0, 0, 0, 0) 155px
+  );
+  transition: opacity 0.25s ease;
+}
+
+/* Quando desativado via controle de teste A/B */
+.blur-disabled .liquid-blur-top,
+.blur-disabled .liquid-blur-bottom {
+  display: none !important;
+}
+
+/* 6. ÁREA DE ROLAGEM */
+.scroll-area {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: calc(38px + 52px + 12px) 16px calc(72px + 24px + 12px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  scrollbar-width: none;
+  z-index: 10;
+}
+.scroll-area::-webkit-scrollbar { display: none; }
+
+/* 7. NAVEGAÇÃO INFERIOR MAIS TRANSPARENTE */
+.floating-bottom-nav {
+  background: var(--nav-glass-bg) !important;
+  backdrop-filter: blur(20px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(140%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.26) !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.40), inset 0 1px 0 0 rgba(255, 255, 255, 0.16) !important;
+  z-index: 950 !important;
+}
+html[data-theme="light"] .floating-bottom-nav {
+  border: 1px solid rgba(255, 255, 255, 0.70) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.98) !important;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08), inset 0 1px 0 0 rgba(255, 255, 255, 0.95) !important;
+}
+
+/* 8. CARDS DE PRODUTOS & ELEMENTOS COM LIQUID GLASS REFRACTION */
+.product-card {
+  backdrop-filter: blur(18px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(140%) !important;
+}
+.product-card .photo {
+  background: rgba(255, 255, 255, 0.06) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+html[data-theme="light"] .product-card .photo {
+  background: rgba(241, 245, 249, 0.45) !important;
+  border: 1px solid rgba(148, 163, 184, 0.18) !important;
+}
+
+.kpi-card {
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+}
+.action-btn {
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+}
+
+.store-pill {
+  background: rgba(37, 99, 235, 0.16) !important;
+  border: 1px solid rgba(37, 99, 235, 0.35) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  color: #38bdf8 !important;
+}
+html[data-theme="light"] .store-pill {
+  background: rgba(219, 234, 254, 0.60) !important;
+  border: 1px solid rgba(37, 99, 235, 0.25) !important;
+  color: #1d4ed8 !important;
+}
+
+/* Toolbar Controls para Rolagem e Desfoque */
+.tool-group-scroll {
+  display: inline-flex;
+  align-items: center;
+  background: #1e293b;
+  border-radius: 10px;
+  padding: 3px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+</style>
+</head>
+<body>
+
+<!-- BOTÃO ERGONÔMICO FLUTUANTE PARA DISPOSITIVO ANDROID -->
+<button class="mobile-ab-pill" id="mobileAbBtn" onclick="openBottomSheet()">
+  <span>⚙️</span>
+  <span>Modo A/B</span>
+</button>
+
+<!-- TOOLBAR DESKTOP -->
+<header class="testbed-toolbar-desktop">
+  <div class="toolbar-title">
+    <span>SKALEE SOFT AURORA</span>
+    <span class="toolbar-badge" id="activeModeLabel">Titanium Glass 2.2</span>
+  </div>
+
+  <div class="toolbar-controls">
+    <!-- Grupo Desfoque Contextual -->
+    <div class="tool-group">
+      <button class="tool-btn active" id="btnToggleBlur" onclick="toggleContextualBlur()">
+        <span>🌫️</span>
+        <span id="btnToggleBlurText">Desfoque: Ativo</span>
+      </button>
+    </div>
+
+    <!-- Grupo Posição de Rolagem -->
+    <div class="tool-group-scroll">
+      <span style="font-size:11px; font-weight:700; color:#94a3b8; padding:0 8px;">Rolagem:</span>
+      <button class="tool-btn active" id="btnScrollStart" onclick="setScrollPosition(0)">Início</button>
+      <button class="tool-btn" id="btnScrollMid" onclick="setScrollPosition(340)">Meio</button>
+      <button class="tool-btn" id="btnScrollEnd" onclick="setScrollPosition(780)">Final</button>
+    </div>
+    <div class="tool-group">
+      <button class="tool-btn active" id="btnModeWebGL" onclick="setAuroraEngine('webgl')">A: WebGL Aurora</button>
+      <button class="tool-btn" id="btnModeCSS" onclick="setAuroraEngine('css')">B: CSS Mesh</button>
+    </div>
+
+    <div class="tool-group">
+      <button class="tool-btn active" id="btnThemeDark" onclick="setTheme('dark')">Escuro</button>
+      <button class="tool-btn" id="btnThemeLight" onclick="setTheme('light')">Claro</button>
+    </div>
+
+    <button class="tool-btn" id="btnPlayPause" onclick="togglePlayPause()" style="background:#1e293b; color:#38bdf8;">
+      Pausar
+    </button>
+
+    <button class="tool-btn" id="btnSimContextLost" onclick="simulateContextLoss()" style="background:rgba(239, 68, 68, 0.15); color:#fca5a5;">
+      Simular Perda WebGL
+    </button>
+
+    <div class="tool-slider-wrap">
+      <span>Intensidade:</span>
+      <input type="range" id="intensitySlider" min="0.2" max="1.0" step="0.05" value="0.75" oninput="updateIntensity(this.value)">
+      <span id="intensityVal" style="font-variant-numeric:tabular-nums; width:28px;">75%</span>
+    </div>
+
+    <div class="tool-group">
+      <button class="tool-btn" onclick="setViewport(360)">360px</button>
+      <button class="tool-btn active" id="btnVp393" onclick="setViewport(393)">393px</button>
+      <button class="tool-btn" onclick="setViewport(412)">412px</button>
+    </div>
+
+    <div class="fps-monitor" id="fpsDisplay">
+      <span id="fpsNum">30</span> FPS <span style="opacity:0.6;">|</span> <span id="frameTimeNum">1.2</span> ms
+    </div>
+  </div>
+</header>
+
+<!-- DISPOSITIVO / VIEWPORT -->
+<div class="viewport-outer" id="viewportOuter">
+  <main class="device-viewport" id="deviceViewport">
+
+    <!-- CAMADA SOFT AURORA (FUNDOS ANIMADOS ISOLADOS) -->
+    <div class="aurora-container" id="auroraContainer">
+      <canvas id="webglAuroraCanvas"></canvas>
+
+      <div class="css-aurora-mesh" id="cssAuroraMesh">
+        <div class="aurora-blob blob-1"></div>
+        <div class="aurora-blob blob-2"></div>
+        <div class="aurora-blob blob-3"></div>
+        <div class="aurora-blob blob-4"></div>
+        <div class="aurora-blob blob-5"></div>
+      </div>
+    </div>
+
+    <!-- CONTEÚDO TITANIUM GLASS 2.0 (TRANSLÚCIDO SOBRE A AURORA) -->
+    <div class="viewport-content" id="viewportContent">
+
+      <!-- CAMADA DE DESFOQUE CONTEXTUAL SUPERIOR (LIQUID GLASS 2.2) -->
+      <div class="liquid-blur-top" id="liquidBlurTop"></div>
+
+      <!-- HEADER COMPACTO + STATUS BAR (100% TRANSLÚCIDO E NÍTIDO SOBRE A AURORA) -->
+      <div class="sim-header-wrap">
+        <div class="sim-status-bar">
+          <span>10:52</span>
+          <div class="status-right">
+            <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L12 22l7.03-4.39C20.26 16.07 21 14.12 21 12c0-4.97-4.03-9-9-9z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M2 17h20v4H2v-4zm0-6h20v4H2v-4zm0-6h20v4H2V5z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M17 4h-3V2h-4v2H7v18h10V4z"/></svg>
+          </div>
+        </div>
+
+        <header class="sim-header">
+          <div class="brand-group">
+            <div class="brand-mark">
+              <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            </div>
+            <div class="brand-meta">
+              <span class="brand-title">Skalee Validades</span>
+              <div class="brand-subtitle"><span class="brand-live-dot"></span> Supermercado sol 3</div>
+            </div>
+          </div>
+          <div class="header-actions">
+            <button class="header-icon-btn" onclick="openBottomSheet()" title="Configurações e Demonstração" aria-label="Configurações">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            </button>
+            <button class="header-icon-btn" title="Notificações" aria-label="Notificações">
+              <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+              <span class="header-notif-badge">1</span>
+            </button>
+          </div>
+        </header>
+      </div>
+
+      <!-- Scrollable Area Prolongada -->
+      <div class="scroll-area" id="scrollContent">
+
+        <!-- Toast de Fallback Ativo -->
+        <div class="fallback-toast" id="fallbackToast">
+          <span>⚠️</span>
+          <span id="fallbackToastText">Contexto WebGL perdido. Fallback ativado para CSS Mesh automaticamente.</span>
+        </div>
+
+        <!-- Saudação -->
+        <div class="greeting-row">
+          <div class="greeting-text">
+            <h2>Olá, Auditor</h2>
+            <p>Panorama das validades de hoje</p>
+          </div>
+          <span class="store-pill">Loja Principal</span>
+        </div>
+
+        <!-- Indicadores Principais (React Bits Minimalist) -->
+        <div class="kpi-grid">
+          <div class="kpi-card danger hero-kpi">
+            <div class="kpi-top">
+              <span class="kpi-icon-pill">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              </span>
+            </div>
+            <div class="kpi-val">2</div>
+            <div class="kpi-title">Vencidos / Hoje</div>
+            <div class="kpi-subtitle">Ação imediata</div>
+          </div>
+
+          <div class="kpi-card warning">
+            <div class="kpi-top">
+              <span class="kpi-icon-pill">
+                <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+              </span>
+            </div>
+            <div class="kpi-val">5</div>
+            <div class="kpi-title">Vencem em 30d</div>
+            <div class="kpi-subtitle">Giro de estoque</div>
+          </div>
+
+          <div class="kpi-card offer">
+            <div class="kpi-top">
+              <span class="kpi-icon-pill">
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+              </span>
+            </div>
+            <div class="kpi-val">1</div>
+            <div class="kpi-title">Em Oferta</div>
+            <div class="kpi-subtitle">Preço reduzido</div>
+          </div>
+        </div>
+
+        <!-- Ações Rápidas -->
+        <div class="quick-actions">
+          <div class="qa-card">
+            <span class="qa-icon"><svg viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg></span>
+            <span class="qa-label">Auditorias</span>
+          </div>
+          <div class="qa-card">
+            <span class="qa-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg></span>
+            <span class="qa-label">Relatórios</span>
+          </div>
+          <div class="qa-card">
+            <span class="qa-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></span>
+            <span class="qa-label">Calendário</span>
+          </div>
+          <div class="qa-card">
+            <span class="qa-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>
+            <span class="qa-label">Buscar</span>
+          </div>
+        </div>
+
+        <!-- Seção Produtos em Acompanhamento (16 Itens para Rolagem Prolongada) -->
+        <div class="section-head">
+          <div class="section-title-wrap">
+            <span class="section-title">Produtos em Acompanhamento</span>
+            <span class="section-counter">16</span>
+          </div>
+          <a href="#" class="section-all-link">Ver todos</a>
+        </div>
+
+        <div class="product-list">
+
+          <!-- 1: Vencido Hoje -->
+          <article class="product-card">
+            <div class="product-thumb"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg></div>
+            <div class="product-info">
+              <h3 class="product-name">Iogurte Grego Tradicional 400g</h3>
+              <p class="product-meta">Lote: 8841-A • Loja Principal</p>
+              <div class="product-bottom-row"><span class="product-qty">Qtd: 12 un</span><span class="status-pill danger">Vence Hoje</span></div>
+            </div>
+          </article>
+
+          <!-- 2: Vencido Ontem -->
+          <article class="product-card">
+            <div class="product-thumb"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg></div>
+            <div class="product-info">
+              <h3 class="product-name">Queijo Mussarela Fatiado 500g</h3>
+              <p class="product-meta">Lote: 9021-C • Loja Principal</p>
+              <div class="product-bottom-row"><span class="product-qty">Qtd: 6 un</span><span class="status-pill danger">Vencido há 1d</span></div>
+            </div>
+          </article>
+
+          <!-- 3: Alerta 7 dias -->
+          <article class="product-card">
+            <div class="product-thumb"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg></div>
+            <div class="product-info">
+              <h3 class="product-name">Requeijão Cremoso 200g</h3>
+              <p class="product-meta">Lote: 7712-B • Depósito Frio</p>
+              <div class="product-bottom-row"><span class="product-qty">Qtd: 24 un</span><span class="status-pill warning">Vence em 7d</span></div>
+            </div>
+          </article>
+
+          <!-- 4: Em Oferta -->
+          <article class="product-card">
+            <div class="product-thumb"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg></div>
+            <div class="product-info">
+              <h3 class="product-name">Leite Desnatado Integral 1L</h3>
+              <p class="product-meta">Lote: 5412-M • Corredor 3</p>
+              <div class="product-bottom-row"><span class="product-qty">Qtd: 48 un</span><span class="status-pill offer">Em Oferta (-30%)</span></div>
+            </div>
+          </article>
+
+          <!-- 5: Vence em 15 dias -->
+          <article class="product-card">
+            <div class="product-thumb"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg></div>
+            <div class="product-info">
+              <h3 class="product-name">Peito de Peru Defumado 300g</h3>
+              <p class="product-meta">Lote: 3390-P • Fiambreria</p>
+              <div class="product-bottom-row"><span class="product-qty">Qtd: 15 un</span><span class="status-pill warning">Vence em 15d</span></div>
+            </div>
+          </article>
+
+          <!-- 6: Vence em 28 dias -->
+          <article class="product-card">
+            <div class="product-thumb"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg></div>
+            <div class="product-info">
+              <h3 class="product-name">Manteiga Extra com Sal 200g</h3>
+              <p class="product-meta">Lote: 1042-K • Geladeira 01</p>
+              <div class="product-bottom-row"><span class="product-qty">Qtd: 30 un</span><span class="status-pill warning">Vence em 28d</span></div>
+            </div>
+          </article>
+
+          <!-- 7: Suco de Laranja Integral 900ml -->
+          <article class="product-card">
+            <div class="product-thumb"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg></div>
+            <div class="product-info">
+              <h3 class="product-name">Suco de Laranja Integral 900ml</h3>
+              <p class="product-meta">Lote: 4401-J • Corredor 02</p>
+              <div class="product-bottom-row"><span class="product-qty">Qtd: 18 un</span><span class="status-pill warning">Vence em 18d</span></div>
+            </div>
+          </article>
+
+          <!-- 8: Presunto Cozido sem Capa 1kg -->
+          <article class="product-card">
+            <div class="product-thumb"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg></div>
+            <div class="product-info">
+              <h3 class="product-name">Presunto Cozido sem Capa 1kg</h3>
+              <p class="product-meta">Lote: 8192-X • Câmara Fria</p>
+              <div class="product-bottom-row"><span class="product-qty">Qtd: 8 un</span><span class="status-pill warning">Vence em 22d</span></div>
+            </div>
+          </article>
+
+          <!-- 9: Pão de Forma Tradicional 500g -->
+          <article class="product-card">
+            <div class="product-thumb"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg></div>
+            <div class="product-info">
+              <h3 class="product-name">Pão de Forma Tradicional 500g</h3>
+              <p class="product-meta">Lote: 2203-P • Padaria</p>
+              <div class="product-bottom-row"><span class="product-qty">Qtd: 40 un</span><span class="status-pill warning">Vence em 6d</span></div>
+            </div>
+          </article>
+
+          <!-- 10: Iogurte Morango Garrafa 850g -->
+          <article class="product-card">
+            <div class="product-thumb"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg></div>
+            <div class="product-info">
+              <h3 class="product-name">Iogurte Morango Garrafa 850g</h3>
+              <p class="product-meta">Lote: 9910-Y • Ilha de Frios</p>
+              <div class="product-bottom-row"><span class="product-qty">Qtd: 22 un</span><span class="status-pill offer">Em Oferta (-25%)</span></div>
+            </div>
+          </article>
+
+          <!-- 11: Ricota Fresca Pedaço 400g -->
+          <article class="product-card">
+            <div class="product-thumb"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg></div>
+            <div class="product-info">
+              <h3 class="product-name">Ricota Fresca Pedaço 400g</h3>
+              <p class="product-meta">Lote: 1109-R • Geladeira 03</p>
+              <div class="product-bottom-row"><span class="product-qty">Qtd: 14 un</span><span class="status-pill warning">Vence em 12d</span></div>
+            </div>
+          </article>
+
+          <!-- 12: Salame Tipo Italiano Fatiado 100g -->
+          <article class="product-card">
+            <div class="product-thumb"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg></div>
+            <div class="product-info">
+              <h3 class="product-name">Salame Tipo Italiano Fatiado 100g</h3>
+              <p class="product-meta">Lote: 5540-S • Fiambreria</p>
+              <div class="product-bottom-row"><span class="product-qty">Qtd: 35 un</span><span class="status-pill safe">Vence em 45d</span></div>
+            </div>
+          </article>
+
+          <!-- 13: Cerveja Puro Malte 350ml -->
+          <article class="product-card">
+            <div class="product-thumb"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg></div>
+            <div class="product-info">
+              <h3 class="product-name">Cerveja Puro Malte Lata 350ml</h3>
+              <p class="product-meta">Lote: 7720-C • Corredor Bebidas</p>
+              <div class="product-bottom-row"><span class="product-qty">Qtd: 120 un</span><span class="status-pill safe">Vence em 90d</span></div>
+            </div>
+          </article>
+
+          <!-- 14: Biscoito Recheado Chocolate 140g -->
+          <article class="product-card">
+            <div class="product-thumb"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg></div>
+            <div class="product-info">
+              <h3 class="product-name">Biscoito Recheado Chocolate 140g</h3>
+              <p class="product-meta">Lote: 6631-B • Corredor 05</p>
+              <div class="product-bottom-row"><span class="product-qty">Qtd: 75 un</span><span class="status-pill safe">Vence em 110d</span></div>
+            </div>
+          </article>
+
+          <!-- 15: Café Torrado e Moído 500g -->
+          <article class="product-card">
+            <div class="product-thumb"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg></div>
+            <div class="product-info">
+              <h3 class="product-name">Café Torrado e Moído 500g</h3>
+              <p class="product-meta">Lote: 4410-K • Corredor 01</p>
+              <div class="product-bottom-row"><span class="product-qty">Qtd: 50 un</span><span class="status-pill safe">Vence em 180d</span></div>
+            </div>
+          </article>
+
+          <!-- 16: Azeite de Oliva Extravirgem 500ml -->
+          <article class="product-card">
+            <div class="product-thumb"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg></div>
+            <div class="product-info">
+              <h3 class="product-name">Azeite de Oliva Extravirgem 500ml</h3>
+              <p class="product-meta">Lote: 9940-Z • Corredor 04</p>
+              <div class="product-bottom-row"><span class="product-qty">Qtd: 28 un</span><span class="status-pill safe">Vence em 240d</span></div>
+            </div>
+          </article>
+
+        </div>
+
+      </div>
+
+      <!-- CÁPSULA INFERIOR FLUTUANTE (TITANIUM GLASS 2.0) -->
+      <nav class="floating-bottom-nav">
+        <button class="nav-tab-btn active">
+          <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          <span>Início</span>
+        </button>
+        <button class="nav-tab-btn">
+          <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+          <span>Produtos</span>
+        </button>
+        <div class="center-fab-btn">
+          <div class="fab-circle">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </div>
+          <span>Cadastrar</span>
+        </div>
+        <button class="nav-tab-btn">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <span>Buscar</span>
+        </button>
+        <button class="nav-tab-btn" onclick="openBottomSheet()">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <span>Modo A/B</span>
+        </button>
+      </nav>
+
+    </div>
+  </main>
+</div>
+
+<!-- BOTTOM SHEET DE CONTROLES NO ANDROID -->
+<div class="bottom-sheet-overlay" id="bottomSheetOverlay" onclick="closeBottomSheet()"></div>
+<div class="bottom-sheet-panel" id="bottomSheetPanel">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <span class="sheet-title">Validação A/B — Soft Aurora</span>
+    <button class="sheet-btn" style="padding:4px 10px; font-size:12px;" onclick="closeBottomSheet()">Fechar</button>
+  </div>
+
+  <div class="sheet-section">
+    <span class="sheet-section-label">Motor de Renderização</span>
+    <div class="sheet-btn-row">
+      <button class="sheet-btn active" id="sheetBtnWebGL" onclick="setAuroraEngine('webgl')">A: WebGL Aurora</button>
+      <button class="sheet-btn" id="sheetBtnCSS" onclick="setAuroraEngine('css')">B: CSS Mesh</button>
+    </div>
+  </div>
+
+  <div class="sheet-section">
+    <span class="sheet-section-label">Tema da Interface</span>
+    <div class="sheet-btn-row">
+      <button class="sheet-btn active" id="sheetThemeDark" onclick="setTheme('dark')">Escuro</button>
+      <button class="sheet-btn" id="sheetThemeLight" onclick="setTheme('light')">Claro</button>
+    </div>
+  </div>
+
+  <div class="sheet-section">
+    <span class="sheet-section-label">Animação & Intensidade</span>
+    <div class="sheet-btn-row">
+      <button class="sheet-btn" id="sheetPlayPause" onclick="togglePlayPause()">Pausar Animação</button>
+      <div style="display:flex; align-items:center; gap:8px; background:#1e293b; padding:8px 12px; border-radius:12px;">
+        <input type="range" min="0.2" max="1.0" step="0.05" value="0.75" oninput="updateIntensity(this.value)" style="width:100%;">
+        <span id="sheetIntensityVal" style="font-size:12px; font-weight:700; width:34px;">75%</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sheet-section">
+    <span class="sheet-section-label">Teste de Resiliência & Fallback</span>
+    <div id="diagStatusBox" style="font-size:12px; font-weight:700; margin-bottom:6px; color:#38bdf8;">Status: WebGL Ativo (GPU Shader)</div>
+    <button class="sheet-danger-btn" id="sheetBtnLoseContext" onclick="simulateContextLoss()">
+      Simular Perda de Contexto WebGL (Ativar Fallback CSS)
+    </button>
+    <div id="diagActionButtons" style="display:none; gap:6px; flex-direction:column; margin-top:6px;">
+      <button class="sheet-btn" id="sheetBtnRestoreContext" onclick="simulateContextRestore()" style="background:#0284c7; color:#fff;">
+        Restaurar WebGL
+      </button>
+      <button class="sheet-btn" id="sheetBtnCancelSim" onclick="simulateContextRestore()" style="background:#334155; color:#f8fafc;">
+        Desativar Simulação
+      </button>
+      <button class="sheet-btn" id="sheetBtnUseEco" onclick="useModoEcoFromDiag()" style="background:#1e293b; color:#94a3b8;">
+        Usar Modo Econômico
+      </button>
+    </div>
+  </div>
+
+  <div class="sheet-section">
+    <span class="sheet-section-label">Telemetria & Diagnóstico Real</span>
+    <div class="telemetry-box">
+      <div class="telemetry-line">
+        <span>FPS Atual:</span>
+        <span class="telemetry-val" id="telFps">30 FPS</span>
+      </div>
+      <div class="telemetry-line">
+        <span>Tempo de Renderização (JS):</span>
+        <span class="telemetry-val" id="telFrameTime">0.05 ms</span>
+      </div>
+      <div class="telemetry-line">
+        <span>Quedas de Frame (>33ms):</span>
+        <span class="telemetry-val" id="telJanks">0 janks</span>
+      </div>
+      <div class="telemetry-line">
+        <span>Status do WebGL:</span>
+        <span class="telemetry-val" id="telStatus" style="color:#34d399;">Ativo (30 FPS cap)</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================================================
+   SCRIPTS DO PROTÓTIPO: WEBGL ENGINE + CSS FALLBACK + TELEMETRIA
+   ========================================================================== */
+-->
+<script>
+const state = {
+  engine: 'webgl',         // 'webgl' ou 'css'
+  theme: 'dark',           // 'dark' ou 'light'
+  playing: true,
+  intensity: 0.75,
+  viewport: 393,
+  fpsCap: 30,              // Cap a 30 FPS para contenção térmica e de bateria
+  resolutionScale: 0.5,    // 0.5x da resolução para 75% menos fill-rate
+  lastFrameTime: performance.now(),
+  frameCount: 0,
+  fpsTimer: performance.now(),
+  currentFps: 30,
+  currentFrameDuration: 0.05,
+  jankCount: 0,
+  webglActive: false,
+  webglAnimationId: null,
+  contextLost: false,
+  loseContextExtension: null
+};
+
+/* --------------------------------------------------------------------------
+   INICIALIZAÇÃO DO WEBGL SOFT AURORA COM TRATAMENTO DE FALLBACK
+   -------------------------------------------------------------------------- */
+const canvas = document.getElementById('webglAuroraCanvas');
+let gl = null;
+let program = null;
+let uTimeLoc, uResLoc, uThemeLoc, uIntensityLoc;
+
+const vsSource = `
+  attribute vec2 aPosition;
+  varying vec2 vUv;
+  void main() {
+    vUv = aPosition * 0.5 + 0.5;
+    gl_Position = vec4(aPosition, 0.0, 1.0);
+  }
+`;
+
+const fsSource = `
+  precision mediump float;
+  varying vec2 vUv;
+  uniform float uTime;
+  uniform vec2 uResolution;
+  uniform float uTheme;
+  uniform float uIntensity;
+
+  vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+  vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+  vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
+
+  float snoise(vec2 v) {
+    const vec4 C = vec4(0.211324865405187, 0.366025403784439,
+                        -0.577350269189626, 0.024390243902439);
+    vec2 i  = floor(v + dot(v, C.yy));
+    vec2 x0 = v - i + dot(i, C.xx);
+    vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+    vec4 x12 = x0.xyxy + C.xxzz;
+    x12.xy -= i1;
+    i = mod289(i);
+    vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0))
+                           + i.x + vec3(0.0, i1.x, 1.0));
+    vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+    m = m*m;
+    m = m*m;
+    vec3 x = 2.0 * fract(p * C.www) - 1.0;
+    vec3 h = abs(x) - 0.5;
+    vec3 ox = floor(x + 0.5);
+    vec3 a0 = x - ox;
+    m *= 1.79284291400159 - 0.85373472095314 * (a0*a0 + h*h);
+    vec3 g;
+    g.x = a0.x * x0.x + h.x * x0.y;
+    g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+    return 130.0 * dot(m, g);
+  }
+
+  void main() {
+    vec2 st = gl_FragCoord.xy / uResolution.xy;
+    st.y = 1.0 - st.y;
+
+    float t = uTime * 0.16;
+    vec2 p = vec2(st.x * 2.2, st.y * 1.6);
+    float n1 = snoise(p + vec2(t * 0.4, t * 0.2));
+    float n2 = snoise(p * 1.5 - vec2(t * 0.3, t * 0.5));
+    float combinedNoise = (n1 * 0.65 + n2 * 0.35) * 0.5 + 0.5;
+
+    vec3 darkBase   = vec3(0.027, 0.043, 0.071);
+    vec3 darkBlue   = vec3(0.0, 0.467, 1.0);
+    vec3 darkCyan   = vec3(0.0, 0.851, 1.0);
+    vec3 darkIndigo = vec3(0.388, 0.400, 0.945);
+
+    vec3 lightBase  = vec3(0.945, 0.961, 0.976);
+    vec3 lightBlue  = vec3(0.220, 0.741, 0.973);
+    vec3 lightCyan  = vec3(0.490, 0.839, 0.988);
+    vec3 lightLilac = vec3(0.659, 0.686, 0.980);
+
+    vec3 color;
+    if (uTheme < 0.5) {
+      vec3 auroraTint = mix(darkBlue, darkCyan, sin(combinedNoise * 3.1415 + t) * 0.5 + 0.5);
+      auroraTint = mix(auroraTint, darkIndigo, clamp(n2, 0.0, 1.0) * 0.4);
+      color = mix(darkBase, auroraTint, combinedNoise * uIntensity * 0.75);
+    } else {
+      vec3 auroraTint = mix(lightBlue, lightCyan, sin(combinedNoise * 3.1415 + t) * 0.5 + 0.5);
+      auroraTint = mix(auroraTint, lightLilac, clamp(n2, 0.0, 1.0) * 0.35);
+      color = mix(lightBase, auroraTint, combinedNoise * uIntensity * 0.48);
+    }
+
+    gl_FragColor = vec4(color, 1.0);
+  }
+`;
+
+function createShader(glCtx, type, source) {
+  const shader = glCtx.createShader(type);
+  glCtx.shaderSource(shader, source);
+  glCtx.compileShader(shader);
+  if (!glCtx.getShaderParameter(shader, glCtx.COMPILE_STATUS)) {
+    console.error('Erro de compilação de shader:', glCtx.getShaderInfoLog(shader));
+    glCtx.deleteShader(shader);
+    return null;
+  }
+  return shader;
+}
+
+function initWebGL() {
+  try {
+    const vp = document.getElementById('deviceViewport');
+    const rect = vp ? vp.getBoundingClientRect() : { width: 393, height: 852 };
+    canvas.width = Math.max(1, Math.round((rect.width || 393) * state.resolutionScale));
+    canvas.height = Math.max(1, Math.round((rect.height || 852) * state.resolutionScale));
+
+    gl = canvas.getContext('webgl', {
+      alpha: true,
+      antialias: false,
+      depth: false,
+      stencil: false,
+      preserveDrawingBuffer: false,
+      powerPreference: 'low-power'
+    });
+
+    if (!gl) {
+      triggerFallback('WebGL não suportado pelo hardware/WebView');
+      return false;
+    }
+
+    // Extensão para simulação de perda de contexto
+    state.loseContextExtension = gl.getExtension('WEBGL_lose_context');
+
+    const vs = createShader(gl, gl.VERTEX_SHADER, vsSource);
+    const fs = createShader(gl, gl.FRAGMENT_SHADER, fsSource);
+    program = gl.createProgram();
+    gl.attachShader(program, vs);
+    gl.attachShader(program, fs);
+    gl.linkProgram(program);
+
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      triggerFallback('Falha no link do programa WebGL');
+      return false;
+    }
+
+    gl.useProgram(program);
+
+    const positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+      -1, -1,
+       1, -1,
+      -1,  1,
+      -1,  1,
+       1, -1,
+       1,  1
+    ]), gl.STATIC_DRAW);
+
+    const aPosLoc = gl.getAttribLocation(program, 'aPosition');
+    gl.enableVertexAttribArray(aPosLoc);
+    gl.vertexAttribPointer(aPosLoc, 2, gl.FLOAT, false, 0, 0);
+
+    uTimeLoc = gl.getUniformLocation(program, 'uTime');
+    uResLoc = gl.getUniformLocation(program, 'uResolution');
+    uThemeLoc = gl.getUniformLocation(program, 'uTheme');
+    uIntensityLoc = gl.getUniformLocation(program, 'uIntensity');
+
+    return true;
+  } catch (err) {
+    triggerFallback('Exceção ao inicializar WebGL: ' + err.message);
+    return false;
+  }
+}
+
+// Ouvintes nativos de ciclo de vida do contexto WebGL
+canvas.addEventListener('webglcontextlost', (e) => {
+  console.warn('[webglcontextlost disparado pelo browser]', e);
+  e.preventDefault(); // Permite recuperação posterior
+  state.contextLost = true;
+  stopWebGLLoop();
+  triggerFallback('Contexto WebGL perdido pelo sistema Android');
+  updateTelemetryUI();
+}, false);
+
+canvas.addEventListener('webglcontextrestored', () => {
+  state.contextLost = false;
+  if (initWebGL()) {
+    hideFallbackToast();
+    if (state.engine === 'webgl') {
+      startWebGLLoop();
+    }
+  }
+  updateTelemetryUI();
+}, false);
+
+function resizeCanvas() {
+  if (!canvas || !gl || state.contextLost) return;
+  const vp = document.getElementById('deviceViewport');
+  const rect = vp ? vp.getBoundingClientRect() : canvas.getBoundingClientRect();
+  const w = Math.round(rect.width) || 393;
+  const h = Math.round(rect.height) || 840;
+
+  const targetW = Math.max(1, Math.round(w * state.resolutionScale));
+  const targetH = Math.max(1, Math.round(h * state.resolutionScale));
+
+  if (canvas.width !== targetW || canvas.height !== targetH) {
+    canvas.width = targetW;
+    canvas.height = targetH;
+    gl.viewport(0, 0, targetW, targetH);
+  }
+}
+
+let startTime = performance.now();
+let lastRenderTime = 0;
+
+function renderWebGL(now) {
+  if (!state.playing || state.engine !== 'webgl' || !gl || !program || state.contextLost) {
+    state.webglActive = false;
+    return;
+  }
+
+  const elapsed = now - lastRenderTime;
+  const targetInterval = 1000 / state.fpsCap;
+
+  if (elapsed < targetInterval) {
+    state.webglAnimationId = requestAnimationFrame(renderWebGL);
+    return;
+  }
+
+  // Detecção de Jank (> 33.3ms)
+  if (elapsed > 45 && lastRenderTime > 0) {
+    state.jankCount++;
+  }
+
+  lastRenderTime = now - (elapsed % targetInterval);
+  const frameStart = performance.now();
+
+  resizeCanvas();
+
+  const timeSec = (now - startTime) / 1000.0;
+  gl.uniform1f(uTimeLoc, timeSec);
+  gl.uniform2f(uResLoc, canvas.width, canvas.height);
+  gl.uniform1f(uThemeLoc, state.theme === 'light' ? 1.0 : 0.0);
+  gl.uniform1f(uIntensityLoc, state.intensity);
+
+  gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+  const frameDuration = performance.now() - frameStart;
+  updateFpsStats(now, frameDuration);
+
+  state.webglAnimationId = requestAnimationFrame(renderWebGL);
+}
+
+function startWebGLLoop() {
+  if (state.webglActive || state.contextLost) return;
+  state.webglActive = true;
+  lastRenderTime = performance.now();
+  state.webglAnimationId = requestAnimationFrame(renderWebGL);
+}
+
+function stopWebGLLoop() {
+  state.webglActive = false;
+  if (state.webglAnimationId) {
+    cancelAnimationFrame(state.webglAnimationId);
+    state.webglAnimationId = null;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   FALLBACK AUTOMÁTICO PARA CSS MESH
+   -------------------------------------------------------------------------- */
+const fallbackToast = document.getElementById('fallbackToast');
+const fallbackToastText = document.getElementById('fallbackToastText');
+
+function triggerFallback(reason) {
+  console.warn('[Aurora Fallback]', reason);
+  canvas.style.display = 'none';
+  cssAuroraMesh.style.display = 'block';
+  fallbackToast.classList.add('visible');
+  fallbackToastText.textContent = `⚠️ ${reason}. Fallback ativo para CSS Mesh automaticamente.`;
+  activeModeLabel.textContent = 'Fallback CSS Mesh';
+  activeModeLabel.classList.add('fallback-badge');
+  updateTelemetryUI();
+}
+
+function hideFallbackToast() {
+  fallbackToast.classList.remove('visible');
+  activeModeLabel.classList.remove('fallback-badge');
+}
+
+window.simulateContextLoss = function() {
+  if (state.isSimulatingLoss) {
+    window.simulateContextRestore();
+    return;
+  }
+  state.isSimulatingLoss = true;
+  state.userPreferredEngine = state.auroraEngine;
+
+  const btnTop = document.getElementById('btnSimContextLost');
+  if (btnTop) {
+    btnTop.textContent = 'Restaurar WebGL';
+    btnTop.style.background = 'rgba(2, 132, 199, 0.25)';
+    btnTop.style.color = '#38bdf8';
+  }
+
+  const sheetBtnLose = document.getElementById('sheetBtnLoseContext');
+  const sheetActions = document.getElementById('diagActionButtons');
+  const diagStatus = document.getElementById('diagStatusBox');
+  if (sheetBtnLose) sheetBtnLose.style.display = 'none';
+  if (sheetActions) sheetActions.style.display = 'flex';
+  if (diagStatus) {
+    diagStatus.textContent = 'Status: Simulação de perda ativa (Fallback CSS)';
+    diagStatus.style.color = '#f59e0b';
+  }
+
+  if (state.loseContextExtension && !state.contextLost) {
+    state.loseContextExtension.loseContext();
+  } else {
+    state.contextLost = true;
+    stopWebGLLoop();
+    triggerFallback('Perda de Contexto WebGL simulada');
+  }
+};
+
+window.simulateContextRestore = function() {
+  state.isSimulatingLoss = false;
+  state.contextLost = false;
+
+  const btnTop = document.getElementById('btnSimContextLost');
+  if (btnTop) {
+    btnTop.textContent = 'Simular Perda WebGL';
+    btnTop.style.background = 'rgba(239, 68, 68, 0.15)';
+    btnTop.style.color = '#fca5a5';
+  }
+
+  const sheetBtnLose = document.getElementById('sheetBtnLoseContext');
+  const sheetActions = document.getElementById('diagActionButtons');
+  const diagStatus = document.getElementById('diagStatusBox');
+  if (sheetBtnLose) sheetBtnLose.style.display = 'block';
+  if (sheetActions) sheetActions.style.display = 'none';
+  if (diagStatus) {
+    diagStatus.textContent = 'Status: WebGL Ativo (GPU Shader)';
+    diagStatus.style.color = '#38bdf8';
+  }
+
+  hideFallbackToast();
+
+  if (state.loseContextExtension) {
+    try {
+      state.loseContextExtension.restoreContext();
+    } catch (_) {}
+  }
+
+  setTimeout(() => {
+    state.contextLost = false;
+    setAuroraEngine(state.userPreferredEngine || 'webgl');
+  }, 100);
+};
+
+window.useModoEcoFromDiag = function() {
+  state.isSimulatingLoss = false;
+  state.contextLost = false;
+  hideFallbackToast();
+  setAuroraEngine('eco');
+  const btnTop = document.getElementById('btnSimContextLost');
+  if (btnTop) {
+    btnTop.textContent = 'Simular Perda WebGL';
+    btnTop.style.background = 'rgba(239, 68, 68, 0.15)';
+    btnTop.style.color = '#fca5a5';
+  }
+  const sheetBtnLose = document.getElementById('sheetBtnLoseContext');
+  const sheetActions = document.getElementById('diagActionButtons');
+  const diagStatus = document.getElementById('diagStatusBox');
+  if (sheetBtnLose) sheetBtnLose.style.display = 'block';
+  if (sheetActions) sheetActions.style.display = 'none';
+  if (diagStatus) {
+    diagStatus.textContent = 'Status: Modo Econômico (Estático)';
+    diagStatus.style.color = '#94a3b8';
+  }
+};
+
+/* --------------------------------------------------------------------------
+   FPS MONITOR & TELEMETRIA
+   -------------------------------------------------------------------------- */
+const fpsNumEl = document.getElementById('fpsNum');
+const frameTimeNumEl = document.getElementById('frameTimeNum');
+const fpsDisplayEl = document.getElementById('fpsDisplay');
+const telFps = document.getElementById('telFps');
+const telFrameTime = document.getElementById('telFrameTime');
+const telJanks = document.getElementById('telJanks');
+const telStatus = document.getElementById('telStatus');
+
+function updateFpsStats(now, frameDuration) {
+  state.frameCount++;
+  state.currentFrameDuration = (state.currentFrameDuration * 0.9) + (frameDuration * 0.1);
+
+  if (now - state.fpsTimer >= 500) {
+    state.currentFps = Math.round((state.frameCount * 1000) / (now - state.fpsTimer));
+    state.frameCount = 0;
+    state.fpsTimer = now;
+
+    if (fpsNumEl) fpsNumEl.textContent = state.currentFps;
+    if (frameTimeNumEl) frameTimeNumEl.textContent = state.currentFrameDuration.toFixed(2);
+    if (telFps) telFps.textContent = state.currentFps + ' FPS';
+    if (telFrameTime) telFrameTime.textContent = state.currentFrameDuration.toFixed(2) + ' ms';
+    if (telJanks) telJanks.textContent = state.jankCount + ' janks';
+
+    if (state.currentFps < 24) {
+      if (fpsDisplayEl) fpsDisplayEl.classList.add('low');
+    } else {
+      if (fpsDisplayEl) fpsDisplayEl.classList.remove('low');
+    }
+  }
+}
+
+function monitorCssFps(now) {
+  if (state.engine !== 'css' || !state.playing) return;
+  state.lastFrameTime = now;
+  updateFpsStats(now, 0.00); // CSS é 100% compositor da GPU
+  requestAnimationFrame(monitorCssFps);
+}
+
+function updateTelemetryUI() {
+  if (state.contextLost) {
+    if (telStatus) {
+      telStatus.textContent = 'Contexto Perdido (Fallback CSS Ativo)';
+      telStatus.style.color = '#fbbf24';
+    }
+  } else if (state.engine === 'webgl') {
+    if (telStatus) {
+      telStatus.textContent = 'Ativo (WebGL 30 FPS Cap)';
+      telStatus.style.color = '#34d399';
+    }
+  } else {
+    if (telStatus) {
+      telStatus.textContent = 'Ativo (CSS Mesh GPU Compositor)';
+      telStatus.style.color = '#38bdf8';
+    }
+  }
+}
+
+/* --------------------------------------------------------------------------
+   INTERATIVIDADE & CONTROLES
+   -------------------------------------------------------------------------- */
+const activeModeLabel = document.getElementById('activeModeLabel');
+const cssAuroraMesh = document.getElementById('cssAuroraMesh');
+const btnModeWebGL = document.getElementById('btnModeWebGL');
+const btnModeCSS = document.getElementById('btnModeCSS');
+const btnThemeDark = document.getElementById('btnThemeDark');
+const btnThemeLight = document.getElementById('btnThemeLight');
+const btnPlayPause = document.getElementById('btnPlayPause');
+const deviceViewport = document.getElementById('deviceViewport');
+const intensityVal = document.getElementById('intensityVal');
+const sheetIntensityVal = document.getElementById('sheetIntensityVal');
+const sheetBtnWebGL = document.getElementById('sheetBtnWebGL');
+const sheetBtnCSS = document.getElementById('sheetBtnCSS');
+const sheetThemeDark = document.getElementById('sheetThemeDark');
+const sheetThemeLight = document.getElementById('sheetThemeLight');
+const sheetPlayPause = document.getElementById('sheetPlayPause');
+
+window.setAuroraEngine = function(engine) {
+  if (state.contextLost && engine === 'webgl') {
+    console.warn('O contexto WebGL está simulado como perdido. Clique em Restaurar Contexto primeiro.');
+    return;
+  }
+
+  state.engine = engine;
+  hideFallbackToast();
+
+  if (engine === 'webgl') {
+    if (btnModeWebGL) btnModeWebGL.classList.add('active');
+    if (btnModeCSS) btnModeCSS.classList.remove('active');
+    sheetBtnWebGL.classList.add('active');
+    sheetBtnCSS.classList.remove('active');
+    canvas.style.display = 'block';
+    cssAuroraMesh.style.display = 'none';
+    activeModeLabel.textContent = 'WebGL (30 FPS)';
+    startWebGLLoop();
+  } else {
+    if (btnModeCSS) btnModeCSS.classList.add('active');
+    if (btnModeWebGL) btnModeWebGL.classList.remove('active');
+    sheetBtnCSS.classList.add('active');
+    sheetBtnWebGL.classList.remove('active');
+    canvas.style.display = 'none';
+    cssAuroraMesh.style.display = 'block';
+    activeModeLabel.textContent = 'CSS Mesh (GPU)';
+    stopWebGLLoop();
+    state.lastFrameTime = performance.now();
+    requestAnimationFrame(monitorCssFps);
+  }
+  updateTelemetryUI();
+};
+
+window.setTheme = function(theme, switchEngine = true) {
+  state.theme = theme;
+  document.documentElement.setAttribute('data-theme', theme);
+  if (theme === 'dark') {
+    if (btnThemeDark) btnThemeDark.classList.add('active');
+    if (btnThemeLight) btnThemeLight.classList.remove('active');
+    if (sheetThemeDark) sheetThemeDark.classList.add('active');
+    if (sheetThemeLight) sheetThemeLight.classList.remove('active');
+    if (switchEngine) setAuroraEngine('css');
+  } else {
+    if (btnThemeLight) btnThemeLight.classList.add('active');
+    if (btnThemeDark) btnThemeDark.classList.remove('active');
+    if (sheetThemeLight) sheetThemeLight.classList.add('active');
+    if (sheetThemeDark) sheetThemeDark.classList.remove('active');
+    if (switchEngine) setAuroraEngine('webgl');
+  }
+};
+
+window.togglePlayPause = function() {
+  state.playing = !state.playing;
+  const label = state.playing ? 'Pausar' : 'Retomar';
+  if (btnPlayPause) btnPlayPause.textContent = label;
+  sheetPlayPause.textContent = state.playing ? 'Pausar Animação' : 'Retomar Animação';
+
+  if (state.playing) {
+    deviceViewport.classList.remove('aurora-paused');
+    if (state.engine === 'webgl') startWebGLLoop();
+    else {
+      state.lastFrameTime = performance.now();
+      requestAnimationFrame(monitorCssFps);
+    }
+  } else {
+    deviceViewport.classList.add('aurora-paused');
+    stopWebGLLoop();
+  }
+};
+
+window.updateIntensity = function(val) {
+  state.intensity = parseFloat(val);
+  const text = Math.round(state.intensity * 100) + '%';
+  if (intensityVal) intensityVal.textContent = text;
+  if (sheetIntensityVal) sheetIntensityVal.textContent = text;
+  cssAuroraMesh.style.opacity = state.intensity;
+};
+
+window.setViewport = function(width) {
+  state.viewport = width;
+  deviceViewport.style.width = width + 'px';
+  document.querySelectorAll('.testbed-toolbar-desktop [onclick*="setViewport"]').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent.includes(width + 'px'));
+  });
+  resizeCanvas();
+};
+
+/* --------------------------------------------------------------------------
+   BOTTOM SHEET DRAWER (MODAL NO ANDROID)
+   -------------------------------------------------------------------------- */
+const bottomSheetOverlay = document.getElementById('bottomSheetOverlay');
+const bottomSheetPanel = document.getElementById('bottomSheetPanel');
+
+window.openBottomSheet = function() {
+  bottomSheetOverlay.classList.add('open');
+  bottomSheetPanel.classList.add('open');
+  updateTelemetryUI();
+};
+
+window.closeBottomSheet = function() {
+  bottomSheetOverlay.classList.remove('open');
+  bottomSheetPanel.classList.remove('open');
+};
+
+/* --------------------------------------------------------------------------
+   CICLO DE VIDA & SEGURANÇA
+   -------------------------------------------------------------------------- */
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    stopWebGLLoop();
+  } else if (state.playing && state.engine === 'webgl') {
+    startWebGLLoop();
+  }
+});
+
+const mediaQueryReduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+if (mediaQueryReduceMotion.matches) {
+  state.playing = false;
+  if (btnPlayPause) btnPlayPause.textContent = 'Retomar';
+  sheetPlayPause.textContent = 'Retomar Animação';
+  deviceViewport.classList.add('aurora-paused');
+  stopWebGLLoop();
+}
+
+function boot() {
+  initWebGL();
+  setTheme('dark');
+}
+
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  boot();
+} else {
+  window.addEventListener('DOMContentLoaded', boot);
+  window.addEventListener('load', boot);
+}
+
+/* --------------------------------------------------------------------------
+   CONTROLES DO TITANIUM GLASS 2.2: DESFOQUE CONTEXTUAL & ROLAGEM
+   -------------------------------------------------------------------------- */
+let blurEnabled = true;
+
+window.toggleContextualBlur = function() {
+  setContextualBlur(!blurEnabled);
+};
+
+window.setContextualBlur = function(enable) {
+  blurEnabled = enable;
+  const vp = document.getElementById('viewportContent');
+  const btn = document.getElementById('btnToggleBlur');
+  const btnText = document.getElementById('btnToggleBlurText');
+  const sheetOn = document.getElementById('sheetBtnBlurOn');
+  const sheetOff = document.getElementById('sheetBtnBlurOff');
+
+  if (enable) {
+    if (vp) vp.classList.remove('blur-disabled');
+    if (btn) btn.classList.add('active');
+    if (btnText) btnText.textContent = 'Desfoque: Ativo';
+    if (sheetOn) sheetOn.classList.add('active');
+    if (sheetOff) sheetOff.classList.remove('active');
+  } else {
+    if (vp) vp.classList.add('blur-disabled');
+    if (btn) btn.classList.remove('active');
+    if (btnText) btnText.textContent = 'Desfoque: Desativado';
+    if (sheetOn) sheetOn.classList.remove('active');
+    if (sheetOff) sheetOff.classList.add('active');
+  }
+};
+
+window.setScrollPosition = function(top) {
+  const scroller = document.getElementById('scrollContent');
+  if (!scroller) return;
+  scroller.scrollTo({ top, behavior: 'smooth' });
+
+  // Atualizar botões de feedback
+  const btnStart = document.getElementById('btnScrollStart');
+  const btnMid = document.getElementById('btnScrollMid');
+  const btnEnd = document.getElementById('btnScrollEnd');
+  const sheetStart = document.getElementById('sheetScrollStart');
+  const sheetMid = document.getElementById('sheetScrollMid');
+  const sheetEnd = document.getElementById('sheetScrollEnd');
+
+  [btnStart, btnMid, btnEnd, sheetStart, sheetMid, sheetEnd].forEach(b => b?.classList.remove('active'));
+
+  if (top <= 50) {
+    btnStart?.classList.add('active');
+    sheetStart?.classList.add('active');
+  } else if (top <= 500) {
+    btnMid?.classList.add('active');
+    sheetMid?.classList.add('active');
+  } else {
+    btnEnd?.classList.add('active');
+    sheetEnd?.classList.add('active');
+  }
+};
+
+// Listener para sincronizar os botões conforme a rolagem manual
+const scrollElem = document.getElementById('scrollContent');
+if (scrollElem) {
+  scrollElem.addEventListener('scroll', () => {
+    const top = scrollElem.scrollTop;
+    const btnStart = document.getElementById('btnScrollStart');
+    const btnMid = document.getElementById('btnScrollMid');
+    const btnEnd = document.getElementById('btnScrollEnd');
+    const sheetStart = document.getElementById('sheetScrollStart');
+    const sheetMid = document.getElementById('sheetScrollMid');
+    const sheetEnd = document.getElementById('sheetScrollEnd');
+
+    [btnStart, btnMid, btnEnd, sheetStart, sheetMid, sheetEnd].forEach(b => b?.classList.remove('active'));
+
+    if (top <= 100) {
+      btnStart?.classList.add('active');
+      sheetStart?.classList.add('active');
+    } else if (top < 600) {
+      btnMid?.classList.add('active');
+      sheetMid?.classList.add('active');
+    } else {
+      btnEnd?.classList.add('active');
+      sheetEnd?.classList.add('active');
+    }
+  }, { passive: true });
+}
+
+</script>
+
+</body>
+</html>

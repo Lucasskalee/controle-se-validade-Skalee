@@ -1,0 +1,52 @@
+[
+  {
+    "label": "1. Titanium Glass 2.2 Atual (CSS Mesh + Desfoques + Cards Glass)",
+    "frames": 26,
+    "avgDelta": "55.77",
+    "p95Delta": "66.70",
+    "maxDelta": "83.30",
+    "jankFrames": 26,
+    "fps": 18,
+    "backdropCount": 28
+  },
+  {
+    "label": "2. Sem desfoques contextuais (Top e Bottom desativados)",
+    "frames": 23,
+    "avgDelta": "62.64",
+    "p95Delta": "83.30",
+    "maxDelta": "83.30",
+    "jankFrames": 22,
+    "fps": 16,
+    "backdropCount": 28
+  },
+  {
+    "label": "3. Cards translúcidos sem blur individual (Preservando cápsula e desfoques)",
+    "frames": 24,
+    "avgDelta": "59.03",
+    "p95Delta": "83.40",
+    "maxDelta": "83.40",
+    "jankFrames": 24,
+    "fps": 17,
+    "backdropCount": 21
+  },
+  {
+    "label": "4. Modo Econômico (Aurora estática, sem desfoque contextual, cápsula Liquid Glass preservada)",
+    "frames": 24,
+    "avgDelta": "60.29",
+    "p95Delta": "83.30",
+    "maxDelta": "116.60",
+    "jankFrames": 24,
+    "fps": 17,
+    "backdropCount": 21
+  },
+  {
+    "label": "5. WebGL Aurora Ativa (Modo Claro, com desfoques e cards)",
+    "frames": 83,
+    "avgDelta": "17.58",
+    "p95Delta": "33.30",
+    "maxDelta": "33.30",
+    "jankFrames": 5,
+    "fps": 57,
+    "backdropCount": 21
+  }
+]

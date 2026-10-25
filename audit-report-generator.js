@@ -442,67 +442,79 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=1120, initial-scale=0.35, minimum-scale=0.25, maximum-scale=3.0, user-scalable=yes">
+  <meta name="color-scheme" content="only light">
+  <meta name="supported-color-schemes" content="light">
   <title>Relatorio_Auditoria_${escapeHtml(store.name || 'Loja')}_${escapeHtml(data.competence_month || '')}</title>
   <style>
-    @page {
-      size: A4 portrait;
-      margin: 12mm 10mm 15mm 10mm;
-      @bottom-right {
-        content: "Página " counter(page) " de " counter(pages);
-        font-size: 8pt;
-        color: #64748b;
-      }
+    :root {
+      color-scheme: light !important;
     }
-
-    * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-    body {
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    html {
+      color-scheme: light !important;
+      background-color: #cbd5e1 !important;
       margin: 0;
       padding: 0;
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    body {
+      color-scheme: light !important;
+      background-color: #ffffff !important;
+      color: #0f172a !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      margin: 10px auto;
+      padding: 8mm 10mm;
+      width: 210mm;
+      min-width: 210mm;
+      max-width: 210mm;
+      box-sizing: border-box;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      color: #0f172a;
-      background: #ffffff;
-      font-size: 10px;
-      line-height: 1.4;
+      font-size: 8.5px;
+      line-height: 1.35;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.18);
     }
 
     .no-print {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: #0f172a;
-      color: #fff;
-      padding: 12px 24px;
-      position: sticky;
-      top: 0;
-      z-index: 9999;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      background: #0f2744 !important;
+      color: #ffffff !important;
+      padding: 10px 18px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
     }
     .no-print button {
       background: #2563eb;
-      color: #fff;
+      color: #ffffff;
       border: 0;
       border-radius: 8px;
-      padding: 8px 18px;
-      font-size: 13px;
+      padding: 8px 16px;
+      font-size: 12px;
       font-weight: 700;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
+      box-shadow: 0 2px 6px rgba(37,99,235,0.3);
     }
     .no-print button:hover { background: #1d4ed8; }
 
-    @media print {
-      .no-print { display: none !important; }
-      body { padding: 0; }
-      .page-break { page-break-before: always; }
-      .keep-together { break-inside: avoid; page-break-inside: avoid; }
-    }
-
     .report-container {
-      max-width: 820px;
-      margin: 0 auto;
-      padding: 20px;
+      width: 100%;
+      max-width: 100%;
+      margin: 0;
+      padding: 0;
+      background-color: #ffffff !important;
     }
 
     /* Cabeçalho Executivo */
@@ -511,47 +523,49 @@
       grid-template-columns: 1fr auto;
       align-items: center;
       border-bottom: 2px solid #0f2744;
-      padding-bottom: 14px;
-      margin-bottom: 18px;
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+      break-inside: avoid;
+      page-break-inside: avoid;
     }
     .brand-title {
       font-size: 18px;
       font-weight: 900;
       letter-spacing: -0.5px;
-      color: #0f2744;
+      color: #0f2744 !important;
       display: flex;
       align-items: center;
       gap: 8px;
       text-transform: uppercase;
     }
-    .brand-title span { color: #0088cc; }
+    .brand-title span { color: #0088cc !important; }
     .report-subtitle {
       font-size: 12px;
       font-weight: 700;
-      color: #334155;
+      color: #334155 !important;
       margin-top: 2px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
     .meta-box {
       text-align: right;
-      font-size: 10px;
-      color: #475569;
+      font-size: 9.5px;
+      color: #475569 !important;
       line-height: 1.5;
     }
-    .meta-box strong { color: #0f172a; }
+    .meta-box strong { color: #0f172a !important; }
     .badge-status {
       display: inline-block;
       padding: 3px 10px;
       border-radius: 999px;
-      font-size: 10px;
+      font-size: 9.5px;
       font-weight: 800;
       text-transform: uppercase;
       margin-top: 4px;
     }
-    .status-completed { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
-    .status-ready { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
-    .status-open { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+    .status-completed { background: #dcfce7 !important; color: #15803d !important; border: 1px solid #86efac; }
+    .status-ready { background: #fef3c7 !important; color: #b45309 !important; border: 1px solid #fde68a; }
+    .status-open { background: #e0f2fe !important; color: #0369a1 !important; border: 1px solid #bae6fd; }
 
     /* Cards Grandes de KPIs */
     .kpi-cards-grid {
@@ -559,59 +573,63 @@
       grid-template-columns: repeat(4, 1fr);
       gap: 10px;
       margin-bottom: 18px;
+      break-inside: avoid;
+      page-break-inside: avoid;
     }
     .kpi-card {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
+      background: #f8fafc !important;
+      border: 1px solid #cbd5e1;
       border-radius: 10px;
       padding: 12px 14px;
       border-left: 4px solid #2563eb;
     }
-    .kpi-card.danger { border-left-color: #dc2626; background: #fff5f5; }
-    .kpi-card.warning { border-left-color: #ea580c; background: #fffbf5; }
-    .kpi-card.success { border-left-color: #16a34a; background: #f6fdf8; }
-    .kpi-card.purple { border-left-color: #9333ea; background: #faf5ff; }
+    .kpi-card.danger { border-left-color: #dc2626; background: #fff5f5 !important; }
+    .kpi-card.warning { border-left-color: #ea580c; background: #fffbf5 !important; }
+    .kpi-card.success { border-left-color: #16a34a; background: #f6fdf8 !important; }
+    .kpi-card.purple { border-left-color: #9333ea; background: #faf5ff !important; }
 
     .kpi-value {
-      font-size: 20px;
+      font-size: 19px;
       font-weight: 800;
-      color: #0f172a;
+      color: #0f172a !important;
       line-height: 1.1;
       margin-bottom: 3px;
     }
-    .kpi-card.danger .kpi-value { color: #b91c1c; }
+    .kpi-card.danger .kpi-value { color: #b91c1c !important; }
     .kpi-label {
-      font-size: 9px;
+      font-size: 8.5px;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.6px;
-      color: #64748b;
+      color: #64748b !important;
     }
     .kpi-sub {
-      font-size: 9px;
-      color: #64748b;
+      font-size: 8.5px;
+      color: #64748b !important;
       margin-top: 2px;
     }
 
     /* Seções e Títulos */
     .section-title {
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.6px;
-      color: #0f2744;
+      color: #0f2744 !important;
       border-bottom: 1.5px solid #cbd5e1;
       padding-bottom: 5px;
-      margin-top: 18px;
+      margin-top: 16px;
       margin-bottom: 10px;
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
+      break-after: avoid;
+      page-break-after: avoid;
     }
     .section-title span.badge {
       font-size: 9px;
       font-weight: 700;
-      color: #64748b;
+      color: #64748b !important;
       text-transform: none;
     }
 
@@ -620,29 +638,43 @@
       width: 100%;
       border-collapse: collapse;
       margin-bottom: 14px;
-      font-size: 9.5px;
+      font-size: 9px;
+      background-color: #ffffff !important;
     }
     .report-table thead {
       display: table-header-group;
+      break-inside: avoid;
+      page-break-inside: avoid;
     }
     .report-table th {
-      background: #f1f5f9;
-      color: #334155;
+      background: #f1f5f9 !important;
+      color: #0f2744 !important;
       font-weight: 800;
       text-transform: uppercase;
-      font-size: 8.5px;
-      letter-spacing: 0.5px;
-      padding: 7px 8px;
+      font-size: 7.5px;
+      letter-spacing: 0.2px;
+      padding: 4px 6px;
       border-top: 1px solid #cbd5e1;
       border-bottom: 1.5px solid #94a3b8;
       text-align: left;
+      word-break: break-word;
+      white-space: normal;
     }
     .report-table td {
-      padding: 6px 8px;
+      padding: 4px 6px;
       border-bottom: 1px solid #e2e8f0;
       vertical-align: middle;
+      color: #0f172a !important;
+      word-break: break-word;
+      overflow-wrap: break-word;
+      white-space: normal;
     }
-    .report-table tr:nth-child(even) td { background: #fafafa; }
+    .report-table tr {
+      break-inside: avoid !important;
+      page-break-inside: avoid !important;
+    }
+    .report-table tr:nth-child(even) td { background: #f8fafc !important; }
+    .report-table tr:nth-child(odd) td { background: #ffffff !important; }
     .subtotal-row td {
       background: #f1f5f9 !important;
       border-top: 1.5px solid #94a3b8;
@@ -654,9 +686,9 @@
     .text-center { text-align: center; }
     .text-right { text-align: right; }
     .font-bold { font-weight: 700; }
-    .text-danger { color: #dc2626; }
-    .text-warning { color: #d97706; }
-    .sub-text { font-size: 8.5px; color: #64748b; }
+    .text-danger { color: #dc2626 !important; }
+    .text-warning { color: #d97706 !important; }
+    .sub-text { font-size: 8px; color: #64748b !important; }
     .italic { font-style: italic; }
 
     .badge-tag {
@@ -665,12 +697,12 @@
       border-radius: 4px;
       font-size: 8.5px;
       font-weight: 700;
-      background: #f1f5f9;
-      color: #475569;
+      background: #f1f5f9 !important;
+      color: #475569 !important;
     }
-    .tag-blue { background: #e0f2fe; color: #0369a1; }
-    .tag-purple { background: #f3e8ff; color: #7e22ce; }
-    .tag-green { background: #dcfce7; color: #15803d; }
+    .tag-blue { background: #e0f2fe !important; color: #0369a1 !important; }
+    .tag-purple { background: #f3e8ff !important; color: #7e22ce !important; }
+    .tag-green { background: #dcfce7 !important; color: #15803d !important; }
 
     .status-pill {
       display: inline-block;
@@ -679,8 +711,8 @@
       font-size: 8.5px;
       font-weight: 700;
     }
-    .status-done { background: #dcfce7; color: #166534; }
-    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-done { background: #dcfce7 !important; color: #166534 !important; }
+    .status-pending { background: #fef3c7 !important; color: #92400e !important; }
 
     /* Eficiência Preventiva */
     .efficiency-grid {
@@ -688,119 +720,76 @@
       grid-template-columns: 1fr 1fr;
       gap: 12px;
       margin-bottom: 16px;
+      break-inside: avoid;
+      page-break-inside: avoid;
     }
     .efficiency-card {
       border: 1px solid #cbd5e1;
       border-radius: 8px;
       padding: 12px;
-      background: #fff;
+      background: #ffffff !important;
     }
     .efficiency-card h5 {
       margin: 0 0 6px 0;
       font-size: 11px;
       font-weight: 800;
-      color: #0f2744;
-      display: flex;
-      justify-content: space-between;
-    }
-    .bar-container {
-      height: 8px;
-      border-radius: 999px;
-      background: #e2e8f0;
-      overflow: hidden;
-      margin-bottom: 8px;
-    }
-    .bar-fill {
-      height: 100%;
-      border-radius: 999px;
-      background: #2563eb;
-    }
-    .bar-fill.purple { background: #9333ea; }
-    .efficiency-stats {
-      display: flex;
-      justify-content: space-between;
-      font-size: 9.5px;
-      color: #475569;
+      color: #0f2744 !important;
     }
 
-    /* Bloco da memória de cálculo */
-    .calc-group-block {
-      margin-bottom: 16px;
-      page-break-inside: avoid;
-    }
-    .calc-group-header {
-      background: #0f2744;
-      color: #fff;
-      padding: 6px 10px;
-      border-radius: 6px 6px 0 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .calc-group-header h4 {
-      margin: 0;
-      font-size: 11px;
-      font-weight: 800;
-      letter-spacing: 0.3px;
-    }
-    .calc-group-meta {
-      display: flex;
-      gap: 14px;
-      font-size: 9.5px;
-      color: #93c5fd;
-    }
-    .calc-group-meta strong { color: #fff; }
-
-    /* Conciliação */
-    .reconciliation-box {
-      border: 2px solid #16a34a;
-      background: #f0fdf4;
-      border-radius: 8px;
-      padding: 12px 14px;
-      margin-top: 14px;
-      margin-bottom: 18px;
-      page-break-inside: avoid;
-    }
-    .reconciliation-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 8px;
-      font-size: 11px;
-      font-weight: 800;
-      color: #166534;
-    }
-
-    /* Conclusão */
     .conclusion-box {
-      background: #f8fafc;
-      border: 1px solid #cbd5e1;
+      border: 1.5px solid #cbd5e1;
       border-radius: 8px;
-      padding: 12px 14px;
+      padding: 14px;
+      background: #f8fafc !important;
       margin-bottom: 16px;
+      break-inside: avoid;
       page-break-inside: avoid;
     }
     .conclusion-row { margin-bottom: 8px; }
     .conclusion-row:last-child { margin-bottom: 0; }
-    .conclusion-row strong { color: #0f2744; font-size: 9.5px; display: block; margin-bottom: 2px; }
+    .conclusion-row strong { color: #0f2744 !important; font-size: 9.5px; display: block; margin-bottom: 2px; }
 
     /* Assinaturas */
     .signature-area {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 40px;
-      margin-top: 36px;
-      padding-top: 16px;
+      margin-top: 30px;
+      padding-top: 14px;
+      break-inside: avoid;
       page-break-inside: avoid;
     }
     .signature-line {
       border-top: 1px solid #334155;
       text-align: center;
       padding-top: 6px;
-      font-size: 9.5px;
-      color: #334155;
+      font-size: 9px;
+      color: #334155 !important;
     }
-    .signature-line strong { display: block; color: #0f172a; font-size: 10.5px; }
+    .signature-line strong { display: block; color: #0f172a !important; font-size: 10px; }
+
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 8mm 10mm 8mm 10mm;
+      }
+      html, body {
+        background: #ffffff !important;
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        box-shadow: none !important;
+      }
+      .no-print { display: none !important; }
+      .page-break { break-before: page; page-break-before: always; }
+      .keep-together { break-inside: avoid !important; page-break-inside: avoid !important; }
+      .report-table tr { break-inside: avoid !important; page-break-inside: avoid !important; }
+      .report-table td, .report-table th { break-inside: avoid !important; page-break-inside: avoid !important; }
+    }
   </style>
 </head>
 <body>
@@ -808,23 +797,33 @@
     <div>
       <strong>Controle de Validades Skalee</strong> • Relatório Mensal de Auditoria (${escapeHtml(store.name || '')} - ${escapeHtml(competenceText)})
     </div>
-    <div style="display: flex; gap: 10px;">
-      <button type="button" onclick="window.print()">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-        <span>Salvar como PDF / Imprimir</span>
+    <div style="display: flex; gap: 8px;">
+      <button type="button" class="btn-save" style="background:#2563eb;" onclick="handleAuditSavePdfClick()">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        <span>Salvar PDF</span>
       </button>
-      <button type="button" style="background:#475569;" onclick="window.close()">Fechar</button>
+      <button type="button" class="btn-share" style="background:#0891b2;" onclick="handleAuditSharePdfClick()">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        <span>Compartilhar PDF</span>
+      </button>
+      <button type="button" class="btn-print" style="background:#475569;" onclick="handleAuditPrintClick()">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        <span>Imprimir</span>
+      </button>
+      <button type="button" style="background:#334155;" onclick="handleAuditCloseClick()">Fechar</button>
     </div>
   </div>
 
   <div class="report-container">
     <!-- 1. Cabeçalho Executivo -->
     <header class="executive-header">
-      <div>
-        <div class="brand-title">
-          <span>SKALEE</span> CONTROLE DE VALIDADES
-        </div>
-        <div class="report-subtitle">Relatório Mensal de Auditoria de Validades</div>
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <img class="logo" src="${escapeHtml((typeof window !== 'undefined' && window.SKALEE_OFFICIAL_LOGO_DATA_URL) ? window.SKALEE_OFFICIAL_LOGO_DATA_URL : 'skalee-logo-official.png')}" alt="Skalee Validades" style="height: 54px; width: auto; max-width: 85px; object-fit: contain; display: block;">
+        <div>
+          <div class="brand-title">
+            <span>SKALEE</span> CONTROLE DE VALIDADES
+          </div>
+          <div class="report-subtitle">Relatório Mensal de Auditoria de Validades</div>
         <div style="font-size: 11px; margin-top: 6px; color: #0f172a; font-weight: 700;">
           ${escapeHtml(store.name || 'Loja Não Identificada')} • Competência: ${escapeHtml(competenceText)}
         </div>
@@ -1136,25 +1135,114 @@
       </div>
     </div>
 
-    <footer style="margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 10px; font-size: 8.5px; color: #94a3b8; display: flex; justify-content: space-between;">
+        <footer style="margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 10px; font-size: 8.5px; color: #94a3b8; display: flex; justify-content: space-between;">
       <span>Skalee Controle de Validades • Relatório emitido em ${new Date().toLocaleString('pt-BR')}</span>
       <span>${escapeHtml(auditCode)} • ${escapeHtml(revision)}</span>
     </footer>
   </div>
+  <script>
+    function handleAuditSavePdfClick() {
+      if (window.parent && window.parent !== window && typeof window.parent.triggerAuditReportSavePdf === 'function') {
+        window.parent.triggerAuditReportSavePdf();
+        return;
+      }
+      window.print();
+    }
+    function handleAuditSharePdfClick() {
+      if (window.parent && window.parent !== window && typeof window.parent.triggerAuditReportSharePdf === 'function') {
+        window.parent.triggerAuditReportSharePdf();
+        return;
+      }
+      window.print();
+    }
+    function handleAuditPrintClick() {
+      if (window.parent && window.parent !== window && typeof window.parent.triggerAuditReportPrint === 'function') {
+        window.parent.triggerAuditReportPrint();
+        return;
+      }
+      window.print();
+    }
+    function handleAuditCloseClick() {
+      if (window.parent && window.parent !== window && typeof window.parent.closeAuditReportPreviewModal === 'function') {
+        window.parent.closeAuditReportPreviewModal();
+        return;
+      }
+      window.close();
+    }
+    function fitInitialSheet() {
+      try {
+        const availWidth = window.innerWidth || document.documentElement.clientWidth;
+        const targetWidth = 794;
+        if (availWidth > 0 && availWidth < targetWidth) {
+          const scale = Math.max(0.2, Math.min(1.0, (availWidth - 10) / targetWidth));
+          const meta = document.querySelector('meta[name="viewport"]');
+          if (meta) {
+            meta.setAttribute('content', 'width=' + targetWidth + ', initial-scale=' + scale.toFixed(2) + ', minimum-scale=0.2, maximum-scale=3.0, user-scalable=yes');
+          }
+        }
+      } catch (_) {}
+    }
+    async function ensureAssetsLoaded() {
+      try {
+        if (document.fonts && document.fonts.ready) await document.fonts.ready;
+        const images = Array.from(document.images);
+        await Promise.all(images.map(img => {
+          if (img.complete) return img.decode ? img.decode().catch(() => {}) : Promise.resolve();
+          return new Promise(resolve => {
+            img.onload = () => { if (img.decode) { img.decode().catch(() => {}).then(resolve); } else { resolve(); } };
+            img.onerror = resolve;
+          });
+        }));
+      } catch (_) {}
+    }
+    window.addEventListener('load', () => {
+      fitInitialSheet();
+      ensureAssetsLoaded().then(() => {
+        document.body.classList.add('assets-loaded');
+      });
+    });
+    window.addEventListener('resize', fitInitialSheet);
+  <\/script>
 </body>
 </html>`;
   }
 
   /**
-   * Abre o relatório estruturado em nova janela com visualização de impressão e acionamento nativo de PDF
+   * Abre o relatório estruturado para impressão / PDF nativo no Android ou em nova janela no navegador
    */
-  function openPrintableReportWindow(reportData) {
+  async function openPrintableReportWindow(reportData) {
+    const htmlDoc = buildExecutiveAuditHtml(reportData);
+    const storeName = reportData.store_name || reportData.location_name || 'Loja';
+    const auditCode = reportData.audit_code || 'AUDIT';
+    const docTitle = `Relatorio_Auditoria_${auditCode}_${storeName}`.replace(/[^a-zA-Z0-9_-]/g, '_');
+
+    const isNativeAndroid = Boolean(
+      (window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform()) ||
+      (window.Capacitor && window.Capacitor.getPlatform && window.Capacitor.getPlatform() === 'android') ||
+      (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.SkaleePrinter)
+    );
+
+    if (isNativeAndroid && window.Capacitor?.Plugins?.SkaleePrinter?.printHtml) {
+      try {
+        await window.Capacitor.Plugins.SkaleePrinter.printHtml({
+          html: htmlDoc,
+          title: docTitle,
+          landscape: true
+        });
+        return;
+      } catch (err) {
+        console.error('Erro na impressão nativa Android:', err);
+        alert('Falha ao acionar o serviço de impressão Android: ' + (err.message || err));
+        return;
+      }
+    }
+
     const win = window.open('', '_blank');
     if (!win) {
       alert('Permita pop-ups no seu navegador para visualizar e salvar o relatório em PDF.');
       return;
     }
-    win.document.write(buildExecutiveAuditHtml(reportData));
+    win.document.write(htmlDoc);
     win.document.close();
     try {
       win.focus();
@@ -1166,9 +1254,59 @@
     } catch (_) {}
   }
 
+  /**
+   * Compartilha o relatório executivo via Capacitor Share nativo no Android
+   */
+  async function shareAuditReport(reportData) {
+    const htmlDoc = buildExecutiveAuditHtml(reportData);
+    const storeName = reportData.store_name || reportData.location_name || 'Loja';
+    const auditCode = reportData.audit_code || 'AUDIT';
+    const baseName = `Relatorio_Auditoria_${auditCode}_${storeName}`.replace(/[^a-zA-Z0-9_-]/g, '_');
+
+    const nativePlugins = window.skaleeNativePlugins || {};
+    const Filesystem = window.Capacitor?.Plugins?.Filesystem || nativePlugins.Filesystem;
+    const Share = window.Capacitor?.Plugins?.Share || nativePlugins.Share;
+    const Directory = nativePlugins.Directory || { Cache: 'CACHE' };
+
+    if (Share && typeof Share.share === 'function') {
+      if (Filesystem && typeof Filesystem.writeFile === 'function') {
+        try {
+          const fileName = baseName + '.html';
+          const res = await Filesystem.writeFile({
+            path: fileName,
+            data: htmlDoc,
+            directory: Directory.Cache || 'CACHE',
+            encoding: 'utf8'
+          });
+          if (res?.uri) {
+            await Share.share({
+              title: `Auditoria ${auditCode} - ${storeName}`,
+              text: `Relatório de Auditoria de Validade Skalee (${storeName})`,
+              url: res.uri,
+              dialogTitle: 'Compartilhar Relatório de Auditoria'
+            });
+            return true;
+          }
+        } catch (e) {
+          console.warn('Erro ao salvar arquivo temporário para compartilhar auditoria:', e);
+        }
+      }
+      await Share.share({
+        title: `Auditoria ${auditCode} - ${storeName}`,
+        text: `Relatório Executivo de Auditoria Skalee (${storeName}) - ${auditCode}\nEmitido em ${new Date().toLocaleDateString('pt-BR')}`,
+        dialogTitle: 'Compartilhar Relatório de Auditoria'
+      });
+      return true;
+    } else {
+      alert('Compartilhamento não disponível neste dispositivo.');
+      return false;
+    }
+  }
+
   window.skaleeAuditReport = {
     buildExecutiveAuditHtml,
     openPrintableReportWindow,
+    shareAuditReport,
     formatBrl,
     formatNumber,
     formatDate,

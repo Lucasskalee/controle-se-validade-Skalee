@@ -932,18 +932,30 @@
             </h3>
           </div>
           <div style="display: flex; align-items: center; gap: 8px;">
-            <button type="button" id="previewPrintActionBtn" class="btn" style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 6px 14px;">
+            <button type="button" id="previewSavePdfActionBtn" class="btn" style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 6px 13px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+              </svg>
+              <span id="previewSavePdfBtnText">Salvar PDF</span>
+            </button>
+            <button type="button" id="previewShareActionBtn" class="btn2" style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 6px 13px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+              </svg>
+              <span id="previewShareBtnText">Compartilhar PDF</span>
+            </button>
+            <button type="button" id="previewPrintActionBtn" class="btn2" style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 6px 13px;">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
                 <path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
               </svg>
-              <span>Imprimir / Salvar PDF</span>
+              <span id="previewPrintBtnText">Imprimir</span>
             </button>
             <button type="button" class="audit-modal-close" data-close-modal="report-preview">&times;</button>
           </div>
         </div>
 
-        <div style="flex: 1; border: 1px solid var(--line, #e2e8f0); border-radius: 10px; overflow: hidden; background: #fff; position: relative;">
-          <iframe id="reportPreviewIframe" title="Visualização do Relatório" style="width: 100%; height: 100%; border: 0;"></iframe>
+        <div style="flex: 1; border: 1px solid var(--line, #e2e8f0); border-radius: 10px; overflow: auto; -webkit-overflow-scrolling: touch; background: #94a3b8; position: relative;">
+          <iframe id="reportPreviewIframe" title="Visualização do Relatório" style="width: 100%; height: 100%; border: 0; display: block; min-height: 100%;"></iframe>
         </div>
       </div>
     </div>
@@ -1396,6 +1408,7 @@
   function clear() {
     allModals.forEach(m => m.classList.remove('show'));
     context = null;
+    window.dispatchEvent(new CustomEvent('skalee:audit-access-updated'));
     currentAudit = null;
     auditItems = [];
     workspace.style.display = 'none';
@@ -1431,6 +1444,7 @@
     }
 
     context = result;
+    window.dispatchEvent(new CustomEvent('skalee:audit-access-updated'));
     signedIn = true;
     tab.hidden = false;
     roleBadge.style.display = 'inline-block';
@@ -2592,25 +2606,169 @@
     }
   });
 
-  async function triggerPrintReport() {
+  async function getAuditReportHtmlAndMeta() {
+    let data = lastReportData;
+    if (!data || data.id !== currentAudit?.id) {
+      if (!currentAudit) return null;
+      data = await window.skaleeDb.getValidityAuditReportData(currentAudit.id);
+      lastReportData = data;
+    }
+    if (!data) return null;
+    const htmlDoc = window.skaleeAuditReport?.buildExecutiveAuditHtml ? window.skaleeAuditReport.buildExecutiveAuditHtml(data) : "";
+    const storeName = data.store?.name || data.store_name || data.location_name || 'Loja';
+    const auditCode = data.code || data.audit_code || 'AUDIT';
+    const docTitle = ('Relatorio_Auditoria_' + auditCode + '_' + storeName).replace(/[^a-zA-Z0-9_-]/g, '_');
+    return { html: htmlDoc, title: docTitle, fileName: docTitle, data: data };
+  }
+
+  function withAuditTimeout(promise, ms, errorMsg) {
+    return Promise.race([
+      promise,
+      new Promise((_, reject) => setTimeout(() => reject(new Error(errorMsg || 'Tempo limite excedido na operação de PDF.')), ms))
+    ]);
+  }
+
+  function setAuditButtonsLoading(activeAction) {
+    const saveBtn = panel.querySelector('#previewSavePdfActionBtn');
+    const saveTxt = panel.querySelector('#previewSavePdfBtnText');
+    const shareBtn = panel.querySelector('#previewShareActionBtn');
+    const shareTxt = panel.querySelector('#previewShareBtnText');
+    const printBtn = panel.querySelector('#previewPrintActionBtn');
+    const printTxt = panel.querySelector('#previewPrintBtnText');
+
+    if (saveBtn) saveBtn.disabled = true;
+    if (shareBtn) shareBtn.disabled = true;
+    if (printBtn) printBtn.disabled = true;
+
+    if (activeAction === 'save' && saveTxt) saveTxt.textContent = 'Gerando PDF...';
+    if (activeAction === 'share' && shareTxt) shareTxt.textContent = 'Preparando PDF...';
+    if (activeAction === 'print' && printTxt) printTxt.textContent = 'Preparando...';
+  }
+
+  function restoreAuditButtons() {
+    const saveBtn = panel.querySelector('#previewSavePdfActionBtn');
+    const saveTxt = panel.querySelector('#previewSavePdfBtnText');
+    const shareBtn = panel.querySelector('#previewShareActionBtn');
+    const shareTxt = panel.querySelector('#previewShareBtnText');
+    const printBtn = panel.querySelector('#previewPrintActionBtn');
+    const printTxt = panel.querySelector('#previewPrintBtnText');
+
+    if (saveBtn) saveBtn.disabled = false;
+    if (shareBtn) shareBtn.disabled = false;
+    if (printBtn) printBtn.disabled = false;
+
+    if (saveTxt) saveTxt.textContent = 'Salvar PDF';
+    if (shareTxt) shareTxt.textContent = 'Compartilhar PDF';
+    if (printTxt) printTxt.textContent = 'Imprimir';
+  }
+
+  async function triggerAuditSavePdf() {
+    setAuditButtonsLoading('save');
+    console.log('[SkaleeAudit][Salvar PDF] Iniciando requisição para SkaleePrinter.savePdf...');
     try {
-      let data = lastReportData;
-      if (!data || data.id !== currentAudit?.id) {
-        if (!currentAudit) return;
-        data = await window.skaleeDb.getValidityAuditReportData(currentAudit.id);
-        lastReportData = data;
-      }
-      if (window.skaleeAuditReport?.openPrintableReportWindow) {
-        window.skaleeAuditReport.openPrintableReportWindow(data);
+      const meta = await getAuditReportHtmlAndMeta();
+      if (!meta || !meta.html) return;
+      const printer = window.Capacitor?.Plugins?.SkaleePrinter;
+      if (printer && typeof printer.savePdf === 'function') {
+        const res = await withAuditTimeout(
+          printer.savePdf({
+            html: meta.html,
+            title: meta.title,
+            fileName: meta.fileName,
+            landscape: false
+          }),
+          25000,
+          'Tempo limite na geração do PDF de auditoria (25s). Tente novamente.'
+        );
+        console.log('[SkaleeAudit][Salvar PDF] Retorno recebido:', res);
+        if (res && res.cancelled) {
+          // Cancelamento suave
+        } else if (res && res.success) {
+          alert('PDF de auditoria salvo com sucesso!');
+        }
+      } else {
+        window.print();
       }
     } catch (err) {
-      console.error('Erro ao imprimir relatório:', err);
+      console.error('[SkaleeAudit][Salvar PDF] Erro:', err);
+      alert('Não foi possível salvar o PDF: ' + (err.message || err));
+    } finally {
+      restoreAuditButtons();
+    }
+  }
+
+  async function triggerAuditSharePdf() {
+    setAuditButtonsLoading('share');
+    console.log('[SkaleeAudit][Compartilhar PDF] Iniciando requisição para SkaleePrinter.sharePdf...');
+    try {
+      const meta = await getAuditReportHtmlAndMeta();
+      if (!meta || !meta.html) return;
+      const printer = window.Capacitor?.Plugins?.SkaleePrinter;
+      if (printer && typeof printer.sharePdf === 'function') {
+        const res = await withAuditTimeout(
+          printer.sharePdf({
+            html: meta.html,
+            title: meta.title,
+            fileName: meta.fileName,
+            landscape: false
+          }),
+          25000,
+          'Tempo limite no compartilhamento do PDF de auditoria (25s). Tente novamente.'
+        );
+        console.log('[SkaleeAudit][Compartilhar PDF] Retorno recebido:', res);
+      } else {
+        alert('Compartilhamento nativo de PDF indisponível neste dispositivo.');
+      }
+    } catch (err) {
+      console.error('[SkaleeAudit][Compartilhar PDF] Erro:', err);
+      alert('Não foi possível compartilhar o PDF: ' + (err.message || err));
+    } finally {
+      restoreAuditButtons();
+    }
+  }
+
+  async function triggerPrintReport() {
+    setAuditButtonsLoading('print');
+    console.log('[SkaleeAudit][Imprimir] Iniciando requisição para SkaleePrinter.printHtml...');
+    try {
+      const meta = await getAuditReportHtmlAndMeta();
+      if (!meta || !meta.html) return;
+      const printer = window.Capacitor?.Plugins?.SkaleePrinter;
+      if (printer && typeof printer.printHtml === 'function') {
+        const res = await withAuditTimeout(
+          printer.printHtml({
+            html: meta.html,
+            title: meta.title,
+            landscape: false
+          }),
+          15000,
+          'Tempo limite ao enviar relatório para a impressora nativa.'
+        );
+        console.log('[SkaleeAudit][Imprimir] Retorno recebido:', res);
+      } else if (window.skaleeAuditReport?.openPrintableReportWindow) {
+        window.skaleeAuditReport.openPrintableReportWindow(meta.data);
+      } else {
+        window.print();
+      }
+    } catch (err) {
+      console.error('[SkaleeAudit][Imprimir] Erro:', err);
       alert(err.message || 'Erro ao gerar relatório para impressão.');
+    } finally {
+      restoreAuditButtons();
     }
   }
 
   printReportBtn.addEventListener('click', triggerPrintReport);
-  previewPrintActionBtn.addEventListener('click', triggerPrintReport);
+  panel.querySelector('#previewSavePdfActionBtn')?.addEventListener('click', triggerAuditSavePdf);
+  panel.querySelector('#previewShareActionBtn')?.addEventListener('click', triggerAuditSharePdf);
+  panel.querySelector('#previewPrintActionBtn')?.addEventListener('click', triggerPrintReport);
+
+  window.triggerAuditReportSavePdf = triggerAuditSavePdf;
+  window.triggerAuditReportSharePdf = triggerAuditSharePdf;
+  window.triggerAuditReportPrint = triggerPrintReport;
+  window.closeAuditReportPreviewModal = () => {
+    if (modalReportPreview) modalReportPreview.classList.remove('show');
+  };
 
   // ==========================================
   // FASE 4: HISTÓRICO DE AUDITORIAS

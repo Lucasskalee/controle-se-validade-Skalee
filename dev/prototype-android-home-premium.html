@@ -1,0 +1,1022 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Skalee — Home Android Premium (Protótipo Fase 2A)</title>
+<style>
+/* ==========================================================================
+   SKALEE PREMIUM MOBILE DESIGN TOKENS (--sk-*)
+   ========================================================================== */
+:root {
+  --sk-font: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --sk-accent-blue: #0077ff;
+  --sk-accent-blue-hover: #1d4ed8;
+  --sk-accent-cyan: #00d9ff;
+  --sk-accent-metallic: #94a3b8;
+  --sk-radius-sm: 8px;
+  --sk-radius-md: 14px;
+  --sk-radius-lg: 20px;
+  --sk-radius-pill: 999px;
+  --sk-touch-min: 44px;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --sk-bg-base: #070b12;
+  --sk-bg-surface: #0b1220;
+  --sk-bg-surface-elevated: #111a2e;
+  --sk-bg-surface-hover: #162238;
+  --sk-bg-glass: rgba(11, 18, 32, 0.82);
+
+  --sk-border-subtle: rgba(148, 163, 184, 0.12);
+  --sk-border-medium: rgba(148, 163, 184, 0.22);
+  --sk-border-highlight: rgba(0, 217, 255, 0.38);
+
+  --sk-text-primary: #f8fafc;
+  --sk-text-secondary: #cbd5e1;
+  --sk-text-muted: #94a3b8;
+  --sk-text-disabled: #475569;
+
+  --sk-status-danger: #ef4444;
+  --sk-status-danger-bg: rgba(239, 68, 68, 0.14);
+  --sk-status-danger-border: rgba(239, 68, 68, 0.35);
+
+  --sk-status-warning: #f59e0b;
+  --sk-status-warning-bg: rgba(245, 158, 11, 0.14);
+  --sk-status-warning-border: rgba(245, 158, 11, 0.35);
+
+  --sk-status-offer: #3b82f6;
+  --sk-status-offer-bg: rgba(59, 130, 246, 0.14);
+  --sk-status-offer-border: rgba(59, 130, 246, 0.35);
+
+  --sk-status-safe: #10b981;
+  --sk-status-safe-bg: rgba(16, 185, 129, 0.14);
+  --sk-status-safe-border: rgba(16, 185, 129, 0.35);
+
+  --sk-shadow-card: 0 4px 20px -4px rgba(0, 0, 0, 0.45);
+  --sk-shadow-glow: 0 0 24px -2px rgba(0, 119, 255, 0.35);
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
+  --sk-bg-base: #f1f5f9;
+  --sk-bg-surface: #ffffff;
+  --sk-bg-surface-elevated: #ffffff;
+  --sk-bg-surface-hover: #e2e8f0;
+  --sk-bg-glass: rgba(255, 255, 255, 0.88);
+
+  --sk-border-subtle: #e2e8f0;
+  --sk-border-medium: #cbd5e1;
+  --sk-border-highlight: #2563eb;
+
+  --sk-text-primary: #0f172a;
+  --sk-text-secondary: #334155;
+  --sk-text-muted: #64748b;
+  --sk-text-disabled: #94a3b8;
+
+  --sk-status-danger: #dc2626;
+  --sk-status-danger-bg: #fef2f2;
+  --sk-status-danger-border: #fecaca;
+
+  --sk-status-warning: #d97706;
+  --sk-status-warning-bg: #fffbeb;
+  --sk-status-warning-border: #fde68a;
+
+  --sk-status-offer: #2563eb;
+  --sk-status-offer-bg: #eff6ff;
+  --sk-status-offer-border: #bfdbfe;
+
+  --sk-status-safe: #16a34a;
+  --sk-status-safe-bg: #f0fdf4;
+  --sk-status-safe-border: #bbf7d0;
+
+  --sk-shadow-card: 0 4px 16px -2px rgba(15, 23, 42, 0.08);
+  --sk-shadow-glow: 0 0 20px -4px rgba(37, 99, 235, 0.25);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: var(--sk-font);
+  background: var(--sk-bg-base);
+  color: var(--sk-text-primary);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow-x: hidden;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Smartphone Device Wrapper (Simulação de Hardware Android) */
+.device-container {
+  width: 100%;
+  max-width: 412px;
+  min-height: 100vh;
+  background: var(--sk-bg-base);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 96px; /* Espaço para a Bottom Navigation */
+}
+
+/* Android Status Bar */
+.android-status-bar {
+  height: 38px;
+  padding: 0 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--sk-text-secondary);
+  font-variant-numeric: tabular-nums;
+  background: transparent;
+  user-select: none;
+}
+.status-icons {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.status-icons svg {
+  width: 15px;
+  height: 15px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
+
+/* App Header */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--sk-bg-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--sk-border-subtle);
+  padding: 10px 16px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.brand-logo-wrap {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--sk-radius-sm);
+  background: linear-gradient(135deg, rgba(0, 119, 255, 0.25), rgba(0, 217, 255, 0.15));
+  border: 1px solid rgba(0, 217, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 119, 255, 0.2);
+}
+.brand-logo-wrap img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+.brand-title-group h1 {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  color: var(--sk-text-primary);
+  line-height: 1.15;
+}
+.brand-title-group span {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sk-accent-cyan);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* Header Actions */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+/* Sync Badge Pill */
+.sync-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: var(--sk-radius-pill);
+  background: var(--sk-status-safe-bg);
+  border: 1px solid var(--sk-status-safe-border);
+  color: var(--sk-status-safe);
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.01em;
+}
+.sync-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sk-status-safe);
+  box-shadow: 0 0 6px var(--sk-status-safe);
+}
+/* Notification / Theme button */
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--sk-border-subtle);
+  background: var(--sk-bg-surface);
+  color: var(--sk-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+}
+.icon-btn svg { width: 17px; height: 17px; }
+.badge-count {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: var(--sk-status-danger);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 900;
+  padding: 2px 5px;
+  border-radius: var(--sk-radius-pill);
+  min-width: 16px;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4);
+}
+
+/* Main Content Wrapper */
+.main-content {
+  padding: 14px 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Store Selector Pill & Greeting */
+.store-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--sk-bg-surface);
+  border: 1px solid var(--sk-border-subtle);
+  border-radius: var(--sk-radius-md);
+  padding: 8px 12px;
+  box-shadow: var(--sk-shadow-card);
+}
+.store-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.store-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--sk-radius-sm);
+  background: rgba(0, 119, 255, 0.12);
+  color: var(--sk-accent-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.store-icon svg { width: 15px; height: 15px; }
+.store-name-group small {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--sk-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  display: block;
+}
+.store-name-group strong {
+  font-size: 13px;
+  font-weight: 750;
+  color: var(--sk-text-primary);
+  display: block;
+}
+.store-change-btn {
+  background: var(--sk-bg-surface-elevated);
+  border: 1px solid var(--sk-border-medium);
+  border-radius: var(--sk-radius-pill);
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 750;
+  color: var(--sk-accent-blue);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Greeting Section */
+.greeting-section {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.greeting-title {
+  font-size: 20px;
+  font-weight: 850;
+  letter-spacing: -0.025em;
+  color: var(--sk-text-primary);
+}
+.greeting-subtitle {
+  font-size: 12px;
+  font-weight: 550;
+  color: var(--sk-text-muted);
+}
+
+/* Smart Continuity Banner (Draft) */
+.draft-card {
+  background: linear-gradient(135deg, rgba(0, 119, 255, 0.12), rgba(0, 217, 255, 0.05));
+  border: 1px solid rgba(0, 217, 255, 0.32);
+  border-radius: var(--sk-radius-md);
+  padding: 12px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 4px 14px rgba(0, 119, 255, 0.1);
+}
+.draft-meta strong {
+  font-size: 13px;
+  font-weight: 750;
+  color: var(--sk-text-primary);
+  display: block;
+}
+.draft-meta small {
+  font-size: 11px;
+  color: var(--sk-text-secondary);
+}
+.btn-resume {
+  background: var(--sk-accent-blue);
+  color: #fff;
+  border: none;
+  border-radius: var(--sk-radius-pill);
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 119, 255, 0.4);
+}
+
+/* KPI Indicators Grid */
+.kpi-section-title {
+  font-size: 12px;
+  font-weight: 750;
+  color: var(--sk-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 4px;
+}
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.kpi-card {
+  background: var(--sk-bg-surface);
+  border: 1px solid var(--sk-border-subtle);
+  border-radius: var(--sk-radius-md);
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  box-shadow: var(--sk-shadow-card);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+.kpi-card:active {
+  transform: scale(0.98);
+}
+.kpi-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+}
+
+/* Semantics per KPI */
+.kpi-card.danger {
+  border-color: var(--sk-status-danger-border);
+  background: linear-gradient(180deg, var(--sk-status-danger-bg) 0%, var(--sk-bg-surface) 60%);
+}
+.kpi-card.danger::before { background: var(--sk-status-danger); }
+.kpi-card.danger .kpi-num { color: var(--sk-status-danger); }
+
+.kpi-card.warning {
+  border-color: var(--sk-status-warning-border);
+  background: linear-gradient(180deg, var(--sk-status-warning-bg) 0%, var(--sk-bg-surface) 60%);
+}
+.kpi-card.warning::before { background: var(--sk-status-warning); }
+.kpi-card.warning .kpi-num { color: var(--sk-status-warning); }
+
+.kpi-card.offer {
+  border-color: var(--sk-status-offer-border);
+  background: linear-gradient(180deg, var(--sk-status-offer-bg) 0%, var(--sk-bg-surface) 60%);
+}
+.kpi-card.offer::before { background: var(--sk-status-offer); }
+.kpi-card.offer .kpi-num { color: var(--sk-status-offer); }
+
+.kpi-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.kpi-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.kpi-icon svg { width: 17px; height: 17px; stroke: currentColor; stroke-width: 2.2; fill: none; }
+.kpi-tag {
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 5px;
+  border-radius: var(--sk-radius-pill);
+  text-transform: uppercase;
+}
+.kpi-card.danger .kpi-tag { background: var(--sk-status-danger-bg); color: var(--sk-status-danger); }
+.kpi-card.warning .kpi-tag { background: var(--sk-status-warning-bg); color: var(--sk-status-warning); }
+.kpi-card.offer .kpi-tag { background: var(--sk-status-offer-bg); color: var(--sk-status-offer); }
+
+.kpi-num {
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  margin-top: 2px;
+}
+.kpi-label {
+  font-size: 11px;
+  font-weight: 750;
+  color: var(--sk-text-primary);
+  line-height: 1.2;
+}
+.kpi-sub {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--sk-text-muted);
+}
+
+/* Quick Actions Grid */
+.quick-actions-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.quick-action-btn {
+  background: var(--sk-bg-surface);
+  border: 1px solid var(--sk-border-subtle);
+  border-radius: var(--sk-radius-md);
+  padding: 10px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: var(--sk-shadow-card);
+  transition: transform 0.12s ease, border-color 0.12s ease;
+}
+.quick-action-btn:active {
+  transform: scale(0.96);
+  border-color: var(--sk-accent-blue);
+}
+.qa-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--sk-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.quick-action-btn:nth-child(1) .qa-icon-wrap { background: rgba(0, 119, 255, 0.15); color: var(--sk-accent-blue); }
+.quick-action-btn:nth-child(2) .qa-icon-wrap { background: rgba(0, 217, 255, 0.15); color: #0284c7; }
+.quick-action-btn:nth-child(3) .qa-icon-wrap { background: rgba(245, 158, 11, 0.15); color: var(--sk-status-warning); }
+.quick-action-btn:nth-child(4) .qa-icon-wrap { background: rgba(16, 185, 129, 0.15); color: var(--sk-status-safe); }
+.qa-icon-wrap svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 2.2; fill: none; }
+.qa-label {
+  font-size: 10.5px;
+  font-weight: 750;
+  color: var(--sk-text-primary);
+  text-align: center;
+  line-height: 1.15;
+}
+
+/* Critical Items Section */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-top: 4px;
+}
+.section-title {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  color: var(--sk-text-primary);
+}
+.section-link {
+  font-size: 12px;
+  font-weight: 750;
+  color: var(--sk-accent-blue);
+  cursor: pointer;
+}
+
+/* Products Compact List */
+.product-card-premium {
+  background: var(--sk-bg-surface);
+  border: 1px solid var(--sk-border-subtle);
+  border-radius: var(--sk-radius-md);
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: var(--sk-shadow-card);
+  position: relative;
+}
+.product-thumb {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--sk-radius-sm);
+  background: var(--sk-bg-surface-elevated);
+  border: 1px solid var(--sk-border-medium);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: var(--sk-text-muted);
+}
+.product-thumb svg { width: 24px; height: 24px; stroke: currentColor; fill: none; }
+
+.product-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.product-title {
+  font-size: 13.5px;
+  font-weight: 750;
+  color: var(--sk-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.product-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sk-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.product-meta-row b { color: var(--sk-text-secondary); font-weight: 700; }
+
+.product-status-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.badge-pill {
+  padding: 4px 8px;
+  border-radius: var(--sk-radius-pill);
+  font-size: 10.5px;
+  font-weight: 850;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+.badge-pill.danger {
+  background: var(--sk-status-danger-bg);
+  border: 1px solid var(--sk-status-danger-border);
+  color: var(--sk-status-danger);
+}
+.badge-pill.warning {
+  background: var(--sk-status-warning-bg);
+  border: 1px solid var(--sk-status-warning-border);
+  color: var(--sk-status-warning);
+}
+.badge-pill.offer {
+  background: var(--sk-status-offer-bg);
+  border: 1px solid var(--sk-status-offer-border);
+  color: var(--sk-status-offer);
+}
+.product-quantity {
+  font-size: 11px;
+  font-weight: 750;
+  color: var(--sk-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Bottom Navigation (Barra Inferior Android) */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 412px;
+  margin: 0 auto;
+  height: 68px;
+  background: var(--sk-bg-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--sk-border-subtle);
+  display: grid;
+  grid-template-columns: 1fr 1fr 64px 1fr 1fr;
+  align-items: center;
+  z-index: 50;
+  padding: 0 4px;
+}
+.nav-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  color: var(--sk-text-muted);
+  cursor: pointer;
+  height: 100%;
+  position: relative;
+}
+.nav-tab.active {
+  color: var(--sk-accent-blue);
+}
+.nav-tab svg { width: 22px; height: 22px; stroke: currentColor; stroke-width: 2.1; fill: none; }
+.nav-tab span {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+.nav-tab.active::after {
+  content: "";
+  position: absolute;
+  top: 6px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--sk-accent-blue);
+  box-shadow: 0 0 6px var(--sk-accent-blue);
+}
+
+/* Center Highlight Button */
+.center-fab-wrap {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.center-fab {
+  position: absolute;
+  top: -18px;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0077ff 0%, #00d9ff 100%);
+  border: 3px solid var(--sk-bg-base);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px rgba(0, 119, 255, 0.45);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+.center-fab:active {
+  transform: scale(0.92);
+}
+.center-fab svg { width: 26px; height: 26px; stroke: #fff; stroke-width: 2.4; fill: none; }
+
+/* Theme Switcher Floating Tool (Apenas para demonstração no protótipo) */
+.prototype-switcher {
+  position: fixed;
+  bottom: 80px;
+  right: 16px;
+  z-index: 100;
+  display: flex;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 6px 10px;
+  border-radius: 999px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+.prototype-switcher button {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 750;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 999px;
+}
+.prototype-switcher button.active {
+  background: var(--sk-accent-blue);
+}
+</style>
+</head>
+<body>
+
+<div class="device-container" id="deviceRoot">
+
+  <!-- Android Status Bar -->
+  <header class="android-status-bar">
+    <span>09:41</span>
+    <div class="status-icons">
+      <!-- Wi-Fi -->
+      <svg viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
+      <!-- Signal -->
+      <svg viewBox="0 0 24 24"><path d="M2 20h20"></path><path d="M5 20v-4"></path><path d="M9 20v-8"></path><path d="M13 20v-12"></path><path d="M17 20v-16"></path></svg>
+      <!-- Battery -->
+      <svg viewBox="0 0 24 24"><rect x="1" y="6" width="18" height="12" rx="2"></rect><line x1="23" y1="11" x2="23" y2="13"></line></svg>
+    </div>
+  </header>
+
+  <!-- App Header -->
+  <div class="app-header">
+    <div class="header-brand">
+      <div class="brand-logo-wrap">
+        <img src="../skalee-symbol-transparent.png" alt="Skalee">
+      </div>
+      <div class="brand-title-group">
+        <h1>Skalee Validades</h1>
+        <span>Plataforma Operacional</span>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <!-- Live Sync Pill -->
+      <div class="sync-badge">
+        <span class="sync-dot"></span>
+        <span>Sincronizado</span>
+      </div>
+
+      <!-- Notifications -->
+      <div class="icon-btn" aria-label="Notificações">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        <span class="badge-count">3</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Body -->
+  <main class="main-content">
+
+    <!-- Store Selector & Operator Info -->
+    <div class="store-bar">
+      <div class="store-info">
+        <div class="store-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        </div>
+        <div class="store-name-group">
+          <small>Loja Conectada</small>
+          <strong>01 — Hiper Matriz Centro</strong>
+        </div>
+      </div>
+      <button type="button" class="store-change-btn">
+        <span>Trocar</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </button>
+    </div>
+
+    <!-- Greeting Section -->
+    <div class="greeting-section">
+      <h2 class="greeting-title">Painel de Validades</h2>
+      <p class="greeting-subtitle">Monitoramento de risco em tempo real • Turno da Manhã</p>
+    </div>
+
+    <!-- Smart Continuity Banner (Draft) -->
+    <div class="draft-card">
+      <div class="draft-meta">
+        <strong>Conferência em Andamento</strong>
+        <small>Lote de Laticínios salvo há 12 min (8 itens)</small>
+      </div>
+      <button type="button" class="btn-resume">Retomar</button>
+    </div>
+
+    <!-- Operational KPI Cards -->
+    <span class="kpi-section-title">Estoque Crítico</span>
+    <div class="kpi-grid">
+      <!-- Vencidos / Hoje -->
+      <div class="kpi-card danger">
+        <div class="kpi-top-row">
+          <span class="kpi-icon">
+            <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          </span>
+          <span class="kpi-tag">Crítico</span>
+        </div>
+        <strong class="kpi-num">14</strong>
+        <span class="kpi-label">Vencidos / Hoje</span>
+        <span class="kpi-sub">Ação Imediata</span>
+      </div>
+
+      <!-- Próximos 7 Dias -->
+      <div class="kpi-card warning">
+        <div class="kpi-top-row">
+          <span class="kpi-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          </span>
+          <span class="kpi-tag">Alerta</span>
+        </div>
+        <strong class="kpi-num">38</strong>
+        <span class="kpi-label">Até 7 Dias</span>
+        <span class="kpi-sub">Gôndolas A / C</span>
+      </div>
+
+      <!-- Em Oferta -->
+      <div class="kpi-card offer">
+        <div class="kpi-top-row">
+          <span class="kpi-icon">
+            <svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+          </span>
+          <span class="kpi-tag">Ativas</span>
+        </div>
+        <strong class="kpi-num">19</strong>
+        <span class="kpi-label">Em Oferta</span>
+        <span class="kpi-sub">Giro Rápido</span>
+      </div>
+    </div>
+
+    <!-- Quick Action Bar -->
+    <span class="kpi-section-title">Ações Operacionais</span>
+    <div class="quick-actions-row">
+      <div class="quick-action-btn">
+        <div class="qa-icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+        </div>
+        <span class="qa-label">Bipar Foto</span>
+      </div>
+
+      <div class="quick-action-btn">
+        <div class="qa-icon-wrap">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </div>
+        <span class="qa-label">Novo Lote</span>
+      </div>
+
+      <div class="quick-action-btn">
+        <div class="qa-icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+        </div>
+        <span class="qa-label">Relatório</span>
+      </div>
+
+      <div class="quick-action-btn">
+        <div class="qa-icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+        </div>
+        <span class="qa-label">Auditoria</span>
+      </div>
+    </div>
+
+    <!-- Top Focus Items List -->
+    <div class="section-header">
+      <h3 class="section-title">Prioridades de Recolhimento</h3>
+      <span class="section-link">Ver catálogo (34) →</span>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+
+      <!-- Card 1 (Vencendo Hoje) -->
+      <div class="product-card-premium">
+        <div class="product-thumb">
+          <svg viewBox="0 0 24 24" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+        </div>
+        <div class="product-info">
+          <span class="product-title">Iogurte Grego Tradicional 400g</span>
+          <div class="product-meta-row">
+            <span>Cód: <b>789100010</b></span>
+            <span>• Corredor <b>02</b></span>
+          </div>
+          <div class="product-meta-row">
+            <span>Lote: <b>LT-8821B</b></span>
+          </div>
+        </div>
+        <div class="product-status-side">
+          <span class="badge-pill danger">Vence Hoje</span>
+          <span class="product-quantity">18 un</span>
+        </div>
+      </div>
+
+      <!-- Card 2 (Vencendo em 2 dias) -->
+      <div class="product-card-premium">
+        <div class="product-thumb">
+          <svg viewBox="0 0 24 24" stroke-width="1.8"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+        </div>
+        <div class="product-info">
+          <span class="product-title">Queijo Mussarela Peça 500g</span>
+          <div class="product-meta-row">
+            <span>Cód: <b>789214450</b></span>
+            <span>• Corredor <b>04</b></span>
+          </div>
+          <div class="product-meta-row">
+            <span>Lote: <b>MUS-209</b></span>
+          </div>
+        </div>
+        <div class="product-status-side">
+          <span class="badge-pill danger">2 Dias</span>
+          <span class="product-quantity">9 un</span>
+        </div>
+      </div>
+
+      <!-- Card 3 (Oferta Ativa) -->
+      <div class="product-card-premium">
+        <div class="product-thumb">
+          <svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+        </div>
+        <div class="product-info">
+          <span class="product-title">Pão de Forma Integral 500g</span>
+          <div class="product-meta-row">
+            <span>Cód: <b>789600122</b></span>
+            <span>• Padaria</span>
+          </div>
+          <div class="product-meta-row">
+            <span>Lote: <b>PAD-401</b></span>
+          </div>
+        </div>
+        <div class="product-status-side">
+          <span class="badge-pill offer">Em Oferta</span>
+          <span class="product-quantity">24 un</span>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Android Bottom Navigation (5 Destinos com Botão Central Elevado) -->
+  <nav class="bottom-nav">
+    <button type="button" class="nav-tab active">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      <span>Início</span>
+    </button>
+
+    <button type="button" class="nav-tab">
+      <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+      <span>Produtos</span>
+    </button>
+
+    <!-- Elevated Central Action -->
+    <div class="center-fab-wrap">
+      <button type="button" class="center-fab" aria-label="Cadastrar Novo Lote">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      </button>
+    </div>
+
+    <button type="button" class="nav-tab">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+      <span>Relatórios</span>
+    </button>
+
+    <button type="button" class="nav-tab">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      <span>Perfil</span>
+    </button>
+  </nav>
+
+  <!-- Prototype Interactive Theme Switcher -->
+  <div class="prototype-switcher">
+    <button type="button" id="btnThemeDark" class="active" onclick="setTheme('dark')">Dark</button>
+    <button type="button" id="btnThemeLight" onclick="setTheme('light')">Light</button>
+  </div>
+
+</div>
+
+<script>
+function setTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  document.getElementById('btnThemeDark').classList.toggle('active', theme === 'dark');
+  document.getElementById('btnThemeLight').classList.toggle('active', theme === 'light');
+}
+</script>
+</body>
+</html>
+

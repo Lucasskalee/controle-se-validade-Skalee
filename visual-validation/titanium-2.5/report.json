@@ -1,0 +1,478 @@
+{
+  "fixture": "tools/validate_real_titanium.cjs authorized local fixture via window.skaleeDb.loadProducts",
+  "fixtureProducts": 7,
+  "fixtureScenarios": [
+    "expired",
+    "today",
+    "three-days",
+    "seven-days",
+    "offer",
+    "high-quantity",
+    "no-image",
+    "long-description"
+  ],
+  "productScenarios": {
+    "expired": {
+      "filter": "expired_today",
+      "cards": 2,
+      "text": "Sem foto\nProduto vencido para validação\nCód. interno FIX-001 · Barras 789000000001\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n14 un.\nValidade\n23/10/2026\nMuito perto\nSem foto\nIogurte Natural 170g\nCód. interno FIX-002 · Barras 789000000002\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n24 un.\nValidade\n24/10/2026\nVence hoje"
+    },
+    "offer": {
+      "filter": "offer",
+      "cards": 1,
+      "text": "Sem foto\nLeite Integral 1L em oferta\nCód. interno FIX-003 · Barras 789000000003\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n48 un.\nValidade\n27/10/2026\nMuito perto\nEm oferta"
+    },
+    "highQuantity": {
+      "filter": "high",
+      "cards": 1,
+      "text": "Sem foto\nArroz Premium Estoque Alto\nCód. interno FIX-005 · Barras 789000000005\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n120 un.\nValidade\n14/11/2026\nControlado\nQUANTIDADE ALTA"
+    },
+    "restoredCards": 6
+  },
+  "glassCustomization": {
+    "theme": "dark",
+    "background": "image",
+    "wallpaper": "image",
+    "blur": "30px",
+    "intensity": "90%",
+    "dim": "0.45",
+    "stored": true,
+    "sliderState": {
+      "blur": "30",
+      "intensity": "90",
+      "dim": "45"
+    },
+    "fallbackBackdrop": "none",
+    "normalBackdrop": "blur(30px) saturate(1.3)",
+    "sliderSnapshots": {
+      "min": {
+        "blur": "6px",
+        "alpha": "45%",
+        "dim": "0.18",
+        "panel": "color(srgb 0.0588235 0.0901961 0.164706 / 0.337059)"
+      },
+      "mid": {
+        "blur": "18px",
+        "alpha": "72%",
+        "dim": "0.18",
+        "panel": "color(srgb 0.0588235 0.0901961 0.164706 / 0.539294)"
+      },
+      "max": {
+        "blur": "30px",
+        "alpha": "90%",
+        "dim": "0.45",
+        "panel": "color(srgb 0.0588235 0.0901961 0.164706 / 0.674118)"
+      }
+    },
+    "universalThemes": {
+      "dark": {
+        "theme": "dark",
+        "wallpaper": "image",
+        "backgroundImage": "none",
+        "panel": "color(srgb 0.0588235 0.0901961 0.164706 / 0.674118)",
+        "panelToken": "color-mix(in srgb, rgba(15, 23, 42, 0.75) 90%, transparent)",
+        "glassBg": "rgba(15, 23, 42, 0.75)",
+        "alpha": "90%"
+      },
+      "light": {
+        "theme": "light",
+        "wallpaper": "image",
+        "backgroundImage": "none",
+        "panel": "color(srgb 1 1 1 / 0.765882)",
+        "panelToken": "color-mix(in srgb, rgba(255, 255, 255, 0.85) 90%, transparent)",
+        "glassBg": "rgba(255, 255, 255, 0.85)",
+        "alpha": "90%"
+      },
+      "industrial": {
+        "theme": "industrial",
+        "wallpaper": "image",
+        "backgroundImage": "none",
+        "panel": "color(srgb 0.188235 0.219608 0.25098 / 0.772941)",
+        "panelToken": "color-mix(in srgb, rgba(48, 56, 64, .86) 90%, transparent)",
+        "glassBg": "rgba(48, 56, 64, .86)",
+        "alpha": "90%"
+      },
+      "creative": {
+        "theme": "creative",
+        "wallpaper": "image",
+        "backgroundImage": "none",
+        "panel": "color(srgb 0.207843 0.0941176 0.309804 / 0.702353)",
+        "panelToken": "color-mix(in srgb, rgba(53, 24, 79, .78) 90%, transparent)",
+        "glassBg": "rgba(53, 24, 79, .78)",
+        "alpha": "90%"
+      },
+      "executive": {
+        "theme": "executive",
+        "wallpaper": "image",
+        "backgroundImage": "none",
+        "panel": "color(srgb 0.2 0.152941 0.105882 / 0.755294)",
+        "panelToken": "color-mix(in srgb, rgba(51, 39, 27, .84) 90%, transparent)",
+        "glassBg": "rgba(51, 39, 27, .84)",
+        "alpha": "90%"
+      }
+    }
+  },
+  "viewport": {
+    "width": 393,
+    "height": 852
+  },
+  "results": [
+    {
+      "expected": {
+        "theme": "dark",
+        "background": "titanium"
+      },
+      "actual": {
+        "theme": "dark",
+        "preference": "dark",
+        "background": "titanium",
+        "visual": "css",
+        "home": true,
+        "products": false,
+        "profile": true,
+        "bottomNav": true,
+        "header": true,
+        "productText": false,
+        "controls": 8,
+        "productsState": {
+          "activeTab": "products",
+          "visible": true,
+          "productText": true,
+          "search": true,
+          "cards": 6,
+          "fixtureLoadCount": 1,
+          "gridText": "Sem foto\nIogurte Natural 170g\nCód. interno FIX-002 · Barras 789000000002\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n24 un.\nValidade\n24/10/2026\nVence hoje\nSem foto\nLeite Integral 1L em oferta\nCód. interno FIX-003 · Barras 789000000003\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n48 un.\nValidade\n27/10/2026\nMuito perto\nEm oferta\nSem foto\nQueijo Mussarela 150g\nCód. interno FIX-004 · Barras 789000000004\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n32 un.\nValidade\n31/10/2026\nAtenção\nSem foto\nProduto sem imagem cadastrada\nCód. interno FIX-006 · Barras 789000000006\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n8 un.\nValidade\n05/11/2026\nAcompanhar\nSem foto\nArroz Premium Estoque Alto\nCód. interno FIX-005 · Barras 789000000005\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n120 un.\nValidade\n14/11/2026\nControlado\nQUANTIDADE ALTA\nSem foto\nProduto com descrição longa para validar quebra de linha, truncamento e leitura dos detalhes no card\nCód. interno FIX-007 · Barras 789000000007\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n6 un.\nValidade\n23/11/2026\nControlado",
+          "storeFilter": "",
+          "supplierFilter": "",
+          "resultText": "6 produto(s) encontrado(s)"
+        }
+      },
+      "applied": true,
+      "screenshot": "dark-titanium-home.png",
+      "productsScreenshot": "dark-titanium-products.png",
+      "profileScreenshot": "dark-titanium-profile.png"
+    },
+    {
+      "expected": {
+        "theme": "dark",
+        "background": "image"
+      },
+      "actual": {
+        "theme": "dark",
+        "preference": "dark",
+        "background": "image",
+        "visual": "css",
+        "home": true,
+        "products": false,
+        "profile": true,
+        "bottomNav": true,
+        "header": true,
+        "productText": false,
+        "controls": 8,
+        "productsState": {
+          "activeTab": "products",
+          "visible": true,
+          "productText": true,
+          "search": true,
+          "cards": 6,
+          "fixtureLoadCount": 8,
+          "gridText": "Sem foto\nIogurte Natural 170g\nCód. interno FIX-002 · Barras 789000000002\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n24 un.\nValidade\n24/10/2026\nVence hoje\nSem foto\nLeite Integral 1L em oferta\nCód. interno FIX-003 · Barras 789000000003\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n48 un.\nValidade\n27/10/2026\nMuito perto\nEm oferta\nSem foto\nQueijo Mussarela 150g\nCód. interno FIX-004 · Barras 789000000004\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n32 un.\nValidade\n31/10/2026\nAtenção\nSem foto\nProduto sem imagem cadastrada\nCód. interno FIX-006 · Barras 789000000006\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n8 un.\nValidade\n05/11/2026\nAcompanhar\nSem foto\nArroz Premium Estoque Alto\nCód. interno FIX-005 · Barras 789000000005\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n120 un.\nValidade\n14/11/2026\nControlado\nQUANTIDADE ALTA\nSem foto\nProduto com descrição longa para validar quebra de linha, truncamento e leitura dos detalhes no card\nCód. interno FIX-007 · Barras 789000000007\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n6 un.\nValidade\n23/11/2026\nControlado",
+          "storeFilter": "",
+          "supplierFilter": "",
+          "resultText": "6 produto(s) encontrado(s)"
+        }
+      },
+      "applied": true,
+      "screenshot": "dark-image-home.png",
+      "productsScreenshot": "dark-image-products.png",
+      "profileScreenshot": "dark-image-profile.png"
+    },
+    {
+      "expected": {
+        "theme": "light",
+        "background": "titanium"
+      },
+      "actual": {
+        "theme": "light",
+        "preference": "light",
+        "background": "titanium",
+        "visual": "css",
+        "home": true,
+        "products": false,
+        "profile": true,
+        "bottomNav": true,
+        "header": true,
+        "productText": false,
+        "controls": 8,
+        "productsState": {
+          "activeTab": "products",
+          "visible": true,
+          "productText": true,
+          "search": true,
+          "cards": 6,
+          "fixtureLoadCount": 8,
+          "gridText": "Sem foto\nIogurte Natural 170g\nCód. interno FIX-002 · Barras 789000000002\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n24 un.\nValidade\n24/10/2026\nVence hoje\nSem foto\nLeite Integral 1L em oferta\nCód. interno FIX-003 · Barras 789000000003\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n48 un.\nValidade\n27/10/2026\nMuito perto\nEm oferta\nSem foto\nQueijo Mussarela 150g\nCód. interno FIX-004 · Barras 789000000004\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n32 un.\nValidade\n31/10/2026\nAtenção\nSem foto\nProduto sem imagem cadastrada\nCód. interno FIX-006 · Barras 789000000006\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n8 un.\nValidade\n05/11/2026\nAcompanhar\nSem foto\nArroz Premium Estoque Alto\nCód. interno FIX-005 · Barras 789000000005\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n120 un.\nValidade\n14/11/2026\nControlado\nQUANTIDADE ALTA\nSem foto\nProduto com descrição longa para validar quebra de linha, truncamento e leitura dos detalhes no card\nCód. interno FIX-007 · Barras 789000000007\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n6 un.\nValidade\n23/11/2026\nControlado",
+          "storeFilter": "",
+          "supplierFilter": "",
+          "resultText": "6 produto(s) encontrado(s)"
+        }
+      },
+      "applied": true,
+      "screenshot": "light-titanium-home.png",
+      "productsScreenshot": "light-titanium-products.png",
+      "profileScreenshot": "light-titanium-profile.png"
+    },
+    {
+      "expected": {
+        "theme": "light",
+        "background": "image"
+      },
+      "actual": {
+        "theme": "light",
+        "preference": "light",
+        "background": "image",
+        "visual": "css",
+        "home": true,
+        "products": false,
+        "profile": true,
+        "bottomNav": true,
+        "header": true,
+        "productText": false,
+        "controls": 8,
+        "productsState": {
+          "activeTab": "products",
+          "visible": true,
+          "productText": true,
+          "search": true,
+          "cards": 6,
+          "fixtureLoadCount": 8,
+          "gridText": "Sem foto\nIogurte Natural 170g\nCód. interno FIX-002 · Barras 789000000002\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n24 un.\nValidade\n24/10/2026\nVence hoje\nSem foto\nLeite Integral 1L em oferta\nCód. interno FIX-003 · Barras 789000000003\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n48 un.\nValidade\n27/10/2026\nMuito perto\nEm oferta\nSem foto\nQueijo Mussarela 150g\nCód. interno FIX-004 · Barras 789000000004\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n32 un.\nValidade\n31/10/2026\nAtenção\nSem foto\nProduto sem imagem cadastrada\nCód. interno FIX-006 · Barras 789000000006\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n8 un.\nValidade\n05/11/2026\nAcompanhar\nSem foto\nArroz Premium Estoque Alto\nCód. interno FIX-005 · Barras 789000000005\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n120 un.\nValidade\n14/11/2026\nControlado\nQUANTIDADE ALTA\nSem foto\nProduto com descrição longa para validar quebra de linha, truncamento e leitura dos detalhes no card\nCód. interno FIX-007 · Barras 789000000007\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n6 un.\nValidade\n23/11/2026\nControlado",
+          "storeFilter": "",
+          "supplierFilter": "",
+          "resultText": "6 produto(s) encontrado(s)"
+        }
+      },
+      "applied": true,
+      "screenshot": "light-image-home.png",
+      "productsScreenshot": "light-image-products.png",
+      "profileScreenshot": "light-image-profile.png"
+    },
+    {
+      "expected": {
+        "theme": "industrial",
+        "background": "titanium"
+      },
+      "actual": {
+        "theme": "industrial",
+        "preference": "industrial",
+        "background": "titanium",
+        "visual": "css",
+        "home": true,
+        "products": false,
+        "profile": true,
+        "bottomNav": true,
+        "header": true,
+        "productText": false,
+        "controls": 8,
+        "productsState": {
+          "activeTab": "products",
+          "visible": true,
+          "productText": true,
+          "search": true,
+          "cards": 6,
+          "fixtureLoadCount": 8,
+          "gridText": "Sem foto\nIogurte Natural 170g\nCód. interno FIX-002 · Barras 789000000002\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n24 un.\nValidade\n24/10/2026\nVence hoje\nSem foto\nLeite Integral 1L em oferta\nCód. interno FIX-003 · Barras 789000000003\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n48 un.\nValidade\n27/10/2026\nMuito perto\nEm oferta\nSem foto\nQueijo Mussarela 150g\nCód. interno FIX-004 · Barras 789000000004\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n32 un.\nValidade\n31/10/2026\nAtenção\nSem foto\nProduto sem imagem cadastrada\nCód. interno FIX-006 · Barras 789000000006\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n8 un.\nValidade\n05/11/2026\nAcompanhar\nSem foto\nArroz Premium Estoque Alto\nCód. interno FIX-005 · Barras 789000000005\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n120 un.\nValidade\n14/11/2026\nControlado\nQUANTIDADE ALTA\nSem foto\nProduto com descrição longa para validar quebra de linha, truncamento e leitura dos detalhes no card\nCód. interno FIX-007 · Barras 789000000007\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n6 un.\nValidade\n23/11/2026\nControlado",
+          "storeFilter": "",
+          "supplierFilter": "",
+          "resultText": "6 produto(s) encontrado(s)"
+        }
+      },
+      "applied": true,
+      "screenshot": "industrial-titanium-home.png",
+      "productsScreenshot": "industrial-titanium-products.png",
+      "profileScreenshot": "industrial-titanium-profile.png"
+    },
+    {
+      "expected": {
+        "theme": "industrial",
+        "background": "image"
+      },
+      "actual": {
+        "theme": "industrial",
+        "preference": "industrial",
+        "background": "image",
+        "visual": "css",
+        "home": true,
+        "products": false,
+        "profile": true,
+        "bottomNav": true,
+        "header": true,
+        "productText": false,
+        "controls": 8,
+        "productsState": {
+          "activeTab": "products",
+          "visible": true,
+          "productText": true,
+          "search": true,
+          "cards": 6,
+          "fixtureLoadCount": 8,
+          "gridText": "Sem foto\nIogurte Natural 170g\nCód. interno FIX-002 · Barras 789000000002\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n24 un.\nValidade\n24/10/2026\nVence hoje\nSem foto\nLeite Integral 1L em oferta\nCód. interno FIX-003 · Barras 789000000003\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n48 un.\nValidade\n27/10/2026\nMuito perto\nEm oferta\nSem foto\nQueijo Mussarela 150g\nCód. interno FIX-004 · Barras 789000000004\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n32 un.\nValidade\n31/10/2026\nAtenção\nSem foto\nProduto sem imagem cadastrada\nCód. interno FIX-006 · Barras 789000000006\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n8 un.\nValidade\n05/11/2026\nAcompanhar\nSem foto\nArroz Premium Estoque Alto\nCód. interno FIX-005 · Barras 789000000005\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n120 un.\nValidade\n14/11/2026\nControlado\nQUANTIDADE ALTA\nSem foto\nProduto com descrição longa para validar quebra de linha, truncamento e leitura dos detalhes no card\nCód. interno FIX-007 · Barras 789000000007\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n6 un.\nValidade\n23/11/2026\nControlado",
+          "storeFilter": "",
+          "supplierFilter": "",
+          "resultText": "6 produto(s) encontrado(s)"
+        }
+      },
+      "applied": true,
+      "screenshot": "industrial-image-home.png",
+      "productsScreenshot": "industrial-image-products.png",
+      "profileScreenshot": "industrial-image-profile.png"
+    },
+    {
+      "expected": {
+        "theme": "creative",
+        "background": "titanium"
+      },
+      "actual": {
+        "theme": "creative",
+        "preference": "creative",
+        "background": "titanium",
+        "visual": "css",
+        "home": true,
+        "products": false,
+        "profile": true,
+        "bottomNav": true,
+        "header": true,
+        "productText": false,
+        "controls": 8,
+        "productsState": {
+          "activeTab": "products",
+          "visible": true,
+          "productText": true,
+          "search": true,
+          "cards": 6,
+          "fixtureLoadCount": 8,
+          "gridText": "Sem foto\nIogurte Natural 170g\nCód. interno FIX-002 · Barras 789000000002\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n24 un.\nValidade\n24/10/2026\nVence hoje\nSem foto\nLeite Integral 1L em oferta\nCód. interno FIX-003 · Barras 789000000003\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n48 un.\nValidade\n27/10/2026\nMuito perto\nEm oferta\nSem foto\nQueijo Mussarela 150g\nCód. interno FIX-004 · Barras 789000000004\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n32 un.\nValidade\n31/10/2026\nAtenção\nSem foto\nProduto sem imagem cadastrada\nCód. interno FIX-006 · Barras 789000000006\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n8 un.\nValidade\n05/11/2026\nAcompanhar\nSem foto\nArroz Premium Estoque Alto\nCód. interno FIX-005 · Barras 789000000005\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n120 un.\nValidade\n14/11/2026\nControlado\nQUANTIDADE ALTA\nSem foto\nProduto com descrição longa para validar quebra de linha, truncamento e leitura dos detalhes no card\nCód. interno FIX-007 · Barras 789000000007\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n6 un.\nValidade\n23/11/2026\nControlado",
+          "storeFilter": "",
+          "supplierFilter": "",
+          "resultText": "6 produto(s) encontrado(s)"
+        }
+      },
+      "applied": true,
+      "screenshot": "creative-titanium-home.png",
+      "productsScreenshot": "creative-titanium-products.png",
+      "profileScreenshot": "creative-titanium-profile.png"
+    },
+    {
+      "expected": {
+        "theme": "creative",
+        "background": "image"
+      },
+      "actual": {
+        "theme": "creative",
+        "preference": "creative",
+        "background": "image",
+        "visual": "css",
+        "home": true,
+        "products": false,
+        "profile": true,
+        "bottomNav": true,
+        "header": true,
+        "productText": false,
+        "controls": 8,
+        "productsState": {
+          "activeTab": "products",
+          "visible": true,
+          "productText": true,
+          "search": true,
+          "cards": 6,
+          "fixtureLoadCount": 8,
+          "gridText": "Sem foto\nIogurte Natural 170g\nCód. interno FIX-002 · Barras 789000000002\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n24 un.\nValidade\n24/10/2026\nVence hoje\nSem foto\nLeite Integral 1L em oferta\nCód. interno FIX-003 · Barras 789000000003\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n48 un.\nValidade\n27/10/2026\nMuito perto\nEm oferta\nSem foto\nQueijo Mussarela 150g\nCód. interno FIX-004 · Barras 789000000004\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n32 un.\nValidade\n31/10/2026\nAtenção\nSem foto\nProduto sem imagem cadastrada\nCód. interno FIX-006 · Barras 789000000006\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n8 un.\nValidade\n05/11/2026\nAcompanhar\nSem foto\nArroz Premium Estoque Alto\nCód. interno FIX-005 · Barras 789000000005\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n120 un.\nValidade\n14/11/2026\nControlado\nQUANTIDADE ALTA\nSem foto\nProduto com descrição longa para validar quebra de linha, truncamento e leitura dos detalhes no card\nCód. interno FIX-007 · Barras 789000000007\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n6 un.\nValidade\n23/11/2026\nControlado",
+          "storeFilter": "",
+          "supplierFilter": "",
+          "resultText": "6 produto(s) encontrado(s)"
+        }
+      },
+      "applied": true,
+      "screenshot": "creative-image-home.png",
+      "productsScreenshot": "creative-image-products.png",
+      "profileScreenshot": "creative-image-profile.png"
+    },
+    {
+      "expected": {
+        "theme": "executive",
+        "background": "titanium"
+      },
+      "actual": {
+        "theme": "executive",
+        "preference": "executive",
+        "background": "titanium",
+        "visual": "css",
+        "home": true,
+        "products": false,
+        "profile": true,
+        "bottomNav": true,
+        "header": true,
+        "productText": false,
+        "controls": 8,
+        "productsState": {
+          "activeTab": "products",
+          "visible": true,
+          "productText": true,
+          "search": true,
+          "cards": 6,
+          "fixtureLoadCount": 8,
+          "gridText": "Sem foto\nIogurte Natural 170g\nCód. interno FIX-002 · Barras 789000000002\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n24 un.\nValidade\n24/10/2026\nVence hoje\nSem foto\nLeite Integral 1L em oferta\nCód. interno FIX-003 · Barras 789000000003\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n48 un.\nValidade\n27/10/2026\nMuito perto\nEm oferta\nSem foto\nQueijo Mussarela 150g\nCód. interno FIX-004 · Barras 789000000004\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n32 un.\nValidade\n31/10/2026\nAtenção\nSem foto\nProduto sem imagem cadastrada\nCód. interno FIX-006 · Barras 789000000006\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n8 un.\nValidade\n05/11/2026\nAcompanhar\nSem foto\nArroz Premium Estoque Alto\nCód. interno FIX-005 · Barras 789000000005\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n120 un.\nValidade\n14/11/2026\nControlado\nQUANTIDADE ALTA\nSem foto\nProduto com descrição longa para validar quebra de linha, truncamento e leitura dos detalhes no card\nCód. interno FIX-007 · Barras 789000000007\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n6 un.\nValidade\n23/11/2026\nControlado",
+          "storeFilter": "",
+          "supplierFilter": "",
+          "resultText": "6 produto(s) encontrado(s)"
+        }
+      },
+      "applied": true,
+      "screenshot": "executive-titanium-home.png",
+      "productsScreenshot": "executive-titanium-products.png",
+      "profileScreenshot": "executive-titanium-profile.png"
+    },
+    {
+      "expected": {
+        "theme": "executive",
+        "background": "image"
+      },
+      "actual": {
+        "theme": "executive",
+        "preference": "executive",
+        "background": "image",
+        "visual": "css",
+        "home": true,
+        "products": false,
+        "profile": true,
+        "bottomNav": true,
+        "header": true,
+        "productText": false,
+        "controls": 8,
+        "productsState": {
+          "activeTab": "products",
+          "visible": true,
+          "productText": true,
+          "search": true,
+          "cards": 6,
+          "fixtureLoadCount": 8,
+          "gridText": "Sem foto\nIogurte Natural 170g\nCód. interno FIX-002 · Barras 789000000002\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n24 un.\nValidade\n24/10/2026\nVence hoje\nSem foto\nLeite Integral 1L em oferta\nCód. interno FIX-003 · Barras 789000000003\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n48 un.\nValidade\n27/10/2026\nMuito perto\nEm oferta\nSem foto\nQueijo Mussarela 150g\nCód. interno FIX-004 · Barras 789000000004\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n32 un.\nValidade\n31/10/2026\nAtenção\nSem foto\nProduto sem imagem cadastrada\nCód. interno FIX-006 · Barras 789000000006\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n8 un.\nValidade\n05/11/2026\nAcompanhar\nSem foto\nArroz Premium Estoque Alto\nCód. interno FIX-005 · Barras 789000000005\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n120 un.\nValidade\n14/11/2026\nControlado\nQUANTIDADE ALTA\nSem foto\nProduto com descrição longa para validar quebra de linha, truncamento e leitura dos detalhes no card\nCód. interno FIX-007 · Barras 789000000007\nCód. fornecedor: FIX-SUP-001\nLoja: Loja Principal\nQuantidade\n6 un.\nValidade\n23/11/2026\nControlado",
+          "storeFilter": "",
+          "supplierFilter": "",
+          "resultText": "6 produto(s) encontrado(s)"
+        }
+      },
+      "applied": true,
+      "screenshot": "executive-image-home.png",
+      "productsScreenshot": "executive-image-products.png",
+      "profileScreenshot": "executive-image-profile.png"
+    }
+  ],
+  "reducedMotion": {
+    "media": true,
+    "theme": "dark",
+    "background": "titanium"
+  },
+  "consoleErrors": [],
+  "approved": 10
+}

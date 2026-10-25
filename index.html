@@ -19,9 +19,12 @@
 <script src="local-store.js"></script>
 <script src="product-drafts.js"></script>
 <script src="product-image-service.js"></script>
+<script src="report-assets.js"></script>
 <script>
 (() => {
- const preference = localStorage.getItem("skalee.theme") || "auto";
+ const storedPreference = localStorage.getItem("skalee.theme") || "auto";
+ const preference = storedPreference === "glass" ? "dark" : storedPreference;
+ if (storedPreference === "glass") localStorage.setItem("skalee.theme", preference);
  const dark = preference === "dark" || (preference === "auto" && matchMedia("(prefers-color-scheme: dark)").matches);
  document.documentElement.dataset.theme = dark ? "dark" : "light";
  document.documentElement.dataset.themePreference = preference;
@@ -815,9 +818,12 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
  <div id="personalSettingsPane" class="personal-tab-pane personal-body" role="tabpanel" aria-labelledby="personalSettingsTab" hidden>
   <section class="personal-section" aria-labelledby="personalAppearanceTitle">
    <h3 id="personalAppearanceTitle">Aparência</h3>
-   <div class="personal-theme" role="group" aria-label="Tema do aplicativo">
-    <button class="personal-theme-button" type="button" data-personal-theme-choice="light">☀ Claro</button>
-    <button class="personal-theme-button" type="button" data-personal-theme-choice="dark">🌙 Escuro</button>
+   <div class="personal-theme theme-options" role="group" aria-label="Temas Skalee">
+    <button class="personal-theme-button theme-button" type="button" data-personal-theme-choice="dark"><span class="theme-icon theme-swatch theme-swatch-dark" aria-hidden="true"></span><span>Dark</span></button>
+    <button class="personal-theme-button theme-button" type="button" data-personal-theme-choice="light"><span class="theme-icon theme-swatch theme-swatch-light" aria-hidden="true"></span><span>Light</span></button>
+    <button class="personal-theme-button theme-button" type="button" data-personal-theme-choice="industrial"><span class="theme-icon theme-swatch theme-swatch-industrial" aria-hidden="true"></span><span>Industrial</span></button>
+    <button class="personal-theme-button theme-button" type="button" data-personal-theme-choice="creative"><span class="theme-icon theme-swatch theme-swatch-creative" aria-hidden="true"></span><span>Creative</span></button>
+    <button class="personal-theme-button theme-button" type="button" data-personal-theme-choice="executive"><span class="theme-icon theme-swatch theme-swatch-executive" aria-hidden="true"></span><span>Executive</span></button>
    </div>
   </section>
   <div class="personal-menu-list">
@@ -912,6 +918,7 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
   </div>
    <div class="filters" id="chips" role="group" aria-label="Filtros de produtos">
     <button class="chip active" type="button" data-filter="all">Todos</button>
+    <button class="chip" type="button" data-filter="expired_today" data-filter-group="expiry">Vencidos / Hoje</button>
     <button class="chip" type="button" data-filter="today" data-filter-group="expiry">Vence hoje</button>
     <button class="chip" type="button" data-filter="3" data-filter-group="expiry">Até 3 dias</button>
     <button class="chip" type="button" data-filter="7" data-filter-group="expiry">Até 7 dias</button>
@@ -1048,6 +1055,42 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
   <div id="reportStatus" class="report-status" aria-live="polite"></div>
  </div>
 </section>
+
+<!-- Modal de Pré-visualização do Relatório de Produtos (Android & Web) -->
+<div id="modalProductReportPreview" class="report-modal-overlay" aria-hidden="true" style="display:none;">
+ <div class="report-modal-panel">
+  <div class="report-modal-head">
+   <h3 class="report-modal-title">
+    <span>Relatório de Validades</span>
+    <span id="productReportPreviewBadge" class="report-modal-badge">Carregando...</span>
+   </h3>
+   <div class="report-modal-actions">
+    <button type="button" id="productReportSavePdfBtn" class="btn" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:7px 13px;">
+     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+     </svg>
+     <span id="productReportSavePdfBtnText">Salvar PDF</span>
+    </button>
+    <button type="button" id="productReportShareBtn" class="btn2" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:7px 13px;">
+     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;">
+      <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+     </svg>
+     <span id="productReportShareBtnText">Compartilhar PDF</span>
+    </button>
+    <button type="button" id="productReportPrintBtn" class="btn2" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:7px 13px;">
+     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;">
+      <path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
+     </svg>
+     <span id="productReportPrintBtnText">Imprimir</span>
+    </button>
+    <button type="button" id="closeProductReportPreviewBtn" class="report-modal-close" aria-label="Fechar">&times;</button>
+   </div>
+  </div>
+  <div class="report-modal-frame-wrap">
+   <iframe id="productReportPreviewIframe" title="Visualização do Relatório de Validades"></iframe>
+  </div>
+ </div>
+</div>
 
 <section class="page" id="audit" hidden></section>
 
@@ -2011,9 +2054,11 @@ const PRODUCT_COLUMNS_KEY = "skalee.products.columns";
 let productColumns = Number(localStorage.getItem(PRODUCT_COLUMNS_KEY)) || (window.matchMedia("(max-width: 620px)").matches ? 1 : 3);
 if (![1, 2, 3, 4].includes(productColumns)) productColumns = 1;
 const THEME_KEY = "skalee.theme";
+const SKALEE_THEMES = ["dark", "light", "industrial", "creative", "executive"];
 const themeMedia = window.matchMedia("(prefers-color-scheme: dark)");
 let themePreference = localStorage.getItem(THEME_KEY) || "auto";
-if (!["light", "dark", "auto"].includes(themePreference)) themePreference = "auto";
+if (themePreference === "glass") { themePreference = "dark"; localStorage.setItem(THEME_KEY, themePreference); }
+if (![...SKALEE_THEMES, "auto"].includes(themePreference)) themePreference = "auto";
 
 function applyThemePreference(preference, announce = false) {
  themePreference = preference;
@@ -2026,11 +2071,11 @@ function applyThemePreference(preference, announce = false) {
   button.setAttribute("aria-pressed", String(active));
  });
  els.personalThemeButtons.forEach((button) => {
-  const active = button.dataset.personalThemeChoice === resolvedTheme;
+  const active = button.dataset.personalThemeChoice === preference;
   button.classList.toggle("active", active);
   button.setAttribute("aria-pressed", String(active));
  });
- const labels = { light: "Claro", dark: "Escuro", auto: `Automático (${resolvedTheme === "dark" ? "escuro" : "claro"})` };
+ const labels = { light: "Light", dark: "Dark", glass: "Glass", industrial: "Industrial", creative: "Creative", executive: "Executive", auto: `Automático (${resolvedTheme === "dark" ? "Dark" : "Light"})` };
  if (els.themeStatus) els.themeStatus.textContent = announce ? `Tema ${labels[preference]} ativado.` : `Tema atual: ${labels[preference]}.`;
 }
 
@@ -2805,9 +2850,10 @@ function productMatchesCurrentCriteria(product) {
   if (!haystack.includes(term)) return false;
  }
  const days = remaining(product.expiry);
- if (days < 0) return false;
+ if (days < 0 && activeFilters.expiryRange !== "expired_today") return false;
 
  const { expiryRange, offerStatus, highQuantity } = activeFilters;
+ if (expiryRange === "expired_today" && days > 0) return false;
  if (expiryRange === "today" && days !== 0) return false;
  if (expiryRange === "3" && days > 3) return false;
  if (expiryRange === "7" && days > 7) return false;
@@ -4528,7 +4574,23 @@ function renderNotificationCenter() {
    <label class="notification-check" title="${checked ? "Restaurar como pendente" : "Marcar como verificado"}"><input type="checkbox" data-notification-check="${escapeHtml(id)}"${checked ? " checked" : ""} aria-label="${checked ? "Desmarcar" : "Verificar"} ${escapeHtml(product.name || "produto")}"><span aria-hidden="true">✓</span></label>
   </article>`;
  }).join("");
+ applyNotificationStacking();
  observeNotificationPhotos();
+}
+
+function applyNotificationStacking() {
+ const list = els.notificationCenterList;
+ if (!list) return;
+ const items = [...list.querySelectorAll(":scope > .notification-item")];
+ const total = Math.max(items.length, 1);
+ items.forEach((item, index) => {
+  const level = index / Math.max(total - 1, 1);
+  const opacity = Math.max(.58, 1 - (level * .30));
+  item.style.setProperty("--sk-notification-stack-opacity", opacity.toFixed(2));
+  item.style.setProperty("--sk-notification-stack-offset", `${Math.min(index, 5) * 1.5}px`);
+  item.dataset.notificationStackLevel = String(index + 1);
+ });
+ list.dataset.notificationStackSize = String(items.length);
 }
 
 function observeNotificationPhotos() {
@@ -5098,6 +5160,11 @@ function selectedReportProducts() {
 
 function formatPdfDate(value) {
  if (!value) return "";
+ const parts = String(value).split("T")[0].split("-");
+ if (parts.length === 3) {
+  const [y, m, d] = parts;
+  return `${d}/${m}/${y.slice(-2)}`;
+ }
  return new Date(value + "T00:00:00").toLocaleDateString("pt-BR");
 }
 
@@ -5187,17 +5254,17 @@ function buildPdfReportRows(items) {
   const days = remaining(product.expiry);
   const statusText = reportStatusLabel(product);
   return `<tr>
-   <td>${escapeHtml(product.store || "")}</td>
-   <td>${escapeHtml(product.code || "")}</td>
-   <td>${escapeHtml(String(product.name || "").toUpperCase())}</td>
-   <td>${product.offer ? "SIM" : "NÃO"}</td>
-   <td>${escapeHtml(reportMotiveLabel(product))}</td>
-   <td>${escapeHtml(formatPdfDate(product.createdAt ? localDateKey(product.createdAt) : ""))}</td>
-   <td>${escapeHtml(formatPdfDate(product.expiry))}</td>
-  <td class="${reportDaysClass(days)}">${Number.isFinite(days) ? days : ""}</td>
-  <td class="${Number(product.qty) >= 100 ? "status-high" : ""}">${escapeHtml(product.qty || 0)}</td>
-   <td class="${reportStatusClass(product)}">${escapeHtml(statusText)}</td>
-   <td>${escapeHtml(product.offer ? "EM OFERTA" : "")}</td>
+   <td class="col-store">${escapeHtml(product.store || "")}</td>
+   <td class="col-code">${escapeHtml(product.code || "")}</td>
+   <td class="col-name">${escapeHtml(String(product.name || "").toUpperCase())}</td>
+   <td class="col-offer">${product.offer ? "SIM" : "NÃO"}</td>
+   <td class="col-motive">${escapeHtml(reportMotiveLabel(product))}</td>
+   <td class="col-date">${escapeHtml(formatPdfDate(product.createdAt ? localDateKey(product.createdAt) : ""))}</td>
+   <td class="col-date">${escapeHtml(formatPdfDate(product.expiry))}</td>
+   <td class="col-days ${reportDaysClass(days)}">${Number.isFinite(days) ? days : ""}</td>
+   <td class="col-qty ${Number(product.qty) >= 100 ? "status-high" : ""}">${escapeHtml(product.qty || 0)}</td>
+   <td class="col-status ${reportStatusClass(product)}">${escapeHtml(statusText)}</td>
+   <td class="col-obs">${escapeHtml(product.offer ? "EM OFERTA" : "")}</td>
   </tr>`;
  }).join("");
 }
@@ -5209,22 +5276,392 @@ function buildPdfReportSections(groups) {
   <table>
    <thead>
     <tr>
-     <th style="width:10%">Mercearias/Loja</th>
-     <th style="width:6%">Codigo</th>
+     <th style="width:9%">Loja</th>
+     <th style="width:9.5%">Código</th>
      <th style="width:25%">Produto</th>
-     <th style="width:8%">Ofertas</th>
-     <th style="width:12%">Motivo</th>
-     <th style="width:7%">Inicio</th>
-     <th style="width:7%">Validade</th>
-     <th style="width:5%">Vencer</th>
-     <th style="width:6%">Qtd.</th>
-     <th style="width:7%">Situacao</th>
-     <th style="width:7%">Observacoes</th>
+     <th style="width:5.5%">Oferta</th>
+     <th style="width:9.5%">Motivo</th>
+     <th style="width:8%">Cadastro</th>
+     <th style="width:8%">Validade</th>
+     <th style="width:4.5%">Dias</th>
+     <th style="width:4.5%">Qtd.</th>
+     <th style="width:10%">Situação</th>
+     <th style="width:6%">Obs.</th>
     </tr>
    </thead>
    <tbody>${buildPdfReportRows(group.items)}</tbody>
   </table>
  </section>`).join("");
+}
+
+function generatePdfReportHtml({ items, storeLabel, userName, activeUserEmail, generatedAt, generatedAtText, fileDate, groups, autoPrint = true }) {
+ const logoDataUrl = (typeof window !== "undefined" && window.SKALEE_OFFICIAL_LOGO_DATA_URL) ? window.SKALEE_OFFICIAL_LOGO_DATA_URL : "skalee-logo-official.png";
+ return `<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=794, initial-scale=0.45, minimum-scale=0.2, maximum-scale=3.0, user-scalable=yes">
+<meta name="color-scheme" content="only light">
+<meta name="supported-color-schemes" content="light">
+<base href="${escapeHtml(window.location.href)}">
+<title>Relatorio_Validades_Skalee_${fileDate}</title>
+<style>
+ :root {
+  color-scheme: light !important;
+ }
+ * {
+  box-sizing: border-box;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+ }
+ html {
+  color-scheme: light !important;
+  background-color: #94a3b8 !important;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  text-align: center;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+ }
+ body {
+  display: inline-block;
+  text-align: left;
+  color-scheme: light !important;
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+  margin: 10px auto;
+  padding: 8mm 10mm;
+  width: 210mm;
+  min-width: 210mm;
+  max-width: 210mm;
+  box-sizing: border-box;
+  font-family: Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 8.5px;
+  line-height: 1.3;
+  box-shadow: 0 4px 22px rgba(0,0,0,0.25);
+ }
+ .print-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 12px;
+ }
+ .print-actions button {
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 14px;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 11.5px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+ }
+ .print-actions button.btn-save { background: #2563eb; }
+ .print-actions button.btn-save:hover { background: #1d4ed8; }
+ .print-actions button.btn-share { background: #0891b2; }
+ .print-actions button.btn-share:hover { background: #0e7490; }
+ .print-actions button.btn-print { background: #475569; }
+ .print-actions button.btn-print:hover { background: #334155; }
+ .header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 12px;
+  border: 1.5px solid #0f2744;
+  background: #f1f5f9 !important;
+  border-radius: 8px;
+  padding: 8px 14px;
+  break-inside: avoid;
+  page-break-inside: avoid;
+ }
+ .logo {
+  height: 52px;
+  width: auto;
+  max-width: 85px;
+  object-fit: contain;
+  display: block;
+ }
+ h1 {
+  margin: 0;
+  font-size: 18px;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  text-align: center;
+  color: #0f2744 !important;
+ }
+ .filters {
+  margin-top: 3px;
+  text-align: center;
+  color: #334155 !important;
+  font-size: 10.5px;
+  font-weight: 700;
+ }
+ .meta {
+  display: grid;
+  gap: 2px;
+  min-width: 210px;
+  padding: 4px;
+  text-align: right;
+  font-size: 9px;
+  color: #334155 !important;
+ }
+ .meta strong { color: #0f2744 !important; font-size: 10px; }
+ .store-section {
+  margin-bottom: 16px;
+  break-inside: auto;
+  page-break-inside: auto;
+ }
+ .store-section.page-break {
+  break-before: page;
+  page-break-before: always;
+ }
+ .store-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 12px 0 6px;
+  padding: 6px 10px;
+  background: #0f2744 !important;
+  color: #ffffff !important;
+  font-weight: 800;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-radius: 4px;
+  break-after: avoid;
+  page-break-after: avoid;
+ }
+ table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  margin-bottom: 6px;
+  background-color: #ffffff !important;
+  box-sizing: border-box;
+ }
+ thead {
+  display: table-header-group;
+  break-inside: avoid;
+  page-break-inside: avoid;
+ }
+ tbody {
+  display: table-row-group;
+ }
+ tr {
+  break-inside: avoid !important;
+  page-break-inside: avoid !important;
+ }
+ th, td {
+  border: 1px solid #94a3b8 !important;
+  padding: 3px 2px !important;
+  vertical-align: middle;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+ }
+ th {
+  background: #e2e8f0 !important;
+  color: #0f2744 !important;
+  font-size: 7px;
+  font-weight: 800;
+  text-transform: uppercase;
+  text-align: center;
+  letter-spacing: 0;
+  line-height: 1.15;
+  word-break: normal;
+  white-space: nowrap;
+ }
+ td {
+  font-size: 7.5px;
+  color: #0f172a !important;
+  background-color: #ffffff;
+  line-height: 1.2;
+ }
+ tr:nth-child(even) td {
+  background-color: #f8fafc !important;
+ }
+ tr:nth-child(odd) td {
+  background-color: #ffffff !important;
+ }
+ .col-store { font-size: 7px; text-align: left; word-break: break-word; line-height: 1.15; }
+ .col-code { text-align: center; white-space: nowrap; font-family: monospace, sans-serif; font-size: 7px; letter-spacing: -0.3px; }
+ .col-name { font-size: 7.5px; font-weight: 700; word-break: break-word; overflow-wrap: break-word; text-align: left; line-height: 1.15; }
+ .col-offer { text-align: center; white-space: nowrap; font-weight: 700; font-size: 7.2px; }
+ .col-motive { text-align: center; word-break: break-word; font-size: 6.8px; line-height: 1.15; }
+ .col-date { text-align: center; white-space: nowrap; font-size: 7.2px; }
+ .col-days { text-align: center; white-space: nowrap; font-weight: 800; font-size: 7.5px; }
+ .col-qty { text-align: center; white-space: nowrap; font-weight: 700; font-size: 7.5px; }
+ .col-status { text-align: center; word-break: break-word; font-weight: 800; font-size: 7px; line-height: 1.15; }
+ .col-obs { text-align: center; word-break: break-word; font-size: 6.5px; font-weight: 700; line-height: 1.15; }
+
+ /* Cores semânticas protegidas */
+ .status-red { background-color: #fee2e2 !important; color: #991b1b !important; }
+ .status-orange { background-color: #ffedd5 !important; color: #9a3412 !important; }
+ .status-yellow { background-color: #fef9c3 !important; color: #854d0e !important; }
+ .status-green { background-color: #dcfce7 !important; color: #166534 !important; }
+ .status-blue { background-color: #dbeafe !important; color: #1e40af !important; }
+ .status-high { background-color: #f3e8ff !important; color: #6b21a8 !important; }
+
+ .footer {
+  margin-top: 10px;
+  color: #64748b !important;
+  font-size: 8.5px;
+  text-align: right;
+  border-top: 1px solid #cbd5e1;
+  padding-top: 6px;
+  break-inside: avoid;
+  page-break-inside: avoid;
+ }
+
+ @media print {
+  @page {
+   size: A4 portrait;
+   margin: 8mm 10mm 8mm 10mm;
+  }
+  html, body {
+   background: #ffffff !important;
+   background-color: #ffffff !important;
+   color: #0f172a !important;
+   padding: 0 !important;
+   margin: 0 !important;
+   width: 100% !important;
+   min-width: 100% !important;
+   max-width: 100% !important;
+   box-shadow: none !important;
+   display: block !important;
+  }
+  .print-actions { display: none !important; }
+  table { page-break-after: auto; }
+  tr { break-inside: avoid !important; page-break-inside: avoid !important; }
+  td, th { break-inside: avoid !important; page-break-inside: avoid !important; }
+ }
+</style>
+</head>
+<body>
+ <div class="print-actions">
+  <button type="button" class="btn-save" onclick="handleDocumentSavePdfClick()"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Salvar PDF</button>
+  <button type="button" class="btn-share" onclick="handleDocumentSharePdfClick()"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Compartilhar PDF</button>
+  <button type="button" class="btn-print" onclick="handleDocumentPrintClick()"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Imprimir</button>
+ </div>
+ <div class="header">
+  <img class="logo" src="${escapeHtml(logoDataUrl)}" alt="Skalee Validades">
+  <div>
+   <h1>Controle de vencimentos</h1>
+   <div class="filters">Relatorio: ${escapeHtml(storeLabel)} | Produtos selecionados: ${items.length}</div>
+  </div>
+  <div class="meta">
+   <strong>Skalee</strong>
+   <span>Nome do usuario: ${escapeHtml(userName)}</span>
+   <span>E-mail: ${escapeHtml(activeUserEmail)}</span>
+   <span>Emitido em: ${escapeHtml(generatedAtText)}</span>
+   <span>Hora: ${escapeHtml(generatedAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }))}</span>
+  </div>
+ </div>
+ ${buildPdfReportSections(groups)}
+ <div class="footer">Relatorio gerado automaticamente pela aba Relatorios do Controle de Validades Skalee.</div>
+ <script>
+  function handleDocumentSavePdfClick() {
+   if (window.parent && window.parent !== window && typeof window.parent.triggerProductReportSavePdf === "function") {
+    window.parent.triggerProductReportSavePdf();
+    return;
+   }
+   window.print();
+  }
+  function handleDocumentSharePdfClick() {
+   if (window.parent && window.parent !== window && typeof window.parent.triggerProductReportSharePdf === "function") {
+    window.parent.triggerProductReportSharePdf();
+    return;
+   }
+   window.print();
+  }
+  function handleDocumentPrintClick() {
+   if (window.parent && window.parent !== window && typeof window.parent.triggerProductReportPrint === "function") {
+    window.parent.triggerProductReportPrint();
+    return;
+   }
+   window.print();
+  }
+  function fitInitialSheet() {
+   try {
+    const availWidth = window.innerWidth || document.documentElement.clientWidth;
+    const targetWidth = 794;
+    if (availWidth > 0 && availWidth < targetWidth) {
+     const scale = Math.max(0.2, Math.min(1.0, (availWidth - 10) / targetWidth));
+     const meta = document.querySelector('meta[name="viewport"]');
+     if (meta) {
+      meta.setAttribute("content", "width=" + targetWidth + ", initial-scale=" + scale.toFixed(2) + ", minimum-scale=0.2, maximum-scale=3.0, user-scalable=yes");
+     }
+    }
+   } catch (_) {}
+  }
+  async function ensureAssetsLoaded() {
+   try {
+    if (document.fonts && document.fonts.ready) await document.fonts.ready;
+    const images = Array.from(document.images);
+    await Promise.all(images.map(img => {
+     if (img.complete) return img.decode ? img.decode().catch(() => {}) : Promise.resolve();
+     return new Promise(resolve => {
+      img.onload = () => { if (img.decode) { img.decode().catch(() => {}).then(resolve); } else { resolve(); } };
+      img.onerror = resolve;
+     });
+    }));
+   } catch (_) {}
+  }
+  window.addEventListener("load", () => {
+   fitInitialSheet();
+   ensureAssetsLoaded().then(() => {
+    document.body.classList.add("assets-loaded");
+    ${autoPrint ? 'setTimeout(() => window.print(), 250);' : ''}
+   });
+  });
+  window.addEventListener("resize", fitInitialSheet);
+ <\/script>
+</body>
+</html>`;
+}
+
+let currentProductReportState = null;
+
+function openProductReportPreviewModal({ html, title, storeLabel, count }) {
+ currentProductReportState = { html, title, storeLabel, count };
+ const modal = document.getElementById("modalProductReportPreview");
+ const iframe = document.getElementById("productReportPreviewIframe");
+ const badge = document.getElementById("productReportPreviewBadge");
+ if (!modal || !iframe) return;
+
+ if (badge) {
+  badge.textContent = `${storeLabel} • ${count} produto(s)`;
+ }
+ iframe.srcdoc = html;
+ modal.style.display = "flex";
+ requestAnimationFrame(() => modal.classList.add("show"));
+}
+
+function closeProductReportPreviewModal() {
+ const modal = document.getElementById("modalProductReportPreview");
+ if (!modal) return;
+ modal.classList.remove("show");
+ setTimeout(() => {
+  if (!modal.classList.contains("show")) {
+   modal.style.display = "none";
+   const iframe = document.getElementById("productReportPreviewIframe");
+   if (iframe) iframe.srcdoc = "";
+  }
+ }, 200);
+}
+
+function isNativeAndroidEnvironment() {
+ return Boolean(
+  (window.Capacitor && typeof window.Capacitor.isNativePlatform === "function" && window.Capacitor.isNativePlatform()) ||
+  (window.Capacitor && window.Capacitor.getPlatform && window.Capacitor.getPlatform() === "android") ||
+  (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.SkaleePrinter)
+ );
 }
 
 function openPdfReport() {
@@ -5242,69 +5679,31 @@ function openPdfReport() {
  const storeLabel = scopeLabels[scope] || "Todas as lojas";
  const fileDate = localDateKey(generatedAt.toISOString());
  const groups = groupProductsByStore(items, scope);
+ const reportTitle = `Relatorio_Validades_Skalee_${fileDate}`;
+
+ if (isNativeAndroidEnvironment()) {
+  const htmlContent = generatePdfReportHtml({
+   items, storeLabel, userName, activeUserEmail, generatedAt, generatedAtText, fileDate, groups, autoPrint: false
+  });
+  openProductReportPreviewModal({
+   html: htmlContent,
+   title: reportTitle,
+   storeLabel: storeLabel,
+   count: items.length
+  });
+  els.reportStatus.textContent = `Pré-visualização do relatório aberta (${items.length} produto(s)).`;
+  return;
+ }
+
  const reportWindow = window.open("", "_blank");
  if (!reportWindow) {
   els.reportStatus.textContent = "Permita pop-ups para abrir o relatório em PDF.";
   return;
  }
-  reportWindow.document.write(`\x3C!doctype html>
-\x3Chtml lang="pt-BR">
-\x3Chead>
-\x3Cmeta charset="utf-8">
-\x3Cbase href="${escapeHtml(window.location.href)}">
-\x3Ctitle>Relatorio_Validades_Skalee_${fileDate}\x3C/title>
-\x3Cstyle>
- @page{size:A4 landscape;margin:12mm}
- *{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}
- body{margin:0;font-family:Arial,sans-serif;color:#111827;background:#fff;font-size:10px}
- .print-actions{display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px}
- .print-actions button{border:0;border-radius:8px;padding:9px 12px;background:#2563eb;color:#fff;font-weight:700;cursor:pointer}
- .header{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;margin-bottom:10px;border:2px solid #111827;background:#dbeafe}
- .logo{width:54px;height:54px;object-fit:contain;margin:7px}
- h1{margin:0;font-size:18px;letter-spacing:.03em;text-transform:uppercase;text-align:center}
- .filters{margin-top:3px;text-align:center;color:#1f2937;font-size:10px;font-weight:700}
- .meta{display:grid;gap:3px;min-width:210px;padding:8px;text-align:right;font-size:9px;color:#1f2937}
- .store-title{display:flex;justify-content:space-between;align-items:center;margin:10px 0 4px;padding:5px 8px;background:#111827;color:#fff;font-weight:800;text-transform:uppercase}
- table{width:100%;border-collapse:collapse;table-layout:fixed}
- th,td{border:1px solid #111827;padding:4px 5px;vertical-align:middle;word-break:break-word}
- th{background:#bfdbfe;font-size:9px;text-transform:uppercase;text-align:center}
- small{display:block;margin-top:2px;color:#374151;font-size:8px;font-weight:700}
- td{height:24px}
- td:nth-child(3){font-weight:700}
- td:nth-child(2),td:nth-child(4),td:nth-child(6),td:nth-child(7),td:nth-child(8),td:nth-child(9),td:nth-child(10){text-align:center}
- tr:nth-child(even) td{background:#f8fafc}
- .status-red{background:#fecaca!important;color:#7f1d1d;font-weight:800}
- .status-orange{background:#fed7aa!important;color:#7c2d12;font-weight:800}
- .status-yellow{background:#fef08a!important;color:#713f12;font-weight:800}
- .status-green{background:#bbf7d0!important;color:#14532d;font-weight:800}
- .status-blue{background:#bfdbfe!important;color:#1e3a8a;font-weight:800}
- .status-high{background:#e9d5ff!important;color:#6b21a8;font-weight:800}
- .footer{margin-top:8px;color:#4b5563;font-size:10px}
- .page-break{break-before:page;page-break-before:always}
- @media print{.print-actions{display:none}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
-\x3C/style>
-\x3C/head>
-\x3Cbody>
- <div class="print-actions"><button onclick="window.print()">Salvar como PDF</button></div>
- <div class="header">
-  <img class="logo" src="skalee-icon-192.png" alt="Skalee">
-  <div>
-   <h1>Controle de vencimentos</h1>
-   <div class="filters">Relatorio: ${escapeHtml(storeLabel)} | Produtos selecionados: ${items.length}</div>
-  </div>
-  <div class="meta">
-   <strong>Skalee</strong>
-   <span>Nome do usuario: ${escapeHtml(userName)}</span>
-   <span>E-mail: ${escapeHtml(activeUserEmail)}</span>
-   <span>Emitido em: ${escapeHtml(generatedAtText)}</span>
-   <span>Hora: ${escapeHtml(generatedAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }))}</span>
-  </div>
- </div>
- ${buildPdfReportSections(groups)}
- <div class="footer">Relatorio gerado automaticamente pela aba Relatorios do Controle de Validades Skalee.</div>
- \x3Cscript>window.addEventListener("load",()=>setTimeout(()=>window.print(),250));\x3C/script>
-\x3C/body>
-\x3C/html>`);
+ const htmlContent = generatePdfReportHtml({
+  items, storeLabel, userName, activeUserEmail, generatedAt, generatedAtText, fileDate, groups, autoPrint: true
+ });
+ reportWindow.document.write(htmlContent);
  reportWindow.document.close();
  els.reportStatus.textContent = `Relatório PDF aberto: ${storeLabel}.`;
 }
@@ -5408,15 +5807,17 @@ function render() {
  }
 
  const query = els.search.value.trim().toLowerCase();
- let items = base.filter((product) => (
+ const listSource = activeFilters.expiryRange === "expired_today" ? products.filter(product => !product.completedAt) : base;
+ let items = listSource.filter((product) => (
   String(product.name || "").toLowerCase().includes(query) || String(product.code || "").includes(query) || String(product.barcode || "").includes(query)
  ) && (!selectedStore || product.store === selectedStore) && productHasSupplier(product, selectedSupplier));
 
  items = items.filter((product) => {
   const days = remaining(product.expiry);
-  if (days < 0) return false;
+  if (days < 0 && activeFilters.expiryRange !== "expired_today") return false;
 
   const { expiryRange, offerStatus, highQuantity } = activeFilters;
+  if (expiryRange === "expired_today" && days > 0) return false;
   if (expiryRange === "today" && days !== 0) return false;
   if (expiryRange === "3" && days > 3) return false;
   if (expiryRange === "7" && days > 7) return false;
@@ -5564,6 +5965,152 @@ els.copyReport.addEventListener("click", async () => {
 
 els.exportReportPdf.addEventListener("click", openPdfReport);
 
+function withReportTimeout(promise, ms, errorMsg) {
+ return Promise.race([
+  promise,
+  new Promise((_, reject) => setTimeout(() => reject(new Error(errorMsg || "Tempo limite excedido na operação de PDF.")), ms))
+ ]);
+}
+
+function setProductReportButtonsLoading(activeAction) {
+ const saveBtn = document.getElementById("productReportSavePdfBtn");
+ const saveTxt = document.getElementById("productReportSavePdfBtnText");
+ const shareBtn = document.getElementById("productReportShareBtn");
+ const shareTxt = document.getElementById("productReportShareBtnText");
+ const printBtn = document.getElementById("productReportPrintBtn");
+ const printTxt = document.getElementById("productReportPrintBtnText");
+
+ if (saveBtn) saveBtn.disabled = true;
+ if (shareBtn) shareBtn.disabled = true;
+ if (printBtn) printBtn.disabled = true;
+
+ if (activeAction === "save" && saveTxt) saveTxt.textContent = "Gerando PDF...";
+ if (activeAction === "share" && shareTxt) shareTxt.textContent = "Preparando PDF...";
+ if (activeAction === "print" && printTxt) printTxt.textContent = "Preparando...";
+}
+
+function restoreProductReportButtons() {
+ const saveBtn = document.getElementById("productReportSavePdfBtn");
+ const saveTxt = document.getElementById("productReportSavePdfBtnText");
+ const shareBtn = document.getElementById("productReportShareBtn");
+ const shareTxt = document.getElementById("productReportShareBtnText");
+ const printBtn = document.getElementById("productReportPrintBtn");
+ const printTxt = document.getElementById("productReportPrintBtnText");
+
+ if (saveBtn) saveBtn.disabled = false;
+ if (shareBtn) shareBtn.disabled = false;
+ if (printBtn) printBtn.disabled = false;
+
+ if (saveTxt) saveTxt.textContent = "Salvar PDF";
+ if (shareTxt) shareTxt.textContent = "Compartilhar PDF";
+ if (printTxt) printTxt.textContent = "Imprimir";
+}
+
+async function handleProductReportSavePdf() {
+ if (!currentProductReportState?.html) return;
+ setProductReportButtonsLoading("save");
+ console.log("[SkaleeReport][Salvar PDF] Iniciando requisição para SkaleePrinter.savePdf...");
+ try {
+  const printer = window.Capacitor?.Plugins?.SkaleePrinter;
+  if (printer && typeof printer.savePdf === "function") {
+   const res = await withReportTimeout(
+    printer.savePdf({
+     html: currentProductReportState.html,
+     title: currentProductReportState.title || "Relatório de Validades",
+     fileName: currentProductReportState.title || "Relatorio_Validades_Skalee",
+     landscape: false
+    }),
+    25000,
+    "Tempo limite na geração do PDF (25s). Tente novamente."
+   );
+   console.log("[SkaleeReport][Salvar PDF] Retorno recebido:", res);
+   if (res && res.cancelled) {
+    els.reportStatus.textContent = "Operação de salvamento cancelada.";
+   } else if (res && res.success) {
+    els.reportStatus.textContent = "PDF salvo com sucesso!";
+   }
+  } else {
+   window.print();
+  }
+ } catch (err) {
+  console.error("[SkaleeReport][Salvar PDF] Erro:", err);
+  alert("Não foi possível salvar o PDF: " + (err.message || err));
+ } finally {
+  restoreProductReportButtons();
+ }
+}
+
+async function handleProductReportSharePdf() {
+ if (!currentProductReportState?.html) return;
+ setProductReportButtonsLoading("share");
+ console.log("[SkaleeReport][Compartilhar PDF] Iniciando requisição para SkaleePrinter.sharePdf...");
+ try {
+  const printer = window.Capacitor?.Plugins?.SkaleePrinter;
+  if (printer && typeof printer.sharePdf === "function") {
+   const res = await withReportTimeout(
+    printer.sharePdf({
+     html: currentProductReportState.html,
+     title: currentProductReportState.title || "Relatório de Validades",
+     fileName: currentProductReportState.title || "Relatorio_Validades_Skalee",
+     landscape: false
+    }),
+    25000,
+    "Tempo limite no compartilhamento do PDF (25s). Tente novamente."
+   );
+   console.log("[SkaleeReport][Compartilhar PDF] Retorno recebido:", res);
+  } else {
+   alert("O compartilhamento nativo de PDF não está disponível neste dispositivo.");
+  }
+ } catch (err) {
+  console.error("[SkaleeReport][Compartilhar PDF] Erro:", err);
+  alert("Não foi possível compartilhar o PDF: " + (err.message || err));
+ } finally {
+  restoreProductReportButtons();
+ }
+}
+
+async function handleProductReportPrint() {
+ if (!currentProductReportState?.html) return;
+ setProductReportButtonsLoading("print");
+ console.log("[SkaleeReport][Imprimir] Iniciando requisição para SkaleePrinter.printHtml...");
+ try {
+  const printer = window.Capacitor?.Plugins?.SkaleePrinter;
+  if (printer && typeof printer.printHtml === "function") {
+   const res = await withReportTimeout(
+    printer.printHtml({
+     html: currentProductReportState.html,
+     title: currentProductReportState.title || "Relatório de Validades",
+     landscape: false
+    }),
+    15000,
+    "Tempo limite ao enviar para a impressora nativa."
+   );
+   console.log("[SkaleeReport][Imprimir] Retorno recebido:", res);
+  } else {
+   window.print();
+  }
+ } catch (err) {
+  console.error("[SkaleeReport][Imprimir] Erro:", err);
+  alert("Não foi possível acionar a impressão: " + (err.message || err));
+ } finally {
+  restoreProductReportButtons();
+ }
+}
+
+document.getElementById("productReportSavePdfBtn")?.addEventListener("click", handleProductReportSavePdf);
+document.getElementById("productReportShareBtn")?.addEventListener("click", handleProductReportSharePdf);
+document.getElementById("productReportPrintBtn")?.addEventListener("click", handleProductReportPrint);
+
+document.getElementById("closeProductReportPreviewBtn")?.addEventListener("click", closeProductReportPreviewModal);
+document.getElementById("modalProductReportPreview")?.addEventListener("click", (e) => {
+ if (e.target === e.currentTarget) closeProductReportPreviewModal();
+});
+
+window.triggerProductReportSavePdf = handleProductReportSavePdf;
+window.triggerProductReportSharePdf = handleProductReportSharePdf;
+window.triggerProductReportPrint = handleProductReportPrint;
+window.closeProductReportPreviewModal = closeProductReportPreviewModal;
+
 function updateClearButtons() {
  els.clearSearch.hidden = !els.search.value;
  els.clearSupplierFilter.hidden = !els.supplierFilter.value;
@@ -5610,7 +6157,7 @@ function syncFilterUI() {
 
   if (filterKey === "all") {
    isActive = !hasFilters;
-  } else if (filterKey === "today" || filterKey === "3" || filterKey === "7" || filterKey === "15") {
+  } else if (filterKey === "expired_today" || filterKey === "today" || filterKey === "3" || filterKey === "7" || filterKey === "15") {
    isActive = activeFilters.expiryRange === filterKey;
   } else if (filterKey === "offer" || filterKey === "no_offer") {
    isActive = activeFilters.offerStatus === filterKey;
@@ -5637,7 +6184,7 @@ function toggleFilterChip(filterKey) {
   return;
  }
 
- if (filterKey === "today" || filterKey === "3" || filterKey === "7" || filterKey === "15") {
+ if (filterKey === "expired_today" || filterKey === "today" || filterKey === "3" || filterKey === "7" || filterKey === "15") {
   activeFilters.expiryRange = activeFilters.expiryRange === filterKey ? null : filterKey;
  } else if (filterKey === "offer" || filterKey === "no_offer") {
   activeFilters.offerStatus = activeFilters.offerStatus === filterKey ? null : filterKey;
@@ -5667,6 +6214,11 @@ els.chips.forEach((chip) => {
 if (els.clearFiltersBtn) {
  els.clearFiltersBtn.addEventListener("click", resetActiveFilters);
 }
+
+els.sToday?.closest(".stat")?.addEventListener("click", () => toggleFilterChip("today"));
+els.s7?.closest(".stat")?.addEventListener("click", () => toggleFilterChip("7"));
+els.sOffer?.closest(".stat")?.addEventListener("click", () => toggleFilterChip("offer"));
+els.sProducts?.closest(".stat")?.addEventListener("click", () => resetActiveFilters());
 
 syncFilterUI();
 
