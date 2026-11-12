@@ -14,7 +14,17 @@ function harness({ online = true, error = null, photoError = false } = {}) {
  };
  const context = {
   navigator: { onLine: online }, activeUserId: 'alice', console: { log() {}, warn() {}, error() {} },
-  window: { skaleeLocalStore: { saveProduct: async () => {}, enqueueSyncOperation: async (_, value) => queued.push(value) } },
+  window: { skaleeLocalStore: { saveProduct: async () => {}, enqueueSyncOperation: async (_, value, metadata) => queued.push({ value, metadata }) } },
+  enqueueOfflineProductOperation: async (operation, payload, product = {}, fallback = {}) => {
+   const ownerUserId = context.activeUserId;
+   if (!ownerUserId) throw new Error('missing owner');
+   await context.window.skaleeLocalStore.enqueueSyncOperation(operation, payload, {
+    ownerUserId,
+    retailLocationId: product.retailLocationId || fallback.retailLocationId || null,
+    retailLocationName: product.store || fallback.store || null,
+    baseProductId: product.id || fallback.baseProductId || null
+   });
+  },
   supabase: db, toDatabase: value => value, fromDatabase: value => value,
   VALIDITY_PRODUCT_BASE_SELECT: 'id', isNetworkError: () => true, logPhotoDiagnosticError() {},
   stockMovementStoreCodeKey: () => '', stockMovementByCodeStoreCache: new Map(), stockMovementCache: new Map(),
@@ -28,7 +38,7 @@ function harness({ online = true, error = null, photoError = false } = {}) {
  let h = harness({ online: false });
  let queuedId;
  const local = await h.api.saveProduct({ draftUserId: 'alice', draftStoreId: 'a' }, { onQueued: async id => { queuedId = id; } });
- assert.equal(local.isOffline, true); assert.equal(queuedId, local.id); assert.equal(h.queued[0].draftUserId, 'alice');
+ assert.equal(local.isOffline, true); assert.equal(queuedId, local.id); assert.equal(h.queued[0].value.draftUserId, 'alice'); assert.equal(h.queued[0].metadata.ownerUserId, 'alice');
  h = harness({ error: Error('network response lost') });
  await assert.rejects(h.api.saveProduct({ draftUserId: 'alice' }), /network response lost/);
  assert.equal(h.queued.length, 0, 'Unknown INSERT outcome must not enqueue another insert');

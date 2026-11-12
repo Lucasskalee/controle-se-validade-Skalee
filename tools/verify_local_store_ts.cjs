@@ -80,7 +80,14 @@ function runChecks() {
     "notifyQueueChanged",
     "getCachedPhotoUrl",
     "setCachedPhotoUrl",
-    "deleteCachedPhoto"
+    "deleteCachedPhoto",
+    "getFeedCache",
+    "removeFeedCacheEntry",
+    "saveFeedCache",
+    "invalidateFeedCache",
+    "clearUserFeedCache",
+    "updateProductInFeedCache",
+    "removeProductFromFeedCache"
   ];
 
   for (const method of requiredMethods) {

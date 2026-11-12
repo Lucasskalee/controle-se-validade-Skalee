@@ -7,14 +7,24 @@ const { spawn } = require("child_process");
 const http = require("http");
 const path = require("path");
 const fs = require("fs");
+const os = require("os");
 
 const CHROME_PATH = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
-const PORT = 3334;
-const CDP_PORT = 9333;
 const ROOT = path.resolve(__dirname, "..");
 
+function getFreePort(host = "127.0.0.1") {
+  return new Promise((resolve, reject) => {
+    const probe = http.createServer();
+    probe.once("error", reject);
+    probe.listen(0, host, () => {
+      const port = probe.address().port;
+      probe.close(() => resolve(port));
+    });
+  });
+}
+
 // 1. Simple static HTTP server
-function startServer() {
+function startServer(port) {
   const MIME_TYPES = {
     ".html": "text/html; charset=utf-8",
     ".css": "text/css; charset=utf-8",
@@ -51,8 +61,8 @@ function startServer() {
   });
 
   return new Promise((resolve) => {
-    server.listen(PORT, () => {
-      console.log(`[TEST_SERVER] Servidor de teste ativo na porta ${PORT}`);
+    server.listen(port, "127.0.0.1", () => {
+      console.log(`[TEST_SERVER] Servidor de teste ativo em http://127.0.0.1:${port}`);
       resolve(server);
     });
   });
@@ -122,23 +132,36 @@ class CdpClient {
 }
 
 async function runBrowserTests() {
-  const server = await startServer();
-  const tempProfile = path.join(ROOT, ".tmp", "test-chrome-profile-" + Date.now());
+  const port = await getFreePort();
+  const cdpPort = await getFreePort();
+  const server = await startServer(port);
+  const tempProfile = fs.mkdtempSync(path.join(os.tmpdir(), "skalee-chrome-profile-"));
+  const stderr = [];
+  const stdout = [];
 
-  console.log("[TEST_CHROME] Iniciando Chrome Headless...");
+  console.log(`[TEST_CHROME] Iniciando Chrome Headless em CDP ${cdpPort}...`);
   const chromeProc = spawn(CHROME_PATH, [
-    `--remote-debugging-port=${CDP_PORT}`,
+    `--remote-debugging-address=127.0.0.1`,
+    `--remote-debugging-port=${cdpPort}`,
     `--user-data-dir=${tempProfile}`,
     "--headless=new",
+    "--no-sandbox",
     "--no-first-run",
     "--no-default-browser-check",
     "--disable-background-networking",
     "--disable-default-apps",
     "--disable-extensions",
     "--disable-gpu",
+    "--disable-crash-reporter",
+    "--disable-crashpad-for-testing",
+    "--disable-component-update",
     "--disable-sync",
     "about:blank"
-  ], { stdio: "ignore" });
+  ], { stdio: ["ignore", "pipe", "pipe"] });
+  chromeProc.stdout.on("data", chunk => stdout.push(String(chunk)));
+  chromeProc.stderr.on("data", chunk => stderr.push(String(chunk)));
+  chromeProc.on("error", error => stderr.push(`[spawn error] ${error.stack || error.message}`));
+  chromeProc.on("exit", (code, signal) => stderr.push(`[exit] code=${code} signal=${signal}`));
 
   let cdp = null;
 
@@ -147,7 +170,7 @@ async function runBrowserTests() {
     let versionData = null;
     for (let i = 0; i < 30; i++) {
       try {
-        const res = await fetch(`http://127.0.0.1:${CDP_PORT}/json/list`);
+        const res = await fetch(`http://127.0.0.1:${cdpPort}/json/list`);
         const list = await res.json();
         const pageTarget = list.find((t) => t.type === "page" && t.webSocketDebuggerUrl);
         if (pageTarget) {
@@ -160,7 +183,7 @@ async function runBrowserTests() {
     }
 
     if (!versionData) {
-      throw new Error("Não foi possível conectar ao endpoint CDP do Chrome");
+      throw new Error(`Não foi possível conectar ao endpoint CDP do Chrome. PID=${chromeProc.pid}; diagnóstico=${JSON.stringify({ stdout: stdout.join(""), stderr: stderr.join("") })}`);
     }
 
     cdp = new CdpClient(versionData.webSocketDebuggerUrl);
@@ -171,8 +194,8 @@ async function runBrowserTests() {
     await cdp.send("Runtime.enable");
 
     // Navigate to index.html
-    console.log(`[TEST_NAV] Navegando para http://localhost:${PORT}/index.html ...`);
-    await cdp.send("Page.navigate", { url: `http://localhost:${PORT}/index.html` });
+    console.log(`[TEST_NAV] Navegando para http://127.0.0.1:${port}/index.html ...`);
+    await cdp.send("Page.navigate", { url: `http://127.0.0.1:${port}/index.html` });
 
     // Wait for page load
     await new Promise((r) => setTimeout(r, 2500));
@@ -277,10 +300,17 @@ async function runBrowserTests() {
         name: "Item Offline Teste",
         qty: 10,
         temporaryId: "temp_123"
-      })
+       }, {
+         ownerUserId: "user-offline-test",
+         retailLocationId: "store-offline-test",
+         retailLocationName: "Loja Offline Teste"
+       })
     `);
     if (!queueItem || !queueItem.id || queueItem.operation !== "create") {
       throw new Error("enqueueSyncOperation falhou!");
+    }
+    if (queueItem.ownerUserId !== "user-offline-test" || queueItem.retailLocationId !== "store-offline-test" || queueItem.status !== "pending") {
+      throw new Error("A operação offline não preservou proprietário, loja ou status pendente!");
     }
     console.log("   ✓ enqueueSyncOperation criou item:", queueItem.id);
 
@@ -374,7 +404,7 @@ async function runBrowserTests() {
 
   } finally {
     if (cdp) cdp.close();
-    chromeProc.kill("SIGKILL");
+    if (!chromeProc.killed) chromeProc.kill("SIGKILL");
     server.close();
     try {
       fs.rmSync(tempProfile, { recursive: true, force: true });

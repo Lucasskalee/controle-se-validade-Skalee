@@ -307,9 +307,17 @@
    await transition;
    if (!user) throw new Error('Entre na sua conta antes de fotografar.');
    if (checkpoint) throw new Error('Finalize o cadastro pendente antes de trocar a foto.');
+   if (!els.store.value) {
+    const preferred = root.localStorage?.getItem('skalee_last_selected_store_id') || root.localStorage?.getItem('skalee.activeStore') || '';
+    if (preferred && [...els.store.options].some(o => o.value === preferred)) {
+     els.store.value = preferred;
+    } else if (els.store.options.length > 1 && els.store.options[1].value) {
+     els.store.value = els.store.options[1].value;
+    }
+   }
    if (store !== els.store.value) await changeStore();
    const ticket = { id: crypto.randomUUID(), userId: user, storeId: store };
-   if (!store) throw new Error('Selecione a loja antes de abrir a câmera.');
+   if (!store) throw new Error('Selecione a loja antes de adicionar a foto.');
    cameraRequestId = ticket.id; cameraResultId = null;
    const draft = structuredClone(snapshot());
    draft.cameraRequestId = ticket.id;

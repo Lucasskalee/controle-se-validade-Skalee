@@ -58,7 +58,7 @@ const server = http.createServer((req, res) => {
   });
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, "0.0.0.0", () => {
   console.log(`\n======================================================`);
   console.log(`🚀 SERVIDOR LOCAL SKALEE ATIVO!`);
   console.log(`🌐 Aplicação Principal: http://localhost:${PORT}/`);

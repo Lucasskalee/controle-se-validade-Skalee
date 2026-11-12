@@ -22,11 +22,12 @@
 <script src="report-assets.js"></script>
 <script>
 (() => {
- const storedPreference = localStorage.getItem("skalee.theme") || "auto";
- const preference = storedPreference === "glass" ? "dark" : storedPreference;
- if (storedPreference === "glass") localStorage.setItem("skalee.theme", preference);
- const dark = preference === "dark" || (preference === "auto" && matchMedia("(prefers-color-scheme: dark)").matches);
- document.documentElement.dataset.theme = dark ? "dark" : "light";
+   const bgEffectsPaused = localStorage.getItem("skalee.pauseBgEffects") === "true";
+  document.documentElement.dataset.bgEffectsPaused = bgEffectsPaused ? "true" : "false";
+ const storedPreference = localStorage.getItem("skalee.theme") || "skalee-i";
+ const preference = (storedPreference === "glass" || storedPreference === "auto") ? "skalee-i" : storedPreference;
+ if (storedPreference === "glass" || storedPreference === "auto") localStorage.setItem("skalee.theme", preference);
+ document.documentElement.dataset.theme = preference;
  document.documentElement.dataset.themePreference = preference;
 
  const isAndroid = /Android/i.test(navigator.userAgent);
@@ -36,7 +37,7 @@
  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
  const perfPreference = localStorage.getItem("skalee.performance_mode");
 
- if (perfPreference === "on" || (perfPreference !== "off" && (isAndroid || lowCores || lowMemory || prefersReducedMotion))) {
+ if (perfPreference === "on" || (perfPreference !== "off" && prefersReducedMotion)) {
   document.documentElement.classList.add("performance-mode");
  }
 })();
@@ -121,11 +122,8 @@ input:focus,select:focus{border-color:#9dbbf9;box-shadow:0 0 0 3px #e8f0ff}
  border-radius:18px;
  padding:1.5px;
  background:linear-gradient(160deg,var(--glow-c1),var(--glow-c2));
- background:conic-gradient(from var(--border-angle),var(--glow-c1),var(--glow-c2),var(--glow-c3),var(--glow-c1));
- animation:rotateCardBorder 11s linear infinite;
  box-shadow:0 0 12px var(--glow-shadow);
- transition:transform .22s cubic-bezier(.2,0,.2,1),box-shadow .22s cubic-bezier(.2,0,.2,1);
- will-change:transform,box-shadow;
+  transition:transform .22s cubic-bezier(.2,0,.2,1),box-shadow .22s cubic-bezier(.2,0,.2,1);
  z-index:1;
  display:flex;
  flex-direction:column;
@@ -174,6 +172,18 @@ html[data-theme="dark"] .card{
 .product-card-glow:active{
  animation-duration:2.5s;
  transform:scale(0.985);
+}
+
+@media (hover: none) and (pointer: coarse){
+ .card,
+ .product-card-glow{
+  transition: none !important;
+  will-change: auto !important;
+ }
+ .card:active,
+ .product-card-glow:active{
+  transform: none !important;
+ }
 }
 
 @media (prefers-reduced-motion: reduce){
@@ -727,7 +737,7 @@ html[data-theme="dark"] .detail-rows{background:#0f192a;border-color:var(--line)
 html[data-theme="dark"] .detail-row{border-color:var(--line)}
 html[data-theme="dark"] .detail-actions{border-color:var(--line)}
 @media(max-width:768px){nav{gap:5px;padding:6px;border-radius:14px}.tab{flex:1 1 0;min-width:0;gap:0;padding:10px 0}.tab.active,.tab[aria-current="page"]{flex:2.65 1 0;gap:7px;padding-inline:9px}.tab-label{display:block;max-width:0;opacity:0;transition:max-width .2s ease,opacity .18s ease}.tab.active .tab-label,.tab[aria-current="page"] .tab-label{max-width:90px;opacity:1}.label-desktop{display:none}.label-mobile{display:inline}}
-@media(max-width:768px){.app-brand{gap:9px}.app-header-logo{width:36px;height:36px}.app-brand h1{font-size:16px}.app-brand .sub{display:none}header{margin-bottom:10px;padding:4px 2px}nav{top:0;margin-inline:-2px;margin-bottom:14px;border-radius:0;border-inline:0;background:rgba(5,12,24,.92);box-shadow:none}.personal-overlay{background:rgba(2,6,14,.6);backdrop-filter:blur(6px)}.personal-panel{top:0;width:min(300px,76vw);height:100dvh}.personal-header{padding-top:58px}.personal-header::before{content:"";width:48px;height:5px;border-radius:999px;background:rgba(255,255,255,.22);position:absolute;top:18px}.personal-title span{white-space:normal}.personal-body{padding-inline:20px}.personal-menu-list{margin-top:10px}.personal-menu-item{grid-template-columns:28px 1fr 20px;padding:17px 0;border-bottom-color:rgba(255,255,255,.08)}.personal-menu-item strong{font-size:15px}.personal-menu-item span{color:#cbd5e1}.personal-menu-arrow{color:#e5e7eb}}
+@media(max-width:768px){.app-brand{gap:9px}.app-header-logo{width:36px;height:36px}.app-brand h1{font-size:16px}.app-brand .sub{display:none}header{margin-bottom:10px;padding:4px 2px}nav{top:0;margin-inline:-2px;margin-bottom:14px;border-radius:0;border-inline:0;background:rgba(5,12,24,.92);box-shadow:none}.personal-overlay{background:rgba(2,6,14,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}.personal-panel{top:0;right:0;bottom:0;width:min(380px,100vw);height:100vh;height:100dvh}.personal-header{padding-top:58px}.personal-header::before{content:"";width:48px;height:5px;border-radius:999px;background:rgba(255,255,255,.22);position:absolute;top:18px}.personal-title span{white-space:normal}.personal-body{padding-inline:20px}.personal-menu-list{margin-top:10px}.personal-menu-item{grid-template-columns:28px 1fr 20px;padding:17px 0;border-bottom-color:rgba(255,255,255,.08)}.personal-menu-item strong{font-size:15px}.personal-menu-item span{color:#cbd5e1}.personal-menu-arrow{color:#e5e7eb}}
 @media(max-width:480px){.app{max-width:430px}}
 @media(max-width:620px){.scan{grid-template-columns:1fr}}
 @media(max-width:850px){.stats{grid-template-columns:repeat(2,1fr)}}
@@ -737,6 +747,7 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
 <link rel="stylesheet" href="theme-layout.css">
 <link rel="stylesheet" href="product-detail.css">
 <link rel="stylesheet" href="android-ui.css">
+<link rel="stylesheet" href="skalee-i.css">
 </head>
 <body class="auth-loading">
 <section id="authScreen" class="auth-screen" aria-labelledby="authTitle">
@@ -762,6 +773,14 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
   </form>
  </div>
 </section>
+
+<div id="skWaveBackground" class="sk-wave-background" aria-hidden="true">
+ <div class="sk-wave-light sk-wave-light-1"></div>
+ <div class="sk-wave-light sk-wave-light-2"></div>
+ <div class="sk-wave sk-wave-1"></div>
+ <div class="sk-wave sk-wave-2"></div>
+ <div class="sk-wave sk-wave-3"></div>
+</div>
 
 <main id="protectedApp" class="app" aria-hidden="true">
 <header>
@@ -824,6 +843,7 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
     <button class="personal-theme-button theme-button" type="button" data-personal-theme-choice="industrial"><span class="theme-icon theme-swatch theme-swatch-industrial" aria-hidden="true"></span><span>Industrial</span></button>
     <button class="personal-theme-button theme-button" type="button" data-personal-theme-choice="creative"><span class="theme-icon theme-swatch theme-swatch-creative" aria-hidden="true"></span><span>Creative</span></button>
     <button class="personal-theme-button theme-button" type="button" data-personal-theme-choice="executive"><span class="theme-icon theme-swatch theme-swatch-executive" aria-hidden="true"></span><span>Executive</span></button>
+    <button class="personal-theme-button theme-button" type="button" data-personal-theme-choice="skalee-i"><span class="theme-icon theme-swatch theme-swatch-skalee-i" aria-hidden="true"></span><span>SKALEE I</span></button>
    </div>
   </section>
   <div class="personal-menu-list">
@@ -937,6 +957,31 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
    <option value="qtyAsc">Menor quantidade</option>
    <option value="name">Nome A-Z</option>
   </select>
+  <button type="button" id="diagPauseBgBtnProducts" class="android-diag-bg-btn" aria-pressed="false" title="Pausar ou reativar efeitos do fundo para testar rolagem">
+   <span aria-hidden="true">⏸</span> Pausar efeitos do fundo
+  </button>
+  <div id="desktopProductsViewToggle" class="desktop-view-toggle" role="group" aria-label="Visualização de produtos">
+   <button type="button" class="view-btn active" data-desktop-view="grid" aria-pressed="true" aria-label="Visualização em grade" title="Visualização em grade">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+     <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+     <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+     <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+     <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+    </svg>
+    <span>Grade</span>
+   </button>
+   <button type="button" class="view-btn" data-desktop-view="list" aria-pressed="false" aria-label="Visualização em lista" title="Visualização em lista">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+     <line x1="8" y1="6" x2="21" y2="6"></line>
+     <line x1="8" y1="12" x2="21" y2="12"></line>
+     <line x1="8" y1="18" x2="21" y2="18"></line>
+     <line x1="3" y1="6" x2="3.01" y2="6"></line>
+     <line x1="3" y1="12" x2="3.01" y2="12"></line>
+     <line x1="3" y1="18" x2="3.01" y2="18"></line>
+    </svg>
+    <span>Lista</span>
+   </button>
+  </div>
  </div>
 
  <div class="grid" id="grid"></div>
@@ -1032,6 +1077,7 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
     <select id="reportStore" aria-label="Filtrar relatório por loja">
      <option value="">Todas as lojas</option>
     </select>
+    <label class="report-date">Cód. fornecedor<input id="reportSupplierFilter" inputmode="numeric" autocomplete="off" placeholder="Ex.: 209"></label>
     <label class="report-date">Atualizado de<input id="reportUpdatedFrom" type="date"></label>
     <label class="report-date">Até<input id="reportUpdatedTo" type="date"></label>
     <button id="reportTodayCreated" class="btn2" type="button" aria-pressed="false">Cadastrados hoje</button>
@@ -1131,7 +1177,7 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
    <div class="import-box">
     <strong>Importar base própria para o Supabase</strong>
     <div class="sub">Arquivo DBF, XLS ou TXT completo, incluindo relatório "Posição do estoque por departamento".</div>
-    <input id="dbfFile" type="file" accept=".dbf,.xls,.txt,.csv,application/vnd.dbf,application/vnd.ms-excel,text/plain,application/octet-stream" multiple>
+    <input id="dbfFile" type="file" accept=".dbf,.xls,.xlsx,.txt,.csv,application/vnd.dbf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/plain,application/octet-stream" multiple>
    </div>
    <div id="catalogInfo" class="catalog-info" aria-live="polite">
     <b>Carregando informações do catálogo...</b>
@@ -1637,6 +1683,7 @@ const els = {
  supplierFilter: document.getElementById('supplierFilter'),
  clearSupplierFilter: document.getElementById('clearSupplierFilter'),
  sort: document.getElementById('sort'),
+ desktopProductsViewToggle: document.getElementById('desktopProductsViewToggle'),
  grid: document.getElementById('grid'),
  result: document.getElementById('result'),
  chips: document.querySelectorAll('.chip'),
@@ -1752,6 +1799,7 @@ const els = {
  productDetailBody: document.getElementById('productDetailBody'),
  savingOverlay: document.getElementById('savingOverlay'),
  reportStore: document.getElementById('reportStore'),
+ reportSupplierFilter: document.getElementById('reportSupplierFilter'),
  reportUpdatedFrom: document.getElementById('reportUpdatedFrom'),
  reportUpdatedTo: document.getElementById('reportUpdatedTo'),
  reportTodayCreated: document.getElementById('reportTodayCreated'),
@@ -1866,6 +1914,7 @@ newUserEmail: document.getElementById('newUserEmail'),
  saveToastText: document.getElementById('saveToastText'),
  confettiLayer: document.getElementById('confettiLayer')
 };
+window.els = els;
 
 let selected = null;
 let updatingProductId = null;
@@ -1895,6 +1944,21 @@ let productPageObserver = null;
 let productPageLoading = false;
 let productHasMorePages = false;
 let productPageOffset = 0;
+Object.defineProperty(window, "productPageOffset", {
+ get() { return productPageOffset; },
+ set(val) { productPageOffset = val; },
+ configurable: true
+});
+Object.defineProperty(window, "productHasMorePages", {
+ get() { return productHasMorePages; },
+ set(val) { productHasMorePages = val; },
+ configurable: true
+});
+Object.defineProperty(window, "productPageLoading", {
+ get() { return productPageLoading; },
+ set(val) { productPageLoading = val; },
+ configurable: true
+});
 let productLoadGeneration = 0;
 let stockMovementLoadGeneration = 0;
 let validityProductsRealtimeChannel = null;
@@ -2054,11 +2118,11 @@ const PRODUCT_COLUMNS_KEY = "skalee.products.columns";
 let productColumns = Number(localStorage.getItem(PRODUCT_COLUMNS_KEY)) || (window.matchMedia("(max-width: 620px)").matches ? 1 : 3);
 if (![1, 2, 3, 4].includes(productColumns)) productColumns = 1;
 const THEME_KEY = "skalee.theme";
-const SKALEE_THEMES = ["dark", "light", "industrial", "creative", "executive"];
+const SKALEE_THEMES = ["dark", "light", "industrial", "creative", "executive", "skalee-i"];
 const themeMedia = window.matchMedia("(prefers-color-scheme: dark)");
-let themePreference = localStorage.getItem(THEME_KEY) || "auto";
-if (themePreference === "glass") { themePreference = "dark"; localStorage.setItem(THEME_KEY, themePreference); }
-if (![...SKALEE_THEMES, "auto"].includes(themePreference)) themePreference = "auto";
+let themePreference = localStorage.getItem(THEME_KEY) || "skalee-i";
+if (themePreference === "glass" || themePreference === "auto") { themePreference = "skalee-i"; localStorage.setItem(THEME_KEY, themePreference); }
+if (!SKALEE_THEMES.includes(themePreference)) themePreference = "skalee-i";
 
 function applyThemePreference(preference, announce = false) {
  themePreference = preference;
@@ -2075,7 +2139,7 @@ function applyThemePreference(preference, announce = false) {
   button.classList.toggle("active", active);
   button.setAttribute("aria-pressed", String(active));
  });
- const labels = { light: "Light", dark: "Dark", glass: "Glass", industrial: "Industrial", creative: "Creative", executive: "Executive", auto: `Automático (${resolvedTheme === "dark" ? "Dark" : "Light"})` };
+ const labels = { light: "Light", dark: "Dark", glass: "Glass", industrial: "Industrial", creative: "Creative", executive: "Executive", "skalee-i": "SKALEE I", auto: `Automático (${resolvedTheme === "dark" ? "Dark" : "Light"})` };
  if (els.themeStatus) els.themeStatus.textContent = announce ? `Tema ${labels[preference]} ativado.` : `Tema atual: ${labels[preference]}.`;
 }
 
@@ -2707,6 +2771,11 @@ let scannerConfirmCount = 0;
 let scannerConfirmAt = 0;
 let scannerCanvas = null;
 let products = [];
+Object.defineProperty(window, "products", {
+ get() { return products; },
+ set(val) { products = val; },
+ configurable: true
+});
 let notificationProducts = [];
 let notificationCenterLoading = false;
 let notificationCenterLoadedScope = "";
@@ -2728,6 +2797,18 @@ function preserveProductPhotoState(targetProduct, sourceProduct = null) {
  } : null);
 
  if (existingState) {
+  const isExistingExpired = existingState.photo && typeof window.skaleeIsSignedPhotoUrlExpired === "function" && window.skaleeIsSignedPhotoUrlExpired(existingState.photo);
+  if (isExistingExpired) {
+   if (existingState.photoPath && typeof window.skaleeDb?.invalidateProductPhotoUrl === "function") {
+    window.skaleeDb.invalidateProductPhotoUrl(existingState.photoPath);
+   }
+   existingState.photo = "";
+   existingState.photoLoaded = false;
+   resolvedProductPhotoState.delete(id);
+   requestedProductPhotoIds.delete(id);
+   queuedProductPhotoIdSet.delete(id);
+  }
+
   const samePath = String(existingState.photoPath || "").trim() === currentPath;
   if (samePath) {
    if (existingState.photo || existingState.photoLoaded) {
@@ -2747,11 +2828,18 @@ function preserveProductPhotoState(targetProduct, sourceProduct = null) {
  }
 
  if (targetProduct.photo || targetProduct.photoLoaded) {
-  resolvedProductPhotoState.set(id, {
-   photoPath: currentPath,
-   photo: targetProduct.photo || "",
-   photoLoaded: Boolean(targetProduct.photoLoaded)
-  });
+  const isTargetExpired = targetProduct.photo && typeof window.skaleeIsSignedPhotoUrlExpired === "function" && window.skaleeIsSignedPhotoUrlExpired(targetProduct.photo);
+  if (isTargetExpired) {
+   targetProduct.photo = "";
+   targetProduct.photoLoaded = false;
+   resolvedProductPhotoState.delete(id);
+  } else {
+   resolvedProductPhotoState.set(id, {
+    photoPath: currentPath,
+    photo: targetProduct.photo || "",
+    photoLoaded: Boolean(targetProduct.photoLoaded)
+   });
+  }
  }
 
  return targetProduct;
@@ -2807,6 +2895,126 @@ function appendUniqueProducts(nextProducts) {
  if (uniqueProducts.length) products = [...products, ...uniqueProducts];
  return uniqueProducts.length;
 }
+
+function getFeedCacheKey(userEmail, criteria = getProductQueryCriteria()) {
+ const user = String(userEmail || activeUserEmail || "").trim().toLowerCase();
+ const store = String(criteria.store || "").trim();
+ const search = String(criteria.search || "").trim().toLowerCase();
+ const supplier = String(criteria.supplier || "").trim().toLowerCase();
+ const sort = String(criteria.sort || "expiry").trim();
+ const f = criteria.filters || criteria.activeFilters || {};
+ const filterPart = `${f.expiryRange || ""}_${f.offerStatus || ""}_${Boolean(f.highQuantity)}`;
+ return `feed_v1:${user}:${store}:${sort}:${search}:${supplier}:${filterPart}`;
+}
+
+function buildSkeletonCardMarkup() {
+ return `
+  <div class="product-card-slot sk-skeleton-slot" aria-hidden="true" data-skeleton="true">
+   <div class="product-card-glow sk-skeleton-glow">
+    <article class="card sk-live-blur-card sk-skeleton-card">
+     <div class="photo sk-skeleton-box sk-skeleton-shimmer"></div>
+     <div class="content">
+      <div class="sk-skeleton-line sk-skeleton-title sk-skeleton-shimmer"></div>
+      <div class="card-codes sk-skeleton-codes">
+       <div class="sk-skeleton-line sk-skeleton-code sk-skeleton-shimmer"></div>
+       <div class="sk-skeleton-line sk-skeleton-supplier sk-skeleton-shimmer"></div>
+      </div>
+      <div class="card-bottom sk-skeleton-bottom">
+       <div class="card-summary sk-skeleton-summary">
+        <div class="info sk-skeleton-info">
+         <span class="sk-skeleton-line sk-skeleton-info-label sk-skeleton-shimmer"></span>
+         <b class="sk-skeleton-line sk-skeleton-info-val sk-skeleton-shimmer"></b>
+        </div>
+        <div class="info sk-skeleton-info">
+         <span class="sk-skeleton-line sk-skeleton-info-label sk-skeleton-shimmer"></span>
+         <b class="sk-skeleton-line sk-skeleton-info-val sk-skeleton-shimmer"></b>
+        </div>
+       </div>
+       <div class="badges">
+        <span class="sk-skeleton-line sk-skeleton-badge-pill sk-skeleton-shimmer"></span>
+       </div>
+      </div>
+     </div>
+    </article>
+   </div>
+  </div>`;
+}
+
+function renderInitialSkeletons(count = 6) {
+ const grid = els.grid;
+ if (!grid) return;
+ grid.setAttribute("aria-busy", "true");
+ grid.classList.add("is-loading-skeleton");
+ let html = '<div class="sr-only sr-only-loading" role="status" aria-live="polite">Carregando produtos...</div>';
+ for (let i = 0; i < count; i++) {
+  html += buildSkeletonCardMarkup();
+ }
+ grid.innerHTML = html;
+}
+
+function renderPaginationSkeletons(count = 6) {
+ const grid = els.grid;
+ if (!grid) return;
+ grid.setAttribute("aria-busy", "true");
+ const existingError = grid.querySelector(".sk-pagination-error");
+ if (existingError) existingError.remove();
+ let paginationWrapper = grid.querySelector(".sk-pagination-skeletons");
+ if (!paginationWrapper) {
+  paginationWrapper = document.createElement("div");
+  paginationWrapper.className = "sk-pagination-skeletons";
+  paginationWrapper.setAttribute("aria-hidden", "true");
+  const sentinel = grid.querySelector("[data-load-more-products]");
+  if (sentinel) {
+   grid.insertBefore(paginationWrapper, sentinel);
+  } else {
+   grid.appendChild(paginationWrapper);
+  }
+ }
+ let html = "";
+ for (let i = 0; i < count; i++) {
+  html += buildSkeletonCardMarkup();
+ }
+ paginationWrapper.innerHTML = html;
+}
+
+function removePaginationSkeletons() {
+ const grid = els.grid;
+ if (!grid) return;
+ grid.removeAttribute("aria-busy");
+ const paginationWrapper = grid.querySelector(".sk-pagination-skeletons");
+ if (paginationWrapper) paginationWrapper.remove();
+}
+
+function renderPaginationError(retryCallback) {
+ removePaginationSkeletons();
+ const grid = els.grid;
+ if (!grid) return;
+ const existingError = grid.querySelector(".sk-pagination-error");
+ if (existingError) existingError.remove();
+ const errBox = document.createElement("div");
+ errBox.className = "sk-pagination-error";
+ errBox.setAttribute("role", "alert");
+ errBox.innerHTML = `
+  <span>Não foi possível carregar os próximos produtos.</span>
+  <button type="button" class="btn2">Tentar novamente</button>
+ `;
+ const btn = errBox.querySelector("button");
+ if (btn) {
+  btn.addEventListener("click", () => {
+   errBox.remove();
+   if (typeof retryCallback === "function") retryCallback();
+  });
+ }
+ grid.appendChild(errBox);
+}
+
+window.buildSkeletonCardMarkup = buildSkeletonCardMarkup;
+window.renderInitialSkeletons = renderInitialSkeletons;
+window.renderPaginationSkeletons = renderPaginationSkeletons;
+window.removePaginationSkeletons = removePaginationSkeletons;
+window.renderPaginationError = renderPaginationError;
+window.getFeedCacheKey = getFeedCacheKey;
+window.mergeProductsPreservingPhotoState = mergeProductsPreservingPhotoState;
 
 function countActiveFilters(filters = activeFilters) {
  let count = 0;
@@ -3180,6 +3388,7 @@ function handleValidityProductsRealtime(payload) {
   if (existing?.photoPath && typeof window.skaleeDb?.invalidateProductPhotoUrl === "function") window.skaleeDb.invalidateProductPhotoUrl(existing.photoPath);
   applyDashboardStatsDelta(deletedProduct, null);
   products = products.filter((product) => String(product.id) !== id);
+  if (window.skaleeLocalStore?.removeProductFromFeedCache) void window.skaleeLocalStore.removeProductFromFeedCache(id);
   removeReportProduct(id);
   updateNotificationProductFromRealtime(null, id);
   requestedProductPhotoIds.delete(id);
@@ -3205,8 +3414,10 @@ function handleValidityProductsRealtime(payload) {
   locallyCountedRealtimeIds.delete(String(nextProduct.id));
  } else if (eventType === "INSERT") {
   applyDashboardStatsDelta(null, nextProduct);
+  if (window.skaleeLocalStore?.invalidateFeedCache) void window.skaleeLocalStore.invalidateFeedCache();
  } else if (eventType === "UPDATE" && previousProduct?.id) {
   applyDashboardStatsDelta(previousProduct, nextProduct);
+  if (window.skaleeLocalStore?.updateProductInFeedCache) void window.skaleeLocalStore.updateProductInFeedCache(nextProduct);
  } else if (eventType === "UPDATE") {
   console.debug("[DASHBOARD] update skipped: previous row unavailable", id);
  }
@@ -3359,30 +3570,87 @@ async function carregarOfertasSgDosProdutos(targetProducts = products, options =
  }
 }
 
-async function carregarProdutosOnline() {
+async function carregarProdutosOnline(options = {}) {
  if (!window.skaleeDb) return;
  const generation = ++productLoadGeneration;
  stockMovementLoadGeneration += 1;
  sgOfferLoadGeneration += 1;
  const criteria = getProductQueryCriteria();
+ const userEmail = activeUserEmail || "";
+ const cacheKey = getFeedCacheKey(userEmail, criteria);
+
+ // Se não for revalidação em segundo plano e não for forceRefresh, tenta obter cache do IndexedDB
+ if (!options.isBackgroundRevalidate && !options.forceRefresh && window.skaleeLocalStore?.getFeedCache) {
+  try {
+   const cachedFeed = await window.skaleeLocalStore.getFeedCache(cacheKey);
+   if (generation !== productLoadGeneration) return;
+   if (cachedFeed && Array.isArray(cachedFeed.products) && cachedFeed.products.length > 0) {
+    products = mergeProductsPreservingPhotoState(cachedFeed.products, products);
+    productPageOffset = cachedFeed.rawLength || cachedFeed.products.length;
+    productHasMorePages = Boolean(cachedFeed.hasMore);
+    render();
+    void carregarMovimentacaoEstoqueDosProdutos(cachedFeed.products);
+    void carregarOfertasSgDosProdutos(cachedFeed.products);
+    // Dispara a revalidação silenciosa em segundo plano
+    void carregarProdutosOnline({ isBackgroundRevalidate: true });
+    return;
+   }
+  } catch (cacheErr) {
+   console.warn("[CACHE] Falha ao recuperar feed cache:", cacheErr);
+  }
+ }
+
+ const hadExistingProducts = Array.isArray(products) && products.length > 0;
+ if (!hadExistingProducts && !options.isBackgroundRevalidate) {
+  renderInitialSkeletons(6);
+ }
+
  realtimeStats.fullReloads += 1;
  queryStats.initialLoads += 1;
  if (criteria.search) queryStats.searches += 1;
  if (hasServerSideCriteria(criteria)) queryStats.filterQueries += 1;
  productPageLoading = true;
- productHasMorePages = false;
- productPageOffset = 0;
+ if (!options.isBackgroundRevalidate) {
+  productHasMorePages = false;
+  productPageOffset = 0;
+ }
  resetProductPhotoQueue();
- setProductLoadToast("Carregando produtos...", "Buscando os primeiros produtos.");
+
+ if (!options.isBackgroundRevalidate) {
+  setProductLoadToast("Carregando produtos...", "Buscando os primeiros produtos.");
+ }
+
  try {
-  const firstPage = await window.skaleeDb.loadProducts({ ...criteria, offset: productPageOffset, limit: PRODUCT_PAGE_SIZE });
+  const firstPage = await window.skaleeDb.loadProducts({ ...criteria, offset: 0, limit: PRODUCT_PAGE_SIZE });
   if (generation !== productLoadGeneration) return;
-  products = mergeProductsPreservingPhotoState(firstPage, products);
   const rawLength = pageRawLength(firstPage);
   queryStats.rowsReceived += firstPage.length;
-  productPageOffset += rawLength;
-  productHasMorePages = rawLength === PRODUCT_PAGE_SIZE;
+
+  if (options.isBackgroundRevalidate && products.length > PRODUCT_PAGE_SIZE) {
+   // Revalidação em segundo plano com múltiplas páginas carregadas:
+   // Atualiza a primeira página e preserva as páginas subsequentes sem resetar o scroll nem perder itens
+   const firstPageIds = new Set(firstPage.map((p) => String(p.id)));
+   const mergedFirst = mergeProductsPreservingPhotoState(firstPage, products);
+   const tail = products.slice(PRODUCT_PAGE_SIZE).filter((p) => !firstPageIds.has(String(p.id)));
+   products = [...mergedFirst, ...tail];
+   productPageOffset = Math.max(productPageOffset, products.length);
+  } else {
+   products = mergeProductsPreservingPhotoState(firstPage, products);
+   productPageOffset = rawLength;
+   productHasMorePages = rawLength === PRODUCT_PAGE_SIZE;
+  }
   productPageLoading = false;
+
+  // Salva no feed_cache persistente
+  if (window.skaleeLocalStore?.saveFeedCache) {
+   void window.skaleeLocalStore.saveFeedCache(cacheKey, {
+    userId: userEmail,
+    products: firstPage.slice(0, PRODUCT_PAGE_SIZE),
+    hasMore: productHasMorePages,
+    rawLength
+   });
+  }
+
   render();
   void carregarMovimentacaoEstoqueDosProdutos(firstPage);
   void carregarOfertasSgDosProdutos(firstPage);
@@ -3391,11 +3659,31 @@ async function carregarProdutosOnline() {
  } catch (error) {
   console.error("Não foi possível carregar os produtos online.", error);
   if (generation !== productLoadGeneration) return;
-  products = [];
-  productHasMorePages = false;
   productPageLoading = false;
-  setProductLoadToast("Falha ao carregar produtos", formatProductLoadError(error, "Verifique a conexão e tente novamente."), true);
-  render();
+
+  if (products && products.length > 0) {
+   // Preserva dados salvos sem piscar ou apagar
+   setProductLoadToast("Dados salvos — atualização pendente", "Não foi possível conectar ao servidor. Exibindo dados salvos no aparelho.", true);
+   render();
+  } else {
+   // Primeira abertura sem cache falhou
+   products = [];
+   productHasMorePages = false;
+   if (els.grid) {
+    els.grid.removeAttribute("aria-busy");
+    els.grid.classList.remove("is-loading-skeleton");
+    els.grid.innerHTML = `
+     <div class="empty sk-load-error">
+      <p>${formatProductLoadError(error, "Verifique a conexão e tente novamente.")}</p>
+      <button type="button" class="btn2 sk-retry-load-btn" style="margin-top: 10px;">Tentar novamente</button>
+     </div>
+    `;
+    els.grid.querySelector(".sk-retry-load-btn")?.addEventListener("click", () => {
+     void carregarProdutosOnline({ forceRefresh: true });
+    });
+   }
+   setProductLoadToast("Falha ao carregar produtos", formatProductLoadError(error, "Verifique a conexão e tente novamente."), true);
+  }
  }
 }
 
@@ -3405,9 +3693,17 @@ async function carregarMaisProdutosOnline() {
  const criteria = getProductQueryCriteria();
  productPageLoading = true;
  queryStats.paginationLoads += 1;
+
+ // Exibe 6 skeletons no final enquanto a busca acontece
+ renderPaginationSkeletons(6);
+
  try {
   const nextProducts = await window.skaleeDb.loadProducts({ ...criteria, offset: productPageOffset, limit: PRODUCT_PAGE_SIZE });
-  if (generation !== productLoadGeneration) return;
+  if (generation !== productLoadGeneration) {
+   removePaginationSkeletons();
+   return;
+  }
+  removePaginationSkeletons();
   const rawLength = pageRawLength(nextProducts);
   queryStats.rowsReceived += nextProducts.length;
   productPageOffset += rawLength;
@@ -3421,6 +3717,10 @@ async function carregarMaisProdutosOnline() {
   console.error("Não foi possível carregar mais produtos.", error);
   if (generation !== productLoadGeneration) return;
   productPageLoading = false;
+  // Mantém os produtos anteriores visíveis e oferece "Tentar novamente"
+  renderPaginationError(() => {
+   void carregarMaisProdutosOnline();
+  });
  }
 }
 
@@ -3447,7 +3747,9 @@ async function carregarProdutosRelatorio(force = false) {
   reportProducts = sortProductsForCurrentCriteria(allProducts);
   reportProductsLoaded = true;
   reportSelectionInitialized = false;
-  renderReport();
+  if (document.getElementById("report")?.classList.contains("active")) {
+   renderReport();
+  }
  } catch (error) {
   console.error("Não foi possível carregar produtos do relatório.", error);
   els.reportStatus.textContent = error.message || "Não foi possível carregar todos os textos do relatório.";
@@ -3480,6 +3782,7 @@ async function carregarOpcoesPermitidas() {
 function popularLojasPermitidas(locations) {
  const activeLocations = (locations || []).filter((location) => location.active !== false);
  allowedLocations = activeLocations;
+ window.allowedLocations = activeLocations;
  let storedStoreId = "";
  try { storedStoreId = localStorage.getItem("skalee_last_selected_store_id") || ""; } catch (_) {}
  const selectedStore = els.store.value || storedStoreId;
@@ -3598,6 +3901,62 @@ async function carregarFotosProdutosOnline(productIds) {
  }
 }
 
+const photoErrorRetryCount = new Map();
+window.skaleeHandleProductImageError = function (imgEl, productId, photoPath) {
+ if (!imgEl) return;
+ const normId = String(productId || "").trim();
+ const normPath = String(photoPath || "").trim();
+ console.warn("[PHOTO ERROR] Falha ao renderizar foto do produto:", normId, normPath);
+
+ if (normPath && window.skaleeDb?.invalidateProductPhotoUrl) {
+  window.skaleeDb.invalidateProductPhotoUrl(normPath);
+ }
+ if (normId) {
+  resolvedProductPhotoState.delete(normId);
+  requestedProductPhotoIds.delete(normId);
+  queuedProductPhotoIdSet.delete(normId);
+  products = products.map((p) => String(p.id) === normId ? { ...p, photo: "", photoLoaded: false } : p);
+ }
+
+ const retries = photoErrorRetryCount.get(normId) || 0;
+ if (retries < 1 && normPath && window.skaleeDb?.getProductPhotoUrl && navigator.onLine) {
+  photoErrorRetryCount.set(normId, retries + 1);
+  imgEl.style.opacity = "0.35";
+  window.skaleeDb.getProductPhotoUrl(normPath).then((freshUrl) => {
+   if (freshUrl && imgEl.isConnected) {
+    imgEl.src = freshUrl;
+    imgEl.style.opacity = "";
+    markProductPhotoLoaded(normId, freshUrl);
+   } else {
+    renderImageFallback(imgEl);
+   }
+  }).catch(() => {
+   renderImageFallback(imgEl);
+  });
+  return;
+ }
+
+ renderImageFallback(imgEl);
+};
+
+function renderImageFallback(imgEl) {
+ const slot = imgEl.closest(".photo, .notification-product-photo, .detail-photo");
+ if (slot) {
+  slot.removeAttribute("data-photo-id");
+  slot.replaceChildren();
+  if (slot.classList.contains("detail-photo")) {
+   slot.innerHTML = `<div class="detail-no-photo"><span>Sem foto</span></div><span class="detail-gallery-hint">⤢ Ver fotos</span>`;
+  } else {
+   const fallback = document.createElement("span");
+   fallback.className = "photo-fallback-label";
+   fallback.textContent = "Sem foto";
+   slot.appendChild(fallback);
+  }
+ } else {
+  imgEl.style.display = "none";
+ }
+}
+
 function aplicarFotosCarregadas(photoById) {
  photoById.forEach((photo, id) => {
   const normId = String(id);
@@ -3611,6 +3970,11 @@ function aplicarFotosCarregadas(photoById) {
     image.loading = "lazy";
     image.decoding = "async";
     image.alt = "";
+    const p = products.find((item) => String(item.id) === normId) || notificationProducts.find((item) => String(item.id) === normId);
+    const photoPath = p?.photoPath || "";
+    image.addEventListener("error", () => {
+     window.skaleeHandleProductImageError?.(image, normId, photoPath);
+    }, { once: true });
     image.addEventListener("load", () => {
      if (window.skaleePhotoCacheStats) window.skaleePhotoCacheStats.displayed = (window.skaleePhotoCacheStats.displayed || 0) + 1;
     }, { once: true });
@@ -3629,8 +3993,15 @@ function queueProductPhotoLoad(id) {
  const product = products.find((item) => String(item.id) === normalizedId) || notificationProducts.find((item) => String(item.id) === normalizedId);
  const currentPath = String(product?.photoPath || "").trim();
  if (registered && String(registered.photoPath || "").trim() === currentPath && (registered.photo || registered.photoLoaded)) {
-  aplicarFotosCarregadas(new Map([[normalizedId, registered.photo || ""]]));
-  return;
+  const isRegisteredExpired = registered.photo && typeof window.skaleeIsSignedPhotoUrlExpired === "function" && window.skaleeIsSignedPhotoUrlExpired(registered.photo);
+  if (isRegisteredExpired) {
+   registered.photo = "";
+   registered.photoLoaded = false;
+   resolvedProductPhotoState.delete(normalizedId);
+  } else {
+   aplicarFotosCarregadas(new Map([[normalizedId, registered.photo || ""]]));
+   return;
+  }
  }
  if (requestedProductPhotoIds.has(normalizedId) || queuedProductPhotoIdSet.has(normalizedId)) return;
  requestedProductPhotoIds.add(normalizedId);
@@ -3908,6 +4279,7 @@ window.addEventListener("skalee:permissions-updated", (event) => {
  els.settingsRegistriesTab.hidden = !isPlatformAdmin;
  els.settingsManagementTab.hidden = !isPlatformAdmin;
  els.adminUsersSection.hidden = !isPlatformAdmin;
+ els.catalogSettingsSection.hidden = !isPlatformAdmin;
  els.stockImportSettingsSection.hidden = !isPlatformAdmin;
  els.offerImportSettingsSection.hidden = !isPlatformAdmin;
  els.posterTab.hidden = !isPlatformAdmin;
@@ -3962,7 +4334,7 @@ window.addEventListener("skalee:authenticated", async (event) => {
  const activeTab = document.querySelector(".tab.active");
  if (isViewer || activeTab?.hidden) document.querySelector('[data-page="products"]').click();
  els.adminUsersSection.hidden = !isPlatformAdmin;
- els.catalogSettingsSection.hidden = true;
+ els.catalogSettingsSection.hidden = !isPlatformAdmin;
  els.stockImportSettingsSection.hidden = !isPlatformAdmin;
  els.offerImportSettingsSection.hidden = !isPlatformAdmin;
  if (isPlatformAdmin) {
@@ -3983,7 +4355,26 @@ window.addEventListener("skalee:authenticated", async (event) => {
    if (cachedLocs && cachedLocs.length) popularLojasPermitidas(cachedLocs);
    if (cachedSupps && cachedSupps.length) popularFornecedoresPermitidos(cachedSupps);
    await restoreSavedUiState();
-   if (cachedProducts && cachedProducts.length) {
+
+   const activeCriteria = getProductQueryCriteria();
+   const feedKey = getFeedCacheKey(activeUserEmail, activeCriteria);
+   let cachedFeed = null;
+   if (window.skaleeLocalStore.getFeedCache) {
+    cachedFeed = await window.skaleeLocalStore.getFeedCache(feedKey);
+   }
+   if (cachedFeed && Array.isArray(cachedFeed.products) && cachedFeed.products.length > 0) {
+    products = cachedFeed.products;
+    productPageOffset = cachedFeed.rawLength || cachedFeed.products.length;
+    productHasMorePages = Boolean(cachedFeed.hasMore);
+    if (cachedStats) dashboardStats = cachedStats;
+    renderDashboardStats();
+    render();
+    if (window.skaleePerformanceStats) {
+     window.skaleePerformanceStats.firstRenderMs = Math.round(performance.now() - t0);
+     window.skaleePerformanceStats.cacheHits += 1;
+    }
+    console.debug(`[FAST STARTUP] Renderizado a partir do feed_cache (${products.length} itens) em ${Math.round(performance.now() - t0)}ms`);
+   } else if (cachedProducts && cachedProducts.length) {
     const mergedCached = mergeProductsPreservingPhotoState(cachedProducts, products);
     products = sortProductsForCurrentCriteria(mergedCached.filter(productMatchesCurrentCriteria)).slice(0, PRODUCT_PAGE_SIZE);
     if (cachedStats) {
@@ -4004,7 +4395,7 @@ window.addEventListener("skalee:authenticated", async (event) => {
 
  // Phase 3, 4, 5, 6: Background Network Sync & Offline Queue
  void carregarOpcoesPermitidas().finally(() => loadNotificationCenterProducts(true));
- void carregarProdutosOnline();
+ void carregarProdutosOnline({ isBackgroundRevalidate: Boolean(products && products.length > 0) });
  void carregarDashboardStats();
  if (window.skaleeDb?.processOfflineSyncQueue) {
   void window.skaleeDb.processOfflineSyncQueue();
@@ -4012,6 +4403,9 @@ window.addEventListener("skalee:authenticated", async (event) => {
  startValidityProductsRealtime();
 });
 window.addEventListener("skalee:signed-out", () => {
+ if (window.skaleeLocalStore?.clearUserFeedCache) {
+  void window.skaleeLocalStore.clearUserFeedCache(activeUserEmail);
+ }
  appAuthenticated = false;
  isViewer = false;
  isSkaleeAdmin = false;
@@ -4097,7 +4491,7 @@ els.today.textContent = new Date().toLocaleDateString("pt-BR");
 
 document.querySelectorAll(".tab[data-page]").forEach((button) => {
  button.addEventListener("click", () => {
-  if (button.hidden) return;
+  if (button.hidden || button.classList.contains("active")) return;
   document.querySelectorAll("nav .tab").forEach((item) => {
    item.classList.remove("active");
    item.removeAttribute("aria-current");
@@ -4106,7 +4500,7 @@ document.querySelectorAll(".tab[data-page]").forEach((button) => {
   button.classList.add("active");
   button.setAttribute("aria-current", "page");
   document.getElementById(button.dataset.page)?.classList.add("active");
-  if (button.dataset.page === "report") void carregarProdutosRelatorio();
+  if (button.dataset.page === "report") { renderReport(); void carregarProdutosRelatorio(); }
   if (button.dataset.page === "audit") {
    if (location.hash !== "#audit") history.replaceState(null, "", "#audit");
    if (window.skaleeAuditAccess?.open) void window.skaleeAuditAccess.open();
@@ -4331,10 +4725,17 @@ function remaining(value) {
 }
 
 function status(days) {
- if (days <= 3) return ["Muito perto", "red"];
- if (days <= 7) return ["Atenção", "orange"];
- if (days <= 15) return ["Acompanhar", "yellow"];
- return ["Controlado", "green"];
+ if (!Number.isFinite(days)) return ["Controlado", "green"];
+ if (days < 0) {
+  const d = Math.abs(days);
+  return [d === 1 ? "Vencido (há 1 dia)" : `Vencido (há ${d} dias)`, "red"];
+ }
+ if (days === 0) return ["Vence hoje", "red"];
+ if (days === 1) return ["Muito perto (1 dia)", "red"];
+ if (days <= 3) return [`Muito perto (${days} dias)`, "red"];
+ if (days <= 7) return [`Atenção (${days} dias)`, "orange"];
+ if (days <= 15) return [`Acompanhar (${days} dias)`, "yellow"];
+ return [`Controlado (${days} dias)`, "green"];
 }
 
 function getProductGlowStatus(days) {
@@ -4686,6 +5087,7 @@ function getReportProducts() {
  const todayKey = localDateKey(new Date().toISOString());
  return source.filter((product) => remaining(product.expiry) >= 0)
   .filter((product) => !els.reportStore.value || product.store === els.reportStore.value)
+  .filter((product) => productHasSupplier(product, els.reportSupplierFilter?.value || ""))
   .filter((product) => {
    if (reportCreatedTodayOnly && localDateKey(product.createdAt) !== todayKey) return false;
    const updatedDate = localDateKey(product.updatedAt || product.createdAt);
@@ -5148,10 +5550,28 @@ function formatReportProduct(product) {
 }
 
 function buildReportText() {
- return getReportProducts()
-  .filter((product) => selectedReportProductIds.has(String(product.id)))
-  .map(formatReportProduct)
-  .join("\n\n");
+ const selected = getReportProducts().filter((product) => selectedReportProductIds.has(String(product.id)));
+ return selected.map(formatReportProduct).join("\n\n");
+}
+
+function buildSupplierGroups(items) {
+ const groups = new Map();
+ items.forEach((product) => {
+  const label = supplierLabel(product) || "Fornecedor não informado";
+  if (!groups.has(label)) groups.set(label, []);
+  groups.get(label).push(product);
+ });
+ return [...groups.entries()].sort(([a], [b]) => a.localeCompare(b, "pt-BR"));
+}
+
+function buildSupplierRelation(items) {
+ return buildSupplierGroups(items).map(([supplier, products]) => {
+  const units = products.reduce((total, product) => total + (Number(product.qty) || 0), 0);
+  const lines = products
+   .sort((a, b) => a.name.localeCompare(b.name, "pt-BR"))
+   .map((product) => `${product.name.trim().toUpperCase()} · ${product.qty} un. · ${formatReportProduct(product).split("\nvenc. ").pop()}`);
+  return `${supplier.toUpperCase()}\n${products.length} produto(s) · ${units} unidade(s)\n${lines.join("\n")}`;
+ }).join("\n\n");
 }
 
 function selectedReportProducts() {
@@ -5228,6 +5648,7 @@ function filteredReportProductsForPdf(scope) {
  return reportProducts.filter((product) => remaining(product.expiry) >= 0)
   .filter((product) => selectedIds.has(String(product.id)))
   .filter((product) => scope !== "selected" || product.store === els.reportStore.value)
+  .filter((product) => productHasSupplier(product, els.reportSupplierFilter?.value || ""))
   .filter((product) => {
    if (reportCreatedTodayOnly && localDateKey(product.createdAt) !== todayKey) return false;
    const updatedDate = localDateKey(product.updatedAt || product.createdAt);
@@ -5764,6 +6185,26 @@ function renderReport() {
  updateReportSelectionStatus();
 }
 
+function renderSupplierRelation(reportProducts) {
+ if (reportProducts.length === 0) {
+  const empty = document.createElement("div");
+  empty.className = "report-empty";
+  empty.textContent = "Nenhum produto ativo para este filtro.";
+  els.reportText.appendChild(empty);
+  return;
+ }
+ buildSupplierGroups(reportProducts).forEach(([supplier, products]) => {
+  const item = document.createElement("div");
+  const units = products.reduce((total, product) => total + (Number(product.qty) || 0), 0);
+  item.className = "report-item";
+  item.textContent = `${supplier}\n${products.length} produto(s) · ${units} unidade(s)\n${products
+   .sort((a, b) => a.name.localeCompare(b.name, "pt-BR"))
+   .map((product) => `• ${product.name} — ${product.qty} un.`)
+   .join("\n")}`;
+  els.reportText.appendChild(item);
+ });
+}
+
 function updateReportSelectionStatus() {
  const reportProducts = getReportProducts();
  const selectedCount = reportProducts.filter((product) => selectedReportProductIds.has(String(product.id))).length;
@@ -5787,14 +6228,258 @@ function syncStoreFiltersFromProducts() {
  });
 }
 
+
+function updateNotificationBadgeOnly() {
+ if (!els.notificationPendingBadge) return;
+ const eligible = notificationEligibleProducts();
+ const checkedById = new Map(eligible.map((product) => [notificationProductRecordId(product), isNotificationProductChecked(product)]));
+ const pending = eligible.filter((product) => !checkedById.get(notificationProductRecordId(product)));
+ els.notificationPendingBadge.hidden = pending.length === 0;
+ els.notificationPendingBadge.textContent = pending.length > 99 ? "99+" : String(pending.length);
+ els.notificationPendingBadge.setAttribute("aria-label", `${pending.length} notificação${pending.length === 1 ? "" : "ões"} pendente${pending.length === 1 ? "" : "s"}`);
+}
+
+function getProductRevision(product) {
+ const days = remaining(product.expiry);
+ const normId = String(product.id || "");
+ const registered = resolvedProductPhotoState.get(normId);
+ const samePath = registered && String(registered.photoPath || "").trim() === String(product.photoPath || "").trim();
+ let effectivePhoto = samePath ? (registered.photo || product.photo || "") : (product.photo || "");
+ let effectivePhotoLoaded = samePath ? (registered.photoLoaded || product.photoLoaded || false) : (product.photoLoaded || false);
+ if (effectivePhoto && typeof window.skaleeIsSignedPhotoUrlExpired === "function" && window.skaleeIsSignedPhotoUrlExpired(effectivePhoto)) {
+  effectivePhoto = "";
+  effectivePhotoLoaded = false;
+ }
+ const firstCode = extractFirstInternalCode(product.code) || "";
+ const firstBarcode = extractFirstBarcode(product.barcode) || "";
+ const firstSupplierCode = extractFirstSupplierCode(product) || "";
+ const storeName = String(product.store || "").trim();
+ const offerBadges = renderOfferBadgesMarkup(product);
+ const glowStatus = getProductGlowStatus(days, Boolean(product.offer));
+ return `${product.name}#${product.qty}#${product.expiry}#${days}#${Boolean(product.offer)}#${firstCode}#${firstBarcode}#${firstSupplierCode}#${storeName}#${effectivePhoto}#${effectivePhotoLoaded}#${offerBadges}#${glowStatus}`;
+}
+
+function renderProductCardInner(product) {
+ const days = remaining(product.expiry);
+ const [label, tone] = status(days);
+ const expiryText = new Date(product.expiry + "T00:00:00").toLocaleDateString("pt-BR");
+ const normId = String(product.id || "");
+ const registered = resolvedProductPhotoState.get(normId);
+ const samePath = registered && String(registered.photoPath || "").trim() === String(product.photoPath || "").trim();
+ let effectivePhoto = samePath ? (registered.photo || product.photo || "") : (product.photo || "");
+ let effectivePhotoLoaded = samePath ? (registered.photoLoaded || product.photoLoaded || false) : (product.photoLoaded || false);
+ if (effectivePhoto && typeof window.skaleeIsSignedPhotoUrlExpired === "function" && window.skaleeIsSignedPhotoUrlExpired(effectivePhoto)) {
+  effectivePhoto = "";
+  effectivePhotoLoaded = false;
+  resolvedProductPhotoState.delete(normId);
+ }
+ const safePhotoPath = escapeHtml(product.photoPath || "");
+ const photoContent = effectivePhoto
+  ? `<img src="${effectivePhoto}" loading="lazy" decoding="async" alt="" onerror="window.skaleeHandleProductImageError?.(this, '${escapeHtml(product.id)}', '${safePhotoPath}')">`
+  : (effectivePhotoLoaded ? "Sem foto" : "Carregando foto...");
+ const photoAttrs = (!effectivePhoto && !effectivePhotoLoaded)
+  ? ` data-photo-id="${escapeHtml(product.id)}"`
+  : "";
+ const firstCode = extractFirstInternalCode(product.code) || "sem código";
+ const firstBarcode = extractFirstBarcode(product.barcode) || "sem barras";
+ const firstSupplierCode = extractFirstSupplierCode(product);
+ const storeName = String(product.store || "").trim();
+ const glowStatus = getProductGlowStatus(days, Boolean(product.offer));
+ return `
+  <div class="product-card-glow ${glowStatus}">
+   <article class="card sk-live-blur-card" data-product-id="${escapeHtml(product.id)}" role="button" tabindex="0" aria-label="Ver detalhes de ${escapeHtml(product.name)}">
+    <div class="photo"${photoAttrs}>${photoContent}</div>
+    <div class="content">
+     <div class="name" title="${escapeHtml(product.name)}">${escapeHtml(product.name)}</div>
+     <div class="card-codes">
+      <div class="code-line">Cód. interno ${escapeHtml(firstCode)} · Barras ${escapeHtml(firstBarcode)}</div>
+      ${firstSupplierCode ? `<div class="code-line code-supplier" title="Cód. fornecedor: ${escapeHtml(firstSupplierCode)}">Cód. fornecedor: <b>${escapeHtml(firstSupplierCode)}</b></div>` : `<div class="code-line code-supplier">&nbsp;</div>`}
+      ${storeName ? `<div class="code-line code-store" title="Loja: ${escapeHtml(storeName)}">Loja: <b>${escapeHtml(storeName)}</b></div>` : `<div class="code-line code-store">&nbsp;</div>`}
+     </div>
+     <div class="card-bottom">
+      <div class="card-summary">
+       <div class="info"><span>Quantidade</span><b>${product.qty} un.</b></div>
+       <div class="info"><span>Validade</span><b>${expiryText}</b></div>
+      </div>
+      <div class="badges">
+        <span class="badge ${tone}">${days === 0 ? "Vence hoje" : label}</span>
+        ${renderOfferBadgesMarkup(product)}
+        ${product.qty >= 100 ? '<span class="badge high">QUANTIDADE ALTA</span>' : ''}
+      </div>
+     </div>
+    </div>
+   </article>
+  </div>`;
+}
+
+function reconcileProductGrid(items, hasMore) {
+ closeExpandedPreview(true);
+ const grid = els.grid;
+
+ // Remove skeletons iniciais ou resíduos de carregamento se existirem
+ grid.querySelectorAll(".sk-skeleton-slot, [data-skeleton='true'], .sr-only-loading").forEach((el) => el.remove());
+ grid.removeAttribute("aria-busy");
+ grid.classList.remove("is-loading-skeleton");
+
+ if (!items || items.length === 0) {
+  const existingEmpty = grid.querySelector(":scope > .empty:not([data-load-more-products])");
+  if (!existingEmpty || grid.children.length !== 1) {
+   grid.innerHTML = '<div class="empty">Nenhum produto encontrado com esses filtros.</div>';
+  }
+  return;
+ }
+
+ const emptyMsg = grid.querySelector(":scope > .empty:not([data-load-more-products])");
+ if (emptyMsg) emptyMsg.remove();
+
+ const existingSlots = new Map();
+ let existingSentinel = null;
+ for (let child = grid.firstElementChild; child; child = child.nextElementSibling) {
+  if (child.dataset && child.dataset.slotId) {
+   existingSlots.set(child.dataset.slotId, child);
+  } else if (child.hasAttribute("data-load-more-products")) {
+   existingSentinel = child;
+  }
+ }
+
+ const currentIds = new Set(items.map((p) => String(p.id)));
+
+ for (const [id, slot] of existingSlots) {
+  if (!currentIds.has(id)) {
+   slot.remove();
+   existingSlots.delete(id);
+  }
+ }
+
+ const orderedSlots = [];
+ for (let i = 0; i < items.length; i++) {
+  const product = items[i];
+  const idStr = String(product.id);
+  const rev = getProductRevision(product);
+  let slot = existingSlots.get(idStr);
+
+  if (slot) {
+   if (slot.dataset.rev !== rev) {
+    slot.innerHTML = renderProductCardInner(product);
+    slot.dataset.rev = rev;
+   }
+  } else {
+   slot = document.createElement("div");
+   slot.className = "product-card-slot";
+   slot.dataset.slotId = idStr;
+   slot.dataset.rev = rev;
+   slot.innerHTML = renderProductCardInner(product);
+  }
+  orderedSlots.push(slot);
+ }
+
+ let referenceNode = grid.firstElementChild;
+ for (let i = 0; i < orderedSlots.length; i++) {
+  const slot = orderedSlots[i];
+  if (referenceNode !== slot) {
+   grid.insertBefore(slot, referenceNode);
+  } else {
+   referenceNode = referenceNode.nextElementSibling;
+  }
+ }
+
+ if (hasMore) {
+  if (!existingSentinel) {
+   const sentinel = document.createElement("div");
+   sentinel.className = "empty";
+   sentinel.setAttribute("data-load-more-products", "");
+   sentinel.textContent = "Carregando mais produtos...";
+   grid.appendChild(sentinel);
+  } else {
+   if (grid.lastElementChild !== existingSentinel) {
+    grid.appendChild(existingSentinel);
+   }
+  }
+ } else {
+  if (existingSentinel) {
+   existingSentinel.remove();
+  }
+  const paginationWrapper = grid.querySelector(".sk-pagination-skeletons");
+  if (paginationWrapper) paginationWrapper.remove();
+ }
+}
+
+
+function setPauseBackgroundEffects(paused) {
+ const isPaused = Boolean(paused);
+ try {
+  localStorage.setItem("skalee.pauseBgEffects", isPaused ? "true" : "false");
+ } catch (_) {}
+ document.documentElement.dataset.bgEffectsPaused = isPaused ? "true" : "false";
+
+ if (typeof window.skaleeStopAuroraWebGLLoop === "function" && isPaused) {
+  window.skaleeStopAuroraWebGLLoop();
+ } else if (typeof window.skaleeStartAuroraWebGLLoop === "function" && !isPaused) {
+  window.skaleeStartAuroraWebGLLoop();
+ }
+
+ const buttons = document.querySelectorAll("#diagPauseBgBtnProducts, #diagPauseBgBtnProductsDesktop, #androidDiagPauseBgBtn, #personalDiagPauseBgBtn");
+ buttons.forEach((btn) => {
+  btn.classList.toggle("is-paused", isPaused);
+  btn.classList.toggle("active", isPaused);
+  btn.setAttribute("aria-pressed", String(isPaused));
+  if (btn.id === "androidDiagPauseBgBtn") {
+   btn.textContent = isPaused ? "Reativar" : "Pausar";
+  } else if (btn.id === "personalDiagPauseBgBtn") {
+   btn.textContent = isPaused ? "Reativar efeitos" : "Pausar efeitos";
+  } else {
+   btn.innerHTML = isPaused
+    ? '<span aria-hidden="true">▶</span> Reativar efeitos do fundo (Pausado)'
+    : '<span aria-hidden="true">⏸</span> Pausar efeitos do fundo';
+   btn.title = isPaused
+    ? "O fundo está estático. Toque para reativar as ondas."
+    : "Toque para pausar as animações do fundo mantendo-o visível.";
+  }
+ });
+
+ const statusEl = document.getElementById("androidDiagPauseBgStatus");
+ if (statusEl) {
+  statusEl.textContent = isPaused
+   ? "Efeitos do fundo pausados (fundo estático)"
+   : "Efeitos do fundo ativos (em movimento)";
+  statusEl.style.color = isPaused ? "var(--orange, #ea580c)" : "var(--muted, #94a3b8)";
+ }
+}
+
+function togglePauseBackgroundEffects() {
+ const current = document.documentElement.dataset.bgEffectsPaused === "true";
+ setPauseBackgroundEffects(!current);
+}
+
+window.setPauseBackgroundEffects = setPauseBackgroundEffects;
+window.togglePauseBackgroundEffects = togglePauseBackgroundEffects;
+
+document.addEventListener("click", (e) => {
+ const btn = e.target.closest("#diagPauseBgBtnProducts, #diagPauseBgBtnProductsDesktop, #personalDiagPauseBgBtn");
+ if (btn) {
+  e.preventDefault();
+  togglePauseBackgroundEffects();
+ }
+});
+if (document.readyState === "loading") {
+ document.addEventListener("DOMContentLoaded", () => {
+  setPauseBackgroundEffects(localStorage.getItem("skalee.pauseBgEffects") === "true");
+ });
+} else {
+ setPauseBackgroundEffects(localStorage.getItem("skalee.pauseBgEffects") === "true");
+}
+
 function render() {
  updateClearButtons();
+
  const base = activeProducts();
  syncStoreFiltersFromProducts();
  const selectedStore = els.storeFilter.value;
  const selectedSupplier = els.supplierFilter.value.trim().toLowerCase();
  const dashboardProducts = base.filter((product) => (!selectedStore || product.store === selectedStore) && productHasSupplier(product, selectedSupplier));
- renderReport();
+ if (document.getElementById("report")?.classList.contains("active")) {
+  renderReport();
+ }
  els.grid.dataset.columns = String(productColumns);
  els.grid.style.setProperty("--product-columns", productColumns);
  els.productLayoutButtons.forEach((button) => button.classList.toggle("active", Number(button.dataset.columns) === productColumns));
@@ -5840,71 +6525,24 @@ function render() {
  const supplierFilterText = supplierFilterCodes.length > 1 ? ` em ${supplierFilterCodes.length} fornecedores` : "";
  els.result.textContent = `${items.length} produto(s) encontrado(s)${supplierFilterText}`;
 
-  const activeCards = items.map((product) => {
-   const days = remaining(product.expiry);
-   const [label, tone] = status(days);
-   const expiryText = new Date(product.expiry + "T00:00:00").toLocaleDateString("pt-BR");
-   const normId = String(product.id || "");
-   const registered = resolvedProductPhotoState.get(normId);
-   const samePath = registered && String(registered.photoPath || "").trim() === String(product.photoPath || "").trim();
-   const effectivePhoto = samePath ? (registered.photo || product.photo || "") : (product.photo || "");
-   const effectivePhotoLoaded = samePath ? (registered.photoLoaded || product.photoLoaded || false) : (product.photoLoaded || false);
-   const photoContent = effectivePhoto
-    ? `<img src="${effectivePhoto}" loading="lazy" decoding="async" alt="">`
-    : (effectivePhotoLoaded ? "Sem foto" : "Carregando foto...");
-   const photoAttrs = (!effectivePhoto && !effectivePhotoLoaded)
-    ? ` data-photo-id="${escapeHtml(product.id)}"`
-    : "";
-   const firstCode = extractFirstInternalCode(product.code) || "sem código";
-   const firstBarcode = extractFirstBarcode(product.barcode) || "sem barras";
-   const firstSupplierCode = extractFirstSupplierCode(product);
-   const storeName = String(product.store || "").trim();
-   const glowStatus = getProductGlowStatus(days, Boolean(product.offer));
-    return `
-     <div class="product-card-slot">
-      <div class="product-card-glow ${glowStatus}">
-       <article class="card" data-product-id="${escapeHtml(product.id)}" role="button" tabindex="0" aria-label="Ver detalhes de ${escapeHtml(product.name)}">
-        <div class="photo"${photoAttrs}>${photoContent}</div>
-        <div class="content">
-         <div class="name" title="${escapeHtml(product.name)}">${escapeHtml(product.name)}</div>
-         <div class="card-codes">
-          <div class="code-line">Cód. interno ${escapeHtml(firstCode)} · Barras ${escapeHtml(firstBarcode)}</div>
-          ${firstSupplierCode ? `<div class="code-line code-supplier" title="Cód. fornecedor: ${escapeHtml(firstSupplierCode)}">Cód. fornecedor: <b>${escapeHtml(firstSupplierCode)}</b></div>` : `<div class="code-line code-supplier">&nbsp;</div>`}
-          ${storeName ? `<div class="code-line code-store" title="Loja: ${escapeHtml(storeName)}">Loja: <b>${escapeHtml(storeName)}</b></div>` : `<div class="code-line code-store">&nbsp;</div>`}
-         </div>
-         <div class="card-bottom">
-          <div class="card-summary">
-           <div class="info"><span>Quantidade</span><b>${product.qty} un.</b></div>
-           <div class="info"><span>Validade</span><b>${expiryText}</b></div>
-          </div>
-          <div class="badges">
-            <span class="badge ${tone}">${days === 0 ? "Vence hoje" : label}</span>
-            ${renderOfferBadgesMarkup(product)}
-            ${product.qty >= 100 ? '<span class="badge high">QUANTIDADE ALTA</span>' : ''}
-          </div>
-         </div>
-        </div>
-       </article>
-      </div>
-     </div>`;
-   }).join("");
-  console.debug("[PHOTO CACHE] LIST", {
-   products: items.length,
-   withPhotoPath: items.filter((product) => Boolean(product.photoPath)).length,
-   requested: requestedProductPhotoIds.size
-  });
-  const moreProducts = productHasMorePages ? '<div class="empty" data-load-more-products>Carregando mais produtos...</div>' : "";
-  closeExpandedPreview(true);
-  els.grid.innerHTML = activeCards ? activeCards + moreProducts : '<div class="empty">Nenhum produto encontrado com esses filtros.</div>';
+  reconcileProductGrid(items, productHasMorePages);
  agendarCargaFotosVisiveis();
  agendarCargaMaisProdutos();
- renderNotificationCenter();
+ if (!els.personalPanel.hidden && els.personalPanel.classList.contains("show")) {
+  renderNotificationCenter();
+ } else {
+  updateNotificationBadgeOnly();
+ }
 }
+window.render = render;
+window.activeProducts = activeProducts;
 
 els.reportStore.addEventListener("change", () => {
  els.reportStatus.textContent = "";
  renderReport();
 });
+
+els.reportSupplierFilter?.addEventListener("input", renderReport);
 
 [els.reportUpdatedFrom, els.reportUpdatedTo].forEach((input) => {
  input.addEventListener("change", renderReport);
@@ -6136,6 +6774,52 @@ els.supplierFilter.addEventListener("input", () => {
 });
 els.clearSupplierFilter.addEventListener("click", () => clearFilterInput(els.supplierFilter, els.clearSupplierFilter));
 els.sort.addEventListener("change", () => scheduleProductQueryReload(0));
+
+const DESKTOP_PRODUCTS_VIEW_KEY = "skalee.desktop.productsView";
+
+function readDesktopProductsViewPreference() {
+  try {
+    const saved = localStorage.getItem(DESKTOP_PRODUCTS_VIEW_KEY);
+    return saved === "list" ? "list" : "grid";
+  } catch (_) {
+    return "grid";
+  }
+}
+
+function applyDesktopProductsView(mode, persist = true) {
+  const normalized = mode === "list" ? "list" : "grid";
+  if (persist) {
+    try {
+      localStorage.setItem(DESKTOP_PRODUCTS_VIEW_KEY, normalized);
+    } catch (_) {}
+  }
+
+  if (els.grid && els.grid.dataset.view !== normalized) {
+    els.grid.dataset.view = normalized;
+  }
+  const productsSection = document.getElementById("products");
+  if (productsSection && productsSection.dataset.view !== normalized) {
+    productsSection.dataset.view = normalized;
+  }
+
+  const toggle = els.desktopProductsViewToggle || document.getElementById("desktopProductsViewToggle");
+  if (toggle) {
+    toggle.querySelectorAll("[data-desktop-view]").forEach((btn) => {
+      const isActive = btn.dataset.desktopView === normalized;
+      btn.classList.toggle("active", isActive);
+      btn.setAttribute("aria-pressed", String(isActive));
+    });
+  }
+}
+
+if (els.desktopProductsViewToggle) {
+  els.desktopProductsViewToggle.querySelectorAll("[data-desktop-view]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      applyDesktopProductsView(btn.dataset.desktopView, true);
+    });
+  });
+  applyDesktopProductsView(readDesktopProductsViewPreference(), false);
+}
 
 function syncFilterUI() {
  const count = countActiveFilters(activeFilters);
@@ -6607,9 +7291,13 @@ function openProductDetailModal(product, sourceCard) {
  const normId = String(product.id || "");
  const registered = resolvedProductPhotoState.get(normId);
  const samePath = registered && String(registered.photoPath || "").trim() === String(product.photoPath || "").trim();
- const effectivePhoto = samePath ? (registered.photo || product.photo || "") : (product.photo || "");
+ let effectivePhoto = samePath ? (registered.photo || product.photo || "") : (product.photo || "");
+ if (effectivePhoto && typeof window.skaleeIsSignedPhotoUrlExpired === "function" && window.skaleeIsSignedPhotoUrlExpired(effectivePhoto)) {
+  effectivePhoto = "";
+  resolvedProductPhotoState.delete(normId);
+ }
  const photoMarkup = effectivePhoto
-  ? `<img src="${effectivePhoto}" alt="${escapeHtml(product.name)}">`
+  ? `<img src="${effectivePhoto}" alt="${escapeHtml(product.name)}" onerror="window.skaleeHandleProductImageError?.(this, '${escapeHtml(product.id)}', '${escapeHtml(product.photoPath || '')}')">`
   : `<div class="detail-no-photo"><span>Sem foto</span></div>`;
  const updating = pendingProductUpdateIds.has(String(product.id));
 
@@ -6664,8 +7352,21 @@ function openProductDetailModal(product, sourceCard) {
  renderAnalysis(movement, null);
  SkaleeProductDetail.carousel(els.productDetailBody);
  els.productDetailBody.querySelector('.detail-gallery-trigger').addEventListener('click', () => {
-  SkaleeProductGallery.open(product, effectivePhoto);
+  const latestResolved = resolvedProductPhotoState.get(normId);
+  const currentPhoto = (latestResolved && latestResolved.photo) || product.photo || effectivePhoto;
+  SkaleeProductGallery.open(product, currentPhoto);
  });
+ if (!effectivePhoto && product.photoPath && typeof window.skaleeDb?.getProductPhotoUrl === 'function') {
+  window.skaleeDb.getProductPhotoUrl(product.photoPath).then((url) => {
+   if (url && els.productDetailModal?.classList.contains('show')) {
+    const trigger = els.productDetailBody.querySelector('.detail-gallery-trigger');
+    if (trigger) {
+     trigger.innerHTML = `<img src="${url}" alt="${escapeHtml(product.name)}" onerror="window.skaleeHandleProductImageError?.(this, '${escapeHtml(product.id)}', '${escapeHtml(product.photoPath || '')}')"><span class="detail-gallery-hint">⤢ Ver fotos</span>`;
+    }
+    markProductPhotoLoaded(normId, url);
+   }
+  }).catch(() => {});
+ }
  const detailSession = {};
  els.productDetailBody.detailSession = detailSession;
  // Load once on opening. Slide navigation never consults the database.
@@ -6865,7 +7566,7 @@ els.grid.addEventListener('pointerdown', (event) => {
    try { navigator.vibrate(25); } catch (_) {}
   }
  }, LONG_PRESS_TIME);
-});
+}, { passive: true });
 
 els.grid.addEventListener('pointermove', (event) => {
  if (event.pointerType === 'mouse') return;
@@ -6880,7 +7581,7 @@ els.grid.addEventListener('pointermove', (event) => {
    closeExpandedPreview();
   }
  }
-});
+}, { passive: true });
 
 els.grid.addEventListener('pointerup', (event) => {
  if (event.pointerType === 'mouse') return;
@@ -6905,7 +7606,7 @@ els.grid.addEventListener('pointercancel', () => {
    longPressTriggered = false;
   }, 140);
  }
-});
+}, { passive: true });
 
 document.addEventListener('pointerup', () => {
  if (longPressTriggered) {
@@ -7020,11 +7721,51 @@ els.updateModal.addEventListener("click", (event) => {
  if (event.target === els.updateModal) closeUpdateModal();
 });
 
+async function captureUpdatePhotoWithCamera(source = 'PROMPT') {
+ const isNative = Boolean(window.Capacitor?.isNativePlatform?.());
+ const cameraPlugin = window.Capacitor?.Plugins?.Camera;
+ if (isNative && cameraPlugin) {
+  try {
+   const photo = await cameraPlugin.getPhoto({
+    source: source,
+    promptLabelHeader: 'Foto do Produto',
+    promptLabelPhoto: 'Escolher da Galeria',
+    promptLabelPicture: 'Tirar Foto com a Câmera',
+    resultType: 'uri',
+    quality: 90,
+    width: 1600,
+    height: 1600,
+    correctOrientation: true,
+    saveToGallery: false
+   });
+   const url = photo.webPath || (photo.path && window.Capacitor.convertFileSrc(photo.path));
+   if (!url) return;
+   const res = await fetch(url);
+   const blob = await res.blob();
+   const file = new File([blob], 'update-' + Date.now() + '.jpg', { type: blob.type || 'image/jpeg' });
+   await handleUpdatePhotoFile({ target: { files: [file] } });
+  } catch (err) {
+   if (!/cancel/i.test(String(err?.message || err))) {
+    console.warn('[UPDATE PHOTO] Erro ao selecionar foto:', err);
+    alert('Não foi possível obter a foto: ' + (err.message || err));
+   }
+  }
+  return;
+ }
+ if (source === 'PHOTOS') {
+  document.getElementById("updateGalleryInput")?.click();
+ } else {
+  els.updatePhotoInput?.click();
+ }
+}
+
 els.btnUpdatePhotoFile.addEventListener("click", () => {
- els.updatePhotoInput.click();
+ captureUpdatePhotoWithCamera('CAMERA');
 });
 
-document.getElementById("btnUpdatePhotoGallery").addEventListener("click", () => document.getElementById("updateGalleryInput").click());
+document.getElementById("btnUpdatePhotoGallery").addEventListener("click", () => {
+ captureUpdatePhotoWithCamera('PHOTOS');
+});
 document.getElementById("closeUpdateX").addEventListener("click", () => { if (!els.confirmUpdate.disabled) closeUpdateModal(); });
 document.getElementById("updateGalleryInput").addEventListener("change", handleUpdatePhotoFile);
 els.updatePhotoInput.addEventListener("change", handleUpdatePhotoFile);
@@ -7200,6 +7941,9 @@ els.confirmUpdate.addEventListener("click", async () => {
    };
    mergeReportProduct(finalProduct);
    products = products.map((product) => product.id === productId ? finalProduct : product);
+   if (window.skaleeLocalStore?.updateProductInFeedCache) {
+    void window.skaleeLocalStore.updateProductInFeedCache(finalProduct);
+   }
    pendingProductUpdateIds.delete(String(productId));
    if (updatingProductId === productId) closeUpdateModal();
    showToast(`${productName} atualizado.`, "success", "✓");
@@ -7243,6 +7987,9 @@ els.completeProduct.addEventListener("click", async () => {
   applyDashboardStatsDelta(product, null);
   removeReportProduct(product.id);
   products = products.filter((item) => item.id !== product.id);
+  if (window.skaleeLocalStore?.removeProductFromFeedCache) {
+   void window.skaleeLocalStore.removeProductFromFeedCache(product.id);
+  }
   closeUpdateModal();
   render();
   celebrarMissaoCumprida();
@@ -7264,6 +8011,9 @@ els.deleteProduct.addEventListener("click", async () => {
   applyDashboardStatsDelta(product, null);
   removeReportProduct(product.id);
   products = products.filter((item) => item.id !== product.id);
+  if (window.skaleeLocalStore?.removeProductFromFeedCache) {
+   void window.skaleeLocalStore.removeProductFromFeedCache(product.id);
+  }
   closeUpdateModal();
   render();
  } catch (error) {
@@ -7357,6 +8107,34 @@ function carregarProdutosRelatorioFornecedorParaSupabase(buffer) {
  return produtos;
 }
 
+function carregarProdutosRelatorioFornecedorMatriz(matrix) {
+ const produtos = [];
+ const vistos = new Set();
+ let fornecedorAtual = "";
+ let codigoFornecedorAtual = "";
+ (matrix || []).forEach(({ cells = [] }) => {
+  const valores = cells.map((cell) => normalizarEspacos(cell));
+  const linha = valores.join(" ");
+  const fornecedor = linha.match(/FORNECEDOR\s*:\s*(\d+)\s+(.+?)\s*$/i);
+  if (fornecedor) {
+   codigoFornecedorAtual = fornecedor[1];
+   fornecedorAtual = limparNomeFornecedor(fornecedor[2]);
+   return;
+  }
+  if (!fornecedorAtual) return;
+  const internalCode = String(valores[0] || "").replace(/\D/g, "");
+  const name = valores[1] || "";
+  if (!internalCode || !name || /^(CODIGO|CÓDIGO|DESCRICAO|DESCRIÇÃO)$/i.test(name)) return;
+  const barcode = [...valores.slice(2)].reverse().find((value) => /^\d{6,18}$/.test(String(value || "").replace(/\D/g, "")))?.replace(/\D/g, "") || "";
+  const sourceKey = [codigoFornecedorAtual, barcode || internalCode].filter(Boolean).join(":");
+  if (!sourceKey || vistos.has(sourceKey)) return;
+  vistos.add(sourceKey);
+  produtos.push({ barcode, internal_code: internalCode, name, source_key: sourceKey, supplier_code: codigoFornecedorAtual, supplier_name: fornecedorAtual });
+ });
+ if (!produtos.length) throw new Error("Nenhum produto com FORNECEDOR foi encontrado na planilha.");
+ return produtos;
+}
+
 function departamentoPeloNomeArquivo(file) {
  const nome = String(file?.name || "").replace(/\.[^.]+$/g, "").replace(/[_-]+/g, " ");
  const limpo = normalizarEspacos(nome.replace(/\b(catalogo|catálogo|produtos|produto|estoque|skalee|lucas)\b/gi, ""));
@@ -7396,17 +8174,26 @@ function carregarSnapshotsEstoqueDbf(buffer) {
  const bytes = new Uint8Array(buffer);
  if (bytes.length < 32 || bytes[0] !== 0x03) throw new Error("DBF inválido.");
  const view = new DataView(buffer);
- const totalRegistros = view.getUint32(4, true);
+ const declaredRecords = view.getUint32(4, true);
  const tamanhoCabecalho = view.getUint16(8, true);
- const tamanhoRegistro = view.getUint16(10, true);
- if (tamanhoCabecalho < 33 || tamanhoRegistro < 2 || tamanhoCabecalho > bytes.length || tamanhoCabecalho + totalRegistros * tamanhoRegistro > bytes.length) throw new Error("DBF truncado ou cabeçalho inválido.");
+ const declaredRecordSize = view.getUint16(10, true);
+ if (tamanhoCabecalho < 33 || tamanhoCabecalho > bytes.length) throw new Error("DBF truncado ou cabeçalho inválido.");
  const campos = [];
  for (let offset = 32; offset < tamanhoCabecalho - 1; offset += 32) {
   if (bytes[offset] === 0x0d) break;
   const nome = textoDbf(bytes.subarray(offset, offset + 11)).replace(/\0/g, "").trim().toUpperCase();
   campos.push({ nome, tipo: String.fromCharCode(bytes[offset + 11]), tamanho: bytes[offset + 16] });
  }
- if (campos.reduce((sum, campo) => sum + campo.tamanho, 1) !== tamanhoRegistro) throw new Error("Tamanho dos campos DBF inconsistente.");
+ const fieldRecordSize = campos.reduce((sum, campo) => sum + campo.tamanho, 1);
+ // Alguns exports do SG gravam 0x20 nos bytes altos do cabeçalho DBF.
+ // Nesse caso, a soma real dos campos é a fonte confiável do tamanho do registro.
+ const tamanhoRegistro = declaredRecordSize === fieldRecordSize
+  ? declaredRecordSize
+  : fieldRecordSize;
+ if (tamanhoRegistro < 2 || tamanhoCabecalho + tamanhoRegistro > bytes.length) throw new Error("DBF truncado ou cabeçalho inválido.");
+ const availableRecords = Math.floor((bytes.length - tamanhoCabecalho) / tamanhoRegistro);
+ const totalRegistros = Math.min(declaredRecords, availableRecords) || availableRecords;
+ if (!totalRegistros) throw new Error("DBF sem registros válidos para importação.");
  const codeField = campos.find((campo) => ["CODPROD", "CODIGO", "COD_PROD", "CODITEM", "PRODUTO", "COD_INT", "CODINT"].includes(campo.nome))?.nome;
  const stockField = campos.find((campo) => ["ESTOQUE", "ESTOQ", "SALDO", "QTDEST", "QTESTOQUE", "EST_ATUAL", "DISPONIVEL", "QTD_EST", "SALDO_EST"].includes(campo.nome))?.nome;
  const nameField = campos.find((campo) => ["DESCRICAO", "DESC", "PRODUTO", "NOME", "DESCRICAO_PROD", "DESCR", "NOMPROD"].includes(campo.nome))?.nome;
@@ -7579,10 +8366,19 @@ function carregarProdutosRelatorioDepartamentoParaSupabase(file, buffer, departa
  return produtos;
 }
 
-function carregarProdutosArquivoCatalogo(file, buffer, departamentoPadrao = "") {
+async function carregarProdutosArquivoCatalogo(file, buffer, departamentoPadrao = "") {
  const nome = String(file?.name || "").toLowerCase();
  if (nome.endsWith(".dbf")) return { produtos: carregarProdutosDbfParaSupabase(buffer), origem: "own_dbf" };
+ if (nome.endsWith(".xlsx")) {
+  const planilha = await extrairMatrizLinhasSg(file, buffer);
+  return { produtos: carregarProdutosRelatorioFornecedorMatriz(planilha.matrix), origem: "supplier_spreadsheet" };
+ }
  if (nome.endsWith(".xls") || nome.endsWith(".txt") || nome.endsWith(".csv")) {
+  const bytes = new Uint8Array(buffer);
+  if (nome.endsWith(".xls") && ((bytes[0] === 0x50 && bytes[1] === 0x4b) || bytes[0] === 0x3c)) {
+   const planilha = await extrairMatrizLinhasSg(file, buffer);
+   return { produtos: carregarProdutosRelatorioFornecedorMatriz(planilha.matrix), origem: "supplier_spreadsheet" };
+  }
   try {
    return { produtos: carregarProdutosRelatorioFornecedorParaSupabase(buffer), origem: "supplier_stock_report" };
   } catch (error) {
@@ -7668,12 +8464,25 @@ els.importDbf.addEventListener("click", async () => {
    definirInfoCatalogo("Lendo arquivo...", `${index + 1}/${files.length}: ${file.name}`, { loading: true });
    await new Promise((resolve) => setTimeout(resolve, 40));
    try {
-    const resultado = carregarProdutosArquivoCatalogo(file, await file.arrayBuffer());
+    const resultado = await carregarProdutosArquivoCatalogo(file, await file.arrayBuffer());
     produtos.push(...resultado.produtos);
     origens.add(resultado.origem);
    } catch (error) {
     arquivosIgnorados.push(`${file.name}: ${error.message || "formato não reconhecido"}`);
    }
+  }
+  const hasSupplierSpreadsheet = origens.has("supplier_spreadsheet") || origens.has("supplier_stock_report");
+  const hasBarcodeDbf = origens.has("own_dbf");
+  if (hasSupplierSpreadsheet && hasBarcodeDbf) {
+   const barcodeByCode = new Map(produtos
+    .filter((produto) => produto.source_key && !produto.supplier_code && produto.barcode)
+    .map((produto) => [String(produto.internal_code || "").trim(), produto.barcode])
+    .filter(([code]) => code));
+   produtos.forEach((produto) => {
+    if (!produto.supplier_code || produto.barcode) return;
+    const barcode = barcodeByCode.get(String(produto.internal_code || "").trim());
+    if (barcode) produto.barcode = barcode;
+   });
   }
   if (!produtos.length) throw new Error(arquivosIgnorados[0] || "Nenhum produto foi encontrado nos arquivos selecionados.");
   const fornecedores = new Set(produtos.map((produto) => produto.supplier_code || produto.supplier_name).filter(Boolean));
@@ -10035,6 +10844,9 @@ async function executarSalvarProduto(novoProduto) {
    } : product);
   } else if (productMatchesCurrentCriteria(produtoSalvo)) {
    products = sortProductsForCurrentCriteria([produtoSalvo, ...products]);
+  }
+  if (window.skaleeLocalStore?.invalidateFeedCache) {
+   void window.skaleeLocalStore.invalidateFeedCache();
   }
   if (produtoSalvo.photoUploadError) {
    alert(produtoSalvo.photoUploadError);

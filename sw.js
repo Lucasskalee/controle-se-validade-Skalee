@@ -1,15 +1,24 @@
-const CACHE_VERSION = "skalee-v4.3.7-report-assets";
+const CACHE_VERSION = "skalee-v4.5.8-notif-photo";
 const CACHE_NAME = CACHE_VERSION;
 
 const APP_SHELL = [
   "/",
   "/index.html",
+  "/circuit-corners.png",
+  "/assets/circuit-corners.png",
+  "/pcb-circuit-pattern.png",
+  "/assets/pcb-circuit-pattern.png",
+  "/cyber-card-bg.jpg",
+  "/assets/cyber-card-bg.jpg",
+  "/circuit-pattern.png",
+  "/assets/circuit-pattern.png",
   "/local-store.js",
   "/product-drafts.js",
   "/registration-draft-ui.js",
   "/native-camera.js",
   "/android-ui.js",
   "/android-ui.css",
+  "/skalee-i.css",
   "/product-image-service.js",
   "/product-detail.js",
   "/product-gallery.js",

@@ -69,7 +69,7 @@ interface Product {
 }
 
 type SyncOperation = "create" | "update" | "complete" | "delete";
-type SyncStatus = "pending" | "processing" | "failed";
+type SyncStatus = "pending" | "processing" | "failed" | "blocked" | "conflict";
 
 interface SyncPayloadCreate extends Partial<Product> {
   temporaryId?: string;
@@ -101,12 +101,22 @@ type SyncPayload =
 
 interface SyncQueueItem {
   id: string;
+  schemaVersion: number;
   operation: SyncOperation;
+  ownerUserId: string | null;
+  retailLocationId: string | null;
+  retailLocationName: string | null;
+  operationKey: string;
+  baseProductUpdatedAt: string | null;
+  baseProductId: string | number | null;
   payload: SyncPayload;
   createdAt: string;
+  capturedAt: string;
   retries: number;
   status: SyncStatus;
   lastError?: string | null;
+  blockedReason?: string | null;
+  processingStartedAt?: string | null;
 }
 
 interface UiFilters {
@@ -148,6 +158,18 @@ interface SkaleeLocalStoreStores {
   META: "meta";
   SYNC_QUEUE: "sync_queue";
   PHOTO_CACHE: "photo_cache";
+  FEED_CACHE?: "feed_cache";
+}
+
+interface FeedCacheRecord {
+  key: string;
+  userId: string;
+  version: number;
+  createdAt: number;
+  expiresAt: number;
+  products: Product[];
+  hasMore: boolean;
+  rawLength: number;
 }
 
 interface CachedPhotoItem {
@@ -200,7 +222,13 @@ interface SkaleeLocalStore {
   setLastSyncAt(ts?: number): Promise<boolean>;
 
   // Offline Sync Queue
-  enqueueSyncOperation(operation: SyncOperation, payload: unknown): Promise<SyncQueueItem>;
+  enqueueSyncOperation(operation: SyncOperation, payload: unknown, context: {
+    ownerUserId: string | null;
+    retailLocationId?: string | null;
+    retailLocationName?: string | null;
+    baseProductUpdatedAt?: string | null;
+    baseProductId?: string | number | null;
+  }): Promise<SyncQueueItem>;
   getPendingSyncQueue(): Promise<SyncQueueItem[]>;
   updateSyncQueueItem(id: string, updates?: Partial<SyncQueueItem>): Promise<void>;
   removeSyncQueueItem(id: string): Promise<boolean | null>;
@@ -211,6 +239,15 @@ interface SkaleeLocalStore {
   getCachedPhotoUrl(path: string): Promise<string | null>;
   setCachedPhotoUrl(path: string, url: string, ttlSeconds?: number): Promise<void>;
   deleteCachedPhoto(path: string): Promise<boolean | null>;
+
+  // Feed Cache (First 15 Products)
+  getFeedCache(key: string): Promise<FeedCacheRecord | null>;
+  removeFeedCacheEntry(key: string): Promise<boolean | null>;
+  saveFeedCache(key: string, data: { userId: string; products: Product[]; hasMore: boolean; rawLength: number }): Promise<boolean>;
+  invalidateFeedCache(options?: { userId?: string; store?: string }): Promise<void>;
+  clearUserFeedCache(userId: string): Promise<void>;
+  updateProductInFeedCache(product: Product): Promise<void>;
+  removeProductFromFeedCache(productId: string | number): Promise<void>;
 }
 
 interface ProductImageSearchResult {
@@ -277,9 +314,9 @@ interface SkaleeDb {
   loadProducts(criteria?: Record<string, unknown>): Promise<Product[]>;
   loadProductDashboardStats(criteria?: { store?: string; supplier?: string }): Promise<unknown>;
   saveProduct(product: Partial<Product>, options?: { skipOfflineQueue?: boolean }): Promise<Product>;
-  updateProduct(id: string | number, changes: Partial<Product>, options?: { skipOfflineQueue?: boolean }): Promise<Product>;
-  completeProduct(id: string | number, options?: { skipOfflineQueue?: boolean }): Promise<string | number>;
-  deleteProduct(id: string | number, options?: { skipOfflineQueue?: boolean }): Promise<string | number>;
+  updateProduct(id: string | number, changes: Partial<Product>, options?: { skipOfflineQueue?: boolean; expectedUpdatedAt?: string | null }): Promise<Product>;
+  completeProduct(id: string | number, options?: { skipOfflineQueue?: boolean; expectedUpdatedAt?: string | null }): Promise<string | number>;
+  deleteProduct(id: string | number, options?: { skipOfflineQueue?: boolean; expectedUpdatedAt?: string | null }): Promise<string | number>;
   findSearchCatalogProduct(code: string): Promise<CatalogProduct | null>;
   searchCatalogByName(term: string): Promise<CatalogProduct[]>;
   cacheExternalCatalogProduct(product: Record<string, unknown>, source?: string): Promise<CatalogProduct>;

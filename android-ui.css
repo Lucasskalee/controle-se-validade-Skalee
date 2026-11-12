@@ -3,7 +3,7 @@
    Escopo: html.android-app, ativado pelo controlador de navegação mobile.
    ========================================================================== */
 
-html:not(.android-app) :is(#androidHeader, #androidBottomNav, #android-home, #android-profile, #androidProductsViewToggle) {
+html:not(.android-app) :is(#androidHeader, #androidBottomNav, #android-home, #android-profile, #androidProductsViewToggle, .android-diag-bg-btn) {
   display: none !important;
 }
 
@@ -11,10 +11,17 @@ html:not(.android-app) :is(#androidHeader, #androidBottomNav, #android-home, #an
 html:not(.android-app) #protectedApp {
   min-width: 0;
   width: 100%;
+  overflow-x: hidden;
 }
 
 html.android-app {
-  scroll-padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px));
+  scroll-padding-top: calc(72px + env(safe-area-inset-top, 0px)) !important;
+  scroll-padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+html.android-app .skalito-tour-prompt,
+html.android-app .skalito-tour-root {
+  display: none !important;
 }
 
 html.android-app,
@@ -29,28 +36,87 @@ html.android-app body {
   touch-action: manipulation;
 }
 
-/* Titanium 2.6: wallpaper único atrás de todas as páginas e superfícies. */
+/* Unificação de fundo: o APK usa estritamente o mesmo fundo de ondas do site (#skWaveBackground) */
 html.android-app body {
   position: relative !important;
-  isolation: isolate;
-  background: var(--sk-bg-base) !important;
+  background-color: var(--sk-bg-base) !important;
+  background-image: none !important;
+  background-attachment: scroll !important;
 }
-/* A camada usada pelo WebView para o backdrop precisa estar no mesmo
-   contexto de composição dos painéis Android. */
+/* Elimina camadas de fundo duplicadas que competiam e piscavam na WebView */
 html.android-app #protectedApp::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background-image: linear-gradient(rgba(4, 12, 26, var(--sk-glass-dim, .18)), rgba(4, 12, 26, var(--sk-glass-dim, .18))), var(--sk-glass-wallpaper, none), var(--sk-surface-texture, none);
-  background-position: center;
-  background-size: cover;
-  background-repeat: no-repeat;
+  display: none !important;
 }
-html.android-app #protectedApp > * {
+html.android-app #protectedApp > :not(#androidHeader, #androidBottomNav, #androidLiquidBlurTop, #androidLiquidBlurBottom, #personalOverlay, #personalPanel, .personal-overlay, .personal-panel, .product-detail-modal, .update-modal, .saving-overlay, #modalProductReportPreview, .report-modal-overlay) {
   position: relative;
-  z-index: 1;
+  z-index: auto;
+}
+
+html.android-app .report-modal-overlay,
+html.android-app #modalProductReportPreview {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 3500 !important;
+  display: none;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 16px !important;
+  box-sizing: border-box !important;
+}
+
+html.android-app .report-modal-overlay.show,
+html.android-app #modalProductReportPreview.show {
+  display: flex !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+html.android-app #personalOverlay,
+html.android-app .personal-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2400 !important;
+  background: rgba(3, 7, 18, 0.58) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  will-change: opacity;
+  transition: opacity 0.16s ease !important;
+}
+
+html.android-app #personalPanel,
+html.android-app .personal-panel {
+  position: fixed !important;
+  top: calc(64px + env(safe-area-inset-top, 0px)) !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: auto !important;
+  z-index: 2450 !important;
+  width: clamp(270px, 64vw, 350px) !important;
+  max-width: 68vw !important;
+  height: calc(100vh - 64px - env(safe-area-inset-top, 0px)) !important;
+  height: calc(100dvh - 64px - env(safe-area-inset-top, 0px)) !important;
+  background: linear-gradient(160deg, rgba(14, 23, 42, 0.88) 0%, rgba(8, 14, 28, 0.95) 100%) !important;
+  backdrop-filter: blur(24px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(150%) !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.16) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.24) !important;
+  border-radius: 20px 0 0 0 !important;
+  box-shadow: -16px 0 48px rgba(0, 0, 0, 0.50) !important;
+  will-change: transform;
+  transition: transform 0.16s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  touch-action: pan-y;
+}
+
+@media (max-width: 620px) {
+  html.android-app #personalPanel,
+  html.android-app .personal-panel {
+    left: auto !important;
+    right: 0 !important;
+    width: clamp(260px, 64vw, 340px) !important;
+    max-width: 68vw !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.16) !important;
+    border-radius: 20px 0 0 0 !important;
+  }
 }
 
 html.android-app body {
@@ -83,22 +149,22 @@ html.android-app body.admin-open #androidBottomNav {
   display: none !important;
 }
 
-/* Ajusta o container principal (#protectedApp) para ocupar toda a viewport sem criar containing block fixo */
+/* Ajusta o container principal (#protectedApp): overflow-x: visible permite que o backdrop-filter dos cards amostre o wallpaper */
 html.android-app #protectedApp {
   display: block !important;
   width: 100% !important;
   max-width: 100% !important;
   min-height: 100dvh !important;
   margin: 0 !important;
-  padding: calc(60px + env(safe-area-inset-top, 0px)) 14px calc(104px + env(safe-area-inset-bottom, 0px)) !important;
+  padding: calc(52px + env(safe-area-inset-top, 0px)) 14px calc(108px + env(safe-area-inset-bottom, 0px)) !important;
   box-sizing: border-box !important;
-  overflow-x: hidden !important;
+  overflow-x: visible !important;
   animation: none !important;
   transform: none !important;
   filter: none !important;
   opacity: 1 !important;
-  position: relative !important;
-  z-index: 1 !important;
+  position: static !important;
+  z-index: auto !important;
 }
 
 html.android-app body.auth-loading #protectedApp,
@@ -122,7 +188,7 @@ html.android-app .page.active:not([hidden]) {
   box-sizing: border-box !important;
   margin: 12px auto 0 !important;
   position: relative;
-  z-index: 1;
+  z-index: auto;
 }
 
 /* Garante que modais de auditoria fechados nunca ocupem área na tela */
@@ -151,42 +217,13 @@ html.android-app .product-load-toast {
    - Tema Claro: WebGL Soft Aurora (Shader 2D Simplex, 30 FPS cap, 0.5x res)
    - Pausa automática fora da Home, em segundo plano ou com prefers-reduced-motion
    ========================================================================== */
-#androidAuroraContainer {
-  position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
-  height: 100dvh;
-  pointer-events: none;
-  z-index: 0;
-  overflow: hidden;
-  background: #030712;
-  transition: background 0.3s ease;
-}
-
-html.android-app[data-theme="light"] #androidAuroraContainer {
-  background: #f8fafc;
-}
-
-html:not(.android-app) #androidAuroraContainer {
+#androidAuroraContainer,
+#androidAuroraCanvas,
+#androidAuroraMesh,
+.android-aurora-blob {
   display: none !important;
-}
-
-/* Oculta/desativa o container da Aurora quando a aba ativa não for a Home */
-html.android-app:not([data-android-tab="android-home"]):not([data-android-tab=""]) #androidAuroraContainer {
-  display: none !important;
-}
-
-/* WebGL Aurora Canvas */
-#androidAuroraCanvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  display: none;
-  pointer-events: none;
-  contain: strict;
-  transition: opacity 0.35s ease;
+  visibility: hidden !important;
+  pointer-events: none !important;
 }
 
 /* CSS Aurora Mesh Blobs (Titanium Glass 2.3 — Multi-stop Radial Gradients sem blur(65px)) */
@@ -197,7 +234,7 @@ html.android-app:not([data-android-tab="android-home"]):not([data-android-tab=""
   height: 100%;
   pointer-events: none;
   overflow: hidden;
-  contain: strict;
+  contain: layout style;
 }
 
 .android-aurora-blob {
@@ -206,7 +243,7 @@ html.android-app:not([data-android-tab="android-home"]):not([data-android-tab=""
   will-change: transform;
   pointer-events: none;
   transform: translate3d(0, 0, 0);
-  contain: strict;
+  contain: layout style;
 }
 
 .android-aurora-blob.blob-1 {
@@ -331,9 +368,33 @@ html.android-app[data-theme="light"] .android-aurora-blob.blob-5 {
   );
 }
 
-/* Pausa suave nas animações da Aurora durante rolagem ativa */
+/* Pausa suave nas animações da Aurora durante rolagem ativa na Home */
 html.android-app.android-is-scrolling .android-aurora-blob {
   animation-play-state: paused !important;
+}
+
+/* Otimização de GPU e Rolagem: remove animações contínuas, will-change e garante touch-action fluida */
+html.android-app .product-card-glow {
+  animation: none !important;
+  background: linear-gradient(160deg, var(--glow-c1), var(--glow-c2)) !important;
+  will-change: auto !important;
+  transition: none !important;
+}
+html.android-app .card {
+  will-change: auto !important;
+  transition: none !important;
+}
+html.android-app .card:active {
+  transform: none !important;
+  transition: none !important;
+}
+html.android-app #grid,
+html.android-app .grid,
+html.android-app .product-card-slot,
+html.android-app .product-card-glow,
+html.android-app .card {
+  touch-action: pan-y !important;
+  -webkit-overflow-scrolling: touch !important;
 }
 
 /* Modo Econômico (Titanium Glass 2.3) */
@@ -379,73 +440,15 @@ html.android-app[data-theme="light"][data-visual-effect="eco"] #androidAuroraCon
 }
 
 /* ==========================================================================
-   CAMADAS DE DESFOQUE CONTEXTUAL PROGRESSIVO (TITANIUM GLASS 2.2)
+   TRANSIÇÃO PROGRESSIVA DE BORDAS NA LISTA (SCROLL EDGE MASK)
+   - Elimina placas fixas com blur recortado que causavam faixas retangulares visíveis
+   - O desfoque real do fundo pertence ao Header e à Bottom Navigation (Live Blur)
+   - O mascaramento suave do conteúdo pertence à área rolável, criando entrada e saída
+     gradual dos cards sem interrupção nem linhas de corte no papel de parede
    ========================================================================== */
-#androidLiquidBlurTop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 125px;
-  pointer-events: none;
-  z-index: 850;
-  backdrop-filter: blur(var(--sk-glass-blur, 18px)) saturate(135%);
-  -webkit-backdrop-filter: blur(var(--sk-glass-blur, 18px)) saturate(135%);
-  transform: scale(1.035);
-  transform-origin: center top;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--sk-bg-surface-elevated, #101827) 34%, transparent), transparent 82%);
-  -webkit-mask-image: linear-gradient(to bottom,
-    rgba(0, 0, 0, 1) 0%,
-    rgba(0, 0, 0, 0.92) 42px,
-    rgba(0, 0, 0, 0.40) 80px,
-    rgba(0, 0, 0, 0) 125px
-  );
-  mask-image: linear-gradient(to bottom,
-    rgba(0, 0, 0, 1) 0%,
-    rgba(0, 0, 0, 0.92) 42px,
-    rgba(0, 0, 0, 0.40) 80px,
-    rgba(0, 0, 0, 0) 125px
-  );
-  transition: opacity 0.25s ease;
-}
-
+#androidLiquidBlurTop,
 #androidLiquidBlurBottom {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 155px;
-  pointer-events: none;
-  z-index: 940;
-  backdrop-filter: blur(calc(var(--sk-glass-blur, 18px) + 6px)) saturate(145%);
-  -webkit-backdrop-filter: blur(calc(var(--sk-glass-blur, 18px) + 6px)) saturate(145%);
-  transform: scale(1.045);
-  transform-origin: center bottom;
-  background: linear-gradient(0deg, color-mix(in srgb, var(--sk-bg-surface-elevated, #101827) 42%, transparent), transparent 84%);
-  -webkit-mask-image: linear-gradient(to top,
-    rgba(0, 0, 0, 1) 0%,
-    rgba(0, 0, 0, 0.92) 55px,
-    rgba(0, 0, 0, 0.50) 100px,
-    rgba(0, 0, 0, 0.15) 130px,
-    rgba(0, 0, 0, 0) 155px
-  );
-  mask-image: linear-gradient(to top,
-    rgba(0, 0, 0, 1) 0%,
-    rgba(0, 0, 0, 0.92) 55px,
-    rgba(0, 0, 0, 0.50) 100px,
-    rgba(0, 0, 0, 0.15) 130px,
-    rgba(0, 0, 0, 0) 155px
-  );
-  transition: opacity 0.25s ease;
-}
-
-/* Live Blur: o zoom termina antes da área de conteúdo para manter texto e toque nítidos. */
-html.android-app[data-visual-effect="eco"] #androidLiquidBlurTop,
-html.android-app[data-visual-effect="eco"] #androidLiquidBlurBottom,
-html.performance-mode #androidLiquidBlurTop,
-html.performance-mode #androidLiquidBlurBottom {
-  transform: none;
-  background: none;
+  display: none !important;
 }
 
 /* Opacidade contextual da pilha de notificações. O primeiro item permanece dominante. */
@@ -480,11 +483,12 @@ html.android-app .android-header {
   flex-wrap: nowrap !important;
   align-items: center !important;
   justify-content: space-between !important;
-  gap: 8px !important;
+  gap: 0 !important;
   width: 100% !important;
   max-width: 100vw !important;
   margin: 0 !important;
-  padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 11px !important;
+  padding: calc(6px + env(safe-area-inset-top, 0px)) 12px 6px !important;
+  min-height: calc(48px + env(safe-area-inset-top, 0px)) !important;
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
@@ -493,19 +497,16 @@ html.android-app .android-header {
   pointer-events: auto !important;
 }
 
-/* Superfície Liquid Glass translúcida do cabeçalho com desfoque progressivo */
+/* Superfície Titanium Glass compacta e ultra-leve sem custo pesado de GPU */
 html.android-app #androidHeader::before {
   content: "";
   position: absolute;
   inset: 0;
-  bottom: -14px;
-  background: linear-gradient(180deg, rgba(16, 25, 42, 0.70) 0%, rgba(10, 16, 30, 0.52) 70%, rgba(10, 16, 30, 0) 100%);
-  backdrop-filter: blur(20px) saturate(140%);
-  -webkit-backdrop-filter: blur(20px) saturate(140%);
-  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) calc(100% - 14px), rgba(0, 0, 0, 0) 100%);
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) calc(100% - 14px), rgba(0, 0, 0, 0) 100%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  background: linear-gradient(180deg, rgba(8, 14, 28, 0.88) 0%, rgba(8, 14, 28, 0.72) 100%);
+  backdrop-filter: blur(12px) saturate(130%);
+  -webkit-backdrop-filter: blur(12px) saturate(130%);
+  border-bottom: 1px solid rgba(0, 217, 255, 0.16);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
   pointer-events: none;
   z-index: 0;
 }
@@ -515,24 +516,17 @@ html.android-app[data-theme="light"] #androidHeader {
 }
 
 html.android-app[data-theme="light"] #androidHeader::before {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.82) 0%, rgba(240, 248, 255, 0.58) 70%, rgba(240, 248, 255, 0) 100%);
-  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) calc(100% - 14px), rgba(0, 0, 0, 0) 100%);
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) calc(100% - 14px), rgba(0, 0, 0, 0) 100%);
-  border-bottom: 1px solid rgba(148, 163, 184, 0.22);
-  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.90) 0%, rgba(240, 248, 255, 0.78) 100%);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
 }
 
-/* Modo Econômico no cabeçalho: gradiente sutil sem custo de blur */
-html.android-app[data-visual-effect="eco"] #androidHeader::before {
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  background: linear-gradient(180deg, rgba(16, 25, 42, 0.90) 0%, rgba(10, 16, 30, 0.65) 80%, rgba(10, 16, 30, 0) 100%);
-}
-
-html.android-app[data-theme="light"][data-visual-effect="eco"] #androidHeader::before {
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94) 0%, rgba(240, 248, 255, 0.72) 80%, rgba(240, 248, 255, 0) 100%);
+/* Modo Econômico: zero blur */
+html.android-app[data-visual-effect="eco"] #androidHeader::before,
+html.performance-mode #androidHeader::before {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: #080e1c !important;
 }
 
 /* Elementos de primeiro plano sempre nítidos e interativos */
@@ -541,98 +535,135 @@ html.android-app #androidHeader > * {
   z-index: 1;
 }
 
-html.android-app .android-header-brand {
+/* 1. Área esquerda: Identidade Skalee (Logo 3D + SKALEE) */
+html.android-app .android-header-left {
   display: flex !important;
-  flex-direction: row !important;
-  flex-wrap: nowrap !important;
   align-items: center !important;
-  gap: 10px !important;
-  min-width: 0 !important;
-  flex: 1 1 auto !important;
-  overflow: hidden !important;
-}
-
-html.android-app .android-header-logo {
-  width: 34px !important;
-  height: 34px !important;
-  flex: 0 0 34px !important;
-  border-radius: 10px;
-  object-fit: contain;
+  justify-content: center !important;
+  flex: 0 0 auto !important;
   flex-shrink: 0 !important;
-  background: rgba(37, 99, 235, 0.12);
-  padding: 2px;
-  box-sizing: border-box;
 }
 
-html.android-app .android-header-titles {
+html.android-app .android-header-brand-img {
+  height: 38px !important;
+  width: auto !important;
+  max-width: 58px !important;
+  object-fit: contain !important;
+  display: block !important;
+  filter: drop-shadow(0 2px 6px rgba(0, 119, 255, 0.20));
+  transform: translateZ(0);
+}
+
+/* 2. Divisória vertical luminosa azul elétrico */
+html.android-app .android-header-divider {
+  width: 1px !important;
+  height: 26px !important;
+  margin: 0 10px 0 8px !important;
+  background: linear-gradient(180deg, rgba(0, 217, 255, 0.05) 0%, rgba(0, 217, 255, 0.45) 50%, rgba(0, 217, 255, 0.05) 100%) !important;
+  flex-shrink: 0 !important;
+}
+
+html.android-app[data-theme="light"] .android-header-divider {
+  background: linear-gradient(180deg, rgba(37, 99, 235, 0.08) 0%, rgba(37, 99, 235, 0.40) 50%, rgba(37, 99, 235, 0.08) 100%) !important;
+}
+
+/* 3. Área central: Identificação do aplicativo + Loja ativa */
+html.android-app .android-header-center {
   display: flex !important;
   flex-direction: column !important;
+  justify-content: center !important;
   min-width: 0 !important;
   flex: 1 1 auto !important;
   overflow: hidden !important;
+  gap: 1px !important;
 }
 
-html.android-app .android-header-brand-name {
-  font-size: 16px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
+html.android-app .android-header-app-title {
+  font-size: 14.5px !important;
+  font-weight: 800 !important;
+  line-height: 1.15 !important;
+  letter-spacing: 0.01em !important;
   color: #ffffff !important;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
-html.android-app[data-theme="light"] .android-header-brand-name {
+html.android-app[data-theme="light"] .android-header-app-title {
   color: #0f172a !important;
-  text-shadow: none;
+  text-shadow: none !important;
 }
 
-html.android-app .android-header-store-row {
-  display: flex !important;
-  flex-direction: row !important;
-  flex-wrap: nowrap !important;
+/* Seletor clicável de loja ativa */
+html.android-app .android-header-store-badge {
+  position: relative !important;
+  display: inline-flex !important;
   align-items: center !important;
-  gap: 5px !important;
-  margin-top: 2px !important;
-  min-width: 0 !important;
+  gap: 5.5px !important;
+  width: fit-content !important;
   max-width: 100% !important;
+  cursor: pointer !important;
+  padding: 1.5px 7px 1.5px 6px !important;
+  border-radius: 999px !important;
+  background: rgba(16, 28, 54, 0.40) !important;
+  border: 1px solid rgba(0, 217, 255, 0.22) !important;
+}
+
+html.android-app[data-theme="light"] .android-header-store-badge {
+  background: rgba(240, 248, 255, 0.70) !important;
+  border: 1px solid rgba(37, 99, 235, 0.22) !important;
 }
 
 html.android-app .android-header-store-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #22c55e;
-  flex-shrink: 0;
+  width: 6.5px !important;
+  height: 6.5px !important;
+  border-radius: 50% !important;
+  background: #22c55e !important;
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.75) !important;
+  flex-shrink: 0 !important;
 }
 
+html.android-app .android-header-store-name {
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+  color: #38bdf8 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: min(190px, calc(100vw - 160px)) !important;
+}
+
+html.android-app[data-theme="light"] .android-header-store-name {
+  color: #2563eb !important;
+}
+
+html.android-app .android-header-store-arrow {
+  width: 10px !important;
+  height: 10px !important;
+  color: #38bdf8 !important;
+  opacity: 0.8 !important;
+  flex-shrink: 0 !important;
+}
+
+html.android-app[data-theme="light"] .android-header-store-arrow {
+  color: #2563eb !important;
+}
+
+/* O select real fica posicionado sobre a badge para captura de toque nativa */
 html.android-app .android-header-store-select {
-  appearance: none;
-  -webkit-appearance: none;
-  background: transparent;
-  border: none;
-  padding: 2px 15px 2px 0;
-  margin: 0;
-  min-height: 24px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #38bdf8;
-  min-width: 0;
-  max-width: min(200px, calc(100vw - 125px));
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  cursor: pointer;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right center;
-}
-
-html.android-app[data-theme="light"] .android-header-store-select {
-  color: #2563eb;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  opacity: 0 !important;
+  cursor: pointer !important;
+  z-index: 2 !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  border: none !important;
+  background: transparent !important;
 }
 
 html.android-app .android-header-store-select option {
@@ -645,76 +676,88 @@ html.android-app[data-theme="light"] .android-header-store-select option {
   color: #0f172a;
 }
 
-html.android-app .android-header-actions {
+/* Oculta o seletor redundante na saudação inicial */
+html.android-app .android-home-greeting .android-home-store-pill {
+  display: none !important;
+}
+
+/* 4. Área direita: Notificações */
+html.android-app .android-header-actions,
+html.android-app .android-header-right {
   display: flex !important;
   flex-direction: row !important;
-  flex-wrap: nowrap !important;
   align-items: center !important;
-  gap: 8px !important;
   flex: 0 0 auto !important;
   flex-shrink: 0 !important;
-  margin-left: auto !important;
+  margin-left: 6px !important;
 }
 
 html.android-app .android-header-icon-btn {
-  position: relative;
-  width: 40px !important;
-  height: 40px !important;
-  min-width: 40px !important;
-  min-height: 40px !important;
-  flex: 0 0 40px !important;
-  border-radius: 12px;
+  position: relative !important;
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+  flex: 0 0 36px !important;
+  border-radius: 11px !important;
   border: 1px solid rgba(255, 255, 255, 0.16) !important;
-  background: rgba(255, 255, 255, 0.10) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
   color: #ffffff !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  cursor: pointer;
-  padding: 0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transition: transform 0.15s ease, background 0.15s ease;
+  cursor: pointer !important;
+  padding: 0 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.20) !important;
+  transition: transform 0.15s ease, background 0.15s ease !important;
+}
+
+/* Expande área de toque mínima para 44x44px conforme diretrizes de acessibilidade */
+html.android-app .android-header-icon-btn::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: -4px !important;
 }
 
 html.android-app[data-theme="light"] .android-header-icon-btn {
-  background: rgba(255, 255, 255, 0.60) !important;
+  background: rgba(255, 255, 255, 0.70) !important;
   border: 1px solid rgba(148, 163, 184, 0.28) !important;
   color: #0f172a !important;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06) !important;
 }
 
 html.android-app .android-header-icon-btn:active {
-  transform: scale(0.94);
+  transform: scale(0.93) !important;
 }
 
 html.android-app .android-header-icon-btn svg {
-  width: 20px;
-  height: 20px;
+  width: 19px !important;
+  height: 19px !important;
 }
 
 html.android-app .android-header-badge {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
-  border-radius: 999px;
-  background: #ef4444;
-  color: #ffffff;
-  font-size: 10px;
-  font-weight: 800;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid #0f172a;
-  box-sizing: border-box;
+  position: absolute !important;
+  top: -4px !important;
+  right: -4px !important;
+  min-width: 17px !important;
+  height: 17px !important;
+  padding: 0 4px !important;
+  border-radius: 999px !important;
+  background: #ef4444 !important;
+  color: #ffffff !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 2px solid #080e1c !important;
+  box-sizing: border-box !important;
 }
 
 html.android-app[data-theme="light"] .android-header-badge {
-  border-color: #ffffff;
+  border-color: #ffffff !important;
 }
 
 /* ==========================================================================
@@ -752,7 +795,7 @@ html.android-app .android-bottom-nav {
   pointer-events: none !important;
 }
 
-/* Cápsula de Vidro Flutuante Liquid Glass 2.2 */
+/* Cápsula de Vidro Flutuante Liquid Titanium (Live Blur 24px) */
 html.android-app #androidBottomNav::before {
   content: "";
   position: absolute;
@@ -761,21 +804,23 @@ html.android-app #androidBottomNav::before {
   top: 0;
   bottom: calc(6px + env(safe-area-inset-bottom, 0px));
   border-radius: 26px;
-  background: var(--sk-glass-panel-bg, rgba(16, 25, 42, .42));
-  backdrop-filter: blur(var(--sk-glass-blur, 18px)) saturate(140%);
-  -webkit-backdrop-filter: blur(var(--sk-glass-blur, 18px)) saturate(140%);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-top: 1px solid rgba(255, 255, 255, 0.26);
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.40), inset 0 1px 0 0 rgba(255, 255, 255, 0.16);
+  background: linear-gradient(145deg, rgba(14, 22, 40, 0.52) 0%, rgba(8, 14, 26, 0.66) 100%);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-top: 1px solid rgba(255, 255, 255, 0.40);
+  box-shadow: 0 16px 48px -4px rgba(0, 0, 0, 0.60), inset 0 1px 0 0 rgba(255, 255, 255, 0.22);
   pointer-events: auto;
   z-index: 0;
 }
 
 html.android-app[data-theme="light"] #androidBottomNav::before {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.40) 0%, rgba(240, 248, 255, 0.26) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.70);
-  border-top: 1px solid rgba(255, 255, 255, 0.98);
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08), inset 0 1px 0 0 rgba(255, 255, 255, 0.95);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.56) 0%, rgba(240, 248, 255, 0.44) 100%);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-top: 1px solid rgba(255, 255, 255, 1);
+  box-shadow: 0 12px 36px -4px rgba(15, 23, 42, 0.12), inset 0 1px 0 0 rgba(255, 255, 255, 0.95);
 }
 
 html.android-app .android-nav-item {
@@ -784,6 +829,7 @@ html.android-app .android-nav-item {
   border: none;
   background: transparent;
   color: #94a3b8;
+  touch-action: manipulation !important;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -797,10 +843,14 @@ html.android-app .android-nav-item {
   font-size: 11px;
   font-weight: 600;
   line-height: 1.1;
-  transition: color 0.18s ease, transform 0.15s ease;
+  transition: color 0.08s ease, transform 0.08s ease;
   position: relative;
   z-index: 1;
   pointer-events: auto;
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
 }
 
 html.android-app[data-theme="light"] .android-nav-item {
@@ -811,7 +861,7 @@ html.android-app .android-nav-item svg {
   width: 22px;
   height: 22px;
   stroke-width: 2;
-  transition: transform 0.18s ease;
+  transition: transform 0.08s ease;
 }
 
 html.android-app .android-nav-item.active {
@@ -836,7 +886,8 @@ html.android-app .android-nav-item.active:not(.android-nav-item-center)::before 
 }
 
 html.android-app .android-nav-item:active {
-  transform: scale(0.95);
+  transform: scale(0.94);
+  transition: transform 0.04s ease;
 }
 
 html.android-app .android-nav-item:disabled {
@@ -867,6 +918,7 @@ html.android-app .android-nav-fab {
   width: 48px;
   height: 48px;
   border-radius: 50%;
+  border: 1px solid var(--sk-glass-border, rgba(255, 255, 255, .18));
   background: linear-gradient(135deg, #0077ff 0%, #00d9ff 100%);
   color: #ffffff;
   display: inline-flex;
@@ -893,32 +945,17 @@ html.android-app .android-nav-fab svg {
   stroke-width: 2.6;
 }
 
-/* Transição suave entre abas acelerada por GPU (~200ms) */
-@keyframes androidPageEnter {
-  from {
-    opacity: 0.70;
-    transform: translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
+/* Exibição estável de páginas sem oscilação de opacidade ou reflow */
 html.android-app .page.active {
-  animation: androidPageEnter 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  will-change: opacity, transform;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html.android-app .page.active {
-    animation: none !important;
-  }
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+  will-change: auto !important;
 }
 
 
 /* ==========================================================================
-   3. TELA INICIAL ANDROID (#android-home)
+   3. TELA INICIAL ANDROID (#android-home) — LIQUID TITANIUM LIVE BLUR
    ========================================================================== */
 html.android-app .android-home-wrap {
   display: flex;
@@ -926,12 +963,30 @@ html.android-app .android-home-wrap {
   gap: 16px;
 }
 
+/* Superfície de Texto: Saudação e Subtítulo Liquid Titanium */
 html.android-app .android-home-greeting {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
+  padding: 14px 18px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(16, 25, 46, 0.50) 0%, rgba(10, 16, 30, 0.64) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-top: 1px solid rgba(255, 255, 255, 0.32);
+  backdrop-filter: blur(18px) saturate(145%);
+  -webkit-backdrop-filter: blur(18px) saturate(145%);
+  box-shadow: 0 8px 24px -2px rgba(0, 0, 0, 0.30), inset 0 1px 0 0 rgba(255, 255, 255, 0.16);
+}
+
+html.android-app[data-theme="light"] .android-home-greeting {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.68) 0%, rgba(240, 248, 255, 0.56) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.82);
+  border-top: 1px solid rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(18px) saturate(145%);
+  -webkit-backdrop-filter: blur(18px) saturate(145%);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06), inset 0 1px 0 0 rgba(255, 255, 255, 0.95);
 }
 
 html.android-app .android-home-greeting-text h2 {
@@ -939,36 +994,42 @@ html.android-app .android-home-greeting-text h2 {
   font-size: 20px;
   font-weight: 800;
   letter-spacing: -0.02em;
-  color: var(--text);
+  color: var(--sk-color-text-primary, #ffffff);
+}
+
+html.android-app[data-theme="light"] .android-home-greeting-text h2 {
+  color: #0f172a;
 }
 
 html.android-app .android-home-greeting-text p {
   margin: 3px 0 0;
   font-size: 13px;
-  color: var(--muted);
+  color: var(--sk-color-text-secondary, rgba(226, 232, 240, 0.85));
+}
+
+html.android-app[data-theme="light"] .android-home-greeting-text p {
+  color: #475569;
 }
 
 html.android-app .android-home-store-pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
+  padding: 6px 14px;
   border-radius: 999px;
-  background: rgba(37, 99, 235, 0.16);
-  border: 1px solid rgba(37, 99, 235, 0.32);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  color: #38bdf8;
+  background: rgba(37, 99, 235, 0.22);
+  border: 1px solid rgba(96, 165, 250, 0.45);
+  color: #7dd3fc;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 750;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.20);
 }
 
 html.android-app[data-theme="light"] .android-home-store-pill {
   color: #1d4ed8;
-  background: rgba(219, 234, 254, 0.70);
-  border: 1px solid rgba(37, 99, 235, 0.25);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(219, 234, 254, 0.80);
+  border: 1px solid rgba(37, 99, 235, 0.35);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.90);
 }
 
 /* Alerta de rascunho / recuperação na Home */
@@ -984,21 +1045,21 @@ html.android-app .android-home-draft-banner {
   gap: 12px;
   padding: 12px 14px;
   border-radius: 18px;
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.18) 0%, rgba(234, 88, 12, 0.12) 100%);
-  border: 1px solid rgba(245, 158, 11, 0.38);
-  border-top: 1px solid rgba(251, 191, 36, 0.45);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  box-shadow: 0 6px 18px -2px rgba(2, 6, 23, 0.25), inset 0 1px 0 0 rgba(255, 255, 255, 0.10);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.28) 0%, rgba(234, 88, 12, 0.20) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  border-top: 1px solid rgba(251, 191, 36, 0.60);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  box-shadow: 0 6px 18px -2px rgba(2, 6, 23, 0.30), inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
   color: var(--text);
 }
 
 html.android-app[data-theme="light"] .android-home-draft-banner {
-  background: linear-gradient(135deg, rgba(254, 243, 199, 0.85) 0%, rgba(253, 230, 138, 0.70) 100%);
-  border: 1px solid rgba(245, 158, 11, 0.28);
+  background: linear-gradient(135deg, rgba(254, 243, 199, 0.88) 0%, rgba(253, 230, 138, 0.78) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.35);
   border-top: 1px solid rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
   box-shadow: 0 4px 14px rgba(217, 119, 6, 0.08), inset 0 1px 0 0 rgba(255, 255, 255, 0.90);
 }
 
@@ -1016,50 +1077,52 @@ html.android-app .android-home-draft-banner small {
 }
 
 /* ==========================================================================
-   TITANIUM GLASS 2.0: Indicadores Principais (React Bits Minimalist)
-   - Superfície Glass Translúcida Refinada (Dark & Light)
-   - Sem riscos coloridos no topo e sem elementos decorativos chamativos
-   - Números grandes protagonistas, ícones neutros e tipografia tabular
+   CARDS DO DASHBOARD: LIVE BLUR REAL (20px) & CONTRASTE CALIBRADO
+   - Fundo translúcido com desfoque evidente do papel de parede
+   - Detalhes do fundo perdem definição preservando cores e profundidade
+   - Borda especular metálica e reflexo periférico
+   - Números e textos nítidos em alta legibilidade
    ========================================================================== */
 html.android-app .android-kpi-grid {
   display: grid;
-  grid-template-columns: 1.25fr 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
 }
 
 html.android-app .android-kpi-card {
   appearance: none;
   -webkit-appearance: none;
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  border-top: 1px solid rgba(255, 255, 255, 0.22);
-  background: linear-gradient(135deg, rgba(18, 28, 48, 0.20) 0%, rgba(10, 16, 28, 0.28) 100%);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.38) !important;
+  background: linear-gradient(135deg, rgba(16, 25, 46, 0.48) 0%, rgba(10, 16, 30, 0.62) 100%) !important;
+  backdrop-filter: blur(20px) saturate(155%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(155%) !important;
   border-radius: 20px;
-  padding: 14px 10px;
-  display: grid;
-  grid-template-rows: auto auto 1fr auto;
-  align-items: start;
-  gap: 8px;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
   text-align: left;
   cursor: pointer;
-  color: var(--text);
+  color: var(--sk-color-text-primary, #ffffff);
   font-family: inherit;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   min-width: 0;
   box-sizing: border-box;
-  box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.14);
+  box-shadow: 0 10px 32px -4px rgba(0, 0, 0, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.20), inset 0 0 16px rgba(255, 255, 255, 0.04);
   position: relative;
   overflow: hidden;
 }
 
 html.android-app[data-theme="light"] .android-kpi-card {
-  border: 1px solid rgba(255, 255, 255, 0.60);
-  border-top: 1px solid rgba(255, 255, 255, 0.95);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.36) 0%, rgba(240, 248, 255, 0.22) 100%);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 6px 24px -2px rgba(15, 23, 42, 0.04), inset 0 1px 0 0 rgba(255, 255, 255, 0.90);
+  border: 1px solid rgba(255, 255, 255, 0.80) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.98) !important;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.65) 0%, rgba(240, 248, 255, 0.52) 100%) !important;
+  backdrop-filter: blur(20px) saturate(155%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(155%) !important;
+  box-shadow: 0 8px 24px -2px rgba(15, 23, 42, 0.08), inset 0 1px 0 0 rgba(255, 255, 255, 0.95), inset 0 0 14px rgba(255, 255, 255, 0.35);
+  color: #0f172a;
 }
 
 html.android-app .android-kpi-card:active {
@@ -1069,7 +1132,7 @@ html.android-app .android-kpi-card:active {
 html.android-app .android-kpi-top {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
   width: 100%;
 }
 
@@ -1099,60 +1162,117 @@ html.android-app .android-kpi-value {
   font-variant-numeric: tabular-nums;
   color: var(--kpi-accent);
   overflow-wrap: anywhere;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
+  margin: 2px 0;
 }
 
-/* Card Hero (Vencidos / Hoje) ganha destaque tipográfico assimétrico */
-html.android-app .android-kpi-card.kpi-expired .android-kpi-value {
-  font-size: clamp(34px, 8.5vw, 40px);
+html.android-app[data-theme="light"] .android-kpi-value {
+  text-shadow: none;
 }
 
 html.android-app .android-kpi-label {
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 750;
   line-height: 1.35;
-  color: var(--text);
+  color: var(--sk-color-text-primary, #ffffff);
   word-break: normal;
+}
+
+html.android-app[data-theme="light"] .android-kpi-label {
+  color: #0f172a;
 }
 
 html.android-app .android-kpi-sub {
   font-size: 11px;
-  color: var(--muted);
+  color: var(--sk-color-text-secondary, rgba(226, 232, 240, 0.85));
   line-height: 1.35;
+  font-weight: 600;
+}
+
+html.android-app[data-theme="light"] .android-kpi-sub {
+  color: #475569;
+}
+
+/* Indicador "Em oferta" em formato horizontal compacto logo abaixo dos críticos */
+html.android-app .android-kpi-card.kpi-offer {
+  grid-column: 1 / -1;
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) auto !important;
+  grid-template-rows: auto auto !important;
+  grid-template-areas:
+    "icon label value"
+    "icon sub   value" !important;
+  align-items: center !important;
+  column-gap: 12px !important;
+  row-gap: 2px !important;
+  padding: 10px 14px !important;
+  min-height: 48px;
+  border-radius: 16px;
+}
+
+html.android-app .android-kpi-card.kpi-offer .android-kpi-top {
+  grid-area: icon !important;
+  width: auto !important;
+  justify-content: flex-start !important;
+}
+
+html.android-app .android-kpi-card.kpi-offer .android-kpi-label {
+  grid-area: label !important;
+  font-size: 13px !important;
+  font-weight: 750 !important;
+  line-height: 1.25 !important;
+}
+
+html.android-app .android-kpi-card.kpi-offer .android-kpi-sub {
+  grid-area: sub !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+}
+
+html.android-app .android-kpi-card.kpi-offer .android-kpi-value {
+  grid-area: value !important;
+  font-size: 30px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+  justify-self: end !important;
+  text-align: right !important;
 }
 
 /* Cores semânticas refinadas para comunicação de riscos operacionais */
 html.android-app .android-kpi-card.kpi-expired {
   --kpi-accent: #fca5a5;
-  --kpi-border: rgba(239, 68, 68, 0.28);
-  --kpi-tint: rgba(239, 68, 68, 0.10);
+  --kpi-border: rgba(239, 68, 68, 0.35);
+  --kpi-tint: rgba(239, 68, 68, 0.16);
 }
 html.android-app[data-theme="light"] .android-kpi-card.kpi-expired {
   --kpi-accent: #b91c1c;
-  --kpi-tint: rgba(239, 68, 68, 0.08);
+  --kpi-tint: rgba(239, 68, 68, 0.12);
 }
 
 html.android-app .android-kpi-card.kpi-expiring {
   --kpi-accent: #fcd34d;
-  --kpi-border: rgba(245, 158, 11, 0.28);
-  --kpi-tint: rgba(245, 158, 11, 0.10);
+  --kpi-border: rgba(245, 158, 11, 0.35);
+  --kpi-tint: rgba(245, 158, 11, 0.16);
 }
 html.android-app[data-theme="light"] .android-kpi-card.kpi-expiring {
   --kpi-accent: #92400e;
-  --kpi-tint: rgba(245, 158, 11, 0.08);
+  --kpi-tint: rgba(245, 158, 11, 0.12);
 }
 
 html.android-app .android-kpi-card.kpi-offer {
   --kpi-accent: #93c5fd;
-  --kpi-border: rgba(59, 130, 246, 0.28);
-  --kpi-tint: rgba(59, 130, 246, 0.10);
+  --kpi-border: rgba(59, 130, 246, 0.35);
+  --kpi-tint: rgba(59, 130, 246, 0.16);
 }
 html.android-app[data-theme="light"] .android-kpi-card.kpi-offer {
   --kpi-accent: #1d4ed8;
-  --kpi-tint: rgba(37, 99, 235, 0.08);
+  --kpi-tint: rgba(37, 99, 235, 0.12);
 }
 
 /* ==========================================================================
-   AÇÕES RÁPIDAS OPERACIONAIS (Placas Titanium Glass)
+   AÇÕES RÁPIDAS OPERACIONAIS (Placas Liquid Titanium com Live Blur 18px)
    ========================================================================== */
 html.android-app .android-quick-actions {
   display: grid;
@@ -1168,11 +1288,11 @@ html.android-app .android-qa-btn {
   min-width: 44px;
   padding: 8px 4px;
   border-radius: 16px;
-  background: linear-gradient(135deg, rgba(18, 28, 48, 0.22) 0%, rgba(11, 18, 32, 0.28) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  border-top: 1px solid rgba(255, 255, 255, 0.20);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: linear-gradient(135deg, rgba(16, 25, 46, 0.50) 0%, rgba(10, 16, 30, 0.62) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.30) !important;
+  backdrop-filter: blur(18px) saturate(145%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(145%) !important;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1181,16 +1301,16 @@ html.android-app .android-qa-btn {
   cursor: pointer;
   font-family: inherit;
   font-size: 11px;
-  font-weight: 700;
-  color: var(--text);
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.25), inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
+  font-weight: 750;
+  color: var(--sk-color-text-primary, #ffffff);
+  box-shadow: 0 6px 20px -2px rgba(0, 0, 0, 0.30), inset 0 1px 0 0 rgba(255, 255, 255, 0.16);
   transition: transform 0.15s ease, background 0.15s ease;
   box-sizing: border-box;
 }
 
 html.android-app .android-qa-btn:active {
   transform: scale(0.96);
-  background: rgba(30, 41, 59, 0.9);
+  background: rgba(30, 41, 59, 0.85);
 }
 
 html.android-app .android-qa-icon {
@@ -1209,13 +1329,13 @@ html.android-app .android-qa-icon svg {
 }
 
 html.android-app[data-theme="light"] .android-quick-actions .android-qa-btn {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.38) 0%, rgba(240, 248, 255, 0.24) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.60);
-  border-top: 1px solid rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.68) 0%, rgba(240, 248, 255, 0.55) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.80) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(18px) saturate(145%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(145%) !important;
   color: #0f172a;
-  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.03), inset 0 1px 0 0 rgba(255, 255, 255, 0.90);
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05), inset 0 1px 0 0 rgba(255, 255, 255, 0.92);
 }
 
 html.android-app[data-theme="light"] .android-quick-actions .android-qa-btn:active {
@@ -1226,13 +1346,30 @@ html.android-app[data-theme="light"] .android-qa-icon {
   color: #2563eb;
 }
 
-/* Seção Produtos em Acompanhamento */
+/* Superfície de Texto: Cabeçalho de Seção Liquid Titanium */
 html.android-app .android-section-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
   flex-wrap: wrap;
+  padding: 10px 16px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(16, 25, 46, 0.46) 0%, rgba(10, 16, 30, 0.58) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 1px solid rgba(255, 255, 255, 0.26);
+  backdrop-filter: blur(16px) saturate(135%);
+  -webkit-backdrop-filter: blur(16px) saturate(135%);
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.25), inset 0 1px 0 0 rgba(255, 255, 255, 0.14);
+}
+
+html.android-app[data-theme="light"] .android-section-head {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.65) 0%, rgba(240, 248, 255, 0.52) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  border-top: 1px solid rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(16px) saturate(135%);
+  -webkit-backdrop-filter: blur(16px) saturate(135%);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05), inset 0 1px 0 0 rgba(255, 255, 255, 0.90);
 }
 
 html.android-app .android-section-title-group {
@@ -1244,18 +1381,30 @@ html.android-app .android-section-title-group {
 
 html.android-app .android-section-title {
   margin: 0;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 800;
-  color: var(--text);
+  color: var(--sk-color-text-primary, #ffffff);
+}
+
+html.android-app[data-theme="light"] .android-section-title {
+  color: #0f172a;
 }
 
 html.android-app .android-section-count {
   font-size: 11px;
-  font-weight: 700;
-  padding: 3px 9px;
+  font-weight: 750;
+  padding: 3px 10px;
   border-radius: 999px;
-  background: rgba(148, 163, 184, 0.15);
-  color: var(--muted);
+  background: rgba(37, 99, 235, 0.20);
+  border: 1px solid rgba(96, 165, 250, 0.40);
+  color: #7dd3fc;
+  font-variant-numeric: tabular-nums;
+}
+
+html.android-app[data-theme="light"] .android-section-count {
+  background: rgba(37, 99, 235, 0.12);
+  border: 1px solid rgba(37, 99, 235, 0.28);
+  color: #1d4ed8;
 }
 
 html.android-app .android-section-link {
@@ -1273,44 +1422,60 @@ html.android-app[data-theme="light"] .android-section-link {
   color: #2563eb;
 }
 
+/* Área rolável da lista: Scroll Edge Mask suave nas extremidades */
 html.android-app .android-home-list {
   display: grid;
   grid-template-columns: 1fr;
   gap: 12px;
+  -webkit-mask-image: linear-gradient(to bottom,
+    transparent 0px,
+    black 16px,
+    black calc(100% - 24px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(to bottom,
+    transparent 0px,
+    black 16px,
+    black calc(100% - 24px),
+    transparent 100%
+  );
 }
 
-/* Cards de Produtos Titanium Glass 2.2 (Liquid Glass) */
+/* Cards de Produtos da Home: Live Blur 16px com renderização eficiente */
 html.android-app .android-home-card {
   display: grid;
   grid-template-columns: 78px minmax(0, 1fr);
   gap: 12px;
   padding: 12px;
   border-radius: 20px;
-  background: linear-gradient(135deg, rgba(16, 26, 44, 0.22) 0%, rgba(10, 16, 28, 0.30) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  border-top: 1px solid rgba(255, 255, 255, 0.22);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
-  box-shadow: 0 8px 28px -4px rgba(0, 0, 0, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
+  background: linear-gradient(135deg, rgba(16, 25, 46, 0.52) 0%, rgba(10, 16, 30, 0.65) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.32) !important;
+  backdrop-filter: blur(16px) saturate(145%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(145%) !important;
+  box-shadow: 0 10px 30px -4px rgba(0, 0, 0, 0.40), inset 0 1px 0 0 rgba(255, 255, 255, 0.16);
   cursor: pointer;
   align-items: center;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   box-sizing: border-box;
+  content-visibility: auto;
+  contain-intrinsic-size: 104px;
 }
 
 html.android-app[data-theme="light"] .android-home-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.38) 0%, rgba(240, 248, 255, 0.24) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.60);
-  border-top: 1px solid rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
-  box-shadow: 0 8px 24px -2px rgba(15, 23, 42, 0.05), inset 0 1px 0 0 rgba(255, 255, 255, 0.85);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.68) 0%, rgba(240, 248, 255, 0.55) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.82) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(16px) saturate(145%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(145%) !important;
+  box-shadow: 0 8px 24px -2px rgba(15, 23, 42, 0.08), inset 0 1px 0 0 rgba(255, 255, 255, 0.95);
 }
 
 html.android-app .android-home-card:active {
   transform: scale(0.985);
 }
 
+/* Foto do produto sem blur aninhado interno para preservar performance de GPU */
 html.android-app .android-home-card .photo {
   width: 78px !important;
   height: 78px !important;
@@ -1318,9 +1483,9 @@ html.android-app .android-home-card .photo {
   border-radius: 12px !important;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.06) !important;
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1332,8 +1497,8 @@ html.android-app .android-home-card .photo {
 }
 
 html.android-app[data-theme="light"] .android-home-card .photo {
-  background: rgba(241, 245, 249, 0.45) !important;
-  border: 1px solid rgba(148, 163, 184, 0.18) !important;
+  background: rgba(241, 245, 249, 0.60) !important;
+  border: 1px solid rgba(148, 163, 184, 0.25) !important;
 }
 
 html.android-app .android-home-card .photo img {
@@ -1391,6 +1556,7 @@ html.android-app .android-home-card-badges .badge {
   font-size: 11px;
   font-weight: 700;
   line-height: 1.2;
+  font-variant-numeric: tabular-nums;
   border: 1px solid transparent;
 }
 
@@ -1430,6 +1596,8 @@ html.android-app[data-theme="light"] .android-home-card-badges .badge.blue {
 
 /* ==========================================================================
    4. PRODUTOS (#products) — Visualização em Grade (2/3/4 col) e Lista (1 col)
+   - Superfícies Liquid Titanium translúcidas com backdrop-filter real
+   - Alta legibilidade sobre papel de parede ilustrado em temas Claro e Escuro
    ========================================================================== */
 html.android-app #products .stats {
   display: grid !important;
@@ -1440,6 +1608,44 @@ html.android-app #products .stats {
 
 html.android-app #products .stats .stat:first-child {
   grid-column: 1 / -1;
+}
+
+html.android-app #products .stats .stat {
+  background: linear-gradient(135deg, rgba(16, 25, 46, 0.94) 0%, rgba(10, 16, 30, 0.98) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.35) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-radius: 18px !important;
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.18) !important;
+  transition: none !important;
+}
+
+html.android-app[data-theme="light"] #products .stats .stat {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+  border: 1px solid rgba(203, 213, 225, 0.85) !important;
+  border-top: 1px solid rgba(255, 255, 255, 1) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.08), inset 0 1px 0 0 rgba(255, 255, 255, 0.95) !important;
+}
+
+html.android-app #products .stats .stat small {
+  color: var(--sk-color-text-secondary, rgba(226, 232, 240, 0.80)) !important;
+  font-weight: 700 !important;
+}
+
+html.android-app[data-theme="light"] #products .stats .stat small {
+  color: #475569 !important;
+}
+
+html.android-app #products .stats .stat b {
+  color: var(--sk-color-text-primary, #f8fafc) !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+html.android-app[data-theme="light"] #products .stats .stat b {
+  color: #0f172a !important;
 }
 
 html.android-app #products .product-layout-picker {
@@ -1454,10 +1660,67 @@ html.android-app #products .searchrow {
   box-sizing: border-box !important;
 }
 
+html.android-app #products .searchrow :is(input, select) {
+  background: rgba(16, 25, 46, 0.92) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.30) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  color: #f8fafc !important;
+  border-radius: 14px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.20), inset 0 1px 0 0 rgba(255, 255, 255, 0.12) !important;
+}
+
+html.android-app[data-theme="light"] #products .searchrow :is(input, select) {
+  background: #ffffff !important;
+  border: 1px solid rgba(148, 163, 184, 0.35) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  color: #0f172a !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05), inset 0 1px 0 0 rgba(255, 255, 255, 0.90) !important;
+}
+
 html.android-app #products .filters {
   display: flex !important;
   flex-wrap: wrap !important;
   gap: 6px !important;
+}
+
+html.android-app #products .chip {
+  background: rgba(16, 25, 46, 0.90) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.28) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  color: #e2e8f0 !important;
+  border-radius: 999px !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18), inset 0 1px 0 0 rgba(255, 255, 255, 0.10) !important;
+  font-weight: 700 !important;
+}
+
+html.android-app #products .chip.active {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.90) 0%, rgba(29, 78, 216, 0.95) 100%) !important;
+  border-color: rgba(96, 165, 250, 0.70) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.40), inset 0 1px 0 0 rgba(255, 255, 255, 0.30) !important;
+}
+
+html.android-app[data-theme="light"] #products .chip {
+  background: #ffffff !important;
+  border: 1px solid rgba(148, 163, 184, 0.35) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  color: #334155 !important;
+}
+  color: #334155 !important;
+}
+
+html.android-app[data-theme="light"] #products .chip.active {
+  background: #2563eb !important;
+  border-color: #1d4ed8 !important;
+  color: #ffffff !important;
 }
 
 /* Barra de ordenação e alternância Grade / Lista */
@@ -1569,13 +1832,30 @@ html.android-app #products #grid:not([data-android-view="list"]) .card {
   display: flex !important;
   flex-direction: column !important;
   align-items: stretch !important;
-  border-radius: 14px !important;
+  border-radius: 18px !important;
   overflow: hidden !important;
-  padding: 9px !important;
+  padding: 10px !important;
   gap: 7px !important;
   width: 100% !important;
   height: 100% !important;
   box-sizing: border-box !important;
+  background: linear-gradient(135deg, rgba(16, 25, 46, 0.94) 0%, rgba(10, 16, 30, 0.98) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.32) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.16) !important;
+  color: var(--sk-color-text-primary, #f8fafc) !important;
+}
+
+html.android-app[data-theme="light"] #products #grid:not([data-android-view="list"]) .card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+  border: 1px solid rgba(203, 213, 225, 0.85) !important;
+  border-top: 1px solid rgba(255, 255, 255, 1) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.08), inset 0 1px 0 0 rgba(255, 255, 255, 0.95) !important;
+  color: #0f172a !important;
 }
 
 html.android-app #products #grid:not([data-android-view="list"]) .card .photo {
@@ -1655,13 +1935,30 @@ html.android-app #products #grid[data-android-view="list"] .card {
   display: flex !important;
   flex-direction: row !important;
   align-items: center !important;
-  border-radius: 14px !important;
+  border-radius: 18px !important;
   overflow: hidden !important;
   padding: 10px 12px !important;
   gap: 12px !important;
   width: 100% !important;
   height: auto !important;
   box-sizing: border-box !important;
+  background: linear-gradient(135deg, rgba(16, 25, 46, 0.94) 0%, rgba(10, 16, 30, 0.98) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.32) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.16) !important;
+  color: var(--sk-color-text-primary, #f8fafc) !important;
+}
+
+html.android-app[data-theme="light"] #products #grid[data-android-view="list"] .card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+  border: 1px solid rgba(203, 213, 225, 0.85) !important;
+  border-top: 1px solid rgba(255, 255, 255, 1) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.08), inset 0 1px 0 0 rgba(255, 255, 255, 0.95) !important;
+  color: #0f172a !important;
 }
 
 html.android-app #products #grid[data-android-view="list"] .card .photo {
@@ -2080,7 +2377,8 @@ html.android-app .android-glass-tuning { display: grid; gap: 10px; }
 html.android-app .android-glass-tuning label { display: grid; grid-template-columns: 1fr auto; gap: 5px 8px; color: var(--sk-text-secondary, var(--text)); font-size: 11px; font-weight: 700; }
 html.android-app .android-glass-tuning output { color: var(--sk-accent-cyan); font-variant-numeric: tabular-nums; }
 html.android-app .android-glass-tuning input { grid-column: 1 / -1; width: 100%; min-height: 24px; padding: 0; accent-color: var(--sk-accent-blue); }
-html.android-app[data-theme="glass"] .android-glass-background-group[hidden] { display: none; }
+html.android-app .android-glass-background-group[hidden],
+html.android-app #androidSkaleeWallpaperGroup[hidden] { display: none !important; }
 @media (max-width: 360px) { html.android-app .android-glass-background-grid { grid-template-columns: 1fr; } }
 
 /* Titanium Glass 2.5 — a Home usa a mesma composição visual do Perfil e Produtos. */
@@ -2125,7 +2423,7 @@ html.android-app:is([data-theme="dark"], [data-theme="light"], [data-theme="glas
 html.android-app:is([data-theme="dark"], [data-theme="light"], [data-theme="glass"], [data-theme="industrial"], [data-theme="creative"], [data-theme="executive"]) .android-profile-wrap { padding-bottom: calc(36px + env(safe-area-inset-bottom, 0px)); }
 html.performance-mode.android-app:is([data-theme="dark"], [data-theme="light"], [data-theme="glass"], [data-theme="industrial"], [data-theme="creative"], [data-theme="executive"]) #androidHeader::before,
 html.performance-mode.android-app:is([data-theme="dark"], [data-theme="light"], [data-theme="glass"], [data-theme="industrial"], [data-theme="creative"], [data-theme="executive"]) #androidBottomNav::before { backdrop-filter: none; -webkit-backdrop-filter: none; }
-html.android-app:is([data-theme="dark"], [data-theme="light"], [data-theme="glass"], [data-theme="industrial"], [data-theme="creative"], [data-theme="executive"]) :is(.android-profile-card, .android-profile-hero, .android-kpi-card, .android-home-card, .android-dashboard-card) {
+html.android-app:is([data-theme="dark"], [data-theme="light"], [data-theme="glass"], [data-theme="industrial"], [data-theme="creative"], [data-theme="executive"]) :is(.android-profile-card, .android-profile-hero, .android-dashboard-card) {
   background-color: var(--sk-glass-panel-bg) !important;
   background-image: linear-gradient(135deg, rgba(255,255,255,.08), transparent 48%) !important;
   border-color: var(--sk-glass-panel-border) !important;
@@ -2133,7 +2431,7 @@ html.android-app:is([data-theme="dark"], [data-theme="light"], [data-theme="glas
   backdrop-filter: blur(var(--sk-glass-blur)) saturate(130%) !important;
   -webkit-backdrop-filter: blur(var(--sk-glass-blur)) saturate(130%) !important;
 }
-html.performance-mode.android-app:is([data-theme="dark"], [data-theme="light"], [data-theme="glass"], [data-theme="industrial"], [data-theme="creative"], [data-theme="executive"]) :is(.android-profile-card, .android-profile-hero, .android-kpi-card, .android-home-card, .android-dashboard-card) {
+html.performance-mode.android-app:is([data-theme="dark"], [data-theme="light"], [data-theme="glass"], [data-theme="industrial"], [data-theme="creative"], [data-theme="executive"]) :is(.android-profile-card, .android-profile-hero, .android-dashboard-card) {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
@@ -2141,14 +2439,14 @@ html.performance-mode.android-app:is([data-theme="dark"], [data-theme="light"], 
 /* Titanium 2.6 — fallback material para WebViews que não amostram
    corretamente o backdrop de um elemento fixo/descendente. O fallback
    permanece translúcido e não repete o wallpaper dentro dos componentes. */
-html.android-app:is([data-theme="dark"], [data-theme="light"], [data-theme="industrial"], [data-theme="creative"], [data-theme="executive"]) :is(.android-profile-card, .android-profile-hero, .android-kpi-card, .android-home-card, .android-dashboard-card, .android-product-card, .card, .stat, .form, .settings, .report),
-html.android-app[data-theme="glass"] :is(.android-profile-card, .android-profile-hero, .android-kpi-card, .android-home-card, .android-dashboard-card, .android-product-card, .card, .stat, .form, .settings, .report) {
+html.android-app:is([data-theme="dark"], [data-theme="light"], [data-theme="industrial"], [data-theme="creative"], [data-theme="executive"]) :is(.android-profile-card, .android-profile-hero, .android-dashboard-card, .android-product-card, .card, .stat, .form, .settings, .report),
+html.android-app[data-theme="glass"] :is(.android-profile-card, .android-profile-hero, .android-dashboard-card, .android-product-card, .card, .stat, .form, .settings, .report) {
   position: relative;
   isolation: isolate;
   overflow: hidden;
 }
-html.android-app:is([data-theme="dark"], [data-theme="light"], [data-theme="industrial"], [data-theme="creative"], [data-theme="executive"]) :is(.android-profile-card, .android-profile-hero, .android-kpi-card, .android-home-card, .android-dashboard-card, .android-product-card, .card, .stat, .form, .settings, .report)::before,
-html.android-app[data-theme="glass"] :is(.android-profile-card, .android-profile-hero, .android-kpi-card, .android-home-card, .android-dashboard-card, .android-product-card, .card, .stat, .form, .settings, .report)::before {
+html.android-app:is([data-theme="dark"], [data-theme="light"], [data-theme="industrial"], [data-theme="creative"], [data-theme="executive"]) :is(.android-profile-card, .android-profile-hero, .android-dashboard-card, .android-product-card, .card, .stat, .form, .settings, .report)::before,
+html.android-app[data-theme="glass"] :is(.android-profile-card, .android-profile-hero, .android-dashboard-card, .android-product-card, .card, .stat, .form, .settings, .report)::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -2159,33 +2457,15 @@ html.android-app[data-theme="glass"] :is(.android-profile-card, .android-profile
   transform: none;
   opacity: 1;
 }
-html.android-app:is([data-theme="dark"], [data-theme="light"], [data-theme="industrial"], [data-theme="creative"], [data-theme="executive"]) :is(.android-profile-card, .android-profile-hero, .android-kpi-card, .android-home-card, .android-dashboard-card, .android-product-card, .card, .stat, .form, .settings, .report) > *,
-html.android-app[data-theme="glass"] :is(.android-profile-card, .android-profile-hero, .android-kpi-card, .android-home-card, .android-dashboard-card, .android-product-card, .card, .stat, .form, .settings, .report) > * { position: relative; z-index: 1; }
+html.android-app:is([data-theme="dark"], [data-theme="light"], [data-theme="industrial"], [data-theme="creative"], [data-theme="executive"]) :is(.android-profile-card, .android-profile-hero, .android-dashboard-card, .android-product-card, .card, .stat, .form, .settings, .report) > *,
+html.android-app[data-theme="glass"] :is(.android-profile-card, .android-profile-hero, .android-dashboard-card, .android-product-card, .card, .stat, .form, .settings, .report) > * { position: relative; z-index: 1; }
 
-html.android-app:is([data-theme="dark"], [data-theme="light"], [data-theme="industrial"], [data-theme="creative"], [data-theme="executive"]) #androidHeader::after,
-html.android-app[data-theme="glass"] #androidHeader::after,
-html.android-app:is([data-theme="dark"], [data-theme="light"], [data-theme="industrial"], [data-theme="creative"], [data-theme="executive"]) #androidBottomNav::after,
-html.android-app[data-theme="glass"] #androidBottomNav::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--sk-glass-panel-bg) 82%, transparent), color-mix(in srgb, var(--sk-glass-panel-bg) 92%, transparent));
-  filter: none;
-  transform: none;
-  opacity: 1;
-}
-html.performance-mode.android-app :is(.android-profile-card, .android-profile-hero, .android-kpi-card, .android-home-card, .android-dashboard-card, .android-product-card, .card, .stat, .form, .settings, .report)::before,
-html.performance-mode.android-app :is(#androidHeader, #androidBottomNav)::after,
-html.android-app[data-visual-effect="eco"] :is(.android-profile-card, .android-profile-hero, .android-kpi-card, .android-home-card, .android-dashboard-card, .android-product-card, .card, .stat, .form, .settings, .report)::before,
-html.android-app[data-visual-effect="eco"] :is(#androidHeader, #androidBottomNav)::after {
-  filter: none;
-  opacity: .82;
-}
-@media (prefers-reduced-motion: reduce) {
-  html.android-app :is(.android-profile-card, .android-profile-hero, .android-kpi-card, .android-home-card, .android-dashboard-card, .android-product-card, .card, .stat, .form, .settings, .report)::before,
-  html.android-app :is(#androidHeader, #androidBottomNav)::after { filter: none; }
+/* Home e Shell Android Liquid Titanium: isolamento total de pseudo-elementos opacos sobre o Live Blur */
+html.android-app :is(#androidHeader, #androidBottomNav)::after,
+html.android-app :is(.android-kpi-card, .android-home-card, .android-qa-btn)::before,
+html.android-app :is(.android-kpi-card, .android-home-card, .android-qa-btn)::after {
+  display: none !important;
+  content: none !important;
 }
 
 html.android-app[data-theme="light"] .android-theme-btn.active {
@@ -2748,22 +3028,22 @@ html.android-app[data-theme="light"] .android-profile-action-btn.danger {
   }
 }
 
-/* Stack compact cards on small phones instead of compressing labels/numbers. */
+/* Layout compacto mobile: 2 críticos lado a lado (~50%) e Ofertas horizontal */
 @media (max-width: 380px) {
-  html.android-app .android-kpi-grid { grid-template-columns: 1fr; gap: 10px; }
-  html.android-app .android-kpi-card {
-    grid-template-columns: 30px minmax(0, 1fr) auto;
-    grid-template-rows: auto auto;
-    column-gap: 12px;
-    row-gap: 3px;
-    padding: 14px;
-    align-items: center;
+  html.android-app .android-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  html.android-app .android-kpi-card:not(.kpi-offer) {
+    padding: 10px 8px;
+    gap: 4px;
     border-radius: 16px;
   }
-  html.android-app .android-kpi-top { grid-area: 1 / 1 / 3 / 2; }
-  html.android-app .android-kpi-label { grid-area: 1 / 2; }
-  html.android-app .android-kpi-sub { grid-area: 2 / 2; }
-  html.android-app .android-kpi-value { grid-area: 1 / 3 / 3 / 4; font-size: 32px; max-width: 4.5em; }
+  html.android-app .android-kpi-card.kpi-offer {
+    padding: 8px 12px !important;
+    column-gap: 10px !important;
+    border-radius: 14px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2839,11 +3119,14 @@ html.android-app[data-theme="light"] .android-profile-action-btn.danger {
 }
 
 /* ==========================================================================
-   PAINEL DE ESTATÍSTICAS E ESTOQUE DO PRODUTO (LIQUID GLASS 2.3)
-   - Superfície translúcida com desfoque suave de fundo
-   - Conteúdo de fundo perceptível através do painel
-   - Textos, números tabulares, gráficos e botões com máxima nitidez
-   - Bordas e reflexos sutis seguindo a identidade Titanium Glass
+   PAINEL DE ESTATÍSTICAS E ESTOQUE DO PRODUTO (LIQUID TITANIUM MODAL)
+   - Hierarquia de 3 Níveis Visuais Claros:
+     1. Overlay de fundo: blur forte (28px) e saturação elevada que recua e desfoca a Home
+     2. Container principal do modal: vidro fosco mais denso, presença visual e foco dominante
+     3. Sub-cards internos: Visão Geral, Validade, Métricas com camada de contraste superior
+   - Borda metálica e reflexo especular lapidado
+   - Total legibilidade com números tabulares e contraste calibrado (Dark & Light)
+   - Desempenho otimizado para WebView: sem blur aninhado pesado nos sub-cards
    - Compatível com Temas Escuro e Claro e Modo Econômico
    ========================================================================== */
 html.android-app .product-detail-modal {
@@ -2855,27 +3138,30 @@ html.android-app .product-detail-modal {
   justify-content: center !important;
   padding: calc(14px + env(safe-area-inset-top, 0px)) 12px calc(14px + env(safe-area-inset-bottom, 0px)) 12px !important;
   background: rgba(3, 7, 18, 0.45) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
+  backdrop-filter: blur(8px) saturate(130%) !important;
+  -webkit-backdrop-filter: blur(8px) saturate(130%) !important;
   box-sizing: border-box !important;
 }
 
 html.android-app[data-theme="light"] .product-detail-modal {
-  background: rgba(240, 248, 255, 0.40) !important;
+  background: rgba(15, 23, 42, 0.35) !important;
+  backdrop-filter: blur(8px) saturate(130%) !important;
+  -webkit-backdrop-filter: blur(8px) saturate(130%) !important;
 }
 
 html.android-app .product-detail-panel {
   position: relative !important;
   width: 100% !important;
   max-width: 540px !important;
+  max-height: calc(100vh - 36px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
   max-height: calc(100dvh - 36px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
   border-radius: var(--sk-radius-xl, 24px) !important;
-  background: linear-gradient(135deg, rgba(16, 25, 42, 0.72) 0%, rgba(10, 16, 30, 0.82) 100%) !important;
-  backdrop-filter: blur(24px) saturate(140%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(140%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.14) !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.28) !important;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.50), inset 0 1px 0 0 rgba(255, 255, 255, 0.16) !important;
+  background: linear-gradient(145deg, rgba(14, 22, 40, 0.52) 0%, rgba(8, 14, 26, 0.68) 100%) !important;
+  backdrop-filter: blur(24px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(150%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  border-top: 1.5px solid rgba(255, 255, 255, 0.40) !important;
+  box-shadow: 0 24px 64px -8px rgba(0, 0, 0, 0.65), inset 0 1px 0 0 rgba(255, 255, 255, 0.22) !important;
   display: flex !important;
   flex-direction: column !important;
   overflow: hidden !important;
@@ -2884,34 +3170,40 @@ html.android-app .product-detail-panel {
 }
 
 html.android-app[data-theme="light"] .product-detail-panel {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.82) 0%, rgba(240, 248, 255, 0.74) 100%) !important;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.60) 0%, rgba(240, 248, 255, 0.48) 100%) !important;
   border: 1px solid rgba(255, 255, 255, 0.85) !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.98) !important;
-  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.10), inset 0 1px 0 0 rgba(255, 255, 255, 0.95) !important;
+  border-top: 1.5px solid rgba(255, 255, 255, 1) !important;
+  box-shadow: 0 16px 40px -6px rgba(15, 23, 42, 0.12), inset 0 1px 0 0 rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(24px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(150%) !important;
   color: #0f172a !important;
 }
 
-/* Modo Econômico: superfície limpa sem custo pesado de blur */
-html.android-app[data-visual-effect="eco"] .product-detail-modal {
+/* Modo Econômico e Performance: superfície limpa sem custo pesado de blur */
+html.android-app[data-visual-effect="eco"] .product-detail-modal,
+html.performance-mode .product-detail-modal {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-  background: rgba(3, 7, 18, 0.75) !important;
+  background: rgba(3, 7, 18, 0.85) !important;
 }
 
-html.android-app[data-theme="light"][data-visual-effect="eco"] .product-detail-modal {
-  background: rgba(15, 23, 42, 0.50) !important;
+html.android-app[data-theme="light"][data-visual-effect="eco"] .product-detail-modal,
+html.performance-mode[data-theme="light"] .product-detail-modal {
+  background: rgba(15, 23, 42, 0.65) !important;
 }
 
-html.android-app[data-visual-effect="eco"] .product-detail-panel {
+html.android-app[data-visual-effect="eco"] .product-detail-panel,
+html.performance-mode .product-detail-panel {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   background: #0f172a !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
 }
 
-html.android-app[data-theme="light"][data-visual-effect="eco"] .product-detail-panel {
+html.android-app[data-theme="light"][data-visual-effect="eco"] .product-detail-panel,
+html.performance-mode[data-theme="light"] .product-detail-panel {
   background: #ffffff !important;
-  border: 1px solid rgba(148, 163, 184, 0.30) !important;
+  border: 1px solid rgba(148, 163, 184, 0.35) !important;
 }
 
 /* Botão Fechar no canto superior direito */
@@ -2920,13 +3212,13 @@ html.android-app .product-detail-close {
   top: 12px !important;
   right: 12px !important;
   z-index: 20 !important;
-  width: 40px !important;
-  height: 40px !important;
-  min-height: 40px !important;
-  min-width: 40px !important;
+  width: 44px !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  min-width: 44px !important;
   border-radius: var(--sk-radius-md, 10px) !important;
-  background: rgba(255, 255, 255, 0.08) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
   color: var(--sk-color-text-primary, #f8fafc) !important;
   display: inline-flex !important;
   align-items: center !important;
@@ -2936,8 +3228,8 @@ html.android-app .product-detail-close {
 }
 
 html.android-app[data-theme="light"] .product-detail-close {
-  background: rgba(15, 23, 42, 0.06) !important;
-  border-color: rgba(148, 163, 184, 0.25) !important;
+  background: rgba(15, 23, 42, 0.08) !important;
+  border-color: rgba(148, 163, 184, 0.30) !important;
   color: #0f172a !important;
 }
 
@@ -2945,156 +3237,462 @@ html.android-app .product-detail-close:active {
   transform: scale(0.92) !important;
 }
 
-/* Corpo rolável com scroll suave */
+/* Estrutura flexível e proporcional adaptada à dimensão da tela */
 html.android-app .product-detail-body {
-  padding: 16px 16px 12px !important;
-  gap: 14px !important;
-  overflow-y: auto !important;
-  -webkit-overflow-scrolling: touch !important;
-  overscroll-behavior: contain !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  gap: 0 !important;
+  overflow: hidden !important;
   color: inherit !important;
+}
+
+html.android-app .detail-header {
+  display: grid !important;
+  grid-template-columns: 84px minmax(0, 1fr) !important;
+  grid-template-areas:
+    "badges badges"
+    "photo  title"
+    "photo  codes"
+    "photo  brand" !important;
+  column-gap: 12px !important;
+  row-gap: 3px !important;
+  align-items: start !important;
+  text-align: left !important;
+  flex: 0 0 auto !important;
+  padding: 10px 14px 6px !important;
+  background: transparent !important;
+  opacity: 0.85 !important;
+  transition: opacity 0.2s ease !important;
+}
+
+html.android-app .detail-header:before {
+  display: none !important;
+}
+
+html.android-app .detail-header .detail-badges {
+  grid-area: badges !important;
+  margin-bottom: 6px !important;
+  min-height: auto !important;
+  padding-right: 44px !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+}
+
+html.android-app .detail-header .detail-photo {
+  grid-area: photo !important;
+  width: 84px !important;
+  height: 84px !important;
+  max-width: 84px !important;
+  min-height: 84px !important;
+  margin: 0 !important;
+  border-radius: var(--sk-radius-lg, 14px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+  overflow: hidden !important;
+  flex-shrink: 0 !important;
+  align-self: center !important;
+}
+
+html.android-app .detail-header .detail-photo img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+
+html.android-app .detail-header .detail-no-photo {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  font-size: 11px !important;
+  color: var(--sk-text-muted, #94a3b8) !important;
+}
+
+html.android-app .detail-header .detail-gallery-hint {
+  position: absolute !important;
+  bottom: 3px !important;
+  right: 3px !important;
+  left: 3px !important;
+  padding: 2px 4px !important;
+  font-size: 9px !important;
+  border-radius: 6px !important;
+  background: rgba(10, 15, 30, 0.75) !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
 /* Título e Códigos */
 html.android-app .detail-title {
+  grid-area: title !important;
   color: inherit !important;
-  font-size: 17px !important;
-  font-weight: var(--sk-font-weight-bold, 700) !important;
-  padding-right: 36px !important;
-}
-
-html.android-app .detail-codes {
-  color: var(--sk-color-accent, #38bdf8) !important;
-  font-size: var(--sk-font-size-xs, 12px) !important;
-}
-
-html.android-app[data-theme="light"] .detail-codes {
-  color: #0284c7 !important;
-}
-
-/* Foto do produto translúcida */
-html.android-app .detail-photo {
-  border-radius: var(--sk-radius-lg, 14px) !important;
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
-}
-
-html.android-app[data-theme="light"] .detail-photo {
-  background: rgba(255, 255, 255, 0.60) !important;
-  border-color: rgba(148, 163, 184, 0.22) !important;
-}
-
-/* Tabela de linhas (validade, quantidade, loja, etc) */
-html.android-app .detail-rows {
-  border-radius: var(--sk-radius-lg, 14px) !important;
-  background: rgba(255, 255, 255, 0.03) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  font-size: 14.5px !important;
+  font-weight: 750 !important;
+  line-height: 1.25 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  text-align: left !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
   overflow: hidden !important;
 }
 
-html.android-app[data-theme="light"] .detail-rows {
-  background: rgba(255, 255, 255, 0.60) !important;
-  border-color: rgba(148, 163, 184, 0.22) !important;
+html.android-app .detail-codes {
+  grid-area: codes !important;
+  color: var(--sk-accent-cyan, #00d9ff) !important;
+  font-size: 11px !important;
+  line-height: 1.35 !important;
+  margin: 2px 0 0 !important;
+  text-align: left !important;
+  overflow-wrap: anywhere !important;
+}
+
+html.android-app[data-theme="light"] .detail-codes {
+  color: var(--sk-accent-blue, #1d4ed8) !important;
+}
+
+html.android-app .detail-brand {
+  grid-area: brand !important;
+  font-size: 11px !important;
+  color: var(--sk-text-muted, #94a3b8) !important;
+  margin: 1px 0 0 !important;
+  text-align: left !important;
+}
+
+/* Carrossel e Sub-cards internos: nível 3 de profundidade com contraste elevado e sem blur pesado */
+html.android-app .detail-carousel {
+  display: flex !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scroll-snap-type: x mandatory !important;
+  padding: 4px 12px 6px !important;
+  gap: 10px !important;
+}
+
+html.android-app .detail-slide {
+  flex: 0 0 calc(100% - 6px) !important;
+  min-width: 0 !important;
+  scroll-snap-align: start !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior-y: contain !important;
+  padding: 10px 12px !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+}
+
+html.android-app .detail-slide > * {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+html.android-app .detail-slide::before {
+  display: none !important;
+  content: none !important;
+}
+
+html.android-app .detail-rows {
+  position: relative !important;
+  overflow: hidden !important;
 }
 
 html.android-app .detail-row {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-  padding: 10px 14px !important;
-  font-size: 13px !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+html.android-app :is(.detail-slide, .detail-photo, .detail-rows, .detail-sg-grid > div, .detail-metrics > div, .detail-projection, .detail-sg-cumulative, .detail-percentage) {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.28) !important;
+  border-radius: var(--sk-radius-lg, 14px) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25), inset 0 1px 0 0 rgba(255, 255, 255, 0.12) !important;
+  color: inherit !important;
+}
+
+html.android-app[data-theme="light"] :is(.detail-slide, .detail-photo, .detail-rows, .detail-sg-grid > div, .detail-metrics > div, .detail-projection, .detail-sg-cumulative, .detail-percentage) {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.90) 0%, rgba(241, 245, 249, 0.78) 100%) !important;
+  border: 1px solid rgba(148, 163, 184, 0.35) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06), inset 0 1px 0 0 rgba(255, 255, 255, 0.90) !important;
+  color: #0f172a !important;
+}
+
+html.android-app .detail-slide h3 {
+  color: inherit !important;
+  font-size: 12px !important;
+  margin: 0 0 6px !important;
+  padding-bottom: 6px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10) !important;
+}
+
+html.android-app[data-theme="light"] .detail-slide h3 {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.22) !important;
+}
+
+html.android-app .detail-row {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  padding: 8px 10px !important;
+  font-size: 12px !important;
+  color: var(--sk-text-secondary, #cbd5e1) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
 }
 
 html.android-app[data-theme="light"] .detail-row {
-  border-bottom-color: rgba(148, 163, 184, 0.16) !important;
+  border-bottom-color: rgba(148, 163, 184, 0.20) !important;
+  color: #334155 !important;
 }
 
 html.android-app .detail-row strong {
-  color: inherit !important;
+  color: var(--sk-text-primary, #ffffff) !important;
   font-variant-numeric: tabular-nums !important;
 }
 
-/* Cards de Estatísticas e Estoque SG (Slides 2 e 3) */
-html.android-app .detail-sg-grid,
-html.android-app .detail-sg-cumulative,
-html.android-app .detail-percentage,
-html.android-app .detail-metrics > div,
-html.android-app .detail-projection {
-  background: rgba(255, 255, 255, 0.03) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: var(--sk-radius-lg, 14px) !important;
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
-  color: inherit !important;
-}
-
-html.android-app[data-theme="light"] :is(.detail-sg-grid, .detail-sg-cumulative, .detail-percentage, .detail-metrics > div, .detail-projection) {
-  background: rgba(255, 255, 255, 0.65) !important;
-  border-color: rgba(148, 163, 184, 0.22) !important;
+html.android-app[data-theme="light"] .detail-row strong {
+  color: #0f172a !important;
 }
 
 /* Gráfico SVG de histórico com alto contraste */
 html.android-app .detail-chart {
-  color: var(--sk-color-accent, #38bdf8) !important;
-  background: rgba(255, 255, 255, 0.02) !important;
+  color: var(--sk-accent-cyan, #00d9ff) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
   border-radius: var(--sk-radius-md, 10px) !important;
   padding: 6px !important;
 }
 
 html.android-app[data-theme="light"] .detail-chart {
-  color: #0284c7 !important;
-  background: rgba(15, 23, 42, 0.02) !important;
+  color: var(--sk-accent-blue, #1d4ed8) !important;
+  background: rgba(15, 23, 42, 0.04) !important;
+  border-color: rgba(148, 163, 184, 0.20) !important;
 }
 
 html.android-app .detail-chart text {
   fill: currentColor !important;
   font-size: 9px !important;
-  font-weight: var(--sk-font-weight-semibold, 600) !important;
+  font-weight: 600 !important;
   font-variant-numeric: tabular-nums !important;
 }
 
-/* Rodapé de Ações e Paginação */
+/* Rodapé de Ações e Paginação Proporcional */
 html.android-app .detail-footer {
-  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
-  padding: 12px 16px !important;
-  background: rgba(10, 16, 30, 0.40) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+  padding: 6px 14px 10px !important;
+  background: rgba(10, 15, 30, 0.35) !important;
   display: flex !important;
   flex-direction: column !important;
-  gap: 10px !important;
+  gap: 6px !important;
+  flex: 0 0 auto !important;
 }
 
 html.android-app[data-theme="light"] .detail-footer {
-  border-top-color: rgba(148, 163, 184, 0.20) !important;
-  background: rgba(255, 255, 255, 0.45) !important;
+  border-top-color: rgba(148, 163, 184, 0.25) !important;
+  background: rgba(248, 250, 252, 0.40) !important;
+}
+
+html.android-app .detail-pagination {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  height: 26px !important;
+  min-height: 26px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
 }
 
 html.android-app .detail-dot {
-  width: 10px !important;
-  height: 10px !important;
-  border-radius: var(--sk-radius-full, 9999px) !important;
-  background: rgba(255, 255, 255, 0.20) !important;
+  width: 32px !important;
+  height: 26px !important;
+  min-width: 32px !important;
+  min-height: 26px !important;
+  padding: 0 !important;
+  margin: 0 1px !important;
+  background: transparent !important;
   border: none !important;
-  transition: all var(--sk-duration-normal, 150ms) ease !important;
+  box-shadow: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  -webkit-tap-highlight-color: transparent !important;
 }
 
-html.android-app[data-theme="light"] .detail-dot {
-  background: rgba(15, 23, 42, 0.20) !important;
+html.android-app .detail-dot::before {
+  content: "" !important;
+  display: block !important;
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: var(--sk-radius-full, 9999px) !important;
+  background: rgba(255, 255, 255, 0.28) !important;
+  box-shadow: none !important;
+  transition: width 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+              background-color 0.25s ease,
+              box-shadow 0.25s ease !important;
 }
 
-html.android-app .detail-dot[aria-current="true"] {
-  background: var(--sk-color-accent, #38bdf8) !important;
-  width: 24px !important;
+html.android-app[data-theme="light"] .detail-dot::before {
+  background: rgba(15, 23, 42, 0.25) !important;
 }
 
-html.android-app[data-theme="light"] .detail-dot[aria-current="true"] {
-  background: #0284c7 !important;
+html.android-app .detail-dot[aria-current="true"]::before {
+  width: 22px !important;
+  height: 8px !important;
+  border-radius: var(--sk-radius-full, 9999px) !important;
+  background: var(--sk-accent-cyan, #00d9ff) !important;
+  box-shadow: 0 0 10px rgba(0, 217, 255, 0.70) !important;
+}
+
+html.android-app[data-theme="light"] .detail-dot[aria-current="true"]::before {
+  background: var(--sk-accent-blue, #1d4ed8) !important;
+  box-shadow: 0 0 8px rgba(29, 78, 216, 0.40) !important;
+}
+
+html.android-app .detail-actions {
+  display: flex !important;
+  gap: 8px !important;
 }
 
 html.android-app .detail-actions button {
   min-height: 44px !important;
   border-radius: var(--sk-radius-md, 10px) !important;
-  font-weight: var(--sk-font-weight-bold, 700) !important;
+  font-weight: 700 !important;
+  padding: 8px 12px !important;
 }
+
+/* ==========================================================================
+   Ajustes de Escala Dinâmica por Altura/Largura de Tela (Mobile & Compact Viewports)
+   ========================================================================== */
+@media (max-height: 680px) {
+  html.android-app .product-detail-modal {
+    padding: calc(8px + env(safe-area-inset-top, 0px)) 8px calc(8px + env(safe-area-inset-bottom, 0px)) 8px !important;
+  }
+  html.android-app .product-detail-panel {
+    max-height: calc(100vh - 16px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+    max-height: calc(100dvh - 16px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+    border-radius: 20px !important;
+  }
+  html.android-app .detail-header {
+    padding: 8px 12px 4px !important;
+    grid-template-columns: 76px minmax(0, 1fr) !important;
+    column-gap: 10px !important;
+    row-gap: 2px !important;
+  }
+  html.android-app .detail-header:before {
+    display: none !important;
+  }
+  html.android-app .detail-header .detail-photo {
+    width: 76px !important;
+    height: 76px !important;
+    max-width: 76px !important;
+    min-height: 76px !important;
+    margin: 0 !important;
+  }
+  html.android-app .detail-title {
+    font-size: 13.5px !important;
+    padding: 0 !important;
+  }
+  html.android-app .detail-codes {
+    font-size: 10px !important;
+    margin-top: 1px !important;
+  }
+  html.android-app .detail-slide {
+    padding: 8px 10px !important;
+  }
+  html.android-app .detail-slide h3 {
+    margin: 0 0 4px !important;
+    padding-bottom: 4px !important;
+    font-size: 11.5px !important;
+  }
+  html.android-app .detail-row {
+    padding: 6px 8px !important;
+    font-size: 11.5px !important;
+  }
+  html.android-app .detail-footer {
+    padding: 4px 12px 8px !important;
+    gap: 4px !important;
+  }
+  html.android-app .detail-pagination {
+    height: 22px !important;
+    min-height: 22px !important;
+  }
+  html.android-app .detail-actions button {
+    min-height: 42px !important;
+    font-size: 12.5px !important;
+  }
+}
+
+@media (max-width: 380px) {
+  html.android-app .product-detail-modal {
+    padding: 6px !important;
+  }
+  html.android-app .product-detail-panel {
+    border-radius: 18px !important;
+  }
+  html.android-app .detail-header {
+    grid-template-columns: 70px minmax(0, 1fr) !important;
+    column-gap: 8px !important;
+  }
+  html.android-app .detail-header .detail-photo {
+    width: 70px !important;
+    height: 70px !important;
+    max-width: 70px !important;
+    min-height: 70px !important;
+  }
+  html.android-app .detail-title {
+    font-size: 13px !important;
+    padding: 0 !important;
+  }
+  html.android-app .detail-codes {
+    font-size: 9.5px !important;
+  }
+  html.android-app .detail-row {
+    padding: 6px 6px !important;
+    font-size: 11px !important;
+  }
+  html.android-app .detail-row span {
+    max-width: 48% !important;
+  }
+  html.android-app .detail-row strong {
+    font-size: 11.5px !important;
+  }
+  html.android-app .detail-rows::after {
+    width: 130px !important;
+    height: 130px !important;
+  }
+}
+
+/* Resposta tátil ultrarrápida (0ms delay) para botões de controle e câmera */
+html.android-app #androidHeaderNotificationBtn,
+html.android-app .android-qa-btn,
+html.android-app #scanCamera,
+html.android-app .scanner-control,
+html.android-app .scanner-action-btn,
+html.android-app .personal-panel-tab,
+html.android-app .personal-close {
+  touch-action: manipulation !important;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
 
 
 

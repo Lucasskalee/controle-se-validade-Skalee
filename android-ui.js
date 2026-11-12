@@ -127,8 +127,11 @@
   }
 
   function getAuthorizedStoreList() {
-    if (typeof allowedLocations !== 'undefined' && Array.isArray(allowedLocations)) {
-      const activeLocs = allowedLocations.filter((loc) => loc && loc.active !== false);
+    const locList = (typeof allowedLocations !== 'undefined' && Array.isArray(allowedLocations))
+      ? allowedLocations
+      : (typeof window !== 'undefined' && Array.isArray(window.allowedLocations) ? window.allowedLocations : null);
+    if (locList && Array.isArray(locList)) {
+      const activeLocs = locList.filter((loc) => loc && loc.active !== false);
       const names = activeLocs
         .map((loc) => String(loc.name || '').trim())
         .filter(Boolean);
@@ -139,7 +142,7 @@
       };
     }
 
-    const selectEl = typeof els !== 'undefined' ? els.storeFilter : null;
+    const selectEl = (typeof els !== 'undefined' ? els.storeFilter : null) || (typeof window !== 'undefined' && window.els ? window.els.storeFilter : null) || document.getElementById('storeFilter');
     if (selectEl && selectEl.options && selectEl.options.length > 1) {
       const names = [...selectEl.options]
         .map((opt) => String(opt.value || '').trim())
@@ -383,19 +386,24 @@
     header.id = 'androidHeader';
     header.className = 'android-header';
     header.innerHTML = `
-      <div class="android-header-brand">
-        <img src="skalee-icon-192.png" alt="Skalee" class="android-header-logo">
-        <div class="android-header-titles">
-          <span class="android-header-brand-name">Skalee Validades</span>
-          <div class="android-header-store-row">
-            <span class="android-header-store-dot" aria-hidden="true"></span>
-            <select id="androidHeaderStoreSelect" class="android-header-store-select" aria-label="Selecionar loja ativa">
-              <option value="">Todas as lojas</option>
-            </select>
-          </div>
-        </div>
+      <div class="android-header-left" role="banner">
+        <img src="assets/skalee-header-brand.png" alt="Skalee" class="android-header-brand-img" width="54" height="38">
       </div>
-      <div class="android-header-actions">
+      <div class="android-header-divider" aria-hidden="true"></div>
+      <div class="android-header-center">
+        <span class="android-header-app-title">Validades</span>
+        <label class="android-header-store-badge" for="androidHeaderStoreSelect" title="Trocar loja ativa">
+          <span class="android-header-store-dot" aria-hidden="true"></span>
+          <span id="androidHeaderStoreName" class="android-header-store-name">Todas as lojas</span>
+          <select id="androidHeaderStoreSelect" class="android-header-store-select" aria-label="Selecionar loja ativa">
+            <option value="">Todas as lojas</option>
+          </select>
+          <svg class="android-header-store-arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="3 4.5 6 7.5 9 4.5"></polyline>
+          </svg>
+        </label>
+      </div>
+      <div class="android-header-actions android-header-right">
         <button type="button" id="androidHeaderNotificationBtn" class="android-header-icon-btn" aria-label="Notificações de validade">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
@@ -415,6 +423,10 @@
         reloadProducts: true,
         reloadNotifications: true
       });
+      const nameEl = header.querySelector('#androidHeaderStoreName');
+      if (nameEl) {
+        nameEl.textContent = storeSelect.options[storeSelect.selectedIndex]?.textContent || getActiveStoreLabel();
+      }
     });
 
     const notifBtn = header.querySelector('#androidHeaderNotificationBtn');
@@ -584,8 +596,12 @@
     homeSection.querySelector('#androidQaScan')?.addEventListener('click', () => {
       userSelectedTabManually = true;
       navigateAndroidTab('register');
-      const scanBtn = document.getElementById('btnScan');
-      if (scanBtn) scanBtn.click();
+      const scanBtn = document.getElementById('scanCamera') || document.getElementById('btnScan');
+      if (scanBtn) {
+        scanBtn.click();
+      } else if (typeof startScanner === 'function') {
+        void startScanner();
+      }
     });
 
     homeSection.querySelector('#androidQaRegister')?.addEventListener('click', () => {
@@ -595,12 +611,12 @@
 
     homeSection.querySelector('#androidQaReports')?.addEventListener('click', () => {
       userSelectedTabManually = true;
-      navigateAndroidTab('reports');
+      navigateAndroidTab('report');
     });
 
     homeSection.querySelector('#androidQaAudit')?.addEventListener('click', () => {
       userSelectedTabManually = true;
-      navigateAndroidTab('profile');
+      navigateAndroidTab('audit');
     });
 
 
@@ -710,7 +726,21 @@
     controlsWrap.appendChild(toggle);
 
     if (resultEl && resultEl.parentNode === toolbarRow) {
-      toolbarRow.appendChild(controlsWrap);
+      const diagBtn = document.createElement('button');
+    diagBtn.type = 'button';
+    diagBtn.id = 'diagPauseBgBtnProducts';
+    diagBtn.className = 'android-diag-bg-btn';
+    diagBtn.setAttribute('aria-pressed', String(document.documentElement.dataset.bgEffectsPaused === 'true'));
+    diagBtn.innerHTML = document.documentElement.dataset.bgEffectsPaused === 'true'
+      ? '<span aria-hidden="true">▶</span> Reativar efeitos do fundo (Pausado)'
+      : '<span aria-hidden="true">⏸</span> Pausar efeitos do fundo';
+    diagBtn.addEventListener('click', () => {
+      if (typeof window.togglePauseBackgroundEffects === 'function') {
+        window.togglePauseBackgroundEffects();
+      }
+    });
+    controlsWrap.appendChild(diagBtn);
+    toolbarRow.appendChild(controlsWrap);
     } else {
       toolbarRow.prepend(controlsWrap);
     }
@@ -769,35 +799,48 @@
               <button type="button" class="android-theme-btn" data-android-theme="industrial"><span class="theme-swatch theme-swatch-industrial" aria-hidden="true"></span>Industrial</button>
               <button type="button" class="android-theme-btn" data-android-theme="creative"><span class="theme-swatch theme-swatch-creative" aria-hidden="true"></span>Creative</button>
               <button type="button" class="android-theme-btn" data-android-theme="executive"><span class="theme-swatch theme-swatch-executive" aria-hidden="true"></span>Executive</button>
+              <button type="button" class="android-theme-btn" data-android-theme="skalee-i"><span class="theme-swatch theme-swatch-skalee-i" aria-hidden="true"></span>SKALEE I</button>
             </div>
           </div>
 
           <div class="android-appearance-group" style="margin-top: 14px;">
-            <span class="android-appearance-label">Estilo de fundo</span>
-            <div class="android-background-style-grid" role="radiogroup" aria-label="Fundo global">
-              <button type="button" class="android-background-style-btn" data-background-style="titanium" role="radio" aria-checked="false"><strong>Textura Titanium</strong><span>Fundo metálico Skalee</span></button>
-              <button type="button" class="android-background-style-btn" data-background-style="image" role="radio" aria-checked="false"><strong>Minha imagem</strong><span>Wallpaper local do dispositivo</span></button>
+            <span class="android-appearance-label">Diagnóstico de Desempenho</span>
+            <div class="android-diag-card" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid var(--line, rgba(148,163,184,.2)); border-radius: 12px; background: rgba(255,255,255,.04);">
+              <div style="min-width: 0;">
+                <strong style="display: block; font-size: 13.5px; color: var(--text, #f8fafc);">Pausar efeitos do fundo</strong>
+                <span id="androidDiagPauseBgStatus" style="font-size: 11.5px; color: var(--muted, #94a3b8); display: block; margin-top: 2px;">Mantém o fundo visível e estático, pausando animações e ondas para teste de rolagem.</span>
+              </div>
+              <button type="button" id="androidDiagPauseBgBtn" class="android-theme-btn" style="min-width: 90px; padding: 8px 12px; font-weight: 700; flex-shrink: 0;">Pausar</button>
             </div>
           </div>
+          <div id="androidSkaleeWallpaperGroup" class="android-appearance-group android-glass-background-group" style="margin-top: 14px;" data-theme-customization>
+            <span class="android-appearance-label">Recomendações de Fundo (Exclusivo SKALEE)</span>
+            
+            <div class="android-wallpaper-presets-grid" role="radiogroup" aria-label="Recomendações de Plano de Fundo SKALEE" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 10px;">
+              <button type="button" class="android-wallpaper-preset-btn" data-skalee-preset="dark" role="radio" aria-checked="false">
+                <div class="android-wallpaper-thumb thumb-dark" aria-hidden="true"></div>
+                <strong style="font-size: 10.5px; text-align: center;">SKALEE Dark</strong>
+              </button>
 
-          <div class="android-appearance-group android-glass-background-group" style="margin-top: 14px;" data-theme-customization>
-            <span class="android-appearance-label">Personalização do fundo</span>
-            <div class="android-glass-background-grid" role="radiogroup" aria-label="Personalização do fundo">
-              <button type="button" class="android-glass-background-btn" data-glass-background="titanium" role="radio" aria-checked="false">Textura Titanium</button>
-              <button type="button" class="android-glass-background-btn" data-glass-background="image" role="radio" aria-checked="false">Minha imagem</button>
+              <button type="button" class="android-wallpaper-preset-btn" data-skalee-preset="white" role="radio" aria-checked="false">
+                <div class="android-wallpaper-thumb thumb-white" aria-hidden="true"></div>
+                <strong style="font-size: 10.5px; text-align: center;">SKALEE White</strong>
+              </button>
+
+              <button type="button" class="android-wallpaper-preset-btn" data-skalee-preset="default" role="radio" aria-checked="false">
+                <div class="android-wallpaper-thumb thumb-fluid" aria-hidden="true"></div>
+                <strong style="font-size: 10.5px; text-align: center;">Padrão Fluido</strong>
+              </button>
+            </div>
+
+            <div class="android-glass-wallpaper-actions" data-theme-customization style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button type="button" class="android-glass-secondary-btn" id="androidGlassWallpaperChooseBtn">Enviar outra foto...</button>
+              <button type="button" class="android-glass-secondary-btn" id="androidGlassWallpaperApplyBtn" hidden>Aplicar foto</button>
+              <button type="button" class="android-glass-secondary-btn" id="androidGlassWallpaperCancelBtn" hidden>Cancelar</button>
+              <button type="button" class="android-glass-secondary-btn danger" id="androidGlassWallpaperRemoveBtn" hidden>Remover foto</button>
             </div>
             <input id="androidGlassWallpaperInput" type="file" accept="image/jpeg,image/png,image/webp" hidden>
-            <div class="android-glass-wallpaper-actions" data-theme-customization>
-              <button type="button" class="android-glass-secondary-btn" id="androidGlassWallpaperApplyBtn" hidden>Aplicar imagem</button>
-              <button type="button" class="android-glass-secondary-btn" id="androidGlassWallpaperCancelBtn" hidden>Cancelar</button>
-              <button type="button" class="android-glass-secondary-btn danger" id="androidGlassWallpaperRemoveBtn" hidden>Remover imagem</button>
-            </div>
-            <p class="android-glass-wallpaper-status" id="androidGlassWallpaperStatus" aria-live="polite"></p>
-            <div class="android-glass-tuning" data-theme-customization>
-              <label>Desfoque dos cartões <output id="androidGlassBlurValue">18px</output><input id="androidGlassBlurRange" type="range" min="6" max="30" step="1" value="18"></label>
-              <label>Intensidade do vidro <output id="androidGlassIntensityValue">72%</output><input id="androidGlassIntensityRange" type="range" min="45" max="90" step="1" value="72"></label>
-              <label>Escurecimento do fundo <output id="androidGlassDimValue">18%</output><input id="androidGlassDimRange" type="range" min="0" max="45" step="1" value="18"></label>
-            </div>
+            <p class="android-glass-wallpaper-status" id="androidGlassWallpaperStatus" aria-live="polite" style="font-size: 11.5px; color: var(--muted); margin-top: 6px;"></p>
           </div>
 
           <div class="android-appearance-group android-legacy-aurora-options" style="margin-top: 14px;" hidden>
@@ -937,6 +980,15 @@
       app.appendChild(profileSection);
     }
 
+    const diagBtn = profileSection.querySelector('#androidDiagPauseBgBtn');
+    if (diagBtn) {
+      diagBtn.addEventListener('click', () => {
+        if (typeof window.togglePauseBackgroundEffects === 'function') {
+          window.togglePauseBackgroundEffects();
+        }
+      });
+    }
+
     profileSection.querySelectorAll('[data-android-theme]').forEach((btn) => {
       btn.addEventListener('click', () => {
         const choice = btn.dataset.androidTheme;
@@ -957,15 +1009,15 @@
       });
     });
 
-    profileSection.querySelectorAll('[data-background-style]').forEach((btn) => {
+    profileSection.querySelectorAll('[data-skalee-preset]').forEach((btn) => {
       btn.addEventListener('click', () => {
-        if (btn.dataset.backgroundStyle === 'image') {
-          profileSection.querySelector('#androidGlassWallpaperInput')?.click();
-        } else {
-          setStoredBackgroundStyle('titanium');
-          setStoredGlassBackground('titanium');
-        }
+        const preset = btn.dataset.skaleePreset;
+        applySkaleeWallpaperPreset(preset);
       });
+    });
+
+    profileSection.querySelector('#androidGlassWallpaperChooseBtn')?.addEventListener('click', () => {
+      profileSection.querySelector('#androidGlassWallpaperInput')?.click();
     });
 
     profileSection.querySelectorAll('[data-glass-background]').forEach((btn) => {
@@ -974,10 +1026,11 @@
         if (choice === 'image') {
           profileSection.querySelector('#androidGlassWallpaperInput')?.click();
         } else {
-          setStoredGlassBackground(choice);
+          applySkaleeWallpaperPreset('default');
         }
       });
     });
+
     profileSection.querySelector('#androidGlassWallpaperInput')?.addEventListener('change', (event) => {
       const file = event.target.files?.[0];
       if (file) void prepareGlassWallpaper(file);
@@ -985,16 +1038,13 @@
     profileSection.querySelector('#androidGlassWallpaperApplyBtn')?.addEventListener('click', () => void applyPendingGlassWallpaper());
     profileSection.querySelector('#androidGlassWallpaperCancelBtn')?.addEventListener('click', cancelPendingGlassWallpaper);
     profileSection.querySelector('#androidGlassWallpaperRemoveBtn')?.addEventListener('click', () => void removeGlassWallpaper());
-    profileSection.querySelectorAll('.android-glass-tuning input').forEach((input) => {
-      input.addEventListener('input', () => setGlassTuning(input.dataset.glassTuning || input.id.replace('androidGlass', '').replace('Range', '').toLowerCase(), input.value));
-    });
 
     profileSection.querySelector('#androidDiagSimulateLossBtn')?.addEventListener('click', simulateWebGLLoss);
     profileSection.querySelector('#androidDiagRestoreBtn')?.addEventListener('click', restoreWebGL);
     profileSection.querySelector('#androidDiagCancelSimBtn')?.addEventListener('click', disableWebGLSimulation);
     profileSection.querySelector('#androidDiagUseEcoBtn')?.addEventListener('click', useModoEconomicoFromDiag);
 
-    profileSection.querySelector('#androidProfileNotifCenterBtn').addEventListener('click', openNotificationsCenter);
+    profileSection.querySelector('#androidProfileNotifCenterBtn')?.addEventListener('click', openNotificationsCenter);
 
     profileSection.querySelector('#androidProfileNotifSettingsBtn').addEventListener('click', () => {
       if (typeof setNotificationsModalOpen === 'function') {
@@ -1106,11 +1156,18 @@
 
     (document.body || app).appendChild(nav);
 
+    let lastNavTrigger = 0;
     nav.querySelectorAll('[data-android-page]').forEach((button) => {
-      button.addEventListener('click', () => {
+      const triggerNavigation = () => {
+        if (button.disabled) return;
+        const now = Date.now();
+        if (button.dataset.androidPage === currentAndroidTab && now - lastNavTrigger < 200) return;
+        lastNavTrigger = now;
         userSelectedTabManually = true;
         navigateAndroidTab(button.dataset.androidPage);
-      });
+      };
+
+      button.addEventListener('click', triggerNavigation);
     });
   }
 
@@ -1196,12 +1253,18 @@
 
   function navigateAndroidTab(pageId) {
     if (!mobileUIActive) return;
-    if (pageId === 'audit' && !canOpenAudit()) return;
-    if (pageId === 'register' && typeof isViewer !== 'undefined' && isViewer) return;
-    const targetSection = document.getElementById(pageId);
+    let resolvedPageId = pageId === 'reports' ? 'report' : pageId === 'profile' ? 'android-profile' : pageId;
+    if (resolvedPageId === 'audit' && !canOpenAudit()) return;
+    if (resolvedPageId === 'register' && typeof isViewer !== 'undefined' && isViewer) return;
+    const targetSection = document.getElementById(resolvedPageId);
     if (!targetSection) return;
 
-    currentAndroidTab = pageId;
+    if (currentAndroidTab === resolvedPageId && targetSection.classList.contains('active') && !targetSection.hidden) {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      return;
+    }
+
+    currentAndroidTab = resolvedPageId;
 
     if (document.body.classList.contains('admin-open') && typeof closeAdminCentral === 'function') {
       closeAdminCentral();
@@ -1210,13 +1273,14 @@
       setPersonalPanelOpen(false);
     }
 
-    enforceActiveAndroidPage(pageId);
+    enforceActiveAndroidPage(resolvedPageId);
+    window.scrollTo({ top: 0, behavior: 'instant' });
 
-    if (pageId === 'report' && typeof carregarProdutosRelatorio === 'function') {
+    if (resolvedPageId === 'report' && typeof carregarProdutosRelatorio === 'function') {
       void carregarProdutosRelatorio();
     }
 
-    if (pageId === 'audit') {
+    if (resolvedPageId === 'audit') {
       ensureAuditRestrictedBanner();
       if (root.skaleeAuditAccess?.open) {
         void Promise.resolve(root.skaleeAuditAccess.open()).finally(() => {
@@ -1230,19 +1294,32 @@
       }
     }
 
-    if (pageId === 'android-home') {
-      syncAndroidHome();
-      void evaluateAndroidHomeDraftBanner();
-    } else if (pageId === 'android-profile') {
+    if (resolvedPageId === 'android-home') {
+      // Troca imediata de aba com resposta instantânea em sub-milissegundo (idêntica à aba de produtos)
+      // A sincronização de dados e verificação de rascunhos é diferida para o próximo frame
+      if (typeof requestAnimationFrame === 'function') {
+        requestAnimationFrame(() => {
+          if (currentAndroidTab === 'android-home') {
+            syncAndroidHome();
+          }
+        });
+      } else {
+        setTimeout(() => {
+          if (currentAndroidTab === 'android-home') {
+            syncAndroidHome();
+          }
+        }, 0);
+      }
+    } else if (resolvedPageId === 'android-profile') {
       syncAndroidProfile();
     }
 
     syncAndroidFallbackBanner();
-    window.scrollTo({ top: 0, behavior: 'instant' });
   }
 
   function getActiveStoreLabel() {
-    const selectedStore = typeof els !== 'undefined' && els.storeFilter ? els.storeFilter.value : '';
+    const filterEl = (typeof els !== 'undefined' ? els.storeFilter : null) || (typeof window !== 'undefined' && window.els ? window.els.storeFilter : null) || document.getElementById('storeFilter');
+    const selectedStore = filterEl ? filterEl.value : '';
     if (selectedStore) return selectedStore;
     if (typeof allowedLocations !== 'undefined' && Array.isArray(allowedLocations)) {
       const activeLocs = allowedLocations.filter((l) => l && l.active !== false);
@@ -1268,7 +1345,7 @@
     }
 
     const headerSelect = document.getElementById('androidHeaderStoreSelect');
-    const sourceSelect = typeof els !== 'undefined' ? els.storeFilter : null;
+    const sourceSelect = (typeof els !== 'undefined' ? els.storeFilter : null) || (typeof window !== 'undefined' && window.els ? window.els.storeFilter : null) || document.getElementById('storeFilter');
     if (headerSelect && sourceSelect) {
       const currentOptions = [...sourceSelect.options].map((opt) => `${opt.value}:${opt.textContent}`).join('|');
       if (headerSelect.dataset.optionsHash !== currentOptions) {
@@ -1283,8 +1360,13 @@
       }
     }
 
+    const storeNameEl = document.getElementById('androidHeaderStoreName');
+    if (storeNameEl) {
+      storeNameEl.textContent = getActiveStoreLabel();
+    }
+
     const badge = document.getElementById('androidHeaderNotificationBadge');
-    const sourceBadge = typeof els !== 'undefined' ? els.notificationPendingBadge : null;
+    const sourceBadge = (typeof els !== 'undefined' ? els.notificationPendingBadge : null) || (typeof window !== 'undefined' && window.els ? window.els.notificationPendingBadge : null) || document.getElementById('notificationPendingBadge');
     if (badge && sourceBadge) {
       badge.textContent = sourceBadge.textContent || '0';
       badge.hidden = Boolean(sourceBadge.hidden || Number(sourceBadge.textContent || 0) <= 0);
@@ -1566,6 +1648,12 @@
       .sort((a, b) => remaining(a.expiry) - remaining(b.expiry))
       .slice(0, 12);
 
+    const activeTrackedKey = `${selectedStore}|${selectedSupplier}|${scopedProducts.length}|` + activeTracked.map((p) => `${p.id}:${p.expiry}:${p.qty}:${p.offer ? 1 : 0}:${p.photo ? 1 : 0}`).join(';');
+    if (listContainer.dataset.renderedKey === activeTrackedKey) {
+      return;
+    }
+    listContainer.dataset.renderedKey = activeTrackedKey;
+
     if (!activeTracked.length) {
       const isLoading = typeof productPageLoading !== 'undefined' && productPageLoading;
       listContainer.innerHTML = `<div class="empty">${isLoading ? 'Carregando produtos em acompanhamento...' : 'Nenhum produto em acompanhamento para o filtro atual.'}</div>`;
@@ -1574,15 +1662,35 @@
 
     listContainer.innerHTML = activeTracked.map((product) => {
       const days = typeof remaining === 'function' ? remaining(product.expiry) : 0;
-      const [label, tone] = typeof status === 'function' ? status(days) : ['Controlado', 'green'];
+      const [label, tone] = typeof status === 'function'
+        ? status(days)
+        : (days < 0
+          ? [Math.abs(days) === 1 ? 'Vencido (há 1 dia)' : `Vencido (há ${Math.abs(days)} dias)`, 'red']
+          : days === 0
+            ? ['Vence hoje', 'red']
+            : days === 1
+              ? ['Muito perto (1 dia)', 'red']
+              : days <= 3
+                ? [`Muito perto (${days} dias)`, 'red']
+                : days <= 7
+                  ? [`Atenção (${days} dias)`, 'orange']
+                  : days <= 15
+                    ? [`Acompanhar (${days} dias)`, 'yellow']
+                    : [`Controlado (${days} dias)`, 'green']);
       const expiryText = product.expiry ? new Date(product.expiry + 'T00:00:00').toLocaleDateString('pt-BR') : '--';
       const normId = String(product.id || '');
       const registered = typeof resolvedProductPhotoState !== 'undefined' ? resolvedProductPhotoState.get(normId) : null;
       const samePath = registered && String(registered.photoPath || '').trim() === String(product.photoPath || '').trim();
-      const effectivePhoto = samePath ? (registered.photo || product.photo || '') : (product.photo || '');
-      const effectivePhotoLoaded = samePath ? (registered.photoLoaded || product.photoLoaded || false) : (product.photoLoaded || false);
+      let effectivePhoto = samePath ? (registered.photo || product.photo || '') : (product.photo || '');
+      let effectivePhotoLoaded = samePath ? (registered.photoLoaded || product.photoLoaded || false) : (product.photoLoaded || false);
+      if (effectivePhoto && typeof window.skaleeIsSignedPhotoUrlExpired === 'function' && window.skaleeIsSignedPhotoUrlExpired(effectivePhoto)) {
+        effectivePhoto = '';
+        effectivePhotoLoaded = false;
+        if (typeof resolvedProductPhotoState !== 'undefined') resolvedProductPhotoState.delete(normId);
+      }
+      const safePhotoPath = safeEscape(product.photoPath || '');
       const photoContent = effectivePhoto
-        ? `<img src="${safeEscape(effectivePhoto)}" loading="lazy" decoding="async" alt="">`
+        ? `<img src="${safeEscape(effectivePhoto)}" loading="lazy" decoding="async" alt="" onerror="window.skaleeHandleProductImageError?.(this, '${safeEscape(product.id)}', '${safePhotoPath}')">`
         : (effectivePhotoLoaded ? 'Sem foto' : 'Foto...');
       const photoAttrs = (!effectivePhoto && !effectivePhotoLoaded)
         ? ` data-photo-id="${safeEscape(product.id)}"`
@@ -1843,6 +1951,9 @@
       posterBtn.hidden = Boolean(els.posterTab.hidden);
     }
     syncGlassAppearance();
+    if (typeof window.setPauseBackgroundEffects === 'function') {
+      window.setPauseBackgroundEffects(localStorage.getItem('skalee.pauseBgEffects') === 'true');
+    }
   }
 
   function syncAndroidData() {
@@ -2334,11 +2445,77 @@
     try { return await root.skaleeLocalStore?.getMeta(GLASS_WALLPAPER_META_KEY, null); } catch (_) { return null; }
   }
 
+  const SKALEE_WALLPAPER_PRESET_KEY = 'skalee.wallpaperPreset';
+
+  function getStoredSkaleeWallpaperPreset() {
+    try {
+      const val = root.localStorage?.getItem(SKALEE_WALLPAPER_PRESET_KEY);
+      if (val === 'dark' || val === 'white' || val === 'default' || val === 'custom') return val;
+    } catch (_) {}
+    return 'dark';
+  }
+
   function applyGlassWallpaperCss(dataUrl, active) {
     const rootEl = document.documentElement;
-    if (active && dataUrl) rootEl.style.setProperty('--sk-glass-wallpaper', `url("${String(dataUrl).replace(/"/g, '%22')}")`);
-    else rootEl.style.removeProperty('--sk-glass-wallpaper');
+    if (active && dataUrl) {
+      const urlValue = (dataUrl.startsWith('assets/') || dataUrl.startsWith('url('))
+        ? (dataUrl.startsWith('url(') ? dataUrl : `url("${dataUrl}")`)
+        : `url("${String(dataUrl).replace(/"/g, '%22')}")`;
+      rootEl.style.setProperty('--sk-glass-wallpaper', urlValue);
+    } else {
+      rootEl.style.removeProperty('--sk-glass-wallpaper');
+    }
     rootEl.dataset.glassWallpaper = active ? 'image' : 'none';
+  }
+
+  function applySkaleeWallpaperPreset(preset) {
+    const isSkalee = (document.documentElement.dataset.theme === 'skalee-i' || document.documentElement.dataset.themePreference === 'skalee-i');
+    if (!isSkalee) {
+      applyGlassWallpaperCss('', false);
+      return;
+    }
+
+    try { root.localStorage?.setItem(SKALEE_WALLPAPER_PRESET_KEY, preset); } catch (_) {}
+    document.documentElement.dataset.skaleeWallpaperPreset = preset;
+
+    const status = document.getElementById('androidGlassWallpaperStatus');
+    const removeBtn = document.getElementById('androidGlassWallpaperRemoveBtn');
+
+    if (preset === 'dark') {
+      applyGlassWallpaperCss('assets/wallpaper-skalee-dark.jpg', true);
+      if (status) status.textContent = 'Fundo recomendado SKALEE Dark ativo.';
+      if (removeBtn) removeBtn.hidden = true;
+    } else if (preset === 'white') {
+      applyGlassWallpaperCss('assets/wallpaper-skalee-white.jpg', true);
+      if (status) status.textContent = 'Fundo recomendado SKALEE White ativo.';
+      if (removeBtn) removeBtn.hidden = true;
+    } else if (preset === 'default') {
+      applyGlassWallpaperCss('', false);
+      if (status) status.textContent = 'Fundo padrão fluido SKALEE ativo.';
+      if (removeBtn) removeBtn.hidden = true;
+    } else if (preset === 'custom') {
+      void restoreCustomGlassWallpaper();
+    }
+
+    document.querySelectorAll('[data-skalee-preset]').forEach((btn) => {
+      const active = btn.dataset.skaleePreset === preset;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-checked', active ? 'true' : 'false');
+    });
+  }
+
+  async function restoreCustomGlassWallpaper() {
+    const wallpaper = await readGlassWallpaper();
+    const removeBtn = document.getElementById('androidGlassWallpaperRemoveBtn');
+    const status = document.getElementById('androidGlassWallpaperStatus');
+    if (wallpaper?.dataUrl) {
+      applyGlassWallpaperCss(wallpaper.dataUrl, true);
+      document.documentElement.dataset.skaleeWallpaperPreset = 'custom';
+      if (removeBtn) removeBtn.hidden = false;
+      if (status) status.textContent = 'Sua foto personalizada está ativa no fundo.';
+    } else {
+      applySkaleeWallpaperPreset('dark');
+    }
   }
 
   function setStoredGlassBackground(choice) {
@@ -2346,11 +2523,6 @@
     try { root.localStorage?.setItem(GLASS_BACKGROUND_KEY, choice); } catch (_) {}
     document.documentElement.dataset.glassBackground = choice;
     document.documentElement.dataset.backgroundStyle = choice;
-    document.querySelectorAll('[data-glass-background]').forEach((btn) => {
-      const active = btn.dataset.glassBackground === choice;
-      btn.classList.toggle('active', active); btn.setAttribute('aria-checked', active ? 'true' : 'false');
-    });
-    if (choice !== 'image') applyGlassWallpaperCss('', false);
   }
 
   function glassWallpaperImageFromFile(file) {
@@ -2374,8 +2546,12 @@
     try {
       pendingGlassWallpaper = await glassWallpaperImageFromFile(file);
       applyGlassWallpaperCss(pendingGlassWallpaper.dataUrl, true);
-      setStoredGlassBackground('image');
-      if (status) status.textContent = 'Prévia pronta. Toque em Aplicar imagem para salvar no dispositivo.';
+      document.documentElement.dataset.skaleeWallpaperPreset = 'custom';
+      document.querySelectorAll('[data-skalee-preset]').forEach((btn) => {
+        btn.classList.remove('active');
+        btn.setAttribute('aria-checked', 'false');
+      });
+      if (status) status.textContent = 'Prévia da foto pronta. Toque em Aplicar foto para salvar.';
       document.getElementById('androidGlassWallpaperApplyBtn')?.removeAttribute('hidden');
       document.getElementById('androidGlassWallpaperCancelBtn')?.removeAttribute('hidden');
     } catch (error) { pendingGlassWallpaper = null; if (status) status.textContent = error.message || 'Imagem inválida.'; }
@@ -2386,10 +2562,16 @@
     const saved = await root.skaleeLocalStore?.setMeta(GLASS_WALLPAPER_META_KEY, { ...pendingGlassWallpaper, updatedAt: Date.now() });
     if (saved !== true) { const status = document.getElementById('androidGlassWallpaperStatus'); if (status) status.textContent = 'Armazenamento local indisponível. A imagem não foi salva.'; return; }
     pendingGlassWallpaper = null;
+    try { root.localStorage?.setItem(SKALEE_WALLPAPER_PRESET_KEY, 'custom'); } catch (_) {}
+    document.documentElement.dataset.skaleeWallpaperPreset = 'custom';
     document.getElementById('androidGlassWallpaperApplyBtn')?.setAttribute('hidden', '');
     document.getElementById('androidGlassWallpaperCancelBtn')?.setAttribute('hidden', '');
     document.getElementById('androidGlassWallpaperRemoveBtn')?.removeAttribute('hidden');
-    const status = document.getElementById('androidGlassWallpaperStatus'); if (status) status.textContent = 'Imagem salva somente neste dispositivo.';
+    document.querySelectorAll('[data-skalee-preset]').forEach((btn) => {
+      btn.classList.remove('active');
+      btn.setAttribute('aria-checked', 'false');
+    });
+    const status = document.getElementById('androidGlassWallpaperStatus'); if (status) status.textContent = 'Sua foto personalizada foi salva e está ativa no fundo.';
   }
 
   function cancelPendingGlassWallpaper() {
@@ -2399,32 +2581,38 @@
 
   async function removeGlassWallpaper() {
     await root.skaleeLocalStore?.removeMeta(GLASS_WALLPAPER_META_KEY);
-    pendingGlassWallpaper = null; applyGlassWallpaperCss('', false); setStoredGlassBackground('titanium');
-    const status = document.getElementById('androidGlassWallpaperStatus'); if (status) status.textContent = 'Imagem removida. Textura Titanium restaurada.';
+    pendingGlassWallpaper = null;
+    applySkaleeWallpaperPreset('dark');
+    const remove = document.getElementById('androidGlassWallpaperRemoveBtn');
+    if (remove) remove.hidden = true;
+    const status = document.getElementById('androidGlassWallpaperStatus');
+    if (status) status.textContent = 'Foto removida. Fundo recomendado SKALEE Dark restaurado.';
   }
 
   async function restoreGlassWallpaper() {
-    const wallpaper = await readGlassWallpaper();
-    if (wallpaper?.dataUrl) applyGlassWallpaperCss(wallpaper.dataUrl, true);
-    else applyGlassWallpaperCss('', false);
-    document.getElementById('androidGlassWallpaperApplyBtn')?.setAttribute('hidden', '');
-    document.getElementById('androidGlassWallpaperCancelBtn')?.setAttribute('hidden', '');
-    const remove = document.getElementById('androidGlassWallpaperRemoveBtn');
-    if (remove) remove.hidden = !wallpaper?.dataUrl;
+    const isSkalee = (document.documentElement.dataset.theme === 'skalee-i' || document.documentElement.dataset.themePreference === 'skalee-i');
+    if (!isSkalee) {
+      applyGlassWallpaperCss('', false);
+      return;
+    }
+    const currentPreset = getStoredSkaleeWallpaperPreset();
+    applySkaleeWallpaperPreset(currentPreset);
   }
 
   function syncGlassAppearance() {
-    document.querySelectorAll('[data-theme-customization]').forEach((node) => { node.hidden = false; });
-    applyGlassTuning();
-    const background = getStoredGlassBackground();
-    document.documentElement.dataset.glassBackground = background;
-    document.documentElement.dataset.backgroundStyle = background;
-    document.querySelectorAll('[data-glass-background]').forEach((btn) => {
-      const active = btn.dataset.glassBackground === background;
-      btn.classList.toggle('active', active); btn.setAttribute('aria-checked', active ? 'true' : 'false');
+    const isSkalee = (document.documentElement.dataset.theme === 'skalee-i' || document.documentElement.dataset.themePreference === 'skalee-i');
+    const customizationNodes = document.querySelectorAll('[data-theme-customization], .android-glass-background-group, #androidSkaleeWallpaperGroup');
+    customizationNodes.forEach((node) => {
+      node.hidden = !isSkalee;
     });
+
+    if (!isSkalee) {
+      applyGlassWallpaperCss('', false);
+      return;
+    }
+
+    applyGlassTuning();
     void restoreGlassWallpaper();
-    const remove = document.getElementById('androidGlassWallpaperRemoveBtn'); if (remove) remove.hidden = background !== 'image';
   }
 
   function getStoredBackgroundStyle() {
@@ -2617,6 +2805,8 @@
     auroraState.webglAnimationId = requestAnimationFrame(renderAuroraWebGL);
   }
 
+  window.skaleeStopAuroraWebGLLoop = stopAuroraWebGLLoop;
+  window.skaleeStartAuroraWebGLLoop = startAuroraWebGLLoop;
   function stopAuroraWebGLLoop() {
     auroraState.webglActive = false;
     if (auroraState.webglAnimationId) {
@@ -2687,107 +2877,10 @@
   }
 
   function buildAndroidAurora() {
-    if (document.getElementById('androidAuroraContainer')) return;
-    const app = getAppContainer() || document.body;
-    if (!app) return;
-
-    const container = document.createElement('div');
-    container.id = 'androidAuroraContainer';
-    container.setAttribute('aria-hidden', 'true');
-    container.innerHTML = `
-      <canvas id="androidAuroraCanvas"></canvas>
-      <div id="androidAuroraMesh">
-        <div class="android-aurora-blob blob-1"></div>
-        <div class="android-aurora-blob blob-2"></div>
-        <div class="android-aurora-blob blob-3"></div>
-        <div class="android-aurora-blob blob-4"></div>
-        <div class="android-aurora-blob blob-5"></div>
-      </div>
-    `;
-
-    app.prepend(container);
-
-    const canvas = container.querySelector('#androidAuroraCanvas');
-    if (canvas) {
-      canvas.addEventListener('webglcontextlost', (e) => {
-        e.preventDefault();
-        auroraState.contextLost = true;
-        auroraState.webglActive = false;
-        auroraState.runtimeStatus = auroraState.isSimulatingLoss ? 'simulated_loss' : 'context_lost';
-        auroraState.activeEngine = 'css';
-        auroraState.isFallback = true;
-        auroraState.fallbackReason = auroraState.isSimulatingLoss ? 'simulated_loss' : 'context_lost';
-        stopAuroraWebGLLoop();
-        document.documentElement.dataset.visualEffect = 'css';
-        updateAuroraEngine();
-        syncAndroidProfile();
-      }, false);
-
-      canvas.addEventListener('webglcontextrestored', () => {
-        auroraState.contextLost = false;
-        auroraState.isSimulatingLoss = false;
-        auroraState.recoveryAttempts = 0;
-        const success = initAuroraWebGL();
-        if (success && !auroraState.contextLost) {
-          auroraState.runtimeStatus = 'active';
-          auroraState.activeEngine = 'webgl';
-          auroraState.isFallback = false;
-          auroraState.fallbackReason = null;
-        } else {
-          auroraState.runtimeStatus = 'unavailable';
-          auroraState.activeEngine = 'css';
-          auroraState.isFallback = true;
-          auroraState.fallbackReason = 'unsupported';
-        }
-        document.documentElement.dataset.visualEffect = auroraState.activeEngine;
-        updateAuroraEngine();
-        syncAndroidProfile();
-      }, false);
-    }
-
-    document.addEventListener('visibilitychange', () => {
-      updateAuroraEngine();
-    });
-
-    if (window.matchMedia) {
-      const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
-      mql.addEventListener?.('change', () => {
-        updateAuroraEngine();
-      });
-    }
-
-    let scrollPauseTimer = null;
-    let isScrollPaused = false;
-
-    function onAndroidScroll() {
-      if (!mobileUIActive || currentAndroidTab !== 'android-home') return;
-      if (!isScrollPaused) {
-        isScrollPaused = true;
-        document.documentElement.classList.add('android-is-scrolling');
-      }
-      if (scrollPauseTimer) clearTimeout(scrollPauseTimer);
-      scrollPauseTimer = setTimeout(() => {
-        isScrollPaused = false;
-        document.documentElement.classList.remove('android-is-scrolling');
-      }, 140);
-    }
-
-    window.addEventListener('scroll', onAndroidScroll, { passive: true });
-
-    if ('MutationObserver' in root) {
-      const themeObserver = new MutationObserver((mutations) => {
-        for (const m of mutations) {
-          if (m.type === 'attributes' && (m.attributeName === 'data-theme' || m.attributeName === 'data-visual-effect')) {
-            updateAuroraEngine();
-            break;
-          }
-        }
-      });
-      themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-visual-effect'] });
-    }
-
     auroraState.initialized = true;
-    updateAuroraEngine();
+    auroraState.activeEngine = 'eco';
+    const retired = document.getElementById('androidAuroraContainer');
+    if (retired) retired.remove();
   }
 
   function buildAndroidBlurLayers() {
@@ -2853,7 +2946,6 @@
     syncAndroidData();
 
     const observeTargets = [
-      document.getElementById('grid'),
       document.getElementById('sProducts'),
       document.getElementById('sToday'),
       document.getElementById('s7'),
@@ -2864,8 +2956,13 @@
     ].filter(Boolean);
 
     if ('MutationObserver' in root && observeTargets.length) {
+      let syncFrame = null;
       const observer = new MutationObserver(() => {
-        syncAndroidData();
+        if (syncFrame !== null) return;
+        syncFrame = requestAnimationFrame(() => {
+          syncFrame = null;
+          syncAndroidData();
+        });
       });
       observeTargets.forEach((el) => {
         observer.observe(el, { childList: true, subtree: true, attributes: true, characterData: true });

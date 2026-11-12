@@ -150,6 +150,10 @@ export class SkalitoTour {
 
   maybeShowPrompt() {
     if (!document.getElementById("protectedApp") || this.active) return;
+    if (document.documentElement.classList.contains("android-app") || document.body.classList.contains("android-app")) {
+      if (this.prompt) this.prompt.hidden = true;
+      return;
+    }
     if (this.promptDismissedThisSession) {
       if (this.prompt) this.prompt.hidden = true;
       return;

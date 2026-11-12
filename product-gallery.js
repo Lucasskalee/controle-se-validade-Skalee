@@ -20,6 +20,8 @@
   const previousFocus = document.activeElement;
   const dialog = document.createElement('dialog');
   dialog.className = 'product-gallery';
+  const currentTheme = document.documentElement.getAttribute('data-theme') || '';
+  if (currentTheme) dialog.setAttribute('data-theme', currentTheme);
   dialog.setAttribute('aria-labelledby', 'productGalleryTitle');
   dialog.innerHTML = `<div class="gallery-shell">
    <div class="gallery-header"><div><h2 id="productGalleryTitle">Fotos do produto</h2><p class="gallery-product-name"></p></div><button class="gallery-close" type="button" aria-label="Fechar galeria">✕</button></div>
@@ -114,7 +116,19 @@
   track.addEventListener('pointerup', endDrag); track.addEventListener('pointercancel', endDrag);
   const resize = new ResizeObserver(() => { track.scrollLeft = active * track.clientWidth; });
   resize.observe(track);
-  render(); status.textContent = 'Buscando outras fotos deste código...';
+  render();
+  if (images.length === 0 && product.photoPath && typeof root.skaleeDb?.getProductPhotoUrl === 'function') {
+   void (async () => {
+    try {
+     const directUrl = await root.skaleeDb.getProductPhotoUrl(product.photoPath);
+     if (directUrl && dialog.open && !images.some(img => img.photoUrl === directUrl)) {
+      images = uniqueImages([{ photoUrl: directUrl, photoPath: product.photoPath }, ...images]);
+      render();
+     }
+    } catch (_) {}
+   })();
+  }
+  status.textContent = 'Buscando outras fotos deste código...';
   void (async () => {
    try {
     const result = await root.skaleeDb?.loadProductGallery?.(product);

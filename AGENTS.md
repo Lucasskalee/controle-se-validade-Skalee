@@ -14,3 +14,7 @@ Em alterações visuais, preserve cálculos de validade, contagens, filtros comb
 Execute as verificações adequadas à mudança descritas em `package.json` (incluindo `npm run verify:ui-tokens`, `npm run typecheck`, `npm run test:mobile` e `npm run test:android`) e informe resultados e limitações. Para mudanças apenas na documentação, confira links locais e o diff.
 
 A modernização mobile está em validação local. A instrução atual do usuário é não realizar deploy em produção antes da validação; uma autorização posterior explícita pode alterar essa condição.
+
+## Skill local de QA visual
+
+Quando solicitado um ciclo de inspeção visual, utilize `.agents/skills/skalee-visual-qa/SKILL.md`. A skill usa o Chrome Headless/CDP existente, captura telas reais em `.tmp/skalee-visual-qa/`, inspeciona visualmente os PNGs e registra geometria, overflow, safe areas e áreas de toque. Correções devem ser pequenas, justificadas por evidência e limitadas à interface.

@@ -94,6 +94,40 @@ html[data-theme="light"] {
 }
 ```
 
+#### Tema SKALEE I (Nova Interface Visual Independente — Live Blur)
+```css
+html[data-theme="skalee-i"] {
+  --sk-bg-base: #060911;
+  --sk-bg-surface: rgba(13, 20, 36, 0.55);
+  --sk-bg-surface-elevated: rgba(18, 28, 48, 0.72);
+  --sk-bg-surface-hover: rgba(28, 42, 70, 0.65);
+
+  --sk-border-subtle: rgba(255, 255, 255, 0.10);
+  --sk-border-medium: rgba(255, 255, 255, 0.18);
+  --sk-border-highlight: rgba(0, 217, 255, 0.45);
+
+  --sk-text-primary: #ffffff;
+  --sk-text-secondary: #cbd5e1;
+  --sk-text-muted: #94a3b8;
+  --sk-text-disabled: #475569;
+
+  --sk-accent-blue: #0077ff;
+  --sk-accent-blue-hover: #1d4ed8;
+  --sk-accent-cyan: #00d9ff;
+  --sk-accent-metallic: #94a3b8;
+
+  --sk-status-danger: #ef4444;
+  --sk-status-danger-bg: rgba(239, 68, 68, 0.16);
+  --sk-status-warning: #f59e0b;
+  --sk-status-warning-bg: rgba(245, 158, 11, 0.16);
+  --sk-status-offer: #3b82f6;
+  --sk-status-offer-bg: rgba(59, 130, 246, 0.16);
+  --sk-status-safe: #10b981;
+  --sk-status-safe-bg: rgba(16, 185, 129, 0.16);
+}
+```
+O tema SKALEE I utiliza uma arquitetura CSS dedicada e isolada (`skalee-i.css`) com foco em superfícies de texto translúcidas sob Live Blur real (`backdrop-filter: blur(16px)`), preservando a legibilidade máxima e garantindo compatibilidade total com modos econômicos e WebView Android.
+
 ### 2.2. Camada de Compatibilidade (Tokens `--sk-*` e Variáveis Legadas)
 
 Para garantir estabilidade máxima sem quebra de CSS legado durante a transição, o motor de estilos em `theme-layout.css` implementa uma **camada de compatibilidade bidirecional**. As variáveis legadas atuam como pontes e apelidos diretos para os tokens oficiais:

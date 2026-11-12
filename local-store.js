@@ -6,12 +6,13 @@
  */
 (() => {
     const DB_NAME = "skalee-local-store";
-    const DB_VERSION = 1;
+    const DB_VERSION = 3;
     const STORES = {
         PRODUCTS: "products",
         META: "meta",
         SYNC_QUEUE: "sync_queue",
-        PHOTO_CACHE: "photo_cache"
+        PHOTO_CACHE: "photo_cache",
+        FEED_CACHE: "feed_cache"
     };
     let dbPromise = null;
     function openDatabase() {
@@ -46,11 +47,64 @@
                     const syncStore = db.createObjectStore(STORES.SYNC_QUEUE, { keyPath: "id" });
                     syncStore.createIndex("createdAt", "createdAt", { unique: false });
                     syncStore.createIndex("status", "status", { unique: false });
+                    syncStore.createIndex("ownerUserId", "ownerUserId", { unique: false });
+                    syncStore.createIndex("retailLocationId", "retailLocationId", { unique: false });
+                }
+                else if (event.oldVersion < 2) {
+                    const syncStore = event.target.transaction?.objectStore(STORES.SYNC_QUEUE);
+                    if (syncStore && !syncStore.indexNames.contains("ownerUserId")) {
+                        syncStore.createIndex("ownerUserId", "ownerUserId", { unique: false });
+                    }
+                    if (syncStore && !syncStore.indexNames.contains("retailLocationId")) {
+                        syncStore.createIndex("retailLocationId", "retailLocationId", { unique: false });
+                    }
+                    if (syncStore) {
+                        const cursorRequest = syncStore.openCursor();
+                        cursorRequest.onsuccess = () => {
+                            const cursor = cursorRequest.result;
+                            if (!cursor)
+                                return;
+                            const legacy = cursor.value;
+                            const legacyOwner = typeof legacy.ownerUserId === "string" && legacy.ownerUserId.trim()
+                                ? legacy.ownerUserId.trim()
+                                : typeof legacy.payload?.draftUserId === "string" && legacy.payload.draftUserId.trim()
+                                    ? legacy.payload.draftUserId.trim()
+                                    : null;
+                            const next = {
+                                ...legacy,
+                                id: String(legacy.id || `legacy_${Date.now()}`),
+                                schemaVersion: 2,
+                                operation: legacy.operation || "update",
+                                payload: legacy.payload ?? {},
+                                createdAt: legacy.createdAt || new Date().toISOString(),
+                                ownerUserId: legacyOwner,
+                                retailLocationId: typeof legacy.retailLocationId === "string" ? legacy.retailLocationId : null,
+                                retailLocationName: typeof legacy.retailLocationName === "string" ? legacy.retailLocationName : null,
+                                operationKey: legacy.operationKey || legacy.id || `legacy_${Date.now()}`,
+                                baseProductUpdatedAt: legacy.baseProductUpdatedAt || null,
+                                baseProductId: legacy.baseProductId ?? null,
+                                capturedAt: legacy.capturedAt || legacy.createdAt || new Date().toISOString(),
+                                status: legacyOwner ? (legacy.status === "processing" ? "failed" : (legacy.status || "pending")) : "blocked",
+                                lastError: legacyOwner ? (legacy.lastError || null) : "Operação legada sem proprietário autenticado; revisão necessária.",
+                                blockedReason: legacyOwner ? (legacy.blockedReason || null) : "legacy_missing_owner",
+                                processingStartedAt: legacy.processingStartedAt || null,
+                                retries: Number.isFinite(legacy.retries) ? Number(legacy.retries) : 0
+                            };
+                            cursor.update(next);
+                            cursor.continue();
+                        };
+                    }
                 }
                 // Store: photo_cache (key: path)
                 if (!db.objectStoreNames.contains(STORES.PHOTO_CACHE)) {
                     const photoStore = db.createObjectStore(STORES.PHOTO_CACHE, { keyPath: "path" });
                     photoStore.createIndex("expiresAt", "expiresAt", { unique: false });
+                }
+                // Store: feed_cache (key: key)
+                if (!db.objectStoreNames.contains("feed_cache")) {
+                    const feedStore = db.createObjectStore("feed_cache", { keyPath: "key" });
+                    feedStore.createIndex("userId", "userId", { unique: false });
+                    feedStore.createIndex("createdAt", "createdAt", { unique: false });
                 }
             };
             request.onsuccess = () => resolve(request.result);
@@ -262,16 +316,30 @@
             return await this.setMeta("last_sync_at", ts);
         },
         // --- OFFLINE SYNC QUEUE ---
-        async enqueueSyncOperation(operation, payload) {
+        async enqueueSyncOperation(operation, payload, context) {
             const id = "sync_" + Date.now() + "_" + Math.random().toString(36).slice(2, 9);
+            const ownerUserId = typeof context?.ownerUserId === "string" && context.ownerUserId.trim()
+                ? context.ownerUserId.trim()
+                : null;
+            const now = new Date().toISOString();
             const item = {
                 id,
+                schemaVersion: 2,
                 operation,
+                ownerUserId,
+                retailLocationId: context?.retailLocationId || null,
+                retailLocationName: context?.retailLocationName || null,
+                operationKey: id,
+                baseProductUpdatedAt: context?.baseProductUpdatedAt || null,
+                baseProductId: context?.baseProductId ?? null,
                 payload,
-                createdAt: new Date().toISOString(),
+                createdAt: now,
+                capturedAt: now,
                 retries: 0,
-                status: "pending",
-                lastError: null
+                status: ownerUserId ? "pending" : "blocked",
+                lastError: ownerUserId ? null : "Operação criada sem proprietário autenticado; revisão necessária.",
+                blockedReason: ownerUserId ? null : "missing_owner",
+                processingStartedAt: null
             };
             await performTx(STORES.SYNC_QUEUE, "readwrite", (store) => {
                 store.put(item);
@@ -318,7 +386,7 @@
         },
         async countPendingSyncQueue() {
             const list = await this.getPendingSyncQueue();
-            return list.filter((item) => item.status === "pending" || item.status === "processing").length;
+            return list.filter((item) => item.status === "pending" || item.status === "processing" || item.status === "blocked" || item.status === "conflict").length;
         },
         notifyQueueChanged() {
             if (typeof window !== "undefined") {
@@ -362,6 +430,253 @@
                 return null;
             return await performTx(STORES.PHOTO_CACHE, "readwrite", (store) => {
                 store.delete(path);
+                return true;
+            });
+        },
+        // --- FEED CACHE (FIRST 15 PRODUCTS) ---
+        async getFeedCache(key) {
+            if (!key)
+                return null;
+            const row = await performTx("feed_cache", "readonly", (store) => {
+                return new Promise((resolve) => {
+                    const req = store.get(key);
+                    req.onsuccess = () => resolve(req.result || null);
+                    req.onerror = () => resolve(null);
+                });
+            });
+            if (!row)
+                return null;
+            if (row.version !== 1 || (row.expiresAt && Date.now() > row.expiresAt)) {
+                void this.removeFeedCacheEntry(key);
+                return null;
+            }
+            if (row.products && Array.isArray(row.products)) {
+                row.products = row.products.map((p) => ({
+                    ...p,
+                    photo: "",
+                    photoLoaded: false
+                }));
+            }
+            return row;
+        },
+        async removeFeedCacheEntry(key) {
+            if (!key)
+                return null;
+            return await performTx("feed_cache", "readwrite", (store) => {
+                store.delete(key);
+                return true;
+            });
+        },
+        async saveFeedCache(key, data) {
+            if (!key || !data || !Array.isArray(data.products))
+                return false;
+            const MAX_ENTRIES = 30;
+            const TTL_MS = 7 * 24 * 60 * 60 * 1000;
+            const now = Date.now();
+            const sanitizedProducts = data.products.slice(0, 15).map((p) => {
+                const item = { ...p };
+                // Preserva carregamento sob demanda e photo_cache; nunca persiste assinaturas efêmeras de foto no feed_cache
+                item.photo = "";
+                item.photoLoaded = false;
+                delete item.processedPhoto;
+                return item;
+            });
+            const entry = {
+                key,
+                userId: String(data.userId || "").trim().toLowerCase(),
+                version: 1,
+                createdAt: now,
+                expiresAt: now + TTL_MS,
+                products: sanitizedProducts,
+                hasMore: Boolean(data.hasMore),
+                rawLength: Number(data.rawLength || sanitizedProducts.length)
+            };
+            const res = await performTx("feed_cache", "readwrite", (store) => {
+                store.put(entry);
+                try {
+                    const index = store.index("createdAt");
+                    const countReq = store.count();
+                    countReq.onsuccess = () => {
+                        if (countReq.result > MAX_ENTRIES) {
+                            const overflow = countReq.result - MAX_ENTRIES;
+                            let deleted = 0;
+                            const cursorReq = index.openCursor();
+                            cursorReq.onsuccess = () => {
+                                const cursor = cursorReq.result;
+                                if (cursor && deleted < overflow) {
+                                    cursor.delete();
+                                    deleted++;
+                                    cursor.continue();
+                                }
+                            };
+                        }
+                    };
+                }
+                catch (_) { }
+                return true;
+            });
+            return Boolean(res);
+        },
+        async invalidateFeedCache(options) {
+            await performTx("feed_cache", "readwrite", (store) => {
+                if (!options || (!options.userId && !options.store)) {
+                    store.clear();
+                    return true;
+                }
+                const req = store.openCursor();
+                req.onsuccess = () => {
+                    const cursor = req.result;
+                    if (!cursor)
+                        return;
+                    const val = cursor.value;
+                    let shouldDelete = false;
+                    if (options.userId && val.userId === options.userId.trim().toLowerCase()) {
+                        shouldDelete = true;
+                    }
+                    if (options.store && val.key.includes(`:${options.store}:`)) {
+                        shouldDelete = true;
+                    }
+                    if (shouldDelete) {
+                        cursor.delete();
+                    }
+                    cursor.continue();
+                };
+                return true;
+            });
+        },
+        async clearUserFeedCache(userId) {
+            if (!userId)
+                return;
+            const targetUser = String(userId).trim().toLowerCase();
+            await performTx("feed_cache", "readwrite", (store) => {
+                try {
+                    const index = store.index("userId");
+                    const req = index.openCursor(IDBKeyRange.only(targetUser));
+                    req.onsuccess = () => {
+                        const cursor = req.result;
+                        if (!cursor)
+                            return;
+                        cursor.delete();
+                        cursor.continue();
+                    };
+                }
+                catch (_) {
+                    const req = store.openCursor();
+                    req.onsuccess = () => {
+                        const cursor = req.result;
+                        if (!cursor)
+                            return;
+                        const val = cursor.value;
+                        if (val.userId === targetUser)
+                            cursor.delete();
+                        cursor.continue();
+                    };
+                }
+                return true;
+            });
+        },
+        async updateProductInFeedCache(product) {
+            if (!product || !product.id)
+                return;
+            const productId = String(product.id);
+            const todayDateStr = new Date().toISOString().slice(0, 10);
+            const todayMs = new Date(todayDateStr + "T00:00:00").getTime();
+            function daysUntilExpiry(expStr) {
+                if (!expStr)
+                    return 9999;
+                const targetMs = new Date(expStr + "T00:00:00").getTime();
+                return Math.ceil((targetMs - todayMs) / 86400000);
+            }
+            await performTx("feed_cache", "readwrite", (store) => {
+                const req = store.openCursor();
+                req.onsuccess = () => {
+                    const cursor = req.result;
+                    if (!cursor)
+                        return;
+                    const entry = cursor.value;
+                    if (Array.isArray(entry.products)) {
+                        const parts = (entry.key || "").split(":");
+                        const entryStore = parts[2] || "";
+                        const entrySort = parts[3] || "expiry";
+                        const filterPart = parts[6] || "";
+                        const existingIdx = entry.products.findIndex((p) => String(p.id) === productId);
+                        let eligible = true;
+                        if (entryStore && product.store && entryStore.trim().toLowerCase() !== product.store.trim().toLowerCase()) {
+                            eligible = false;
+                        }
+                        if (eligible && filterPart) {
+                            const [expiryRange, offerStatus, highQty] = filterPart.split("_");
+                            const days = daysUntilExpiry(product.expiry);
+                            if (expiryRange === "expired_today" && days > 0)
+                                eligible = false;
+                            if (expiryRange === "today" && days !== 0)
+                                eligible = false;
+                            if (expiryRange === "3" && days > 3)
+                                eligible = false;
+                            if (expiryRange === "7" && days > 7)
+                                eligible = false;
+                            if (expiryRange === "15" && days > 15)
+                                eligible = false;
+                            if (offerStatus === "offer" && !product.offer)
+                                eligible = false;
+                            if (offerStatus === "no_offer" && product.offer)
+                                eligible = false;
+                            if (highQty === "true" && product.qty < 100)
+                                eligible = false;
+                        }
+                        if (!eligible) {
+                            if (existingIdx >= 0) {
+                                const nextList = entry.products.filter((p) => String(p.id) !== productId);
+                                cursor.update({ ...entry, products: nextList, rawLength: Math.max(0, (entry.rawLength || 1) - 1) });
+                            }
+                        }
+                        else if (existingIdx >= 0) {
+                            const updatedList = [...entry.products];
+                            updatedList[existingIdx] = {
+                                ...updatedList[existingIdx],
+                                ...product,
+                                photo: "",
+                                photoLoaded: false
+                            };
+                            if (entrySort === "expiry") {
+                                updatedList.sort((a, b) => daysUntilExpiry(a.expiry) - daysUntilExpiry(b.expiry) || String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+                            }
+                            else if (entrySort === "qtyDesc") {
+                                updatedList.sort((a, b) => (b.qty || 0) - (a.qty || 0) || String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+                            }
+                            else if (entrySort === "qtyAsc") {
+                                updatedList.sort((a, b) => (a.qty || 0) - (b.qty || 0) || String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+                            }
+                            else if (entrySort === "name") {
+                                updatedList.sort((a, b) => (a.name || "").localeCompare(b.name || "") || String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+                            }
+                            cursor.update({ ...entry, products: updatedList.slice(0, 15) });
+                        }
+                    }
+                    cursor.continue();
+                };
+                return true;
+            });
+        },
+        async removeProductFromFeedCache(productId) {
+            if (!productId)
+                return;
+            const idStr = String(productId);
+            await performTx("feed_cache", "readwrite", (store) => {
+                const req = store.openCursor();
+                req.onsuccess = () => {
+                    const cursor = req.result;
+                    if (!cursor)
+                        return;
+                    const entry = cursor.value;
+                    if (Array.isArray(entry.products)) {
+                        const nextList = entry.products.filter((p) => String(p.id) !== idStr);
+                        if (nextList.length !== entry.products.length) {
+                            cursor.update({ ...entry, products: nextList, rawLength: Math.max(0, (entry.rawLength || 1) - 1) });
+                        }
+                    }
+                    cursor.continue();
+                };
                 return true;
             });
         }

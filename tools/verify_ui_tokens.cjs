@@ -17,6 +17,7 @@ const root = path.resolve(__dirname, '..');
 const TARGET_FILES = [
   'theme-layout.css',
   'android-ui.css',
+  'skalee-i.css',
   'admin-cadastros.css',
   'auth.css',
   'product-detail.css',
