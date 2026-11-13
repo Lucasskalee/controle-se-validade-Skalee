@@ -63,7 +63,7 @@
 body{margin:0;font-family:Inter,Arial,sans-serif;background:var(--bg);color:var(--text)}
 .app{max-width:1180px;margin:auto;padding:22px}
 header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding:6px 0}
-.app-brand{display:flex;align-items:center;gap:12px;min-width:0}.app-header-logo{display:block;width:46px;height:46px;object-fit:contain;filter:contrast(1.18) saturate(1.25) drop-shadow(0 0 8px rgba(0,124,255,.34))}
+.app-brand{display:flex;align-items:center;gap:12px;min-width:0}.app-header-logo{display:block;width:auto;max-width:58px;height:38px;object-fit:contain;filter:contrast(1.18) saturate(1.25) drop-shadow(0 0 8px rgba(0,124,255,.34))}
 h1{margin:0;font-size:20px}.sub{color:var(--muted);font-size:13px;margin-top:4px}
 .user-area{display:flex;align-items:center;gap:10px}.user-copy,.user-area>#signOut{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.header-profile-button{display:grid;place-items:center;width:38px;height:38px;border:1px solid rgba(148,163,184,.42);border-radius:999px;background:transparent;color:#c5cfdd;cursor:pointer}.header-profile-button:hover{border-color:#60a5fa;color:#fff}.header-profile-button svg{width:22px;height:22px;stroke:currentColor}
 .header-admin-button{display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:8px 12px;border:1px solid rgba(37,99,235,.45);border-radius:10px;background:rgba(37,99,235,.09);color:#0f326f;font-weight:800;cursor:pointer}.header-admin-button svg{width:18px;height:18px;stroke:currentColor}.header-admin-button:hover{background:rgba(37,99,235,.18);border-color:#2563eb;color:#08265b}.header-admin-button[hidden]{display:none}
@@ -78,7 +78,7 @@ button{font:inherit}
 .tab[hidden]{display:none}
 .personal-overlay{position:fixed;inset:0;z-index:2400;background:rgba(7,11,18,.42);backdrop-filter:blur(5px);opacity:0;transition:opacity .2s ease}.personal-overlay.show{opacity:1}.personal-overlay[hidden]{display:none}
 .personal-panel{position:fixed;top:96px;right:0;z-index:2450;display:flex;flex-direction:column;width:min(340px,90vw);height:calc(100dvh - 96px);background:linear-gradient(145deg,rgba(42,42,42,.97),rgba(20,22,25,.98));border-left:1px solid rgba(148,163,184,.18);box-shadow:-18px 0 55px rgba(0,0,0,.38);color:#f8fafc;transform:translateX(100%);transition:transform .2s ease;outline:0}.personal-panel.show{transform:translateX(0)}.personal-panel[hidden]{display:none}
-.personal-header{position:relative;display:grid;justify-items:center;gap:8px;padding:44px 22px 26px;border-bottom:0}.personal-logo{width:66px;height:66px;padding:8px;border:1px solid rgba(148,163,184,.28);border-radius:10px;background:rgba(15,23,42,.62);object-fit:contain;filter:drop-shadow(0 0 8px rgba(0,217,255,.22))}.personal-title{min-width:0;text-align:center}.personal-title h2{margin:4px 0 0;font-size:18px}.personal-title span{display:block;margin-top:8px;color:#cbd5e1;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.personal-close{position:absolute;top:16px;right:16px;display:grid;place-items:center;width:36px;height:36px;border:0;border-radius:10px;background:transparent;color:#e5e7eb;font-size:24px;cursor:pointer}
+.personal-header{position:relative;display:grid;justify-items:center;gap:8px;padding:44px 22px 26px;border-bottom:0}.personal-logo{width:auto;max-width:66px;height:44px;padding:6px;border:1px solid rgba(148,163,184,.28);border-radius:10px;background:rgba(15,23,42,.62);object-fit:contain;filter:drop-shadow(0 0 8px rgba(0,217,255,.22))}.personal-title{min-width:0;text-align:center}.personal-title h2{margin:4px 0 0;font-size:18px}.personal-title span{display:block;margin-top:8px;color:#cbd5e1;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.personal-close{position:absolute;top:16px;right:16px;display:grid;place-items:center;width:36px;height:36px;border:0;border-radius:10px;background:transparent;color:#e5e7eb;font-size:24px;cursor:pointer}
 .personal-body{display:flex;flex:1;flex-direction:column;gap:16px;overflow:auto;padding:0 24px 22px}.personal-section{display:grid;gap:8px}.personal-section[hidden]{display:none}.personal-section h3{display:none}.personal-info{display:grid;gap:4px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#f8fafc}.personal-info strong{font-size:14px}.personal-info span{color:var(--muted);font-size:13px;line-height:1.35}.personal-theme{display:grid;grid-template-columns:1fr 1fr;gap:0;padding:0;border:1px solid rgba(96,165,250,.38);border-radius:8px;background:rgba(15,23,42,.2);overflow:hidden}.personal-theme-button{border:0;border-radius:0;padding:11px 8px;background:transparent;color:#f8fafc;font-weight:850;cursor:pointer}.personal-theme-button+.personal-theme-button{border-left:1px solid rgba(96,165,250,.38)}.personal-theme-button.active{background:rgba(37,99,235,.72);color:#fff}.personal-signout{margin-top:auto;border:0;border-radius:0;padding:16px 0;background:transparent;color:#f87171;text-align:left;font-weight:850;cursor:pointer}
 .personal-notification-form{display:grid;gap:9px;padding:12px;border:1px solid rgba(96,165,250,.38);border-radius:10px;background:rgba(15,23,42,.2)}.personal-notification-form label{display:grid;gap:5px;color:#cbd5e1;font-size:12px;font-weight:800}.personal-notification-form select,.personal-notification-form input{padding:9px;border-color:rgba(148,163,184,.35);background:#111827;color:#f8fafc}.personal-notification-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px}.personal-notification-status{margin:0;color:#cbd5e1;font-size:12px;line-height:1.4}.personal-notification-form .btn2{background:#2563eb;color:#fff}
 .personal-notification-section[hidden]{display:none}.personal-notification-back{border:0;background:transparent;color:#93c5fd;padding:0;text-align:left;font-weight:800;cursor:pointer}.personal-notification-back:hover{color:#fff}
@@ -784,7 +784,7 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
 
 <main id="protectedApp" class="app" aria-hidden="true">
 <header>
- <div class="app-brand"><img class="app-header-logo" src="skalee-symbol-transparent.png" alt="Skalee"><div><h1>Controle de Validades | Skalee</h1><div class="sub">Acompanhe primeiro o que está mais perto de vencer.</div></div></div>
+ <div class="app-brand"><img class="app-header-logo" src="assets/skalee-header-brand.png" alt="Skalee" width="54" height="38"><div><h1>Controle de Validades | Skalee</h1><div class="sub">Acompanhe primeiro o que está mais perto de vencer.</div></div></div>
  <div class="user-area"><span id="syncStatusIndicator" class="sync-status-indicator is-synced" title="Status de Sincronização"><span class="sync-dot"></span><span id="syncStatusText">Sincronizado</span></span><div class="user-copy"><span id="authUser" class="sub"></span><div class="sub" id="today"></div></div><button id="signOut" class="btn2" type="button">Sair</button><button id="adminCentralButton" class="header-admin-button" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M12 3 20 7v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7l8-4Z"/><path d="M9 12l2 2 4-4"/></svg><span>Central Administrativa</span></button><button id="headerProfileButton" class="header-profile-button" type="button" aria-label="Abrir central de notificações" aria-haspopup="dialog" aria-controls="personalPanel"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span id="notificationPendingBadge" class="notification-pending-badge" aria-label="0 notificações pendentes" hidden>0</span></button></div>
 </header>
 
@@ -801,7 +801,7 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
 <div id="personalOverlay" class="personal-overlay" hidden></div>
 <aside id="personalPanel" class="personal-panel" role="dialog" aria-modal="true" aria-labelledby="personalPanelTitle" tabindex="-1" hidden>
  <div class="personal-header">
-  <img class="personal-logo" src="skalee-symbol-transparent.png" alt="Skalee">
+  <img class="personal-logo" src="assets/skalee-header-brand.png" alt="Skalee" width="54" height="38">
   <div class="personal-title">
    <h2 id="personalPanelTitle">Central Skalee</h2>
    <span id="personalUserName">Usuário</span>
@@ -846,6 +846,15 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
     <button class="personal-theme-button theme-button" type="button" data-personal-theme-choice="skalee-i"><span class="theme-icon theme-swatch theme-swatch-skalee-i" aria-hidden="true"></span><span>SKALEE I</span></button>
    </div>
   </section>
+   <section class="personal-section" aria-labelledby="personalEffectsTitle" style="margin-top:10px;">
+    <div class="personal-effects-card" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:1px solid var(--line, rgba(148,163,184,.2));border-radius:12px;background:rgba(255,255,255,.04);">
+     <div style="min-width:0;">
+      <strong id="personalEffectsTitle" style="display:block;font-size:13.5px;color:var(--text, #f8fafc);">Efeitos do fundo</strong>
+      <span style="font-size:11.5px;color:var(--muted, #94a3b8);display:block;margin-top:2px;">Pausar animações e ondas para otimizar desempenho e bateria.</span>
+     </div>
+     <button type="button" id="personalDiagPauseBgBtn" class="btn2" style="min-width:90px;padding:8px 12px;font-weight:700;flex-shrink:0;">Pausar</button>
+    </div>
+   </section>
   <div class="personal-menu-list">
    <section class="personal-menu-item" aria-labelledby="personalProfileTitle">
     <span class="personal-menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span>
@@ -957,9 +966,6 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
    <option value="qtyAsc">Menor quantidade</option>
    <option value="name">Nome A-Z</option>
   </select>
-  <button type="button" id="diagPauseBgBtnProducts" class="android-diag-bg-btn" aria-pressed="false" title="Pausar ou reativar efeitos do fundo para testar rolagem">
-   <span aria-hidden="true">⏸</span> Pausar efeitos do fundo
-  </button>
   <div id="desktopProductsViewToggle" class="desktop-view-toggle" role="group" aria-label="Visualização de produtos">
    <button type="button" class="view-btn active" data-desktop-view="grid" aria-pressed="true" aria-label="Visualização em grade" title="Visualização em grade">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

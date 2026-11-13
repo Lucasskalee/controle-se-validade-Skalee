@@ -726,21 +726,7 @@
     controlsWrap.appendChild(toggle);
 
     if (resultEl && resultEl.parentNode === toolbarRow) {
-      const diagBtn = document.createElement('button');
-    diagBtn.type = 'button';
-    diagBtn.id = 'diagPauseBgBtnProducts';
-    diagBtn.className = 'android-diag-bg-btn';
-    diagBtn.setAttribute('aria-pressed', String(document.documentElement.dataset.bgEffectsPaused === 'true'));
-    diagBtn.innerHTML = document.documentElement.dataset.bgEffectsPaused === 'true'
-      ? '<span aria-hidden="true">▶</span> Reativar efeitos do fundo (Pausado)'
-      : '<span aria-hidden="true">⏸</span> Pausar efeitos do fundo';
-    diagBtn.addEventListener('click', () => {
-      if (typeof window.togglePauseBackgroundEffects === 'function') {
-        window.togglePauseBackgroundEffects();
-      }
-    });
-    controlsWrap.appendChild(diagBtn);
-    toolbarRow.appendChild(controlsWrap);
+      toolbarRow.appendChild(controlsWrap);
     } else {
       toolbarRow.prepend(controlsWrap);
     }

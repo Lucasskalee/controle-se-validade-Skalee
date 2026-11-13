@@ -1,9 +1,11 @@
-const CACHE_VERSION = "skalee-v4.5.8-notif-photo";
+const CACHE_VERSION = "skalee-v4.5.9-clean-header-brand";
 const CACHE_NAME = CACHE_VERSION;
 
 const APP_SHELL = [
   "/",
   "/index.html",
+  "/skalee-header-brand.png",
+  "/assets/skalee-header-brand.png",
   "/circuit-corners.png",
   "/assets/circuit-corners.png",
   "/pcb-circuit-pattern.png",
