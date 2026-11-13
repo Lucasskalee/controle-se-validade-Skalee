@@ -765,7 +765,7 @@ html.android-app:is([data-theme="skalee-i"], [data-theme="light"]) :is(
 }
 
 /* Cadastro, Relatórios, Produtos e Auditoria: Shell óptico Live Glass unificado no SKALEE I */
-html.android-app[data-theme="skalee-i"] :is(
+html:is([data-theme="skalee-i"], .android-app[data-theme="skalee-i"]) :is(
   #register .form,
   #report .report,
   #products .stats,
@@ -774,7 +774,12 @@ html.android-app[data-theme="skalee-i"] :is(
   #audit .audit-wrap,
   #audit .audit-kpi-card,
   #audit .audit-card,
-  #personalPanel
+  #personalPanel,
+  .settings,
+  .update-panel,
+  .admin-card,
+  .management-card,
+  .management-panel
 ) {
   background: var(--sk-i-glass-bg-card) !important;
   backdrop-filter: blur(var(--sk-i-blur)) saturate(var(--sk-i-saturation)) !important;
@@ -821,7 +826,7 @@ html[data-theme="skalee-i"] .empty {
   color: var(--sk-text-secondary) !important;
 }
 
-html.android-app[data-theme="skalee-i"] :is(
+html:is([data-theme="skalee-i"], .android-app[data-theme="skalee-i"]) :is(
   #register .form .sub,
   #register .form .label,
   #report .report .sub,
@@ -882,4 +887,76 @@ html:is([data-theme="skalee-i"], .android-app[data-theme="skalee-i"]) #products 
   border-color: var(--sk-accent-cyan) !important;
   color: #ffffff !important;
   box-shadow: 0 0 10px rgba(0, 217, 255, 0.25) !important;
+}
+
+
+/* ==========================================================================
+   SKALEE I — EXPERIÊNCIA WEB DESKTOP (LIVE GLASS DARK-FIRST)
+   ========================================================================== */
+html[data-theme="skalee-i"]:not(.android-app) header {
+  background: rgba(8, 14, 28, 0.85) !important;
+  backdrop-filter: blur(20px) saturate(135%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(135%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
+}
+
+html[data-theme="skalee-i"]:not(.android-app) nav.main-nav {
+  background: rgba(11, 19, 34, 0.75) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.30) !important;
+  border-radius: 14px !important;
+}
+
+html[data-theme="skalee-i"]:not(.android-app) nav .tab {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="skalee-i"]:not(.android-app) nav .tab:hover {
+  background: rgba(0, 119, 255, 0.15) !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="skalee-i"]:not(.android-app) nav .tab.active,
+html[data-theme="skalee-i"]:not(.android-app) nav .tab[aria-current="page"] {
+  background: linear-gradient(135deg, #0077ff 0%, #00d9ff 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 10px rgba(0, 119, 255, 0.40) !important;
+  border-color: rgba(0, 217, 255, 0.40) !important;
+}
+
+html[data-theme="skalee-i"]:not(.android-app) .chip {
+  background: rgba(16, 28, 54, 0.60) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="skalee-i"]:not(.android-app) .chip:hover {
+  border-color: #0077ff !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="skalee-i"]:not(.android-app) .chip.active {
+  background: linear-gradient(135deg, #0077ff 0%, #00d9ff 100%) !important;
+  color: #ffffff !important;
+  border-color: rgba(0, 217, 255, 0.40) !important;
+  box-shadow: 0 2px 10px rgba(0, 119, 255, 0.30) !important;
+}
+
+html[data-theme="skalee-i"]:not(.android-app) .btn {
+  background: linear-gradient(135deg, #0077ff 0%, #0055cc 100%) !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="skalee-i"]:not(.android-app) .btn2 {
+  background: rgba(16, 28, 54, 0.65) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="skalee-i"]:not(.android-app) .btn2:hover {
+  border-color: #00d9ff !important;
+  color: #ffffff !important;
 }

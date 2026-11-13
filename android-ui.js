@@ -772,80 +772,29 @@
         </div>
 
         <div class="android-profile-card android-appearance-section">
-          <div class="android-appearance-card-header">
-            <h3 class="android-profile-card-title" style="margin: 0;">Aparência e Temas</h3>
-          <span class="android-appearance-card-badge">Titanium 2.6</span>
+          <div class="android-appearance-card-header" style="margin-bottom: 12px;">
+            <h3 class="android-profile-card-title" style="margin: 0;">Personalização Visual</h3>
+            <span class="android-appearance-card-badge">Titanium 2.6</span>
           </div>
 
-          <div class="android-appearance-group">
-            <span class="android-appearance-label">Tema do Aplicativo</span>
-            <div class="android-theme-Segment android-theme-grid" role="group" aria-label="Temas Skalee">
-              <button type="button" class="android-theme-btn" data-android-theme="dark"><span class="theme-swatch theme-swatch-dark" aria-hidden="true"></span>Dark</button>
-              <button type="button" class="android-theme-btn" data-android-theme="light"><span class="theme-swatch theme-swatch-light" aria-hidden="true"></span>Light</button>
-              <button type="button" class="android-theme-btn" data-android-theme="industrial"><span class="theme-swatch theme-swatch-industrial" aria-hidden="true"></span>Industrial</button>
-              <button type="button" class="android-theme-btn" data-android-theme="creative"><span class="theme-swatch theme-swatch-creative" aria-hidden="true"></span>Creative</button>
-              <button type="button" class="android-theme-btn" data-android-theme="executive"><span class="theme-swatch theme-swatch-executive" aria-hidden="true"></span>Executive</button>
-              <button type="button" class="android-theme-btn" data-android-theme="skalee-i"><span class="theme-swatch theme-swatch-skalee-i" aria-hidden="true"></span>SKALEE I</button>
-            </div>
-          </div>
-
-          <div id="androidSkaleeWallpaperGroup" class="android-appearance-group android-glass-background-group" style="margin-top: 14px;" data-theme-customization>
-            <span class="android-appearance-label">Tema de Fundo Profissional (Estático)</span>
-            
-            <div class="android-wallpaper-presets-grid" role="radiogroup" aria-label="Temas de Fundo Profissionais" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 10px;">
-              <button type="button" class="android-wallpaper-preset-btn" data-skalee-preset="obsidian" role="radio" aria-checked="false">
-                <div class="android-wallpaper-thumb thumb-obsidian" aria-hidden="true"></div>
-                <strong style="font-size: 10.5px; text-align: center;">Obsidian Pro</strong>
-              </button>
-
-              <button type="button" class="android-wallpaper-preset-btn" data-skalee-preset="slate" role="radio" aria-checked="false">
-                <div class="android-wallpaper-thumb thumb-slate" aria-hidden="true"></div>
-                <strong style="font-size: 10.5px; text-align: center;">Midnight Slate</strong>
-              </button>
-
-              <button type="button" class="android-wallpaper-preset-btn" data-skalee-preset="sapphire" role="radio" aria-checked="false">
-                <div class="android-wallpaper-thumb thumb-sapphire" aria-hidden="true"></div>
-                <strong style="font-size: 10.5px; text-align: center;">Royal Sapphire</strong>
-              </button>
-
-              <button type="button" class="android-wallpaper-preset-btn" data-skalee-preset="oled" role="radio" aria-checked="false">
-                <div class="android-wallpaper-thumb thumb-oled" aria-hidden="true"></div>
-                <strong style="font-size: 10.5px; text-align: center;">Pure OLED</strong>
-              </button>
-
-              <button type="button" class="android-wallpaper-preset-btn" data-skalee-preset="dark" role="radio" aria-checked="false">
-                <div class="android-wallpaper-thumb thumb-dark" aria-hidden="true"></div>
-                <strong style="font-size: 10.5px; text-align: center;">SKALEE Dark</strong>
-              </button>
-
-              <button type="button" class="android-wallpaper-preset-btn" data-skalee-preset="white" role="radio" aria-checked="false">
-                <div class="android-wallpaper-thumb thumb-white" aria-hidden="true"></div>
-                <strong style="font-size: 10.5px; text-align: center;">SKALEE White</strong>
-              </button>
-            </div>
-
-            <div class="android-glass-wallpaper-actions" data-theme-customization style="display: flex; gap: 8px; flex-wrap: wrap;">
-              <button type="button" class="android-glass-secondary-btn" id="androidGlassWallpaperChooseBtn">Enviar outra foto...</button>
-              <button type="button" class="android-glass-secondary-btn" id="androidGlassWallpaperApplyBtn" hidden>Aplicar foto</button>
-              <button type="button" class="android-glass-secondary-btn" id="androidGlassWallpaperCancelBtn" hidden>Cancelar</button>
-              <button type="button" class="android-glass-secondary-btn danger" id="androidGlassWallpaperRemoveBtn" hidden>Remover foto</button>
-            </div>
-            <input id="androidGlassWallpaperInput" type="file" accept="image/jpeg,image/png,image/webp" hidden>
-            <p class="android-glass-wallpaper-status" id="androidGlassWallpaperStatus" aria-live="polite" style="font-size: 11.5px; color: var(--muted); margin-top: 6px;"></p>
-          </div>
-
-          <div class="android-appearance-group" style="margin-top: 14px;">
-            <span class="android-appearance-label">Animação de Fundo</span>
-            <div class="android-diag-card" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid var(--line, rgba(148,163,184,.2)); border-radius: 12px; background: rgba(255,255,255,.04);">
-              <div style="min-width: 0;">
-                <strong style="display: block; font-size: 13.5px; color: var(--text, #f8fafc);">Fundo com movimento (Ondas)</strong>
-                <span id="androidDiagPauseBgStatus" style="font-size: 11.5px; color: var(--muted, #94a3b8); display: block; margin-top: 2px;">Desativado por padrão. Ative para ondas fluidas em movimento contínuo.</span>
+          <button type="button" class="android-profile-action-btn" id="androidOpenThemesModalBtn" style="display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 14px 16px; border: 1px solid var(--sk-border-subtle, rgba(148,163,184,.2)); border-radius: 14px; background: rgba(255, 255, 255, 0.04); color: var(--sk-text-primary, #f8fafc); text-align: left; cursor: pointer; transition: background 0.16s ease, border-color 0.16s ease;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(0, 119, 255, 0.16); color: var(--sk-accent-cyan, #00d9ff); display: grid; place-items: center; flex-shrink: 0;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7Z"/>
+                </svg>
               </div>
-              <button type="button" id="androidDiagPauseBgBtn" class="android-theme-btn" style="min-width: 100px; padding: 8px 12px; font-weight: 700; flex-shrink: 0;">Ativar ondas</button>
+              <div>
+                <strong style="display: block; font-size: 14.5px; font-weight: 750;">Temas Visuais</strong>
+                <span id="androidCurrentThemeBadge" style="display: block; font-size: 12px; color: var(--sk-text-muted, #94a3b8); margin-top: 2px;">SKALEE I • Obsidian Pro</span>
+              </div>
             </div>
-          </div>
+            <span style="font-size: 20px; color: var(--sk-text-muted, #94a3b8); font-weight: 300;">›</span>
+          </button>
+        </div>
 
-          <div class="android-appearance-group android-legacy-aurora-options" style="margin-top: 14px;" hidden>
+        <div class="android-appearance-group android-legacy-aurora-options" style="margin-top: 14px;" hidden>
             <span class="android-appearance-label">Efeito Visual de Fundo</span>
             <div class="android-visual-grid" role="radiogroup" aria-label="Efeito visual de fundo">
               <button type="button" class="android-visual-card" data-visual-effect="webgl" role="radio" aria-checked="false">
@@ -980,6 +929,15 @@
       auditSection.insertAdjacentElement('afterend', profileSection);
     } else {
       app.appendChild(profileSection);
+    }
+
+    const openThemesBtn = profileSection.querySelector('#androidOpenThemesModalBtn');
+    if (openThemesBtn) {
+      openThemesBtn.addEventListener('click', () => {
+        if (typeof window.setVisualThemesModalOpen === 'function') {
+          window.setVisualThemesModalOpen(true);
+        }
+      });
     }
 
     const diagBtn = profileSection.querySelector('#androidDiagPauseBgBtn');
@@ -1906,6 +1864,9 @@
       }
     }
 
+    if (typeof window.updateVisualThemesSummaryUI === 'function') {
+      window.updateVisualThemesSummaryUI();
+    }
     const currentPref = document.documentElement.dataset.themePreference || 'auto';
     document.querySelectorAll('[data-android-theme]').forEach((btn) => {
       btn.classList.toggle('active', btn.dataset.androidTheme === currentPref);

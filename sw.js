@@ -1,4 +1,4 @@
-const CACHE_VERSION = "skalee-v4.6.1-sophisticated-themes";
+const CACHE_VERSION = "skalee-v4.7.0-visual-themes-modal";
 const CACHE_NAME = CACHE_VERSION;
 
 const APP_SHELL = [

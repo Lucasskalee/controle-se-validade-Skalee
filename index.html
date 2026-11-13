@@ -841,62 +841,20 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
   <div id="notificationCenterList" class="notification-center-list"></div>
  </section>
  <div id="personalSettingsPane" class="personal-tab-pane personal-body" role="tabpanel" aria-labelledby="personalSettingsTab" hidden>
-  <section class="personal-section" aria-labelledby="personalAppearanceTitle">
-   <h3 id="personalAppearanceTitle">Aparência</h3>
-   <div class="personal-theme theme-options" role="group" aria-label="Temas Skalee">
-    <button class="personal-theme-button theme-button" type="button" data-personal-theme-choice="dark"><span class="theme-icon theme-swatch theme-swatch-dark" aria-hidden="true"></span><span>Dark</span></button>
-    <button class="personal-theme-button theme-button" type="button" data-personal-theme-choice="light"><span class="theme-icon theme-swatch theme-swatch-light" aria-hidden="true"></span><span>Light</span></button>
-    <button class="personal-theme-button theme-button" type="button" data-personal-theme-choice="industrial"><span class="theme-icon theme-swatch theme-swatch-industrial" aria-hidden="true"></span><span>Industrial</span></button>
-    <button class="personal-theme-button theme-button" type="button" data-personal-theme-choice="creative"><span class="theme-icon theme-swatch theme-swatch-creative" aria-hidden="true"></span><span>Creative</span></button>
-    <button class="personal-theme-button theme-button" type="button" data-personal-theme-choice="executive"><span class="theme-icon theme-swatch theme-swatch-executive" aria-hidden="true"></span><span>Executive</span></button>
-    <button class="personal-theme-button theme-button" type="button" data-personal-theme-choice="skalee-i"><span class="theme-icon theme-swatch theme-swatch-skalee-i" aria-hidden="true"></span><span>SKALEE I</span></button>
-   </div>
-  </section>
-   <section class="personal-section" aria-labelledby="personalBgStyleTitle" style="margin-top:12px;">
-    <h3 id="personalBgStyleTitle" style="display:block;font-size:12.5px;font-weight:750;color:var(--sk-text-primary, #f8fafc);margin-bottom:6px;">Tema de Fundo Profissional</h3>
-    <div class="personal-bg-style-grid" role="radiogroup" aria-label="Temas de Fundo Profissionais">
-     <button class="personal-bg-style-btn" type="button" data-skalee-bg-choice="obsidian" role="radio" aria-checked="true">
-      <span class="personal-bg-preview preview-obsidian" aria-hidden="true"></span>
-      <strong style="font-size:12px;">Obsidian Pro</strong>
-      <span class="personal-bg-desc">Padrão refinado com glow suave</span>
-     </button>
-     <button class="personal-bg-style-btn" type="button" data-skalee-bg-choice="slate" role="radio" aria-checked="false">
-      <span class="personal-bg-preview preview-slate" aria-hidden="true"></span>
-      <strong style="font-size:12px;">Midnight Slate</strong>
-      <span class="personal-bg-desc">Grafite neutro estilo Linear</span>
-     </button>
-     <button class="personal-bg-style-btn" type="button" data-skalee-bg-choice="sapphire" role="radio" aria-checked="false">
-      <span class="personal-bg-preview preview-sapphire" aria-hidden="true"></span>
-      <strong style="font-size:12px;">Royal Sapphire</strong>
-      <span class="personal-bg-desc">Azul executivo profundo</span>
-     </button>
-     <button class="personal-bg-style-btn" type="button" data-skalee-bg-choice="oled" role="radio" aria-checked="false">
-      <span class="personal-bg-preview preview-oled" aria-hidden="true"></span>
-      <strong style="font-size:12px;">Pure OLED</strong>
-      <span class="personal-bg-desc">Preto puro de alto contraste</span>
-     </button>
-     <button class="personal-bg-style-btn" type="button" data-skalee-bg-choice="wallpaper-dark" role="radio" aria-checked="false">
-      <span class="personal-bg-preview preview-wallpaper-dark" aria-hidden="true"></span>
-      <strong style="font-size:12px;">SKALEE Dark</strong>
-      <span class="personal-bg-desc">Wallpaper oficial escuro</span>
-     </button>
-     <button class="personal-bg-style-btn" type="button" data-skalee-bg-choice="wallpaper-white" role="radio" aria-checked="false">
-      <span class="personal-bg-preview preview-wallpaper-white" aria-hidden="true"></span>
-      <strong style="font-size:12px;">SKALEE White</strong>
-      <span class="personal-bg-desc">Wallpaper oficial claro</span>
-     </button>
-    </div>
-   </section>
-   <section class="personal-section" aria-labelledby="personalMotionTitle" style="margin-top:12px;">
-    <div class="personal-effects-card" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:1px solid var(--sk-border-subtle, rgba(148,163,184,.2));border-radius:12px;background:rgba(255,255,255,.04);">
-     <div style="min-width:0;">
-      <strong id="personalMotionTitle" style="display:block;font-size:13.5px;color:var(--sk-text-primary, #f8fafc);">Fundo com movimento (Ondas)</strong>
-      <span id="personalMotionDesc" style="font-size:11.5px;color:var(--sk-text-muted, #94a3b8);display:block;margin-top:2px;">Desativado por padrão. Ative se preferir ondas fluidas e gradientes dinâmicos.</span>
+   <div class="personal-menu-list">
+    <button id="personalThemeButton" class="personal-menu-item personal-about-button personal-theme-menu-btn" type="button" aria-haspopup="dialog" aria-controls="visualThemesModal">
+     <span class="personal-menu-icon" aria-hidden="true" style="color:var(--sk-accent-cyan, #00d9ff);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+       <circle cx="12" cy="12" r="10"/>
+       <path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7Z"/>
+      </svg>
+     </span>
+     <div>
+      <strong id="personalThemeTitle">Temas Visuais</strong>
+      <span id="personalThemeSummary">SKALEE I • Obsidian Pro</span>
      </div>
-     <button type="button" id="personalMotionToggleBtn" class="btn2" style="min-width:100px;padding:8px 12px;font-weight:700;flex-shrink:0;">Ativar ondas</button>
-    </div>
-   </section>
-  <div class="personal-menu-list">
+     <span class="personal-menu-arrow" aria-hidden="true">›</span>
+    </button>
    <section class="personal-menu-item" aria-labelledby="personalProfileTitle">
     <span class="personal-menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span>
     <div><strong id="personalProfileTitle">Meu perfil</strong><span id="personalProfileEmail">--</span></div>
@@ -1603,6 +1561,135 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
  </div>
 </div>
 
+<div id="visualThemesModal" class="update-modal visual-themes-modal" role="dialog" aria-modal="true" aria-labelledby="visualThemesTitle">
+ <div class="update-panel visual-themes-panel">
+  <div class="visual-themes-modal-header">
+   <div>
+    <h2 id="visualThemesTitle" style="font-size: 18px; margin: 0 0 4px; color: var(--sk-text-primary, #ffffff);">Temas Visuais</h2>
+    <span class="visual-themes-modal-desc" style="font-size: 12px; color: var(--sk-text-muted, #94a3b8);">Personalize o estilo de tema, fundos e efeitos do Skalee</span>
+   </div>
+   <button id="visualThemesClose" class="visual-themes-close-btn" type="button" aria-label="Fechar modal">×</button>
+  </div>
+
+  <div class="visual-themes-modal-body">
+   <!-- Seção 1: Estilo de Tema do Sistema -->
+   <div class="visual-themes-group">
+    <div class="visual-themes-group-header">
+     <h3 class="visual-themes-group-title">Tema do Sistema</h3>
+     <span id="themeStatus" class="visual-themes-status-badge" aria-live="polite">Tema atual: SKALEE I</span>
+    </div>
+    <div class="theme-options visual-theme-options-grid" role="group" aria-label="Temas Skalee">
+     <button class="theme-button personal-theme-button active" type="button" data-theme-choice="skalee-i" data-personal-theme-choice="skalee-i" data-android-theme="skalee-i">
+      <span class="theme-icon theme-swatch theme-swatch-skalee-i" aria-hidden="true"></span>
+      <div class="theme-button-text">
+       <strong>SKALEE I</strong>
+       <small class="theme-pill-official">Live Glass</small>
+      </div>
+     </button>
+     <button class="theme-button personal-theme-button" type="button" data-theme-choice="dark" data-personal-theme-choice="dark" data-android-theme="dark">
+      <span class="theme-icon theme-swatch theme-swatch-dark" aria-hidden="true"></span>
+      <div class="theme-button-text">
+       <strong>Dark</strong>
+       <small>Deep Navy</small>
+      </div>
+     </button>
+     <button class="theme-button personal-theme-button" type="button" data-theme-choice="light" data-personal-theme-choice="light" data-android-theme="light">
+      <span class="theme-icon theme-swatch theme-swatch-light" aria-hidden="true"></span>
+      <div class="theme-button-text">
+       <strong>Light</strong>
+       <small>Studio White</small>
+      </div>
+     </button>
+     <button class="theme-button personal-theme-button" type="button" data-theme-choice="industrial" data-personal-theme-choice="industrial" data-android-theme="industrial">
+      <span class="theme-icon theme-swatch theme-swatch-industrial" aria-hidden="true"></span>
+      <div class="theme-button-text">
+       <strong>Industrial</strong>
+       <small>Carbon Steel</small>
+      </div>
+     </button>
+     <button class="theme-button personal-theme-button" type="button" data-theme-choice="creative" data-personal-theme-choice="creative" data-android-theme="creative">
+      <span class="theme-icon theme-swatch theme-swatch-creative" aria-hidden="true"></span>
+      <div class="theme-button-text">
+       <strong>Creative</strong>
+       <small>Nebula Violet</small>
+      </div>
+     </button>
+     <button class="theme-button personal-theme-button" type="button" data-theme-choice="executive" data-personal-theme-choice="executive" data-android-theme="executive">
+      <span class="theme-icon theme-swatch theme-swatch-executive" aria-hidden="true"></span>
+      <div class="theme-button-text">
+       <strong>Executive</strong>
+       <small>Onyx Amber</small>
+      </div>
+     </button>
+    </div>
+   </div>
+
+   <!-- Seção 2: Fundo Profissional (Estático) -->
+   <div id="androidSkaleeWallpaperGroup" class="visual-themes-group" style="margin-top: 14px;" data-theme-customization>
+    <div class="visual-themes-group-header">
+     <h3 class="visual-themes-group-title">Fundo Profissional (Estático)</h3>
+     <small style="color: var(--sk-text-muted, #94a3b8); font-size: 11px;">Sem ondas ou animações</small>
+    </div>
+    <div class="personal-bg-style-grid visual-bg-grid" role="radiogroup" aria-label="Temas de Fundo Profissionais">
+     <button class="personal-bg-style-btn" type="button" data-skalee-bg-choice="obsidian" data-skalee-preset="obsidian" role="radio" aria-checked="true">
+      <span class="personal-bg-preview preview-obsidian" aria-hidden="true"></span>
+      <strong>Obsidian Pro</strong>
+      <span class="personal-bg-desc">Padrão refinado com glow suave</span>
+     </button>
+     <button class="personal-bg-style-btn" type="button" data-skalee-bg-choice="slate" data-skalee-preset="slate" role="radio" aria-checked="false">
+      <span class="personal-bg-preview preview-slate" aria-hidden="true"></span>
+      <strong>Midnight Slate</strong>
+      <span class="personal-bg-desc">Grafite neutro estilo Linear</span>
+     </button>
+     <button class="personal-bg-style-btn" type="button" data-skalee-bg-choice="sapphire" data-skalee-preset="sapphire" role="radio" aria-checked="false">
+      <span class="personal-bg-preview preview-sapphire" aria-hidden="true"></span>
+      <strong>Royal Sapphire</strong>
+      <span class="personal-bg-desc">Azul executivo profundo</span>
+     </button>
+     <button class="personal-bg-style-btn" type="button" data-skalee-bg-choice="oled" data-skalee-preset="oled" role="radio" aria-checked="false">
+      <span class="personal-bg-preview preview-oled" aria-hidden="true"></span>
+      <strong>Pure OLED</strong>
+      <span class="personal-bg-desc">Preto puro de alto contraste</span>
+     </button>
+     <button class="personal-bg-style-btn" type="button" data-skalee-bg-choice="wallpaper-dark" data-skalee-preset="dark" role="radio" aria-checked="false">
+      <span class="personal-bg-preview preview-wallpaper-dark" aria-hidden="true"></span>
+      <strong>SKALEE Dark</strong>
+      <span class="personal-bg-desc">Wallpaper oficial escuro</span>
+     </button>
+     <button class="personal-bg-style-btn" type="button" data-skalee-bg-choice="wallpaper-white" data-skalee-preset="white" role="radio" aria-checked="false">
+      <span class="personal-bg-preview preview-wallpaper-white" aria-hidden="true"></span>
+      <strong>SKALEE White</strong>
+      <span class="personal-bg-desc">Wallpaper oficial claro</span>
+     </button>
+    </div>
+    <div class="android-glass-wallpaper-actions" data-theme-customization style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;">
+     <button type="button" class="btn2" id="androidGlassWallpaperChooseBtn" style="font-size: 11.5px; padding: 6px 10px;">Enviar foto própria...</button>
+     <button type="button" class="btn2" id="androidGlassWallpaperApplyBtn" hidden style="font-size: 11.5px; padding: 6px 10px;">Aplicar foto</button>
+     <button type="button" class="btn2" id="androidGlassWallpaperCancelBtn" hidden style="font-size: 11.5px; padding: 6px 10px;">Cancelar</button>
+     <button type="button" class="btn2 danger" id="androidGlassWallpaperRemoveBtn" hidden style="font-size: 11.5px; padding: 6px 10px;">Remover foto</button>
+    </div>
+    <input id="androidGlassWallpaperInput" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+    <p class="android-glass-wallpaper-status" id="androidGlassWallpaperStatus" aria-live="polite" style="font-size: 11.5px; color: var(--sk-text-muted, #94a3b8); margin-top: 4px;"></p>
+   </div>
+
+   <!-- Seção 3: Movimento e Ondas -->
+   <div class="visual-themes-group" style="margin-top: 14px;">
+    <div class="personal-effects-card visual-motion-card">
+     <div style="min-width:0;">
+      <strong style="display:block;font-size:13.5px;color:var(--sk-text-primary, #f8fafc);">Fundo com movimento (Ondas)</strong>
+      <span id="personalMotionDesc" style="font-size:11.5px;color:var(--sk-text-muted, #94a3b8);display:block;margin-top:2px;">Desativado por padrão. Ative se preferir ondas fluidas e gradientes dinâmicos.</span>
+     </div>
+     <button type="button" id="personalMotionToggleBtn" class="btn2 visual-motion-toggle-btn">Ativar ondas</button>
+    </div>
+   </div>
+  </div>
+
+  <div class="visual-themes-modal-footer">
+   <button id="visualThemesDoneBtn" class="btn visual-themes-done-btn" type="button">Concluir</button>
+  </div>
+ </div>
+</div>
+
 <div id="aboutModal" class="update-modal personal-about-modal" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
  <div class="update-panel">
   <h2 id="aboutTitle">Sobre o aplicativo</h2>
@@ -1926,6 +2013,10 @@ const els = {
  notificationsClose: document.getElementById('notificationsClose'),
  personalAboutButton: document.getElementById('personalAboutButton'),
  aboutModal: document.getElementById('aboutModal'),
+ visualThemesModal: document.getElementById('visualThemesModal'),
+ personalThemeButton: document.getElementById('personalThemeButton'),
+ visualThemesClose: document.getElementById('visualThemesClose'),
+ visualThemesDoneBtn: document.getElementById('visualThemesDoneBtn'),
  aboutClose: document.getElementById('aboutClose'),
  personalSignOut: document.getElementById('personalSignOut'),
  reportTab: document.getElementById('reportTab'),
@@ -2188,6 +2279,7 @@ function applyThemePreference(preference, announce = false) {
  });
  const labels = { light: "Light", dark: "Dark", glass: "Glass", industrial: "Industrial", creative: "Creative", executive: "Executive", "skalee-i": "SKALEE I", auto: `Automático (${resolvedTheme === "dark" ? "Dark" : "Light"})` };
  if (els.themeStatus) els.themeStatus.textContent = announce ? `Tema ${labels[preference]} ativado.` : `Tema atual: ${labels[preference]}.`;
+ if (typeof updateVisualThemesSummaryUI === "function") updateVisualThemesSummaryUI();
 }
 
 els.themeButtons.forEach((button) => {
@@ -2377,6 +2469,43 @@ els.personalNotificationsTab.addEventListener("click", () => setPersonalPanelTab
 els.personalSettingsTab.addEventListener("click", () => setPersonalPanelTab("settings"));
 els.personalClose.addEventListener("click", () => setPersonalPanelOpen(false));
 els.personalOverlay.addEventListener("click", () => setPersonalPanelOpen(false));
+function updateVisualThemesSummaryUI() {
+ const currentTheme = document.documentElement.dataset.themePreference || localStorage.getItem(THEME_KEY) || "skalee-i";
+ const currentBg = document.documentElement.dataset.skaleeBg || localStorage.getItem("skalee.bgStyle") || "obsidian";
+ const themeLabels = {
+  "skalee-i": "SKALEE I",
+  "dark": "Dark Clássico",
+  "light": "Light Operacional",
+  "industrial": "Industrial",
+  "creative": "Creative",
+  "executive": "Executive"
+ };
+ const bgLabels = {
+  "obsidian": "Obsidian Pro",
+  "slate": "Midnight Slate",
+  "sapphire": "Royal Sapphire",
+  "oled": "Pure OLED",
+  "wallpaper-dark": "SKALEE Dark",
+  "wallpaper-white": "SKALEE White"
+ };
+ const summaryText = `${themeLabels[currentTheme] || currentTheme} • ${bgLabels[currentBg] || currentBg}`;
+ const personalSummary = document.getElementById("personalThemeSummary");
+ if (personalSummary) personalSummary.textContent = summaryText;
+ const androidBadge = document.getElementById("androidCurrentThemeBadge");
+ if (androidBadge) androidBadge.textContent = summaryText;
+}
+window.updateVisualThemesSummaryUI = updateVisualThemesSummaryUI;
+
+function setVisualThemesModalOpen(open) {
+ if (!els.visualThemesModal) return;
+ els.visualThemesModal.classList.toggle("show", open);
+ if (open) {
+  updateVisualThemesSummaryUI();
+  if (els.visualThemesClose) els.visualThemesClose.focus();
+ }
+}
+window.setVisualThemesModalOpen = setVisualThemesModalOpen;
+
 function setAboutModalOpen(open) {
  els.aboutModal.classList.toggle("show", open);
  if (open) els.aboutClose.focus();
@@ -2468,6 +2597,21 @@ if (personalTourBtn) {
   }
  });
 }
+if (els.personalThemeButton) {
+ els.personalThemeButton.addEventListener("click", () => setVisualThemesModalOpen(true));
+}
+if (els.visualThemesClose) {
+ els.visualThemesClose.addEventListener("click", () => setVisualThemesModalOpen(false));
+}
+if (els.visualThemesDoneBtn) {
+ els.visualThemesDoneBtn.addEventListener("click", () => setVisualThemesModalOpen(false));
+}
+if (els.visualThemesModal) {
+ els.visualThemesModal.addEventListener("click", (event) => {
+  if (event.target === els.visualThemesModal) setVisualThemesModalOpen(false);
+ });
+}
+
 els.personalAboutButton.addEventListener("click", () => setAboutModalOpen(true));
 els.aboutClose.addEventListener("click", () => setAboutModalOpen(false));
 els.aboutModal.addEventListener("click", (event) => {
@@ -2480,6 +2624,10 @@ els.personalSignOut.addEventListener("click", () => {
  setPersonalPanelOpen(false);
 });
 document.addEventListener("keydown", (event) => {
+ if (event.key === "Escape" && els.visualThemesModal && els.visualThemesModal.classList.contains("show")) {
+  setVisualThemesModalOpen(false);
+  return;
+ }
  if (event.key === "Escape" && els.aboutModal.classList.contains("show")) {
   setAboutModalOpen(false);
   return;
@@ -6470,6 +6618,7 @@ function setSkaleeBackgroundStyle(bgStyle) {
   btn.classList.toggle("active", active);
   btn.setAttribute("aria-checked", String(active));
  });
+ if (typeof updateVisualThemesSummaryUI === "function") updateVisualThemesSummaryUI();
 }
 
 function setMotionBackgroundEnabled(enabled) {
