@@ -975,7 +975,7 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
     </svg>
     <span>Grade</span>
    </button>
-   <button type="button" class="view-btn" data-desktop-view="list" aria-pressed="false" aria-label="Visualização em lista" title="Visualização em lista">
+   <button type="button" class="view-btn" data-desktop-view="list" aria-pressed="false" aria-label="Visualização em tabela" title="Visualização em tabela (conferência rápida)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
      <line x1="8" y1="6" x2="21" y2="6"></line>
      <line x1="8" y1="12" x2="21" y2="12"></line>
@@ -984,11 +984,19 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
      <line x1="3" y1="12" x2="3.01" y2="12"></line>
      <line x1="3" y1="18" x2="3.01" y2="18"></line>
     </svg>
-    <span>Lista</span>
+    <span>Tabela</span>
    </button>
   </div>
  </div>
 
+ <div id="desktopTableHeader" class="desktop-table-header" aria-hidden="true">
+  <span class="col-photo">Foto</span>
+  <span class="col-desc">Produto / Identificação</span>
+  <span class="col-store">Loja & Fornecedor</span>
+  <span class="col-qty">Quantidade</span>
+  <span class="col-expiry">Validade</span>
+  <span class="col-status">Status</span>
+ </div>
  <div class="grid" id="grid"></div>
 </section>
 

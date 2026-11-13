@@ -2308,3 +2308,430 @@ html[data-theme="light"] .visual-themes-modal .update-panel {
   border: none !important;
   cursor: pointer !important;
 }
+
+.desktop-table-header {
+  display: none !important;
+}
+
+/* ==========================================================================
+   ETAPA 1: DESKTOP EXECUTIVE WORKSPACE (Sidebar Fixa + Grid Expandido)
+   Ativo estritamente em telas >= 1024px e fora do shell mobile/Capacitor.
+   Preserva intacto o comportamento mobile (< 768px) e tablet portrait (768-1023px).
+   ========================================================================== */
+@media (min-width: 1024px) {
+  html:not(.android-app):not(.capacitor-android) body {
+    overflow-x: hidden;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .app,
+  html:not(.android-app):not(.capacitor-android) #protectedApp {
+    display: grid !important;
+    grid-template-columns: 248px minmax(0, 1fr) !important;
+    grid-template-rows: auto 1fr !important;
+    max-width: 1680px !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+    padding: 18px 32px 40px !important;
+    column-gap: 28px !important;
+    row-gap: 20px !important;
+    box-sizing: border-box !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #protectedApp > header {
+    grid-column: 1 / -1 !important;
+    grid-row: 1 !important;
+    margin-bottom: 0 !important;
+    padding: 10px 0 16px !important;
+    border-bottom: 1px solid var(--sk-border-subtle, var(--line)) !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    min-width: 0 !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    position: sticky !important;
+    top: 20px !important;
+    align-self: start !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    padding: 14px 12px !important;
+    border-radius: 16px !important;
+    margin-bottom: 0 !important;
+    background: var(--sk-bg-surface, var(--card)) !important;
+    border: 1px solid var(--sk-border-subtle, var(--line)) !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18) !important;
+    z-index: 100 !important;
+  }
+
+  html[data-theme="dark"]:not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav,
+  html[data-theme="skalee-i"]:not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav {
+    background: rgba(11, 19, 34, 0.82) !important;
+    backdrop-filter: blur(18px) !important;
+    -webkit-backdrop-filter: blur(18px) !important;
+    border-color: rgba(255, 255, 255, 0.10) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35) !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav::before {
+    content: "NAVEGAÇÃO";
+    display: block;
+    padding: 2px 10px 10px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: var(--sk-text-muted, var(--muted));
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--sk-border-subtle, var(--line));
+    margin-bottom: 4px;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav .tab {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    width: 100% !important;
+    min-height: 44px !important;
+    padding: 10px 14px !important;
+    border-radius: 10px !important;
+    gap: 12px !important;
+    font-size: 13.5px !important;
+    text-align: left !important;
+    box-sizing: border-box !important;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.10s ease !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav .tab:hover {
+    transform: translateX(2px) !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav .tab[hidden],
+  html:not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav .tab[style*="display: none"] {
+    display: none !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav .tab-label {
+    flex: 1 !important;
+    text-align: left !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav .label-desktop {
+    display: inline !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav .label-mobile {
+    display: none !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #protectedApp > .page {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  /* =======================================================================
+     ETAPA 2: TOOLBAR, FILTROS E KPIS COMPACTOS
+     ======================================================================= */
+  html:not(.android-app):not(.capacitor-android) #products .stats {
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+    margin-bottom: 16px !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products .stat {
+    padding: 12px 16px !important;
+    border-radius: 12px !important;
+    min-height: 72px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    background: var(--sk-bg-surface, var(--card)) !important;
+    border: 1px solid var(--sk-border-subtle, var(--line)) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products .stat:hover {
+    transform: translateY(-1px) !important;
+    border-color: var(--sk-border-medium, var(--line)) !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products .stat small {
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.05em !important;
+    text-transform: uppercase !important;
+    color: var(--sk-text-muted, var(--muted)) !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products .stat b {
+    font-size: 24px !important;
+    font-weight: 800 !important;
+    margin-top: 4px !important;
+    font-variant-numeric: tabular-nums !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products .searchrow.with-layout {
+    display: grid !important;
+    grid-template-columns: minmax(280px, 1.8fr) minmax(180px, 1fr) minmax(180px, 1fr) auto !important;
+    gap: 12px !important;
+    align-items: center !important;
+    margin-bottom: 10px !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products .searchrow.with-layout input,
+  html:not(.android-app):not(.capacitor-android) #products .searchrow.with-layout select {
+    min-height: 42px !important;
+    padding: 10px 14px !important;
+    font-size: 13.5px !important;
+    border-radius: 10px !important;
+    background: var(--sk-bg-surface, var(--card)) !important;
+    border: 1px solid var(--sk-border-subtle, var(--line)) !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products .filters-container {
+    margin-bottom: 12px !important;
+    gap: 6px !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products .filters {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    overflow-x: visible !important;
+    padding: 2px 0 6px !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products .chip {
+    min-height: 36px !important;
+    padding: 7px 14px !important;
+    font-size: 12.5px !important;
+    border-radius: 999px !important;
+    background: var(--sk-bg-surface, var(--card)) !important;
+    border: 1px solid var(--sk-border-subtle, var(--line)) !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products .searchrow:not(.with-layout) {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 16px !important;
+    margin-bottom: 14px !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products .searchrow:not(.with-layout) .resultline {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: var(--sk-text-muted, var(--muted)) !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products .searchrow:not(.with-layout) select#sort {
+    width: auto !important;
+    min-width: 220px !important;
+    min-height: 38px !important;
+    padding: 8px 14px !important;
+    font-size: 13px !important;
+    border-radius: 10px !important;
+    background: var(--sk-bg-surface, var(--card)) !important;
+    border: 1px solid var(--sk-border-subtle, var(--line)) !important;
+  }
+
+  /* =======================================================================
+     ETAPA 3: ALTERNÂNCIA FUNCIONAL GRADE VS TABELA DE ALTA DENSIDADE
+     ======================================================================= */
+  /* Modo Grade Desktop (3 a 4 colunas proporcionais) */
+  html:not(.android-app):not(.capacitor-android) #products #grid:not([data-view="list"]) {
+    display: grid !important;
+    grid-template-columns: repeat(var(--product-columns, 4), minmax(0, 1fr)) !important;
+    gap: 16px !important;
+    align-items: stretch !important;
+  }
+
+  /* Modo Tabela Desktop (Linhas horizontais de conferência rápida) */
+  html:not(.android-app):not(.capacitor-android) .desktop-table-header {
+    display: none !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products[data-view="list"] .desktop-table-header {
+    display: grid !important;
+    grid-template-columns: 48px minmax(220px, 2.2fr) minmax(180px, 1.4fr) 110px 120px 140px !important;
+    align-items: center !important;
+    gap: 16px !important;
+    padding: 10px 18px !important;
+    background: var(--sk-bg-surface, var(--card)) !important;
+    border: 1px solid var(--sk-border-subtle, var(--line)) !important;
+    border-radius: 10px !important;
+    margin-bottom: 8px !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.05em !important;
+    color: var(--sk-text-muted, var(--muted)) !important;
+    text-transform: uppercase !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products[data-view="list"] .desktop-table-header .col-status {
+    text-align: right !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products #grid[data-view="list"] {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products #grid[data-view="list"] .product-card-slot {
+    min-height: 0 !important;
+    height: auto !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products #grid[data-view="list"] .product-card-glow {
+    height: auto !important;
+    border-radius: 12px !important;
+    padding: 1px !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products #grid[data-view="list"] .product-card-glow:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products #grid[data-view="list"] .card {
+    display: grid !important;
+    grid-template-columns: 48px minmax(220px, 2.2fr) minmax(180px, 1.4fr) 110px 120px 140px !important;
+    align-items: center !important;
+    gap: 16px !important;
+    padding: 8px 16px !important;
+    min-height: 56px !important;
+    height: auto !important;
+    border-radius: 10px !important;
+    border: 1px solid var(--sk-border-subtle, var(--line)) !important;
+    background: var(--sk-bg-surface, var(--card)) !important;
+    box-sizing: border-box !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products #grid[data-view="list"] .card:hover {
+    border-color: var(--sk-border-highlight, var(--blue)) !important;
+    background: var(--sk-bg-surface-hover, var(--sk-surface-hover)) !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products #grid[data-view="list"] .card .photo {
+    width: 44px !important;
+    min-width: 44px !important;
+    max-width: 44px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
+    border-radius: 8px !important;
+    flex: 0 0 44px !important;
+    margin: 0 !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products #grid[data-view="list"] .card .content {
+    display: contents !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products #grid[data-view="list"] .card .content > .name {
+    grid-column: 2 !important;
+    margin: 0 !important;
+    font-size: 13.5px !important;
+    font-weight: 750 !important;
+    line-height: 1.3 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products #grid[data-view="list"] .card .card-codes {
+    grid-column: 3 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2px !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    font-size: 11.5px !important;
+    color: var(--sk-text-muted, var(--muted)) !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products #grid[data-view="list"] .card .card-codes .code-line {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    line-height: 1.25 !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products #grid[data-view="list"] .card .card-bottom {
+    display: contents !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products #grid[data-view="list"] .card .card-summary {
+    display: contents !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products #grid[data-view="list"] .card .card-summary .info:first-child {
+    grid-column: 4 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products #grid[data-view="list"] .card .card-summary .info:first-child span {
+    display: none !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products #grid[data-view="list"] .card .card-summary .info:first-child b {
+    font-size: 14px !important;
+    font-weight: 800 !important;
+    font-variant-numeric: tabular-nums !important;
+    color: var(--sk-text-primary, var(--text)) !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products #grid[data-view="list"] .card .card-summary .info:last-child {
+    grid-column: 5 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products #grid[data-view="list"] .card .card-summary .info:last-child span {
+    display: none !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products #grid[data-view="list"] .card .card-summary .info:last-child b {
+    font-size: 13.5px !important;
+    font-weight: 750 !important;
+    font-variant-numeric: tabular-nums !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products #grid[data-view="list"] .card .badges {
+    grid-column: 6 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 6px !important;
+    margin: 0 !important;
+    flex-wrap: nowrap !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products #grid[data-view="list"] .card .badges .badge {
+    padding: 4px 10px !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    white-space: nowrap !important;
+    border-radius: 999px !important;
+  }
+}
+
+
