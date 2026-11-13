@@ -1600,17 +1600,18 @@ html[data-bg-motion="true"]:not([data-bg-effects-paused="true"]):not([data-glass
 }
 
 /* ==========================================================================
-   SKALEE FUNDOS ESTÁTICOS PROFISSIONAIS (Site Corporativo / Dark-First)
-   Fundo limpo, gradientes profundos, iluminação ambiente sutil, zero ondas recortadas.
+   SKALEE FUNDOS ESTÁTICOS SOFISTICADOS POR ESTILO DE TEMA
+   Cada estilo de tema possui atmosfera exclusiva, de alto acabamento e contraste.
    ========================================================================== */
 
-/* 1. Obsidian Titanium (Padrão Oficial Recomendado) */
-html:is([data-skalee-bg="obsidian"], :not([data-skalee-bg])) body {
-  background-color: #060911 !important;
+/* 1. Tema SKALEE I (Live Glass & Profundidade Zenital) */
+html[data-theme="skalee-i"]:not([data-skalee-bg="wallpaper-dark"]):not([data-skalee-bg="wallpaper-white"]):not([data-glass-wallpaper="image"]) body,
+html:not([data-theme]):not([data-skalee-bg="wallpaper-dark"]):not([data-skalee-bg="wallpaper-white"]):not([data-glass-wallpaper="image"]) body {
+  background-color: #050811 !important;
   background-image:
-    radial-gradient(ellipse 85% 55% at 50% -12%, rgba(0, 119, 255, 0.16) 0%, transparent 68%),
-    radial-gradient(ellipse 65% 45% at 85% 20%, rgba(0, 217, 255, 0.10) 0%, transparent 60%),
-    radial-gradient(ellipse 55% 45% at 12% 75%, rgba(124, 58, 237, 0.07) 0%, transparent 65%),
+    radial-gradient(ellipse 85% 55% at 50% -12%, rgba(0, 119, 255, 0.20) 0%, transparent 68%),
+    radial-gradient(ellipse 65% 45% at 85% 20%, rgba(0, 217, 255, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 55% 45% at 12% 75%, rgba(124, 58, 237, 0.08) 0%, transparent 65%),
     linear-gradient(175deg, #050811 0%, #080d1a 45%, #0b1222 100%) !important;
   background-attachment: fixed !important;
   background-size: cover !important;
@@ -1618,78 +1619,122 @@ html:is([data-skalee-bg="obsidian"], :not([data-skalee-bg])) body {
   background-repeat: no-repeat !important;
 }
 
-/* 2. Midnight Slate (Grafite / Produtividade Linear Style) */
+/* 2. Tema Dark Clássico (Deep Space Navy Operacional) */
+html[data-theme="dark"]:not([data-skalee-bg="wallpaper-dark"]):not([data-skalee-bg="wallpaper-white"]):not([data-glass-wallpaper="image"]) body {
+  background-color: #040812 !important;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(37, 99, 235, 0.22) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 40% at 90% 25%, rgba(59, 130, 246, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 45% at 10% 70%, rgba(15, 23, 42, 0.6) 0%, transparent 65%),
+    linear-gradient(175deg, #040810 0%, #07101e 48%, #0b172a 100%) !important;
+  background-attachment: fixed !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+/* 3. Tema Light Operacional (Studio Minimal White) */
+html[data-theme="light"]:not([data-skalee-bg="wallpaper-dark"]):not([data-glass-wallpaper="image"]) body {
+  background-color: #f8fafc !important;
+  background-image:
+    radial-gradient(ellipse 75% 45% at 50% -10%, rgba(37, 99, 235, 0.08) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 35% at 90% 12%, rgba(14, 165, 233, 0.05) 0%, transparent 60%),
+    linear-gradient(180deg, #f8fafc 0%, #f1f5f9 55%, #e2e8f0 100%) !important;
+  background-attachment: fixed !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+/* 4. Tema Industrial (Carbon Titanium & Aço Escovado de Precisão) */
+html[data-theme="industrial"]:not([data-skalee-bg="wallpaper-dark"]):not([data-skalee-bg="wallpaper-white"]):not([data-glass-wallpaper="image"]) body {
+  background-color: #07090c !important;
+  background-image:
+    repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.018) 0 1px, transparent 1px 7px),
+    radial-gradient(ellipse 75% 50% at 50% -10%, rgba(148, 163, 184, 0.16) 0%, transparent 65%),
+    radial-gradient(ellipse 55% 40% at 88% 20%, rgba(56, 189, 248, 0.09) 0%, transparent 58%),
+    radial-gradient(ellipse 45% 45% at 15% 70%, rgba(30, 41, 59, 0.45) 0%, transparent 60%),
+    linear-gradient(180deg, #07090c 0%, #0d1015 48%, #141820 100%) !important;
+  background-attachment: fixed !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+/* 5. Tema Creative (Nebula Violet & Cosmic Tech) */
+html[data-theme="creative"]:not([data-skalee-bg="wallpaper-dark"]):not([data-skalee-bg="wallpaper-white"]):not([data-glass-wallpaper="image"]) body {
+  background-color: #07040e !important;
+  background-image:
+    radial-gradient(ellipse 80% 55% at 50% -12%, rgba(139, 92, 246, 0.26) 0%, transparent 68%),
+    radial-gradient(ellipse 60% 45% at 85% 25%, rgba(236, 72, 153, 0.15) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 15% 75%, rgba(99, 102, 241, 0.10) 0%, transparent 65%),
+    linear-gradient(175deg, #07040e 0%, #10071d 46%, #1a0a2e 100%) !important;
+  background-attachment: fixed !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+/* 6. Tema Executive (Onyx Imperial & Amber Luxury) */
+html[data-theme="executive"]:not([data-skalee-bg="wallpaper-dark"]):not([data-skalee-bg="wallpaper-white"]):not([data-glass-wallpaper="image"]) body {
+  background-color: #080705 !important;
+  background-image:
+    radial-gradient(ellipse 75% 50% at 50% -12%, rgba(245, 158, 11, 0.20) 0%, transparent 68%),
+    radial-gradient(ellipse 55% 40% at 85% 20%, rgba(217, 119, 6, 0.12) 0%, transparent 58%),
+    radial-gradient(ellipse 50% 50% at 15% 75%, rgba(120, 53, 15, 0.10) 0%, transparent 65%),
+    linear-gradient(175deg, #080705 0%, #110d08 48%, #1a140b 100%) !important;
+  background-attachment: fixed !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+/* Presets Específicos Manuais (quando o usuário escolhe fixar um fundo nas configurações) */
+html[data-skalee-bg="obsidian"] body {
+  background-color: #050811 !important;
+  background-image:
+    radial-gradient(ellipse 85% 55% at 50% -12%, rgba(0, 119, 255, 0.20) 0%, transparent 68%),
+    radial-gradient(ellipse 65% 45% at 85% 20%, rgba(0, 217, 255, 0.12) 0%, transparent 60%),
+    linear-gradient(175deg, #050811 0%, #080d1a 45%, #0b1222 100%) !important;
+}
+
 html[data-skalee-bg="slate"] body {
   background-color: #080c14 !important;
   background-image:
     radial-gradient(ellipse 75% 50% at 50% -10%, rgba(148, 163, 184, 0.14) 0%, transparent 65%),
     radial-gradient(ellipse 55% 40% at 88% 22%, rgba(56, 189, 248, 0.08) 0%, transparent 58%),
-    radial-gradient(ellipse 45% 45% at 15% 70%, rgba(30, 41, 59, 0.35) 0%, transparent 60%),
     linear-gradient(180deg, #080c14 0%, #0d121c 50%, #121926 100%) !important;
-  background-attachment: fixed !important;
-  background-size: cover !important;
-  background-position: center !important;
-  background-repeat: no-repeat !important;
 }
 
-/* 3. Royal Sapphire (Azul-marinho nobre executivo) */
 html[data-skalee-bg="sapphire"] body {
   background-color: #030713 !important;
   background-image:
     radial-gradient(ellipse 80% 55% at 50% -15%, rgba(29, 78, 216, 0.24) 0%, transparent 70%),
     radial-gradient(ellipse 60% 45% at 82% 25%, rgba(0, 217, 255, 0.12) 0%, transparent 55%),
-    radial-gradient(ellipse 50% 50% at 18% 72%, rgba(15, 23, 42, 0.5) 0%, transparent 60%),
     linear-gradient(175deg, #030713 0%, #061126 48%, #091b3b 100%) !important;
-  background-attachment: fixed !important;
-  background-size: cover !important;
-  background-position: center !important;
-  background-repeat: no-repeat !important;
 }
 
-/* 4. Pure OLED Dark (Preto absoluto minimalista de alto contraste) */
 html[data-skalee-bg="oled"] body {
   background-color: #030407 !important;
   background-image:
     radial-gradient(ellipse 65% 35% at 50% 0%, rgba(255, 255, 255, 0.035) 0%, transparent 70%),
     linear-gradient(180deg, #030407 0%, #06080e 100%) !important;
-  background-attachment: fixed !important;
-  background-size: cover !important;
-  background-position: center !important;
-  background-repeat: no-repeat !important;
 }
 
-/* 5. Wallpaper SKALEE Dark */
 html[data-skalee-bg="wallpaper-dark"] body,
 html[data-skalee-preset="dark"] body {
   background-color: #050811 !important;
   background-image:
     linear-gradient(rgba(5, 8, 17, 0.35), rgba(5, 8, 17, 0.55)),
     url("assets/wallpaper-skalee-dark.jpg") !important;
-  background-attachment: fixed !important;
-  background-size: cover !important;
-  background-position: center !important;
-  background-repeat: no-repeat !important;
 }
 
-/* 6. Wallpaper SKALEE White */
 html[data-skalee-bg="wallpaper-white"] body,
 html[data-skalee-preset="white"] body {
   background-color: #f1f5f9 !important;
   background-image:
     linear-gradient(rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.35)),
     url("assets/wallpaper-skalee-white.jpg") !important;
-  background-attachment: fixed !important;
-  background-size: cover !important;
-  background-position: center !important;
-  background-repeat: no-repeat !important;
-}
-
-/* Suporte ao Tema Claro Operacional */
-html[data-theme="light"]:not([data-skalee-bg="wallpaper-dark"]):not([data-skalee-preset="dark"]) body {
-  background-color: #f1f5f9 !important;
-  background-image:
-    radial-gradient(ellipse 75% 45% at 50% -10%, rgba(37, 99, 235, 0.09) 0%, transparent 65%),
-    linear-gradient(180deg, #f8fafc 0%, #f1f5f9 60%, #e2e8f0 100%) !important;
 }
 
 /* Seletores e Miniaturas de Fundo */
