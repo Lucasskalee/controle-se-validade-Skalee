@@ -834,13 +834,17 @@ html.android-app[data-theme="skalee-i"] :is(
   color: var(--sk-text-secondary) !important;
 }
 
-html.android-app[data-theme="skalee-i"] :is(
+html:is([data-theme="skalee-i"], .android-app[data-theme="skalee-i"]) :is(
   #register .form input,
   #register .form select,
   #report .report input,
   #report .report select,
   #products input,
   #products select,
+  #storeFilter,
+  #supplierFilter,
+  #search,
+  #sort,
   #audit input,
   #audit select,
   #personalPanel input,
@@ -851,24 +855,29 @@ html.android-app[data-theme="skalee-i"] :is(
   color: var(--sk-text-primary) !important;
 }
 
-html.android-app[data-theme="skalee-i"] :is(#report :is(.layout-picker, .report-grid), #products .product-layout-picker) {
+html:is([data-theme="skalee-i"], .android-app[data-theme="skalee-i"]) select option {
+  background-color: #0b1220 !important;
+  color: #f8fafc !important;
+}
+
+html:is([data-theme="skalee-i"], .android-app[data-theme="skalee-i"]) :is(#report :is(.layout-picker, .report-grid), #products .product-layout-picker) {
   background: var(--sk-bg-surface) !important;
   border-color: var(--sk-border-medium) !important;
 }
 
-html.android-app[data-theme="skalee-i"] #report .report-item {
+html:is([data-theme="skalee-i"], .android-app[data-theme="skalee-i"]) #report .report-item {
   background: var(--sk-bg-surface-elevated) !important;
   border-color: var(--sk-border-medium) !important;
   color: var(--sk-text-primary) !important;
 }
 
-html.android-app[data-theme="skalee-i"] #products .chip {
+html:is([data-theme="skalee-i"], .android-app[data-theme="skalee-i"]) #products .chip {
   background: var(--sk-bg-surface) !important;
   border: 1px solid var(--sk-border-subtle) !important;
   color: var(--sk-text-secondary) !important;
 }
 
-html.android-app[data-theme="skalee-i"] #products .chip.active {
+html:is([data-theme="skalee-i"], .android-app[data-theme="skalee-i"]) #products .chip.active {
   background: rgba(0, 119, 255, 0.40) !important;
   border-color: var(--sk-accent-cyan) !important;
   color: #ffffff !important;
