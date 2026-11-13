@@ -22,13 +22,19 @@
 <script src="report-assets.js"></script>
 <script>
 (() => {
-   const bgEffectsPaused = localStorage.getItem("skalee.pauseBgEffects") === "true";
+  const motionBg = localStorage.getItem("skalee.motionBg") === "true";
+  const bgEffectsPaused = !motionBg || localStorage.getItem("skalee.pauseBgEffects") === "true";
+  document.documentElement.dataset.bgMotion = motionBg ? "true" : "false";
   document.documentElement.dataset.bgEffectsPaused = bgEffectsPaused ? "true" : "false";
- const storedPreference = localStorage.getItem("skalee.theme") || "skalee-i";
- const preference = (storedPreference === "glass" || storedPreference === "auto") ? "skalee-i" : storedPreference;
- if (storedPreference === "glass" || storedPreference === "auto") localStorage.setItem("skalee.theme", preference);
- document.documentElement.dataset.theme = preference;
- document.documentElement.dataset.themePreference = preference;
+
+  const bgStyle = localStorage.getItem("skalee.bgStyle") || "obsidian";
+  document.documentElement.dataset.skaleeBg = bgStyle;
+
+  const storedPreference = localStorage.getItem("skalee.theme") || "skalee-i";
+  const preference = (storedPreference === "glass" || storedPreference === "auto") ? "skalee-i" : storedPreference;
+  if (storedPreference === "glass" || storedPreference === "auto") localStorage.setItem("skalee.theme", preference);
+  document.documentElement.dataset.theme = preference;
+  document.documentElement.dataset.themePreference = preference;
 
  const isAndroid = /Android/i.test(navigator.userAgent);
  const isMobile = /Mobile|Android|iPhone|iPad/i.test(navigator.userAgent);
@@ -846,13 +852,48 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
     <button class="personal-theme-button theme-button" type="button" data-personal-theme-choice="skalee-i"><span class="theme-icon theme-swatch theme-swatch-skalee-i" aria-hidden="true"></span><span>SKALEE I</span></button>
    </div>
   </section>
-   <section class="personal-section" aria-labelledby="personalEffectsTitle" style="margin-top:10px;">
-    <div class="personal-effects-card" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:1px solid var(--line, rgba(148,163,184,.2));border-radius:12px;background:rgba(255,255,255,.04);">
+   <section class="personal-section" aria-labelledby="personalBgStyleTitle" style="margin-top:12px;">
+    <h3 id="personalBgStyleTitle" style="display:block;font-size:12.5px;font-weight:750;color:var(--sk-text-primary, #f8fafc);margin-bottom:6px;">Tema de Fundo Profissional</h3>
+    <div class="personal-bg-style-grid" role="radiogroup" aria-label="Temas de Fundo Profissionais">
+     <button class="personal-bg-style-btn" type="button" data-skalee-bg-choice="obsidian" role="radio" aria-checked="true">
+      <span class="personal-bg-preview preview-obsidian" aria-hidden="true"></span>
+      <strong style="font-size:12px;">Obsidian Pro</strong>
+      <span class="personal-bg-desc">Padrão refinado com glow suave</span>
+     </button>
+     <button class="personal-bg-style-btn" type="button" data-skalee-bg-choice="slate" role="radio" aria-checked="false">
+      <span class="personal-bg-preview preview-slate" aria-hidden="true"></span>
+      <strong style="font-size:12px;">Midnight Slate</strong>
+      <span class="personal-bg-desc">Grafite neutro estilo Linear</span>
+     </button>
+     <button class="personal-bg-style-btn" type="button" data-skalee-bg-choice="sapphire" role="radio" aria-checked="false">
+      <span class="personal-bg-preview preview-sapphire" aria-hidden="true"></span>
+      <strong style="font-size:12px;">Royal Sapphire</strong>
+      <span class="personal-bg-desc">Azul executivo profundo</span>
+     </button>
+     <button class="personal-bg-style-btn" type="button" data-skalee-bg-choice="oled" role="radio" aria-checked="false">
+      <span class="personal-bg-preview preview-oled" aria-hidden="true"></span>
+      <strong style="font-size:12px;">Pure OLED</strong>
+      <span class="personal-bg-desc">Preto puro de alto contraste</span>
+     </button>
+     <button class="personal-bg-style-btn" type="button" data-skalee-bg-choice="wallpaper-dark" role="radio" aria-checked="false">
+      <span class="personal-bg-preview preview-wallpaper-dark" aria-hidden="true"></span>
+      <strong style="font-size:12px;">SKALEE Dark</strong>
+      <span class="personal-bg-desc">Wallpaper oficial escuro</span>
+     </button>
+     <button class="personal-bg-style-btn" type="button" data-skalee-bg-choice="wallpaper-white" role="radio" aria-checked="false">
+      <span class="personal-bg-preview preview-wallpaper-white" aria-hidden="true"></span>
+      <strong style="font-size:12px;">SKALEE White</strong>
+      <span class="personal-bg-desc">Wallpaper oficial claro</span>
+     </button>
+    </div>
+   </section>
+   <section class="personal-section" aria-labelledby="personalMotionTitle" style="margin-top:12px;">
+    <div class="personal-effects-card" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:1px solid var(--sk-border-subtle, rgba(148,163,184,.2));border-radius:12px;background:rgba(255,255,255,.04);">
      <div style="min-width:0;">
-      <strong id="personalEffectsTitle" style="display:block;font-size:13.5px;color:var(--text, #f8fafc);">Efeitos do fundo</strong>
-      <span style="font-size:11.5px;color:var(--muted, #94a3b8);display:block;margin-top:2px;">Pausar animações e ondas para otimizar desempenho e bateria.</span>
+      <strong id="personalMotionTitle" style="display:block;font-size:13.5px;color:var(--sk-text-primary, #f8fafc);">Fundo com movimento (Ondas)</strong>
+      <span id="personalMotionDesc" style="font-size:11.5px;color:var(--sk-text-muted, #94a3b8);display:block;margin-top:2px;">Desativado por padrão. Ative se preferir ondas fluidas e gradientes dinâmicos.</span>
      </div>
-     <button type="button" id="personalDiagPauseBgBtn" class="btn2" style="min-width:90px;padding:8px 12px;font-weight:700;flex-shrink:0;">Pausar</button>
+     <button type="button" id="personalMotionToggleBtn" class="btn2" style="min-width:100px;padding:8px 12px;font-weight:700;flex-shrink:0;">Ativar ondas</button>
     </div>
    </section>
   <div class="personal-menu-list">
@@ -6411,69 +6452,108 @@ function reconcileProductGrid(items, hasMore) {
 }
 
 
-function setPauseBackgroundEffects(paused) {
- const isPaused = Boolean(paused);
+function setSkaleeBackgroundStyle(bgStyle) {
+ const style = bgStyle || "obsidian";
  try {
+  localStorage.setItem("skalee.bgStyle", style);
+ } catch (_) {}
+ document.documentElement.dataset.skaleeBg = style;
+
+ document.querySelectorAll("[data-skalee-bg-choice]").forEach((btn) => {
+  const active = btn.dataset.skaleeBgChoice === style;
+  btn.classList.toggle("active", active);
+  btn.setAttribute("aria-checked", String(active));
+ });
+
+ document.querySelectorAll("[data-skalee-preset]").forEach((btn) => {
+  const active = btn.dataset.skaleePreset === style;
+  btn.classList.toggle("active", active);
+  btn.setAttribute("aria-checked", String(active));
+ });
+}
+
+function setMotionBackgroundEnabled(enabled) {
+ const isEnabled = Boolean(enabled);
+ const isPaused = !isEnabled;
+ try {
+  localStorage.setItem("skalee.motionBg", isEnabled ? "true" : "false");
   localStorage.setItem("skalee.pauseBgEffects", isPaused ? "true" : "false");
  } catch (_) {}
+ document.documentElement.dataset.bgMotion = isEnabled ? "true" : "false";
  document.documentElement.dataset.bgEffectsPaused = isPaused ? "true" : "false";
 
- if (typeof window.skaleeStopAuroraWebGLLoop === "function" && isPaused) {
+ if (typeof window.skaleeStopAuroraWebGLLoop === "function" && !isEnabled) {
   window.skaleeStopAuroraWebGLLoop();
- } else if (typeof window.skaleeStartAuroraWebGLLoop === "function" && !isPaused) {
+ } else if (typeof window.skaleeStartAuroraWebGLLoop === "function" && isEnabled) {
   window.skaleeStartAuroraWebGLLoop();
+ }
+
+ const motionBtn = document.getElementById("personalMotionToggleBtn");
+ if (motionBtn) {
+  motionBtn.classList.toggle("active", isEnabled);
+  motionBtn.classList.toggle("is-active", isEnabled);
+  motionBtn.setAttribute("aria-pressed", String(isEnabled));
+  motionBtn.textContent = isEnabled ? "Desativar ondas" : "Ativar ondas";
  }
 
  const buttons = document.querySelectorAll("#diagPauseBgBtnProducts, #diagPauseBgBtnProductsDesktop, #androidDiagPauseBgBtn, #personalDiagPauseBgBtn");
  buttons.forEach((btn) => {
   btn.classList.toggle("is-paused", isPaused);
-  btn.classList.toggle("active", isPaused);
-  btn.setAttribute("aria-pressed", String(isPaused));
+  btn.classList.toggle("active", isEnabled);
+  btn.setAttribute("aria-pressed", String(isEnabled));
   if (btn.id === "androidDiagPauseBgBtn") {
-   btn.textContent = isPaused ? "Reativar" : "Pausar";
+   btn.textContent = isEnabled ? "Desativar ondas" : "Ativar ondas";
   } else if (btn.id === "personalDiagPauseBgBtn") {
-   btn.textContent = isPaused ? "Reativar efeitos" : "Pausar efeitos";
-  } else {
-   btn.innerHTML = isPaused
-    ? '<span aria-hidden="true">▶</span> Reativar efeitos do fundo (Pausado)'
-    : '<span aria-hidden="true">⏸</span> Pausar efeitos do fundo';
-   btn.title = isPaused
-    ? "O fundo está estático. Toque para reativar as ondas."
-    : "Toque para pausar as animações do fundo mantendo-o visível.";
+   btn.textContent = isEnabled ? "Desativar ondas" : "Ativar ondas";
   }
  });
 
  const statusEl = document.getElementById("androidDiagPauseBgStatus");
  if (statusEl) {
-  statusEl.textContent = isPaused
-   ? "Efeitos do fundo pausados (fundo estático)"
-   : "Efeitos do fundo ativos (em movimento)";
-  statusEl.style.color = isPaused ? "var(--orange, #ea580c)" : "var(--muted, #94a3b8)";
+  statusEl.textContent = isEnabled
+   ? "Ondas fluidas ativas (em movimento contínuo)"
+   : "Fundo estático profissional ativo (sem movimento)";
+  statusEl.style.color = isEnabled ? "var(--sk-accent-cyan, #00d9ff)" : "var(--sk-text-muted, #94a3b8)";
  }
+}
+
+function setPauseBackgroundEffects(paused) {
+ setMotionBackgroundEnabled(!paused);
+}
+
+function toggleMotionBackground() {
+ const current = document.documentElement.dataset.bgMotion === "true";
+ setMotionBackgroundEnabled(!current);
 }
 
 function togglePauseBackgroundEffects() {
- const current = document.documentElement.dataset.bgEffectsPaused === "true";
- setPauseBackgroundEffects(!current);
+ toggleMotionBackground();
 }
 
+window.setSkaleeBackgroundStyle = setSkaleeBackgroundStyle;
+window.setMotionBackgroundEnabled = setMotionBackgroundEnabled;
 window.setPauseBackgroundEffects = setPauseBackgroundEffects;
 window.togglePauseBackgroundEffects = togglePauseBackgroundEffects;
+window.toggleMotionBackground = toggleMotionBackground;
 
 document.addEventListener("click", (e) => {
- const btn = e.target.closest("#diagPauseBgBtnProducts, #diagPauseBgBtnProductsDesktop, #personalDiagPauseBgBtn");
- if (btn) {
+ const bgChoiceBtn = e.target.closest("[data-skalee-bg-choice]");
+ if (bgChoiceBtn) {
   e.preventDefault();
-  togglePauseBackgroundEffects();
+  setSkaleeBackgroundStyle(bgChoiceBtn.dataset.skaleeBgChoice);
+  return;
+ }
+ const motionBtn = e.target.closest("#personalMotionToggleBtn, #diagPauseBgBtnProducts, #diagPauseBgBtnProductsDesktop, #personalDiagPauseBgBtn");
+ if (motionBtn) {
+  e.preventDefault();
+  toggleMotionBackground();
  }
 });
-if (document.readyState === "loading") {
- document.addEventListener("DOMContentLoaded", () => {
-  setPauseBackgroundEffects(localStorage.getItem("skalee.pauseBgEffects") === "true");
- });
-} else {
- setPauseBackgroundEffects(localStorage.getItem("skalee.pauseBgEffects") === "true");
-}
+
+const initialBgStyle = localStorage.getItem("skalee.bgStyle") || "obsidian";
+setSkaleeBackgroundStyle(initialBgStyle);
+const initialMotion = localStorage.getItem("skalee.motionBg") === "true";
+setMotionBackgroundEnabled(initialMotion);
 
 function render() {
  updateClearButtons();

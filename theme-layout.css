@@ -1584,8 +1584,188 @@ html.performance-mode .sk-wave-background,
 html.performance-mode .sk-wave-light,
 html.performance-mode .sk-wave { animation: none !important; }
 
-html[data-glass-wallpaper="image"] .sk-wave-background {
+/* Fundo dinâmico com ondas em movimento: desligado por padrão.
+   Visível somente se explicitamente ativado pelo usuário nas configurações. */
+html:not([data-bg-motion="true"]) :is(#skWaveBackground, .sk-wave-background),
+html[data-bg-effects-paused="true"] :is(#skWaveBackground, .sk-wave-background),
+html[data-glass-wallpaper="image"] :is(#skWaveBackground, .sk-wave-background) {
   display: none !important;
+}
+
+html[data-bg-motion="true"]:not([data-bg-effects-paused="true"]):not([data-glass-wallpaper="image"]) :is(#skWaveBackground, .sk-wave-background) {
+  display: block !important;
+}
+
+/* ==========================================================================
+   SKALEE FUNDOS ESTÁTICOS PROFISSIONAIS (Site Corporativo / Dark-First)
+   Fundo limpo, gradientes profundos, iluminação ambiente sutil, zero ondas recortadas.
+   ========================================================================== */
+
+/* 1. Obsidian Titanium (Padrão Oficial Recomendado) */
+html:is([data-skalee-bg="obsidian"], :not([data-skalee-bg])) body {
+  background-color: #060911 !important;
+  background-image:
+    radial-gradient(ellipse 85% 55% at 50% -12%, rgba(0, 119, 255, 0.16) 0%, transparent 68%),
+    radial-gradient(ellipse 65% 45% at 85% 20%, rgba(0, 217, 255, 0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 55% 45% at 12% 75%, rgba(124, 58, 237, 0.07) 0%, transparent 65%),
+    linear-gradient(175deg, #050811 0%, #080d1a 45%, #0b1222 100%) !important;
+  background-attachment: fixed !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+/* 2. Midnight Slate (Grafite / Produtividade Linear Style) */
+html[data-skalee-bg="slate"] body {
+  background-color: #080c14 !important;
+  background-image:
+    radial-gradient(ellipse 75% 50% at 50% -10%, rgba(148, 163, 184, 0.14) 0%, transparent 65%),
+    radial-gradient(ellipse 55% 40% at 88% 22%, rgba(56, 189, 248, 0.08) 0%, transparent 58%),
+    radial-gradient(ellipse 45% 45% at 15% 70%, rgba(30, 41, 59, 0.35) 0%, transparent 60%),
+    linear-gradient(180deg, #080c14 0%, #0d121c 50%, #121926 100%) !important;
+  background-attachment: fixed !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+/* 3. Royal Sapphire (Azul-marinho nobre executivo) */
+html[data-skalee-bg="sapphire"] body {
+  background-color: #030713 !important;
+  background-image:
+    radial-gradient(ellipse 80% 55% at 50% -15%, rgba(29, 78, 216, 0.24) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 45% at 82% 25%, rgba(0, 217, 255, 0.12) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 50% at 18% 72%, rgba(15, 23, 42, 0.5) 0%, transparent 60%),
+    linear-gradient(175deg, #030713 0%, #061126 48%, #091b3b 100%) !important;
+  background-attachment: fixed !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+/* 4. Pure OLED Dark (Preto absoluto minimalista de alto contraste) */
+html[data-skalee-bg="oled"] body {
+  background-color: #030407 !important;
+  background-image:
+    radial-gradient(ellipse 65% 35% at 50% 0%, rgba(255, 255, 255, 0.035) 0%, transparent 70%),
+    linear-gradient(180deg, #030407 0%, #06080e 100%) !important;
+  background-attachment: fixed !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+/* 5. Wallpaper SKALEE Dark */
+html[data-skalee-bg="wallpaper-dark"] body,
+html[data-skalee-preset="dark"] body {
+  background-color: #050811 !important;
+  background-image:
+    linear-gradient(rgba(5, 8, 17, 0.35), rgba(5, 8, 17, 0.55)),
+    url("assets/wallpaper-skalee-dark.jpg") !important;
+  background-attachment: fixed !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+/* 6. Wallpaper SKALEE White */
+html[data-skalee-bg="wallpaper-white"] body,
+html[data-skalee-preset="white"] body {
+  background-color: #f1f5f9 !important;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.35)),
+    url("assets/wallpaper-skalee-white.jpg") !important;
+  background-attachment: fixed !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+/* Suporte ao Tema Claro Operacional */
+html[data-theme="light"]:not([data-skalee-bg="wallpaper-dark"]):not([data-skalee-preset="dark"]) body {
+  background-color: #f1f5f9 !important;
+  background-image:
+    radial-gradient(ellipse 75% 45% at 50% -10%, rgba(37, 99, 235, 0.09) 0%, transparent 65%),
+    linear-gradient(180deg, #f8fafc 0%, #f1f5f9 60%, #e2e8f0 100%) !important;
+}
+
+/* Seletores e Miniaturas de Fundo */
+.personal-bg-style-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+}
+
+.personal-bg-style-btn,
+.android-wallpaper-preset-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--sk-border-subtle, rgba(148, 163, 184, 0.22));
+  background: var(--sk-bg-surface-elevated, #101827);
+  color: var(--sk-text-primary, #f8fafc);
+  cursor: pointer;
+  text-align: left;
+  min-height: 44px;
+  transition: all 0.16s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.personal-bg-style-btn:hover,
+.android-wallpaper-preset-btn:hover {
+  border-color: var(--sk-accent-blue, #0077ff);
+  background: var(--sk-bg-surface-hover, #162238);
+}
+
+.personal-bg-style-btn.active,
+.android-wallpaper-preset-btn.active {
+  border-color: var(--sk-accent-blue, #0077ff);
+  background: color-mix(in srgb, var(--sk-accent-blue, #0077ff) 18%, var(--sk-bg-surface, #0b1220));
+  box-shadow: 0 0 0 1px var(--sk-accent-cyan, #00d9ff);
+}
+
+.personal-bg-preview,
+.android-wallpaper-thumb {
+  width: 100%;
+  height: 34px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: block;
+}
+
+.preview-obsidian, .thumb-obsidian {
+  background: radial-gradient(ellipse at 50% 0%, rgba(0, 119, 255, 0.4), transparent 70%), linear-gradient(175deg, #050811, #0b1222);
+}
+
+.preview-slate, .thumb-slate {
+  background: radial-gradient(ellipse at 50% 0%, rgba(148, 163, 184, 0.35), transparent 70%), linear-gradient(180deg, #080c14, #121926);
+}
+
+.preview-sapphire, .thumb-sapphire {
+  background: radial-gradient(ellipse at 50% 0%, rgba(29, 78, 216, 0.55), transparent 70%), linear-gradient(175deg, #030713, #091b3b);
+}
+
+.preview-oled, .thumb-oled {
+  background: linear-gradient(180deg, #030407, #06080e);
+}
+
+.preview-wallpaper-dark, .thumb-dark {
+  background: url("assets/wallpaper-skalee-dark.jpg") center/cover no-repeat;
+}
+
+.preview-wallpaper-white, .thumb-white {
+  background: url("assets/wallpaper-skalee-white.jpg") center/cover no-repeat;
+}
+
+.personal-bg-desc {
+  font-size: 11px;
+  color: var(--sk-text-muted, #94a3b8);
+  line-height: 1.25;
 }
 
 /* O conteúdo do app permanece acima da camada das ondas */

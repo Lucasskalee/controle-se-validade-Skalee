@@ -789,20 +789,30 @@
             </div>
           </div>
 
-          <div class="android-appearance-group" style="margin-top: 14px;">
-            <span class="android-appearance-label">Diagnóstico de Desempenho</span>
-            <div class="android-diag-card" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid var(--line, rgba(148,163,184,.2)); border-radius: 12px; background: rgba(255,255,255,.04);">
-              <div style="min-width: 0;">
-                <strong style="display: block; font-size: 13.5px; color: var(--text, #f8fafc);">Pausar efeitos do fundo</strong>
-                <span id="androidDiagPauseBgStatus" style="font-size: 11.5px; color: var(--muted, #94a3b8); display: block; margin-top: 2px;">Mantém o fundo visível e estático, pausando animações e ondas para teste de rolagem.</span>
-              </div>
-              <button type="button" id="androidDiagPauseBgBtn" class="android-theme-btn" style="min-width: 90px; padding: 8px 12px; font-weight: 700; flex-shrink: 0;">Pausar</button>
-            </div>
-          </div>
           <div id="androidSkaleeWallpaperGroup" class="android-appearance-group android-glass-background-group" style="margin-top: 14px;" data-theme-customization>
-            <span class="android-appearance-label">Recomendações de Fundo (Exclusivo SKALEE)</span>
+            <span class="android-appearance-label">Tema de Fundo Profissional (Estático)</span>
             
-            <div class="android-wallpaper-presets-grid" role="radiogroup" aria-label="Recomendações de Plano de Fundo SKALEE" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 10px;">
+            <div class="android-wallpaper-presets-grid" role="radiogroup" aria-label="Temas de Fundo Profissionais" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 10px;">
+              <button type="button" class="android-wallpaper-preset-btn" data-skalee-preset="obsidian" role="radio" aria-checked="false">
+                <div class="android-wallpaper-thumb thumb-obsidian" aria-hidden="true"></div>
+                <strong style="font-size: 10.5px; text-align: center;">Obsidian Pro</strong>
+              </button>
+
+              <button type="button" class="android-wallpaper-preset-btn" data-skalee-preset="slate" role="radio" aria-checked="false">
+                <div class="android-wallpaper-thumb thumb-slate" aria-hidden="true"></div>
+                <strong style="font-size: 10.5px; text-align: center;">Midnight Slate</strong>
+              </button>
+
+              <button type="button" class="android-wallpaper-preset-btn" data-skalee-preset="sapphire" role="radio" aria-checked="false">
+                <div class="android-wallpaper-thumb thumb-sapphire" aria-hidden="true"></div>
+                <strong style="font-size: 10.5px; text-align: center;">Royal Sapphire</strong>
+              </button>
+
+              <button type="button" class="android-wallpaper-preset-btn" data-skalee-preset="oled" role="radio" aria-checked="false">
+                <div class="android-wallpaper-thumb thumb-oled" aria-hidden="true"></div>
+                <strong style="font-size: 10.5px; text-align: center;">Pure OLED</strong>
+              </button>
+
               <button type="button" class="android-wallpaper-preset-btn" data-skalee-preset="dark" role="radio" aria-checked="false">
                 <div class="android-wallpaper-thumb thumb-dark" aria-hidden="true"></div>
                 <strong style="font-size: 10.5px; text-align: center;">SKALEE Dark</strong>
@@ -811,11 +821,6 @@
               <button type="button" class="android-wallpaper-preset-btn" data-skalee-preset="white" role="radio" aria-checked="false">
                 <div class="android-wallpaper-thumb thumb-white" aria-hidden="true"></div>
                 <strong style="font-size: 10.5px; text-align: center;">SKALEE White</strong>
-              </button>
-
-              <button type="button" class="android-wallpaper-preset-btn" data-skalee-preset="default" role="radio" aria-checked="false">
-                <div class="android-wallpaper-thumb thumb-fluid" aria-hidden="true"></div>
-                <strong style="font-size: 10.5px; text-align: center;">Padrão Fluido</strong>
               </button>
             </div>
 
@@ -827,6 +832,17 @@
             </div>
             <input id="androidGlassWallpaperInput" type="file" accept="image/jpeg,image/png,image/webp" hidden>
             <p class="android-glass-wallpaper-status" id="androidGlassWallpaperStatus" aria-live="polite" style="font-size: 11.5px; color: var(--muted); margin-top: 6px;"></p>
+          </div>
+
+          <div class="android-appearance-group" style="margin-top: 14px;">
+            <span class="android-appearance-label">Animação de Fundo</span>
+            <div class="android-diag-card" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid var(--line, rgba(148,163,184,.2)); border-radius: 12px; background: rgba(255,255,255,.04);">
+              <div style="min-width: 0;">
+                <strong style="display: block; font-size: 13.5px; color: var(--text, #f8fafc);">Fundo com movimento (Ondas)</strong>
+                <span id="androidDiagPauseBgStatus" style="font-size: 11.5px; color: var(--muted, #94a3b8); display: block; margin-top: 2px;">Desativado por padrão. Ative para ondas fluidas em movimento contínuo.</span>
+              </div>
+              <button type="button" id="androidDiagPauseBgBtn" class="android-theme-btn" style="min-width: 100px; padding: 8px 12px; font-weight: 700; flex-shrink: 0;">Ativar ondas</button>
+            </div>
           </div>
 
           <div class="android-appearance-group android-legacy-aurora-options" style="margin-top: 14px;" hidden>
@@ -1937,7 +1953,9 @@
       posterBtn.hidden = Boolean(els.posterTab.hidden);
     }
     syncGlassAppearance();
-    if (typeof window.setPauseBackgroundEffects === 'function') {
+    if (typeof window.setMotionBackgroundEnabled === 'function') {
+      window.setMotionBackgroundEnabled(localStorage.getItem('skalee.motionBg') === 'true');
+    } else if (typeof window.setPauseBackgroundEffects === 'function') {
       window.setPauseBackgroundEffects(localStorage.getItem('skalee.pauseBgEffects') === 'true');
     }
   }
@@ -2435,10 +2453,10 @@
 
   function getStoredSkaleeWallpaperPreset() {
     try {
-      const val = root.localStorage?.getItem(SKALEE_WALLPAPER_PRESET_KEY);
-      if (val === 'dark' || val === 'white' || val === 'default' || val === 'custom') return val;
+      const val = root.localStorage?.getItem(SKALEE_WALLPAPER_PRESET_KEY) || root.localStorage?.getItem('skalee.bgStyle');
+      if (['obsidian', 'slate', 'sapphire', 'oled', 'dark', 'white', 'custom'].includes(val)) return val;
     } catch (_) {}
-    return 'dark';
+    return 'obsidian';
   }
 
   function applyGlassWallpaperCss(dataUrl, active) {
@@ -2461,23 +2479,39 @@
       return;
     }
 
-    try { root.localStorage?.setItem(SKALEE_WALLPAPER_PRESET_KEY, preset); } catch (_) {}
+    try {
+      root.localStorage?.setItem(SKALEE_WALLPAPER_PRESET_KEY, preset);
+      root.localStorage?.setItem('skalee.bgStyle', preset === 'dark' ? 'wallpaper-dark' : (preset === 'white' ? 'wallpaper-white' : preset));
+    } catch (_) {}
     document.documentElement.dataset.skaleeWallpaperPreset = preset;
+    document.documentElement.dataset.skaleeBg = (preset === 'dark' ? 'wallpaper-dark' : (preset === 'white' ? 'wallpaper-white' : preset));
 
     const status = document.getElementById('androidGlassWallpaperStatus');
     const removeBtn = document.getElementById('androidGlassWallpaperRemoveBtn');
 
-    if (preset === 'dark') {
+    if (preset === 'obsidian' || preset === 'default') {
+      applyGlassWallpaperCss('', false);
+      if (status) status.textContent = 'Fundo Obsidian Pro ativo.';
+      if (removeBtn) removeBtn.hidden = true;
+    } else if (preset === 'slate') {
+      applyGlassWallpaperCss('', false);
+      if (status) status.textContent = 'Fundo Midnight Slate ativo.';
+      if (removeBtn) removeBtn.hidden = true;
+    } else if (preset === 'sapphire') {
+      applyGlassWallpaperCss('', false);
+      if (status) status.textContent = 'Fundo Royal Sapphire ativo.';
+      if (removeBtn) removeBtn.hidden = true;
+    } else if (preset === 'oled') {
+      applyGlassWallpaperCss('', false);
+      if (status) status.textContent = 'Fundo Pure OLED ativo.';
+      if (removeBtn) removeBtn.hidden = true;
+    } else if (preset === 'dark') {
       applyGlassWallpaperCss('assets/wallpaper-skalee-dark.jpg', true);
-      if (status) status.textContent = 'Fundo recomendado SKALEE Dark ativo.';
+      if (status) status.textContent = 'Wallpaper SKALEE Dark ativo.';
       if (removeBtn) removeBtn.hidden = true;
     } else if (preset === 'white') {
       applyGlassWallpaperCss('assets/wallpaper-skalee-white.jpg', true);
-      if (status) status.textContent = 'Fundo recomendado SKALEE White ativo.';
-      if (removeBtn) removeBtn.hidden = true;
-    } else if (preset === 'default') {
-      applyGlassWallpaperCss('', false);
-      if (status) status.textContent = 'Fundo padrão fluido SKALEE ativo.';
+      if (status) status.textContent = 'Wallpaper SKALEE White ativo.';
       if (removeBtn) removeBtn.hidden = true;
     } else if (preset === 'custom') {
       void restoreCustomGlassWallpaper();
@@ -2485,6 +2519,13 @@
 
     document.querySelectorAll('[data-skalee-preset]').forEach((btn) => {
       const active = btn.dataset.skaleePreset === preset;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-checked', active ? 'true' : 'false');
+    });
+
+    document.querySelectorAll('[data-skalee-bg-choice]').forEach((btn) => {
+      const target = (preset === 'dark' ? 'wallpaper-dark' : (preset === 'white' ? 'wallpaper-white' : preset));
+      const active = btn.dataset.skaleeBgChoice === target;
       btn.classList.toggle('active', active);
       btn.setAttribute('aria-checked', active ? 'true' : 'false');
     });
@@ -2568,11 +2609,11 @@
   async function removeGlassWallpaper() {
     await root.skaleeLocalStore?.removeMeta(GLASS_WALLPAPER_META_KEY);
     pendingGlassWallpaper = null;
-    applySkaleeWallpaperPreset('dark');
+    applySkaleeWallpaperPreset('obsidian');
     const remove = document.getElementById('androidGlassWallpaperRemoveBtn');
     if (remove) remove.hidden = true;
     const status = document.getElementById('androidGlassWallpaperStatus');
-    if (status) status.textContent = 'Foto removida. Fundo recomendado SKALEE Dark restaurado.';
+    if (status) status.textContent = 'Foto removida. Fundo Obsidian Pro restaurado.';
   }
 
   async function restoreGlassWallpaper() {

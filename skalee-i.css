@@ -1,0 +1,876 @@
+/* ==========================================================================
+   SKALEE I — HOME 2.0 | EVOLUÇÃO DO CONCEITO VISUAL ANDROID
+   - Conceito: Vidro Vivo, Profundidade Óptica Sutil e Superfícies Contínuas
+   - Seletor de Tema Isolado: html[data-theme="skalee-i"]
+   - Conformidade Estrita: Design Tokens Oficiais (--sk-*), DESIGN.md e WCAG AA
+   ========================================================================== */
+
+/* ==========================================================================
+   1. Fundação de Tokens e Camadas (SKALEE I)
+   ========================================================================== */
+html[data-theme="skalee-i"] {
+  color-scheme: dark;
+
+  /* Superfícies e Camadas Oficiais */
+  --sk-bg-base: #060911;
+  --sk-bg-surface: rgba(16, 28, 54, 0.52);
+  --sk-bg-surface-elevated: rgba(20, 36, 68, 0.65);
+  --sk-bg-surface-hover: rgba(28, 48, 86, 0.68);
+
+  /* Bordas e Contornos Ópticos de Precisão */
+  --sk-border-subtle: rgba(255, 255, 255, 0.12);
+  --sk-border-medium: rgba(255, 255, 255, 0.20);
+  --sk-border-highlight: rgba(0, 217, 255, 0.45);
+
+  /* Tipografia Tabular e Textos de Alta Nitidez */
+  --sk-text-primary: #ffffff;
+  --sk-text-secondary: #cbd5e1;
+  --sk-text-muted: #94a3b8;
+  --sk-text-disabled: #475569;
+
+  /* Identidade Visual Proprietária Skalee */
+  --sk-accent-blue: #0077ff;
+  --sk-accent-blue-hover: #1d4ed8;
+  --sk-accent-cyan: #00d9ff;
+  --sk-accent-metallic: #94a3b8;
+
+  /* Status Semânticos de Validade */
+  --sk-status-danger: #ef4444;
+  --sk-status-danger-bg: rgba(239, 68, 68, 0.22);
+  --sk-status-warning: #f59e0b;
+  --sk-status-warning-bg: rgba(245, 158, 11, 0.20);
+  --sk-status-offer: #3b82f6;
+  --sk-status-offer-bg: rgba(59, 130, 246, 0.22);
+  --sk-status-safe: #10b981;
+  --sk-status-safe-bg: rgba(16, 185, 129, 0.20);
+
+  /* Material Óptico Live Glass 3.0 (Vidro Espesso & Bisel de Precisão) */
+  --sk-i-blur: 20px;
+  --sk-i-saturation: 145%;
+  --sk-i-glass-bg: linear-gradient(135deg, rgba(16, 30, 58, 0.46) 0%, rgba(8, 16, 34, 0.58) 100%);
+  --sk-i-glass-bg-subtle: linear-gradient(135deg, rgba(16, 30, 58, 0.42) 0%, rgba(8, 16, 34, 0.52) 100%);
+  --sk-i-glass-bg-card: linear-gradient(135deg, rgba(16, 30, 58, 0.46) 0%, rgba(8, 16, 34, 0.58) 100%);
+  --sk-i-border: 1px solid rgba(255, 255, 255, 0.16);
+  --sk-i-border-zenital: 1px solid rgba(255, 255, 255, 0.36);
+  --sk-i-border-lateral: 1px solid rgba(255, 255, 255, 0.24);
+  --sk-i-bevel-shadow: 0 8px 24px -2px rgba(0, 0, 0, 0.32),
+                      inset 0 1px 1px 0 rgba(255, 255, 255, 0.36),
+                      inset 1px 0 1px 0 rgba(255, 255, 255, 0.14);
+
+  /* Camada de Compatibilidade (Tokens Legados) */
+  --bg: var(--sk-bg-base);
+  --card: #0b1322;
+  --text: var(--sk-text-primary);
+  --muted: var(--sk-text-muted);
+  --line: var(--sk-border-subtle);
+  --blue: var(--sk-accent-blue);
+  --blue2: #0f274a;
+}
+
+/* ==========================================================================
+   2. Fundo Atmosférico e Papel de Parede Base do SKALEE I
+   ========================================================================== */
+html[data-theme="skalee-i"] body {
+  background-color: var(--sk-bg-base);
+  background-image:
+    radial-gradient(circle at 18% 12%, rgba(0, 217, 255, 0.16) 0%, transparent 40%),
+    radial-gradient(circle at 82% 35%, rgba(0, 119, 255, 0.14) 0%, transparent 45%),
+    radial-gradient(circle at 45% 78%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
+    linear-gradient(160deg, #050811 0%, #0a0f1d 55%, #0e172a 100%);
+  background-attachment: fixed;
+  background-size: cover;
+  background-repeat: no-repeat;
+  color: var(--sk-text-primary);
+}
+
+html.android-app[data-theme="skalee-i"] body {
+  background-color: var(--sk-bg-base) !important;
+  background-image:
+    radial-gradient(circle at 18% 12%, rgba(0, 217, 255, 0.18) 0%, transparent 40%),
+    radial-gradient(circle at 82% 35%, rgba(0, 119, 255, 0.15) 0%, transparent 45%),
+    radial-gradient(circle at 45% 78%, rgba(139, 92, 246, 0.14) 0%, transparent 50%),
+    linear-gradient(160deg, #050811 0%, #0a0f1d 55%, #0e172a 100%) !important;
+  background-attachment: fixed !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+html.android-app[data-theme="skalee-i"][data-glass-wallpaper="image"]:not([data-skalee-wallpaper-preset="white"]) body {
+  background-color: #050811 !important;
+  background-image:
+    linear-gradient(rgba(5, 8, 17, 0.40), rgba(5, 8, 17, 0.60)),
+    var(--sk-glass-wallpaper, url("assets/wallpaper-skalee-dark.jpg")),
+    radial-gradient(circle at 18% 12%, rgba(0, 217, 255, 0.16) 0%, transparent 40%),
+    radial-gradient(circle at 82% 35%, rgba(0, 119, 255, 0.14) 0%, transparent 45%),
+    linear-gradient(160deg, #050811 0%, #0a0f1d 55%, #0e172a 100%) !important;
+  background-attachment: fixed !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+html[data-theme="skalee-i"][data-skalee-bg="slate"] body,
+html.android-app[data-theme="skalee-i"][data-skalee-bg="slate"] body {
+  background-color: #080c14 !important;
+  background-image:
+    radial-gradient(ellipse 75% 50% at 50% -10%, rgba(148, 163, 184, 0.14) 0%, transparent 65%),
+    radial-gradient(ellipse 55% 40% at 88% 22%, rgba(56, 189, 248, 0.08) 0%, transparent 58%),
+    radial-gradient(ellipse 45% 45% at 15% 70%, rgba(30, 41, 59, 0.35) 0%, transparent 60%),
+    linear-gradient(180deg, #080c14 0%, #0d121c 50%, #121926 100%) !important;
+}
+
+html[data-theme="skalee-i"][data-skalee-bg="sapphire"] body,
+html.android-app[data-theme="skalee-i"][data-skalee-bg="sapphire"] body {
+  background-color: #030713 !important;
+  background-image:
+    radial-gradient(ellipse 80% 55% at 50% -15%, rgba(29, 78, 216, 0.24) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 45% at 82% 25%, rgba(0, 217, 255, 0.12) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 50% at 18% 72%, rgba(15, 23, 42, 0.5) 0%, transparent 60%),
+    linear-gradient(175deg, #030713 0%, #061126 48%, #091b3b 100%) !important;
+}
+
+html[data-theme="skalee-i"][data-skalee-bg="oled"] body,
+html.android-app[data-theme="skalee-i"][data-skalee-bg="oled"] body {
+  background-color: #030407 !important;
+  background-image:
+    radial-gradient(ellipse 65% 35% at 50% 0%, rgba(255, 255, 255, 0.035) 0%, transparent 70%),
+    linear-gradient(180deg, #030407 0%, #06080e 100%) !important;
+}
+
+/* Preset SKALEE White (Fundo Claro com Logo 3D) */
+html.android-app[data-theme="skalee-i"][data-skalee-wallpaper-preset="white"] body {
+  background-color: #ffffff !important;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.25)),
+    var(--sk-glass-wallpaper, url("assets/wallpaper-skalee-white.jpg")) !important;
+  background-attachment: fixed !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  color: var(--sk-text-primary) !important;
+}
+
+/* No modo branco do SKALEE, todos os cartões, cabeçalho e navegação preservam
+   a mesma assinatura óptica Live Glass escura e translúcida que consagrou
+   o visual elegante de Registrar Produtos e Relatórios. */
+html.android-app[data-theme="skalee-i"][data-skalee-wallpaper-preset="white"] #androidBottomNav::before {
+  background: var(--sk-i-glass-bg) !important;
+  border-color: var(--sk-border-medium) !important;
+  border-top-color: var(--sk-border-highlight) !important;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.35) !important;
+}
+html.android-app[data-theme="skalee-i"][data-skalee-wallpaper-preset="white"] .android-nav-item {
+  color: var(--sk-text-secondary) !important;
+}
+html.android-app[data-theme="skalee-i"][data-skalee-wallpaper-preset="white"] .android-nav-item.active {
+  color: var(--sk-accent-cyan) !important;
+}
+html.android-app[data-theme="skalee-i"][data-skalee-wallpaper-preset="white"] #androidHeader::before {
+  background: var(--sk-i-glass-bg) !important;
+  border-bottom-color: var(--sk-border-medium) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+}
+html.android-app[data-theme="skalee-i"][data-skalee-wallpaper-preset="white"] .android-header-app-title {
+  color: var(--sk-text-primary) !important;
+}
+html.android-app[data-theme="skalee-i"][data-skalee-wallpaper-preset="white"] .android-header-store-badge {
+  background: var(--sk-bg-surface-elevated) !important;
+  border-color: var(--sk-border-medium) !important;
+}
+html.android-app[data-theme="skalee-i"][data-skalee-wallpaper-preset="white"] .android-header-store-name {
+  color: var(--sk-text-primary) !important;
+}
+html.android-app[data-theme="skalee-i"][data-skalee-wallpaper-preset="white"] .android-header-store-select {
+  opacity: 0 !important;
+  background: transparent !important;
+}
+
+/* Botões seletores de presets com miniaturas */
+html.android-app .android-wallpaper-preset-btn {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 8px 4px !important;
+  border: 1px solid var(--sk-border-subtle, rgba(255, 255, 255, 0.16)) !important;
+  border-radius: 12px !important;
+  background: var(--sk-bg-surface, rgba(15, 23, 42, 0.45)) !important;
+  cursor: pointer !important;
+  color: var(--sk-text-primary, #f8fafc) !important;
+  transition: border-color 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease !important;
+}
+
+html.android-app .android-wallpaper-preset-btn.active {
+  border-color: var(--sk-accent-cyan, #00d9ff) !important;
+  box-shadow: 0 0 0 2px var(--sk-accent-cyan, #00d9ff), 0 4px 12px rgba(0, 217, 255, 0.25) !important;
+  background: rgba(0, 217, 255, 0.10) !important;
+}
+
+html.android-app .android-wallpaper-thumb {
+  width: 38px !important;
+  height: 52px !important;
+  border-radius: 8px !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+}
+
+html.android-app .android-wallpaper-thumb.thumb-dark {
+  background: #000 url('assets/wallpaper-skalee-dark.jpg') center/cover no-repeat !important;
+}
+
+html.android-app .android-wallpaper-thumb.thumb-white {
+  background: #fff url('assets/wallpaper-skalee-white.jpg') center/cover no-repeat !important;
+  border-color: rgba(0, 0, 0, 0.15) !important;
+}
+
+html.android-app .android-wallpaper-thumb.thumb-fluid {
+  background: linear-gradient(135deg, #050811, #0077ff 60%, #00d9ff) !important;
+}
+
+/* LIVE GLASS 3.0: Destravamento do Backdrop Root no Android WebView */
+html.android-app[data-theme="skalee-i"] #protectedApp {
+  position: static !important;
+  z-index: auto !important;
+  transform: none !important;
+  filter: none !important;
+  contain: none !important;
+}
+
+html.android-app[data-theme="skalee-i"] :is(#android-home, .page.active, .page) {
+  animation: none !important;
+  will-change: auto !important;
+  transform: none !important;
+  filter: none !important;
+  contain: none !important;
+}
+
+html.android-app[data-theme="skalee-i"] #protectedApp::before {
+  background-image: var(--sk-glass-wallpaper, none),
+    radial-gradient(circle at 18% 12%, rgba(0, 217, 255, 0.16) 0%, transparent 40%),
+    radial-gradient(circle at 82% 35%, rgba(0, 119, 255, 0.14) 0%, transparent 45%),
+    radial-gradient(circle at 45% 78%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
+    linear-gradient(160deg, #050811 0%, #0a0f1d 55%, #0e172a 100%) !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+  opacity: 1 !important;
+  z-index: -1 !important;
+}
+
+/* Amostra visual no seletor de temas (Perfil) */
+.theme-swatch-skalee-i {
+  background: linear-gradient(135deg, #060911 0%, #0077ff 50%, #00d9ff 100%);
+}
+
+/* ==========================================================================
+   3. REGIÃO 1 — CABEÇALHO E SAUDAÇÃO (HOME 2.0)
+   ========================================================================== */
+
+/* Cabeçalho Android Superior (Home 2.0 - Sem faixas sobrepostas na rolagem) */
+html.android-app[data-theme="skalee-i"] #androidHeader::before {
+  bottom: 0 !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+  background: linear-gradient(180deg, rgba(8, 14, 28, 0.85) 0%, rgba(8, 14, 28, 0.65) 100%) !important;
+  backdrop-filter: blur(20px) saturate(135%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(135%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
+}
+
+html.android-app[data-theme="skalee-i"] .android-header-store-badge {
+  padding: 1px 6px !important;
+  border-radius: 999px !important;
+  background: rgba(16, 28, 54, 0.40) !important;
+  border: 1px solid rgba(0, 217, 255, 0.20) !important;
+}
+
+html.android-app[data-theme="skalee-i"] .android-header-store-select {
+  opacity: 0 !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+html.android-app[data-theme="skalee-i"] .android-header-icon-btn {
+  background: rgba(16, 28, 54, 0.60) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+/* Superfície Contínua da Saudação */
+html[data-theme="skalee-i"] .android-home-greeting {
+  background: var(--sk-i-glass-bg) !important;
+  backdrop-filter: blur(var(--sk-i-blur)) saturate(var(--sk-i-saturation)) !important;
+  -webkit-backdrop-filter: blur(var(--sk-i-blur)) saturate(var(--sk-i-saturation)) !important;
+  border: var(--sk-i-border) !important;
+  border-top: var(--sk-i-border-zenital) !important;
+  border-left: var(--sk-i-border-lateral) !important;
+  border-radius: 22px !important;
+  box-shadow: var(--sk-i-bevel-shadow) !important;
+  padding: 18px 20px !important;
+}
+
+html[data-theme="skalee-i"] .android-home-greeting-text h2 {
+  color: var(--sk-text-primary) !important;
+  font-size: 21px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.02em !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+}
+
+html[data-theme="skalee-i"] .android-home-greeting-text p {
+  color: var(--sk-text-secondary) !important;
+  font-size: 13px !important;
+  margin-top: 4px !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+/* Pílula da Loja no Cabeçalho da Saudação */
+html[data-theme="skalee-i"] .android-home-store-pill {
+  background: rgba(0, 119, 255, 0.28) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(0, 217, 255, 0.40) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.35) !important;
+  color: #ffffff !important;
+  font-size: 12px !important;
+  font-weight: 750 !important;
+  padding: 6px 16px !important;
+  border-radius: 999px !important;
+  box-shadow: 0 3px 12px rgba(0, 119, 255, 0.30), inset 0 1px 1px rgba(255, 255, 255, 0.35) !important;
+}
+
+/* ==========================================================================
+   4. REGIÃO 2 — INDICADORES E AÇÕES RÁPIDAS
+   ========================================================================== */
+
+/* Grid de Indicadores (KPIs) com Profundidade Óptica */
+html[data-theme="skalee-i"] .android-kpi-card {
+  background: var(--sk-i-glass-bg) !important;
+  backdrop-filter: blur(var(--sk-i-blur)) saturate(var(--sk-i-saturation)) !important;
+  -webkit-backdrop-filter: blur(var(--sk-i-blur)) saturate(var(--sk-i-saturation)) !important;
+  border: var(--sk-i-border) !important;
+  border-top: var(--sk-i-border-zenital) !important;
+  border-left: var(--sk-i-border-lateral) !important;
+  border-radius: 20px !important;
+  box-shadow: var(--sk-i-bevel-shadow) !important;
+  padding: 16px 14px !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+html[data-theme="skalee-i"] .android-kpi-card:active {
+  border-color: rgba(0, 217, 255, 0.40) !important;
+}
+
+html[data-theme="skalee-i"] .android-kpi-card.kpi-offer {
+  padding: 10px 14px !important;
+}
+
+html[data-theme="skalee-i"] .android-kpi-card.kpi-offer .android-kpi-value {
+  margin: 0 !important;
+}
+
+/* Ícones dos Indicadores */
+html[data-theme="skalee-i"] .android-kpi-icon {
+  width: 30px !important;
+  height: 30px !important;
+  border-radius: 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+html[data-theme="skalee-i"] .android-kpi-card.kpi-expired .android-kpi-icon {
+  background: rgba(239, 68, 68, 0.18) !important;
+  color: #fca5a5 !important;
+  border-color: rgba(239, 68, 68, 0.35) !important;
+}
+
+html[data-theme="skalee-i"] .android-kpi-card.kpi-expiring .android-kpi-icon {
+  background: rgba(245, 158, 11, 0.18) !important;
+  color: #fcd34d !important;
+  border-color: rgba(245, 158, 11, 0.35) !important;
+}
+
+html[data-theme="skalee-i"] .android-kpi-card.kpi-offer .android-kpi-icon {
+  background: rgba(59, 130, 246, 0.18) !important;
+  color: #93c5fd !important;
+  border-color: rgba(59, 130, 246, 0.35) !important;
+}
+
+/* Tipografia Tabular dos KPIs */
+html[data-theme="skalee-i"] .android-kpi-value {
+  font-size: 30px !important;
+  font-weight: 800 !important;
+  font-variant-numeric: tabular-nums !important;
+  color: #ffffff !important;
+  line-height: 1.1 !important;
+  margin: 4px 0 !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.40);
+}
+
+html[data-theme="skalee-i"] .android-kpi-card.kpi-expired .android-kpi-value {
+  color: #ffffff !important;
+}
+
+html[data-theme="skalee-i"] .android-kpi-card.kpi-expiring .android-kpi-value {
+  color: #ffffff !important;
+}
+
+html[data-theme="skalee-i"] .android-kpi-card.kpi-offer .android-kpi-value {
+  color: #ffffff !important;
+}
+
+html[data-theme="skalee-i"] .android-kpi-label {
+  font-size: 13px !important;
+  font-weight: 750 !important;
+  color: var(--sk-text-secondary) !important;
+}
+
+html[data-theme="skalee-i"] .android-kpi-sub {
+  font-size: 11px !important;
+  color: var(--sk-text-muted) !important;
+}
+
+/* Ações Rápidas (4 Botões em Vidro Vivo) */
+html[data-theme="skalee-i"] .android-quick-actions {
+  gap: 10px !important;
+}
+
+html[data-theme="skalee-i"] .android-quick-actions .android-qa-btn {
+  background: linear-gradient(135deg, rgba(20, 36, 66, 0.48) 0%, rgba(10, 18, 38, 0.60) 100%) !important;
+  backdrop-filter: blur(16px) saturate(135%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(135%) !important;
+  border: var(--sk-i-border) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.28) !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.18) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 6px 20px -3px rgba(0, 0, 0, 0.32),
+              inset 0 1px 1px 0 rgba(255, 255, 255, 0.28) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  min-height: 48px !important;
+  transition: border-color 0.15s ease;
+}
+
+html[data-theme="skalee-i"] .android-quick-actions .android-qa-btn:active {
+  border-color: rgba(0, 217, 255, 0.45) !important;
+}
+
+html[data-theme="skalee-i"] .android-qa-icon {
+  color: #00d9ff !important;
+}
+
+/* ==========================================================================
+   5. REGIÃO 3 — PRODUTOS EM ACOMPANHAMENTO (VIDRO CONTÍNUO)
+   ========================================================================== */
+
+/* Cabeçalho de Seção */
+html[data-theme="skalee-i"] .android-section-head {
+  background: var(--sk-i-glass-bg-subtle) !important;
+  backdrop-filter: blur(16px) saturate(135%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(135%) !important;
+  border: var(--sk-i-border) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.24) !important;
+  border-radius: 16px !important;
+  padding: 12px 18px !important;
+  box-shadow: 0 4px 18px -2px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
+}
+
+html[data-theme="skalee-i"] .android-section-title {
+  color: #ffffff !important;
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.01em !important;
+}
+
+html[data-theme="skalee-i"] .android-section-count {
+  color: #cbd5e1 !important;
+  background: rgba(255, 255, 255, 0.10) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  font-variant-numeric: tabular-nums !important;
+  font-weight: 750 !important;
+  padding: 3px 10px !important;
+  border-radius: 999px !important;
+}
+
+html[data-theme="skalee-i"] .android-section-link {
+  color: #38bdf8 !important;
+  font-size: 13px !important;
+  font-weight: 750 !important;
+}
+
+/* Área de Lista de Produtos (Etapa 1: Desativa isolamento de RenderSurface na lista) */
+html.android-app[data-theme="skalee-i"] .android-home-list {
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+
+/* Card de Produto em Vidro Contínuo (Superfície Única - Etapa 2 e 4: Sem contenção estrita e com bisel óptico puro) */
+html[data-theme="skalee-i"] .android-home-card {
+  content-visibility: visible !important;
+  contain: none !important;
+  background: var(--sk-i-glass-bg-card) !important;
+  backdrop-filter: blur(var(--sk-i-blur)) saturate(var(--sk-i-saturation)) !important;
+  -webkit-backdrop-filter: blur(var(--sk-i-blur)) saturate(var(--sk-i-saturation)) !important;
+  border: var(--sk-i-border) !important;
+  border-top: var(--sk-i-border-zenital) !important;
+  border-left: var(--sk-i-border-lateral) !important;
+  border-radius: 20px !important;
+  box-shadow: var(--sk-i-bevel-shadow) !important;
+  padding: 12px 14px !important;
+  gap: 14px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+html[data-theme="skalee-i"] .android-home-card:active {
+  border-color: rgba(0, 217, 255, 0.40) !important;
+}
+
+/* Foto do Produto Preservada e Nítida dentro do Vidro */
+html[data-theme="skalee-i"] .android-home-card .photo {
+  width: 82px !important;
+  height: 82px !important;
+  min-height: 82px !important;
+  border-radius: 14px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15) !important;
+  padding: 3px !important;
+  box-sizing: border-box !important;
+}
+
+html[data-theme="skalee-i"] .android-home-card .photo img {
+  border-radius: 11px !important;
+  object-fit: cover !important;
+}
+
+/* Corpo Textual Contínuo (Sem Placas Escuras Desconectadas) */
+html[data-theme="skalee-i"] .android-home-card-body {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
+  padding: 0 !important;
+  gap: 5px !important;
+}
+
+html[data-theme="skalee-i"] .android-home-card-name {
+  color: #ffffff !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: -0.01em !important;
+  line-height: 1.3 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.40);
+}
+
+html[data-theme="skalee-i"] .android-home-card-meta {
+  color: var(--sk-text-secondary) !important;
+  font-size: 12px !important;
+  gap: 4px 12px !important;
+}
+
+html[data-theme="skalee-i"] .android-home-card-meta span {
+  color: var(--sk-text-muted) !important;
+}
+
+html[data-theme="skalee-i"] .android-home-card-meta b {
+  color: #ffffff !important;
+  font-weight: 750 !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+/* Badges Semânticos Integrados à Superfície de Vidro */
+html[data-theme="skalee-i"] .android-home-card-badges {
+  gap: 6px !important;
+  margin-top: 3px !important;
+}
+
+html[data-theme="skalee-i"] :is(.android-home-card-badges, .badges, .detail-badges) .badge {
+  font-size: 11px !important;
+  font-weight: 750 !important;
+  padding: 3px 9px !important;
+  border-radius: 999px !important;
+  letter-spacing: 0.02em !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+html[data-theme="skalee-i"] .android-home-card-badges .badge.red {
+  background: rgba(239, 68, 68, 0.22) !important;
+  color: #fca5a5 !important;
+  border: 1px solid rgba(239, 68, 68, 0.40) !important;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.15) !important;
+}
+
+html[data-theme="skalee-i"] .android-home-card-badges .badge.yellow {
+  background: rgba(245, 158, 11, 0.20) !important;
+  color: #fcd34d !important;
+  border: 1px solid rgba(245, 158, 11, 0.40) !important;
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.15) !important;
+}
+
+html[data-theme="skalee-i"] .android-home-card-badges .badge.blue {
+  background: rgba(59, 130, 246, 0.22) !important;
+  color: #93c5fd !important;
+  border: 1px solid rgba(59, 130, 246, 0.42) !important;
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.15) !important;
+}
+
+html[data-theme="skalee-i"] .android-home-card-badges .badge.green {
+  background: rgba(16, 185, 129, 0.20) !important;
+  color: #6ee7b7 !important;
+  border: 1px solid rgba(16, 185, 129, 0.40) !important;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.15) !important;
+}
+
+/* ==========================================================================
+   6. NAVEGAÇÃO INFERIOR ANDROID — LIQUID GLASS LENS (LIVE GLASS 3.0)
+   - Cápsula flutuante arredondada com Live Blur profundo (28px)
+   - Bisel especular perimétrico 3D (zenital, base e laterais)
+   - Sensação óptica de espessura de lente lapidada
+   - Botão central Cadastrar destacado em azul elétrico vibrante
+   - Preservação estrita das áreas de toque mínimas (44x44px)
+   ========================================================================== */
+html.android-app[data-theme="skalee-i"] #androidBottomNav::before {
+  background: radial-gradient(ellipse at 50% 0%, rgba(25, 45, 80, 0.48) 0%, rgba(10, 18, 36, 0.72) 100%) !important;
+  backdrop-filter: blur(28px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(160%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  border-top: 1.5px solid rgba(255, 255, 255, 0.45) !important;
+  box-shadow: 
+    0 -12px 36px rgba(0, 0, 0, 0.55),
+    0 4px 20px rgba(0, 0, 0, 0.40),
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.50),
+    inset 0 -1.5px 2px rgba(0, 0, 0, 0.35),
+    inset 2px 0 3px rgba(255, 255, 255, 0.15),
+    inset -2px 0 3px rgba(255, 255, 255, 0.15) !important;
+}
+
+html.android-app[data-theme="skalee-i"] .android-nav-fab {
+  background: linear-gradient(135deg, #0077ff 0%, #00d9ff 100%) !important;
+  box-shadow: 0 6px 20px rgba(0, 119, 255, 0.50), 0 0 0 3.5px rgba(10, 18, 36, 0.85), inset 0 1px 1px rgba(255, 255, 255, 0.55) !important;
+  border: 1px solid rgba(255, 255, 255, 0.30) !important;
+}
+
+html.android-app[data-theme="skalee-i"] .android-nav-item-center.active .android-nav-fab {
+  background: linear-gradient(135deg, #0062d6 0%, #00c0e4 100%) !important;
+  box-shadow: 0 8px 24px rgba(0, 119, 255, 0.65), 0 0 0 3.5px rgba(10, 18, 36, 0.95), inset 0 1px 1px rgba(255, 255, 255, 0.65) !important;
+}
+
+/* ==========================================================================
+   7. COMPATIBILIDADE, ACESSIBILIDADE E MODOS ECONÔMICOS
+   ========================================================================== */
+
+/* Modo econômico e acessibilidade: superfície opaca previsível, sem blur pesado. */
+html.performance-mode[data-theme="skalee-i"] :is(
+  #androidHeader::before,
+  #androidBottomNav::before,
+  .android-home-greeting,
+  .android-section-head,
+  .android-kpi-card,
+  .android-home-card,
+  .android-home-store-pill,
+  .android-quick-actions .android-qa-btn
+) {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: var(--sk-bg-surface-elevated) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme="skalee-i"] :is(
+    #androidHeader::before,
+    #androidBottomNav::before,
+    .android-home-greeting,
+    .android-section-head,
+    .android-kpi-card,
+    .android-home-card,
+    .android-home-store-pill,
+    .android-quick-actions .android-qa-btn
+  ) {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: var(--sk-bg-surface-elevated) !important;
+  }
+
+  html[data-theme="skalee-i"] :is(
+    .android-kpi-card,
+    .android-home-card,
+    .android-quick-actions .android-qa-btn,
+    .android-nav-fab
+  ) {
+    transition: none !important;
+  }
+}
+
+/* Fallback para WebViews sem suporte a backdrop-filter. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  html[data-theme="skalee-i"] :is(
+    #androidHeader::before,
+    #androidBottomNav::before,
+    .android-home-greeting,
+    .android-section-head,
+    .android-kpi-card,
+    .android-home-card,
+    .android-home-store-pill,
+    .android-quick-actions .android-qa-btn
+  ) {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: var(--sk-bg-surface-elevated) !important;
+  }
+}
+
+/* Interação tátil consistente e foco visível para o shell mobile. */
+html.android-app:is([data-theme="skalee-i"], [data-theme="light"]) :is(
+  .android-header-store-select,
+  .android-header-icon-btn,
+  .android-nav-item,
+  .android-nav-fab
+) {
+  min-width: 44px !important;
+  min-height: 44px !important;
+}
+
+html.android-app:is([data-theme="skalee-i"], [data-theme="light"]) .android-header-store-select {
+  height: 44px !important;
+  padding-block: 10px !important;
+}
+
+html.android-app:is([data-theme="skalee-i"], [data-theme="light"]) .android-header-icon-btn {
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  flex-basis: 44px !important;
+}
+
+html.android-app:is([data-theme="skalee-i"], [data-theme="light"]) :is(
+  .android-header-store-select,
+  .android-header-icon-btn,
+  .android-nav-item,
+  .android-nav-fab
+):focus-visible {
+  outline: 2px solid var(--sk-accent-blue) !important;
+  outline-offset: 2px;
+}
+
+/* Cadastro, Relatórios, Produtos e Auditoria: Shell óptico Live Glass unificado no SKALEE I */
+html.android-app[data-theme="skalee-i"] :is(
+  #register .form,
+  #report .report,
+  #products .stats,
+  #products .stats .stat,
+  #audit .audit-shell,
+  #audit .audit-wrap,
+  #audit .audit-kpi-card,
+  #audit .audit-card,
+  #personalPanel
+) {
+  background: var(--sk-i-glass-bg-card) !important;
+  backdrop-filter: blur(var(--sk-i-blur)) saturate(var(--sk-i-saturation)) !important;
+  -webkit-backdrop-filter: blur(var(--sk-i-blur)) saturate(var(--sk-i-saturation)) !important;
+  border: var(--sk-i-border) !important;
+  border-top: var(--sk-i-border-zenital) !important;
+  border-left: var(--sk-i-border-lateral) !important;
+  box-shadow: var(--sk-i-bevel-shadow) !important;
+  color: var(--sk-text-primary) !important;
+}
+
+/* Cards de produtos no SKALEE I: bordas coloridas semânticas (vermelho, amarelo, verde, laranja)
+   iguais aos outros temas, eliminando o preenchimento que vazava sobre o corpo translúcido do card */
+html[data-theme="skalee-i"] .product-card-glow {
+  background: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  border-radius: 18px !important;
+}
+
+html[data-theme="skalee-i"] .product-card-glow > .card {
+  background: var(--sk-i-glass-bg-card) !important;
+  backdrop-filter: blur(var(--sk-i-blur)) saturate(var(--sk-i-saturation)) !important;
+  -webkit-backdrop-filter: blur(var(--sk-i-blur)) saturate(var(--sk-i-saturation)) !important;
+  border: 1.5px solid var(--glow-c1, var(--sk-border-medium)) !important;
+  border-top: 1.5px solid var(--glow-c2, var(--glow-c1, var(--sk-border-highlight))) !important;
+  box-shadow: 0 0 10px var(--glow-shadow, transparent), var(--sk-i-bevel-shadow) !important;
+  border-radius: 18px !important;
+  color: var(--sk-text-primary) !important;
+}
+
+html[data-theme="skalee-i"] .product-card-glow:active > .card {
+  border-color: var(--glow-c2, var(--sk-accent-cyan)) !important;
+  box-shadow: 0 0 16px var(--glow-shadow-hover, var(--glow-shadow, transparent)), var(--sk-i-bevel-shadow) !important;
+}
+
+html[data-theme="skalee-i"] .empty {
+  background: var(--sk-i-glass-bg-card) !important;
+  backdrop-filter: blur(var(--sk-i-blur)) saturate(var(--sk-i-saturation)) !important;
+  -webkit-backdrop-filter: blur(var(--sk-i-blur)) saturate(var(--sk-i-saturation)) !important;
+  border: 1px dashed var(--sk-border-medium) !important;
+  border-radius: 18px !important;
+  box-shadow: var(--sk-i-bevel-shadow) !important;
+  color: var(--sk-text-secondary) !important;
+}
+
+html.android-app[data-theme="skalee-i"] :is(
+  #register .form .sub,
+  #register .form .label,
+  #report .report .sub,
+  #report .report-date,
+  #products .stats .stat small,
+  #products .resultline,
+  #audit .audit-label,
+  #audit .sub
+) {
+  color: var(--sk-text-secondary) !important;
+}
+
+html.android-app[data-theme="skalee-i"] :is(
+  #register .form input,
+  #register .form select,
+  #report .report input,
+  #report .report select,
+  #products input,
+  #products select,
+  #audit input,
+  #audit select,
+  #personalPanel input,
+  #personalPanel select
+) {
+  background: var(--sk-bg-surface-elevated) !important;
+  border-color: var(--sk-border-medium) !important;
+  color: var(--sk-text-primary) !important;
+}
+
+html.android-app[data-theme="skalee-i"] :is(#report :is(.layout-picker, .report-grid), #products .product-layout-picker) {
+  background: var(--sk-bg-surface) !important;
+  border-color: var(--sk-border-medium) !important;
+}
+
+html.android-app[data-theme="skalee-i"] #report .report-item {
+  background: var(--sk-bg-surface-elevated) !important;
+  border-color: var(--sk-border-medium) !important;
+  color: var(--sk-text-primary) !important;
+}
+
+html.android-app[data-theme="skalee-i"] #products .chip {
+  background: var(--sk-bg-surface) !important;
+  border: 1px solid var(--sk-border-subtle) !important;
+  color: var(--sk-text-secondary) !important;
+}
+
+html.android-app[data-theme="skalee-i"] #products .chip.active {
+  background: rgba(0, 119, 255, 0.40) !important;
+  border-color: var(--sk-accent-cyan) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 10px rgba(0, 217, 255, 0.25) !important;
+}
