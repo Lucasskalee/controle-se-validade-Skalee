@@ -391,7 +391,7 @@
       </div>
       <div class="android-header-divider" aria-hidden="true"></div>
       <div class="android-header-center">
-        <span class="android-header-app-title">Validades</span>
+        <span class="android-header-app-title">Controle de Validade</span>
         <label class="android-header-store-badge" for="androidHeaderStoreSelect" title="Trocar loja ativa">
           <span class="android-header-store-dot" aria-hidden="true"></span>
           <span id="androidHeaderStoreName" class="android-header-store-name">Todas as lojas</span>

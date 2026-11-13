@@ -901,6 +901,13 @@ html[data-theme="skalee-i"]:not(.android-app) header {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
 }
 
+html[data-theme="skalee-i"] .app-header-logo {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
 html[data-theme="skalee-i"]:not(.android-app) nav.main-nav {
   background: rgba(11, 19, 34, 0.75) !important;
   backdrop-filter: blur(16px) !important;

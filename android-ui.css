@@ -550,6 +550,11 @@ html.android-app .android-header-brand-img {
   max-width: 58px !important;
   object-fit: contain !important;
   display: block !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
   filter: drop-shadow(0 2px 6px rgba(0, 119, 255, 0.20));
   transform: translateZ(0);
 }
