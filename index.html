@@ -10,7 +10,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="auth.css">
 <link rel="stylesheet" href="admin-cadastros.css">
-<link rel="stylesheet" href="notification-center.css?v=5.0.0">
+<link rel="stylesheet" href="notification-center.css?v=5.0.1">
 <link rel="stylesheet" href="components/skalito/skalito.css">
 <link rel="stylesheet" href="components/skalito/skalitoAnimations.css">
 <link rel="stylesheet" href="components/tour/skalitoTour.css">
@@ -750,8 +750,8 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
 @media(max-width:900px){.admin-topbar{align-items:flex-start;flex-direction:column}.admin-actions{width:100%;justify-content:space-between}.admin-layout{grid-template-columns:1fr}.admin-sidebar{position:sticky;top:0;z-index:5;flex-direction:row;overflow:auto;border-right:0;border-bottom:1px solid var(--admin-border)}.admin-sidebar .settings-tab.admin-nav-item{flex:1 0 48px;justify-content:center;gap:0;min-height:48px;padding:12px 10px;border-radius:8px}.admin-nav-item span{max-width:0;opacity:0;overflow:hidden;white-space:nowrap;transition:max-width .2s ease,opacity .18s ease}.admin-sidebar .settings-tab.admin-nav-item.active,.admin-sidebar .settings-tab.admin-nav-item[aria-current="page"]{flex:2.8 0 132px;gap:8px}.admin-nav-item.active span,.admin-nav-item[aria-current="page"] span{max-width:118px;opacity:1;text-overflow:ellipsis}.admin-content{padding:18px 14px 26px}.admin-metrics,.management-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.management-toolbar,.management-panels{grid-template-columns:1fr}.admin-metric{min-height:82px;padding:13px}.admin-metric-icon{width:42px;height:42px}.admin-metric b,.management-card b{font-size:24px}}
 @media(max-width:620px){.app{padding:14px}.searchrow,.searchrow.with-layout,.stock-import-grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}header{align-items:flex-start;flex-direction:column;gap:5px}.photo{height:180px}.report-head{align-items:stretch;flex-direction:column}.report-controls{align-items:stretch;flex-direction:column}.product-layout-picker{justify-self:start}.theme-options,.user-create,.user-location-checks{grid-template-columns:1fr}.user-row,.user-locations-head,.user-actions,.user-location-actions{align-items:stretch;flex-direction:column}.user-row .btn2,.user-locations-head .btn2{width:100%}.install-banner{align-items:flex-start;flex-wrap:wrap}.install-copy{flex:1 1 calc(100% - 65px)}.install-actions{width:100%;justify-content:flex-end}.grid[data-columns="2"] .product-card-slot{min-height:350px}.grid[data-columns="3"] .product-card-slot{min-height:255px}.grid[data-columns="4"] .product-card-slot{min-height:200px}.grid[data-columns="2"] .photo{height:120px}.grid[data-columns="3"] .photo{height:90px}.grid[data-columns="4"] .photo{height:70px}.grid[data-columns="3"] .content,.grid[data-columns="4"] .content{padding:7px}.grid[data-columns="3"] .name,.grid[data-columns="4"] .name{min-height:0;font-size:10px}.grid[data-columns="3"] :is(.code,.card-codes),.grid[data-columns="4"] :is(.code,.card-codes){font-size:8px;min-height:0}.grid[data-columns="3"] :is(.code-supplier,.code-store),.grid[data-columns="4"] :is(.code-supplier,.code-store){font-size:7.5px}.grid[data-columns="3"] .info,.grid[data-columns="4"] .info{display:block;font-size:8px}.grid[data-columns="3"] .badge,.grid[data-columns="4"] .badge{font-size:7px;padding:4px}.grid[data-columns="3"] .card-actions .btn2,.grid[data-columns="4"] .card-actions .btn2{width:100%;padding:6px 3px;font-size:8px}}
 </style>
-<link rel="stylesheet" href="theme-layout.css?v=5.0.0">
-<link rel="stylesheet" href="product-detail.css?v=5.0.0">
+<link rel="stylesheet" href="theme-layout.css?v=5.0.1">
+<link rel="stylesheet" href="product-detail.css?v=5.0.1">
 <link rel="stylesheet" href="android-ui.css">
 <link rel="stylesheet" href="skalee-i.css">
 </head>
@@ -791,7 +791,7 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
 <main id="protectedApp" class="app" aria-hidden="true">
 <header>
  <div class="app-brand"><img class="app-header-logo" src="assets/skalee-header-brand.png" alt="Skalee" width="54" height="38"><div><h1>Controle de Validade</h1><div class="sub">Acompanhe primeiro o que está mais perto de vencer.</div></div></div>
- <div class="user-area"><span id="syncStatusIndicator" class="sync-status-indicator is-synced" title="Status de Sincronização"><span class="sync-dot"></span><span id="syncStatusText">Sincronizado</span></span><div class="user-copy"><span id="authUser" class="sub"></span><div class="sub" id="today"></div></div><button id="headerChecklistBtn" class="header-checklist-button" type="button" aria-label="Abrir checklist de conferência" aria-haspopup="dialog" aria-controls="personalPanel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span>Checklist</span><span id="headerChecklistBadge" class="header-checklist-badge" hidden>0</span></button><button id="signOut" class="btn2" type="button">Sair</button><button id="adminCentralButton" class="header-admin-button" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M12 3 20 7v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7l8-4Z"/><path d="M9 12l2 2 4-4"/></svg><span>Central Administrativa</span></button><button id="headerProfileButton" class="header-profile-button" type="button" aria-label="Abrir central de notificações" aria-haspopup="dialog" aria-controls="personalPanel"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span id="notificationPendingBadge" class="notification-pending-badge" aria-label="0 notificações pendentes" hidden>0</span></button></div>
+ <div class="user-area"><span id="syncStatusIndicator" class="sync-status-indicator is-synced" title="Status de Sincronização"><span class="sync-dot"></span><span id="syncStatusText">Sincronizado</span></span><div class="user-copy"><span id="authUser" class="sub"></span><div class="sub" id="today"></div></div><div class="header-checklist-wrapper"><button id="headerChecklistBtn" class="header-checklist-button" type="button" aria-label="Abrir checklist de conferência" aria-haspopup="dialog" aria-controls="personalPanel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span>Checklist</span><span id="headerChecklistBadge" class="header-checklist-badge" hidden>0</span></button><div id="checklistFeatureCallout" class="feature-callout-balloon" role="dialog" aria-labelledby="calloutTitle" aria-live="polite" hidden><div class="callout-arrow"></div><div class="callout-content"><div class="callout-header"><span class="callout-tag">NOVIDADE</span><button id="closeCalloutBtn" class="callout-close" type="button" aria-label="Fechar aviso" title="Fechar aviso">×</button></div><strong id="calloutTitle" class="callout-title">Novo Checklist de Conferência</strong><p class="callout-desc">Veja os produtos em <strong>Todos</strong>, <strong>Pendentes</strong> e <strong>Concluídos</strong> e acesse o Inspetor Rápido ao selecionar um item.</p><div class="callout-actions"><button id="openChecklistFromCallout" class="callout-btn-primary" type="button">Abrir Checklist</button><button id="dismissCalloutBtn" class="callout-btn-ghost" type="button">Entendi</button></div></div></div></div><button id="signOut" class="btn2" type="button">Sair</button><button id="adminCentralButton" class="header-admin-button" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M12 3 20 7v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7l8-4Z"/><path d="M9 12l2 2 4-4"/></svg><span>Central Administrativa</span></button><button id="headerProfileButton" class="header-profile-button" type="button" aria-label="Abrir central de notificações" aria-haspopup="dialog" aria-controls="personalPanel"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span id="notificationPendingBadge" class="notification-pending-badge" aria-label="0 notificações pendentes" hidden>0</span></button></div>
 </header>
 
 <nav class="main-nav" aria-label="Navegação principal">
@@ -8154,6 +8154,61 @@ function openChecklistModal() {
 }
 els.headerChecklistBtn?.addEventListener("click", openChecklistModal);
 els.sidebarChecklistTab?.addEventListener("click", openChecklistModal);
+
+const CALLOUT_STORAGE_KEY = "skalee_checklist_callout_v5_seen";
+function initChecklistCallout() {
+ const callout = document.getElementById("checklistFeatureCallout");
+ if (!callout) return;
+
+ if (localStorage.getItem(CALLOUT_STORAGE_KEY)) {
+  callout.hidden = true;
+  return;
+ }
+
+ function showCallout() {
+  if (localStorage.getItem(CALLOUT_STORAGE_KEY)) return;
+  const isAuth = document.body.classList.contains("auth-authenticated") || document.getElementById("protectedApp")?.getAttribute("aria-hidden") === "false";
+  if (!isAuth) return;
+  callout.hidden = false;
+  requestAnimationFrame(() => {
+   callout.classList.add("is-visible");
+  });
+ }
+
+ function dismissCallout() {
+  callout.classList.remove("is-visible");
+  setTimeout(() => { callout.hidden = true; }, 240);
+  try {
+   localStorage.setItem(CALLOUT_STORAGE_KEY, "true");
+  } catch (_) {}
+ }
+
+ document.getElementById("closeCalloutBtn")?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  dismissCallout();
+ });
+
+ document.getElementById("dismissCalloutBtn")?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  dismissCallout();
+ });
+
+ document.getElementById("openChecklistFromCallout")?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  dismissCallout();
+  openChecklistModal();
+ });
+
+ els.headerChecklistBtn?.addEventListener("click", () => {
+  dismissCallout();
+ });
+
+ setTimeout(showCallout, 1200);
+ window.addEventListener("skalee:authenticated", () => {
+  setTimeout(showCallout, 800);
+ });
+}
+initChecklistCallout();
 
 // Quick Inspector Action Buttons
 els.inspectorEditBtn?.addEventListener('click', () => {

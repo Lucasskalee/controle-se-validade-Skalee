@@ -1,4 +1,4 @@
-const CACHE_VERSION = "skalee-v5.0.0-checklist-inspector-live";
+const CACHE_VERSION = "skalee-v5.0.1-checklist-callout-live";
 const CACHE_NAME = CACHE_VERSION;
 
 const APP_SHELL = [

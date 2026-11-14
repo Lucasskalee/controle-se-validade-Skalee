@@ -518,12 +518,13 @@ header {
   height: 18px;
   padding: 0 5px;
   border-radius: 999px;
-  background: var(--sk-status-warning, #f59e0b);
-  color: #0b1322;
+  background: var(--sk-status-danger, #ef4444);
+  color: #ffffff;
   font-size: 10px;
-  font-weight: 800;
+  font-weight: 900;
   font-variant-numeric: tabular-nums;
   line-height: 1;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
 }
 .sidebar-checklist-badge {
   display: inline-flex;
@@ -533,13 +534,187 @@ header {
   height: 18px;
   padding: 0 5px;
   border-radius: 999px;
-  background: var(--sk-status-warning, #f59e0b);
-  color: #0b1322;
+  background: var(--sk-status-danger, #ef4444);
+  color: #ffffff;
   font-size: 10px;
-  font-weight: 800;
+  font-weight: 900;
   font-variant-numeric: tabular-nums;
   line-height: 1;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
   margin-left: auto;
+}
+
+/* Balão de Notificação Onboarding (Exibição única para apresentar o Checklist) */
+.header-checklist-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.feature-callout-balloon {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 290px;
+  max-width: calc(100vw - 28px);
+  padding: 14px 14px 12px;
+  border-radius: 14px;
+  background: var(--sk-bg-surface-elevated, #0e172a);
+  border: 1px solid var(--sk-accent-cyan, #00d9ff);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55), 0 0 24px rgba(0, 217, 255, 0.22);
+  z-index: 950;
+  color: var(--sk-text-primary, #f8fafc);
+  opacity: 0;
+  transform: translateY(-6px) scale(0.96);
+  pointer-events: none;
+  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.feature-callout-balloon.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.feature-callout-balloon .callout-arrow {
+  position: absolute;
+  top: -6px;
+  right: 28px;
+  width: 10px;
+  height: 10px;
+  background: inherit;
+  border-top: 1px solid var(--sk-accent-cyan, #00d9ff);
+  border-left: 1px solid var(--sk-accent-cyan, #00d9ff);
+  transform: rotate(45deg);
+}
+
+.feature-callout-balloon .callout-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.feature-callout-balloon .callout-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(0, 217, 255, 0.16);
+  color: var(--sk-accent-cyan, #00d9ff);
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.feature-callout-balloon .callout-close {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--sk-text-muted, #94a3b8);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.feature-callout-balloon .callout-close:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.feature-callout-balloon .callout-title {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 800;
+  line-height: 1.3;
+  margin-bottom: 5px;
+  color: var(--sk-text-primary, #ffffff);
+}
+
+.feature-callout-balloon .callout-desc {
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--sk-text-secondary, #94a3b8);
+  margin: 0 0 12px 0;
+}
+
+.feature-callout-balloon .callout-desc strong {
+  color: var(--sk-text-primary, #ffffff);
+}
+
+.feature-callout-balloon .callout-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.feature-callout-balloon .callout-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: var(--sk-accent-cyan, #00d9ff);
+  color: #0b1322;
+  font-size: 11.5px;
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.10s ease;
+}
+
+.feature-callout-balloon .callout-btn-primary:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.feature-callout-balloon .callout-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--sk-text-muted, #94a3b8);
+  font-size: 11.5px;
+  font-weight: 700;
+  border: 1px solid var(--sk-border-subtle, rgba(255, 255, 255, 0.12));
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.feature-callout-balloon .callout-btn-ghost:hover {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+html[data-theme="light"] .feature-callout-balloon {
+  background: #ffffff;
+  border-color: #0284c7;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.18), 0 0 20px rgba(2, 132, 199, 0.15);
+  color: #0f172a;
+}
+html[data-theme="light"] .feature-callout-balloon .callout-title {
+  color: #0f172a;
+}
+html[data-theme="light"] .feature-callout-balloon .callout-desc {
+  color: #475569;
+}
+html[data-theme="light"] .feature-callout-balloon .callout-desc strong {
+  color: #0f172a;
+}
+html[data-theme="light"] .feature-callout-balloon .callout-btn-primary {
+  background: #0284c7;
+  color: #ffffff;
 }
 
 /* 2. Dashboard & KPIs */
