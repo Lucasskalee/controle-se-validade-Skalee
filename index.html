@@ -6651,10 +6651,10 @@ function updateReportSelectionStatus() {
 }
 
 function syncStoreFiltersFromProducts() {
- const savedStore = localStorage.getItem(STORE_SELECTION_STORAGE_KEY) || readNotificationSettings().store || "";
  const stores = allowedLocations
   ? allowedLocations.map((location) => location.name).filter(Boolean)
   : [...new Set(products.map((product) => product.store).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+ const savedStore = localStorage.getItem(STORE_SELECTION_STORAGE_KEY) || localStorage.getItem(NOTIFICATION_STORE_KEY) || "";
  [els.storeFilter, els.reportStore].forEach((select) => {
   if (!select) return;
   const selected = select.value || (select === els.storeFilter ? savedStore : "");
@@ -6848,15 +6848,13 @@ function setSkaleeBackgroundStyle(bgStyle) {
   localStorage.setItem(SKALEE_WALLPAPER_PRESET_KEY, style);
  } catch (_) {}
  document.documentElement.dataset.skaleeBg = style;
- document.documentElement.dataset.skaleeWallpaperPreset = (style === "wallpaper-dark" ? "dark" : (style === "wallpaper-white" ? "white" : style));
+ document.documentElement.dataset.skaleeWallpaperPreset = style;
 
- if (style === "wallpaper-dark" || style === "dark") {
+ if (style === "dark" || style === "wallpaper-dark") {
   applyGlassWallpaperCss("assets/wallpaper-skalee-dark.jpg", true, { dim: 50, fit: "cover" });
- } else if (style === "wallpaper-white" || style === "white") {
+ } else if (style === "white" || style === "wallpaper-white") {
   applyGlassWallpaperCss("assets/wallpaper-skalee-white.jpg", true, { dim: 20, fit: "cover" });
- } else if (style === "custom") {
-  void restoreCustomWallpaper();
- } else {
+ } else if (style !== "custom") {
   applyGlassWallpaperCss("", false);
  }
 
@@ -7299,13 +7297,6 @@ document.addEventListener("click", (e) => {
   setSkaleeBackgroundStyle(bgChoiceBtn.dataset.skaleeBgChoice);
   return;
  }
- const presetBtn = e.target.closest("[data-skalee-preset]");
- if (presetBtn) {
-  e.preventDefault();
-  const choice = presetBtn.dataset.skaleePreset;
-  setSkaleeBackgroundStyle(choice === "dark" ? "wallpaper-dark" : (choice === "white" ? "wallpaper-white" : choice));
-  return;
- }
  const motionBtn = e.target.closest("#personalMotionToggleBtn, #diagPauseBgBtnProducts, #diagPauseBgBtnProductsDesktop, #personalDiagPauseBgBtn");
  if (motionBtn) {
   e.preventDefault();
@@ -7317,6 +7308,7 @@ const initialBgStyle = localStorage.getItem("skalee.bgStyle") || "obsidian";
 setSkaleeBackgroundStyle(initialBgStyle);
 const initialMotion = localStorage.getItem("skalee.motionBg") === "true";
 setMotionBackgroundEnabled(initialMotion);
+void restoreCustomWallpaper();
 
 function render() {
  updateClearButtons();
@@ -7618,24 +7610,23 @@ els.search.addEventListener("input", () => {
 });
 els.clearSearch.addEventListener("click", () => clearFilterInput(els.search, els.clearSearch));
 els.storeFilter.addEventListener("change", () => {
- const chosen = els.storeFilter.value;
+ const val = els.storeFilter.value || "";
  try {
-  if (chosen) {
-   localStorage.setItem(STORE_SELECTION_STORAGE_KEY, chosen);
-   localStorage.setItem(NOTIFICATION_STORE_KEY, chosen);
+  if (val) {
+   localStorage.setItem(STORE_SELECTION_STORAGE_KEY, val);
+   localStorage.setItem(NOTIFICATION_STORE_KEY, val);
   } else {
    localStorage.removeItem(STORE_SELECTION_STORAGE_KEY);
    localStorage.removeItem(NOTIFICATION_STORE_KEY);
   }
  } catch (_) {}
- if (els.notificationCenterStore && [...els.notificationCenterStore.options].some((o) => o.value === chosen)) {
-  els.notificationCenterStore.value = chosen;
+ if (els.notificationStore && els.notificationStore.value !== val) {
+  els.notificationStore.value = val;
  }
- if (els.notificationStore && [...els.notificationStore.options].some((o) => o.value === chosen)) {
-  els.notificationStore.value = chosen;
+ if (els.notificationCenterStore && els.notificationCenterStore.value !== val) {
+  els.notificationCenterStore.value = val;
  }
  scheduleProductQueryReload(0);
- scheduleNotificationCenterReload(0);
 });
 els.supplierFilter.addEventListener("input", () => {
  updateClearButtons();
@@ -10271,5 +10262,1896 @@ els.importStockSnapshot.addEventListener("click", async () => {
     continue;
    }
 
-   const deptMatch 
-... [truncated for diff preview]
+   const deptMatch = lineText.match(/DEPARTAMENTO\s*:\s*([^<\r\n]+)/i);
+   if (deptMatch && cells.length < 4) {
+    currentDept = normalizarEspacos(deptMatch[1]);
+    ignoredRowsCount++;
+    continue;
+   }
+
+   const rawCode = colMap.codigo !== undefined ? String(cells[colMap.codigo] || "").trim() : "";
+   const internalCode = rawCode.replace(/\D/g, "");
+   if (!internalCode) {
+    ignoredRowsCount++;
+    continue;
+   }
+
+   let rowFilial = currentFilial;
+   if (colMap.filial !== undefined && cells[colMap.filial]) {
+    const filFromCol = String(cells[colMap.filial]).replace(/\D/g, "");
+    if (filFromCol) rowFilial = Number(filFromCol);
+   }
+
+   const offerPrice = colMap.precoOferta !== undefined ? parseNumeroSg(cells[colMap.precoOferta]) : null;
+   if (offerPrice === null || offerPrice <= 0) {
+    ignoredRowsCount++;
+    continue;
+   }
+
+   const regularPrice = colMap.precoNormal !== undefined ? parseNumeroSg(cells[colMap.precoNormal]) : null;
+   const barcode = colMap.barcode !== undefined ? String(cells[colMap.barcode] || "").trim().replace(/\D/g, "") : null;
+   const description = colMap.nome !== undefined ? normalizarEspacos(cells[colMap.nome]) : null;
+   const department = colMap.depto !== undefined && cells[colMap.depto] ? normalizarEspacos(cells[colMap.depto]) : currentDept;
+   const reason = colMap.motivo !== undefined ? normalizarEspacos(cells[colMap.motivo]) : null;
+   const startsAt = colMap.inicio !== undefined ? parseOfferDateString(cells[colMap.inicio]) : null;
+   const endsAt = colMap.fim !== undefined ? parseOfferDateString(cells[colMap.fim]) : null;
+   const offerQuantity = colMap.qtd !== undefined ? parseNumeroSg(cells[colMap.qtd]) : null;
+
+   rows.push({
+    sg_store_code: rowFilial || null,
+    product_code: internalCode,
+    barcode: barcode || null,
+    description: description || null,
+    department: department || null,
+    regular_price: regularPrice,
+    offer_price: offerPrice,
+    offer_quantity: offerQuantity,
+    reason: reason || null,
+    starts_at: startsAt,
+    ends_at: endsAt
+   });
+  }
+
+  if (!rows.length) {
+   throw new Error("Nenhuma linha de oferta válida foi encontrada após o cabeçalho.");
+  }
+
+  return {
+   format,
+   formatLabel: formatLabel || format,
+   totalRowsAnalyzed: matrix.length,
+   headerRowIndex: headerRes.rowIndex,
+   detectedFilial: documentFilial,
+   ignoredRowsCount,
+   rows
+  };
+ }
+
+async function carregarOfertasArquivoSg(file, buffer) {
+  const result = await parseOfferImport(file, buffer);
+  return result.rows;
+ }
+
+  function renderDryRunOfertasHtml(summary) {
+   const filialCards = (summary.filiais || []).map((f) => {
+    const badgeStyle = f.unmapped
+     ? "background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;padding:2px 6px;border-radius:6px;font-size:11px;font-weight:800"
+     : "background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;padding:2px 6px;border-radius:6px;font-size:11px;font-weight:800";
+    const statusLabel = f.unmapped ? "Filial não mapeada no app" : `Loja: ${escapeHtml(f.name)}`;
+    return `
+     <div style="background:var(--bg-secondary,#f8fafc);border:1px solid var(--line,#e2e8f0);border-radius:10px;padding:10px 12px;margin-top:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+       <strong>Filial SG ${escapeHtml(String(f.code))}</strong>
+       <span style="${badgeStyle}">${statusLabel}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:6px;font-size:12px">
+       <div>Linhas no arquivo: <b>${f.validRows.toLocaleString("pt-BR")}</b></div>
+       <div>Produtos monitorados: <b style="color:#16a34a">${(f.matchedProducts || 0).toLocaleString("pt-BR")}</b></div>
+       <div>Serão marcados em oferta: <b style="color:#2563eb">${(f.matchedProducts || 0).toLocaleString("pt-BR")}</b></div>
+       <div>Códigos não monitorados: <b style="color:#64748b">${(f.unlocatedCount || 0).toLocaleString("pt-BR")}</b></div>
+      </div>
+     </div>
+    `;
+   }).join("");
+
+   const sampleRowsHtml = summary.sampleRows && summary.sampleRows.length ? `
+    <div style="margin-top:12px">
+     <div style="font-size:11.5px;font-weight:800;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Amostra de ofertas no arquivo</div>
+     <div style="overflow-x:auto;max-height:160px;border:1px solid var(--line,#e2e8f0);border-radius:8px">
+      <table style="width:100%;font-size:11.5px;border-collapse:collapse;text-align:left">
+       <thead>
+        <tr style="background:var(--bg-secondary,#f1f5f9);border-bottom:1px solid var(--line,#cbd5e1)">
+         <th style="padding:4px 8px">Filial</th>
+         <th style="padding:4px 8px">Código</th>
+         <th style="padding:4px 8px">Descrição</th>
+         <th style="padding:4px 8px">Normal</th>
+         <th style="padding:4px 8px">Oferta</th>
+         <th style="padding:4px 8px">Motivo</th>
+         <th style="padding:4px 8px">Vigência</th>
+        </tr>
+       </thead>
+       <tbody>
+        ${summary.sampleRows.map(r => `
+         <tr style="border-bottom:1px solid var(--line,#f1f5f9)">
+          <td style="padding:3px 8px">${escapeHtml(String(r.sg_store_code || "-"))}</td>
+          <td style="padding:3px 8px"><b>${escapeHtml(String(r.product_code))}</b></td>
+          <td style="padding:3px 8px;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(String(r.description || "-"))}</td>
+          <td style="padding:3px 8px">${r.regular_price ? formatOfferCurrency(r.regular_price) : "-"}</td>
+          <td style="padding:3px 8px;color:#16a34a;font-weight:800">${formatOfferCurrency(r.offer_price)}</td>
+          <td style="padding:3px 8px;max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(String(r.reason || "-"))}</td>
+          <td style="padding:3px 8px">${r.starts_at && r.ends_at ? `${formatOfferDate(r.starts_at)} a ${formatOfferDate(r.ends_at)}` : (r.ends_at ? `Até ${formatOfferDate(r.ends_at)}` : "-")}</td>
+         </tr>
+        `).join("")}
+       </tbody>
+      </table>
+     </div>
+    </div>
+   ` : "";
+
+   return `
+    <div style="margin-top:6px">
+     <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;flex-wrap:wrap">
+      <div style="font-size:13px;font-weight:800;color:var(--text)">
+       📊 Análise Prévia do Arquivo (Dry-Run): <u>${escapeHtml(summary.filename)}</u>
+      </div>
+      <span style="background:#e0e7ff;color:#3730a3;border:1px solid #c7d2fe;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700">
+       ${escapeHtml(summary.formatLabel || summary.format || "SG")}
+      </span>
+     </div>
+     <div style="font-size:12px;color:var(--muted);margin-bottom:8px">
+      Linhas no arquivo: <b>${(summary.validRows || summary.totalRows).toLocaleString("pt-BR")}</b> · Produtos monitorados encontrados: <b style="color:#16a34a">${(summary.totalMatchedProducts || 0).toLocaleString("pt-BR")}</b> · Códigos não monitorados: <b>${(summary.totalUnlocated || 0).toLocaleString("pt-BR")}</b>
+     </div>
+     ${filialCards}
+     ${summary.hasUnmappedFilials ? `<div style="margin-top:8px;color:#b91c1c;font-size:12px;font-weight:700">⚠️ Atenção: foram encontradas filiais no arquivo sem loja correspondente cadastrada no aplicativo.</div>` : ""}
+     ${sampleRowsHtml}
+    </div>
+   `;
+  }
+
+  let currentOfferSnapshotState = {
+   file: null,
+   buffer: null,
+   fileHash: null,
+   parsedRows: [],
+   dryRun: null
+  };
+
+  els.offerSnapshotFile.addEventListener("change", async (event) => {
+   const file = event.target.files && event.target.files[0] ? event.target.files[0] : null;
+   if (!file) {
+    els.previewOfferSnapshot.disabled = true;
+    els.importOfferSnapshot.disabled = true;
+    currentOfferSnapshotState = { file: null, buffer: null, fileHash: null, parsedRows: [], dryRun: null };
+    definirInfoOfertas("Selecione um arquivo de ofertas SG para ver o resumo prévio (Dry-Run).");
+    return;
+   }
+
+   els.previewOfferSnapshot.disabled = true;
+   els.importOfferSnapshot.disabled = true;
+   definirInfoOfertas(`Lendo arquivo ${file.name}...`, "Detectando formato e extraindo ofertas...", { progress: 20 });
+
+   try {
+    const buffer = await file.arrayBuffer();
+    const fileHash = await hashArquivoSg(buffer);
+    const parseResult = await parseOfferImport(file, buffer);
+    const parsedRows = parseResult.rows;
+
+    definirInfoOfertas("Cruzando ofertas com produtos monitorados...", `${parsedRows.length.toLocaleString("pt-BR")} ofertas lidas (${parseResult.formatLabel}). Calculando vínculo com o Controle de Validades...`, { progress: 60 });
+
+    const filiaisNoArquivo = [...new Set(parsedRows.map(r => r.sg_store_code).filter(c => c !== null && c !== undefined))];
+    const locations = Array.isArray(allowedLocations) ? allowedLocations : [];
+    let nValid = 0;
+    let nInvalid = 0;
+    const seenKeys = new Set();
+    const validRowsDeduplicated = [];
+
+    parsedRows.forEach((row) => {
+     if (!row.product_code || row.offer_price === null) {
+      nInvalid += 1;
+      return;
+     }
+     const key = `${row.sg_store_code || 0}:${row.product_code}`;
+     if (seenKeys.has(key)) return;
+     seenKeys.add(key);
+     validRowsDeduplicated.push(row);
+     nValid += 1;
+    });
+
+    const nDuplicates = parsedRows.length - nInvalid - nValid;
+    const filialSummaries = [];
+    let hasUnmapped = false;
+    let totalMatchedProducts = 0;
+    let totalUnlocated = 0;
+
+    // Index current in-memory / known products for dry-run preview
+    const knownProducts = Array.isArray(products) ? products : [];
+    const productsByStoreCode = new Map();
+    const productsByStoreBarcode = new Map();
+    const productsByCode = new Map();
+    const productsByBarcode = new Map();
+
+    knownProducts.forEach((p) => {
+     const pId = String(p.id);
+     const store = String(p.store || p.retailLocationId || "").trim().toLowerCase();
+     const loc = locations.find(l => l && (l.id === p.retailLocationId || String(l.name || "").toLowerCase() === store));
+     const storeKeys = [p.retailLocationId, loc?.id, loc?.code ? String(loc.code).trim().replace(/^0+(?=\d)/, "") : null, store].filter(Boolean);
+
+     const codeNorm = String(p.code || p.product_code || "").trim().replace(/^0+(?=\d)/, "");
+     const barcodeNorm = String(p.barcode || "").trim();
+
+     if (codeNorm) {
+      if (!productsByCode.has(codeNorm)) productsByCode.set(codeNorm, new Set());
+      productsByCode.get(codeNorm).add(pId);
+      storeKeys.forEach((s) => {
+       const key = `${s}:${codeNorm}`;
+       if (!productsByStoreCode.has(key)) productsByStoreCode.set(key, new Set());
+       productsByStoreCode.get(key).add(pId);
+      });
+     }
+
+     if (barcodeNorm) {
+      if (!productsByBarcode.has(barcodeNorm)) productsByBarcode.set(barcodeNorm, new Set());
+      productsByBarcode.get(barcodeNorm).add(pId);
+      storeKeys.forEach((s) => {
+       const key = `${s}:${barcodeNorm}`;
+       if (!productsByStoreBarcode.has(key)) productsByStoreBarcode.set(key, new Set());
+       productsByStoreBarcode.get(key).add(pId);
+      });
+     }
+    });
+
+    filiaisNoArquivo.forEach((filCode) => {
+     const filRows = validRowsDeduplicated.filter(r => r.sg_store_code === Number(filCode));
+     const loc = locations.find(l => l && String(l.code || "").trim() === String(filCode));
+     if (!loc) hasUnmapped = true;
+
+     const matchedIdsForFilial = new Set();
+     let unlocatedForFilial = 0;
+
+     filRows.forEach((r) => {
+      const codeNorm = String(r.product_code || "").trim().replace(/^0+(?=\d)/, "");
+      const barcodeNorm = String(r.barcode || "").trim();
+      const storeKey = String(filCode).trim().replace(/^0+(?=\d)/, "");
+      let found = false;
+
+      if (codeNorm && productsByStoreCode.has(`${storeKey}:${codeNorm}`)) {
+       productsByStoreCode.get(`${storeKey}:${codeNorm}`).forEach(id => matchedIdsForFilial.add(id));
+       found = true;
+      }
+      if (barcodeNorm && productsByStoreBarcode.has(`${storeKey}:${barcodeNorm}`)) {
+       productsByStoreBarcode.get(`${storeKey}:${barcodeNorm}`).forEach(id => matchedIdsForFilial.add(id));
+       found = true;
+      }
+      if (!found && codeNorm && productsByCode.has(codeNorm)) {
+       productsByCode.get(codeNorm).forEach(id => matchedIdsForFilial.add(id));
+       found = true;
+      }
+      if (!found && barcodeNorm && productsByBarcode.has(barcodeNorm)) {
+       productsByBarcode.get(barcodeNorm).forEach(id => matchedIdsForFilial.add(id));
+       found = true;
+      }
+
+      if (!found) unlocatedForFilial += 1;
+     });
+
+     totalMatchedProducts += matchedIdsForFilial.size;
+     totalUnlocated += unlocatedForFilial;
+
+     filialSummaries.push({
+      code: filCode,
+      name: loc ? loc.name : "Não cadastrada",
+      validRows: filRows.length,
+      matchedProducts: matchedIdsForFilial.size,
+      unlocatedCount: unlocatedForFilial,
+      unmapped: !loc
+     });
+    });
+
+    const dryRun = {
+     filename: file.name,
+     format: parseResult.format,
+     formatLabel: parseResult.formatLabel,
+     totalRowsAnalyzed: parseResult.totalRowsAnalyzed,
+     ignoredRowsCount: parseResult.ignoredRowsCount,
+     totalRows: parsedRows.length,
+     validRows: nValid,
+     invalidRows: nInvalid,
+     duplicateRows: nDuplicates,
+     totalMatchedProducts,
+     totalUnlocated,
+     filiais: filialSummaries,
+     hasUnmappedFilials: hasUnmapped,
+     sampleRows: validRowsDeduplicated.slice(0, 6)
+    };
+
+    currentOfferSnapshotState = {
+     file,
+     buffer,
+     fileHash,
+     parsedRows: validRowsDeduplicated,
+     dryRun
+    };
+
+    els.previewOfferSnapshot.disabled = false;
+    els.importOfferSnapshot.disabled = nValid === 0;
+
+    definirInfoOfertas(
+     `Arquivo pronto: ${file.name}`,
+     renderDryRunOfertasHtml(dryRun),
+     { progress: 100 }
+    );
+   } catch (error) {
+    console.error("Falha ao analisar arquivo de ofertas SG:", error);
+    definirInfoOfertas("Não foi possível analisar o arquivo de ofertas", error.message || "Erro desconhecido.");
+    els.previewOfferSnapshot.disabled = true;
+    els.importOfferSnapshot.disabled = true;
+    alert(error.message || "Não foi possível analisar o arquivo de ofertas SG.");
+   }
+  });
+
+  els.previewOfferSnapshot.addEventListener("click", () => {
+   if (!currentOfferSnapshotState.dryRun) return;
+   definirInfoOfertas(
+    `Arquivo analisado: ${currentOfferSnapshotState.file?.name || "Ofertas SG"}`,
+    renderDryRunOfertasHtml(currentOfferSnapshotState.dryRun)
+   );
+  });
+
+  els.importOfferSnapshot.addEventListener("click", async () => {
+   if (els.importOfferSnapshot.disabled) return;
+   const { file, fileHash, parsedRows, dryRun } = currentOfferSnapshotState;
+   if (!file || !fileHash || !parsedRows || !parsedRows.length) {
+    return alert("Selecione e analise um arquivo de ofertas válido primeiro.");
+   }
+
+   const confirmMsg = `Deseja atualizar a marcação de oferta para os produtos monitorados encontrados neste arquivo (${parsedRows.length.toLocaleString("pt-BR")} ofertas analisadas)?`;
+   if (!confirm(confirmMsg)) return;
+
+   els.importOfferSnapshot.disabled = true;
+   els.previewOfferSnapshot.disabled = true;
+   els.offerSnapshotFile.disabled = true;
+
+   definirInfoOfertas("Atualizando produtos em oferta no Supabase...", `Processando ${parsedRows.length.toLocaleString("pt-BR")} ofertas e vinculando aos produtos monitorados...`, { progress: 40 });
+
+   try {
+    const result = await window.skaleeDb.importSGOffers(file.name, fileHash, parsedRows);
+
+    const summary = [
+     `Produtos encontrados e marcados em oferta: <b style="color:#16a34a">${Number(result.matched_products || result.updated_offers || 0).toLocaleString("pt-BR")}</b>`,
+     `Linhas no arquivo: <b>${Number(result.total_rows || 0).toLocaleString("pt-BR")}</b>`,
+     `Códigos SG não monitorados: <b>${Number(result.unlocated_count || 0).toLocaleString("pt-BR")}</b>`
+    ].join(" · ");
+
+    definirInfoOfertas(
+     `Carga de Ofertas concluída com sucesso!`,
+     `<b>${file.name}</b><br>${summary}<br><span style="color:#16a34a;font-weight:700">✓ Produtos monitorados atualizados para "Em oferta" (offer = true).</span>`,
+     { progress: 100 }
+    );
+
+    els.offerSnapshotFile.value = "";
+    currentOfferSnapshotState = { file: null, buffer: null, fileHash: null, parsedRows: [], dryRun: null };
+
+    if (window.skaleeDb?.clearSgOffersCache) {
+     window.skaleeDb.clearSgOffersCache();
+    }
+    await carregarProdutosOnline();
+    showToast("Produtos atualizados para Em Oferta com sucesso!", "success", "🏷️");
+   } catch (error) {
+    console.error("Falha ao importar ofertas SG:", error);
+    definirInfoOfertas("Erro ao importar ofertas SG", error.message || "Erro desconhecido.");
+    alert(error.message || "Não foi possível importar as ofertas SG.");
+   } finally {
+    els.importOfferSnapshot.disabled = false;
+    els.previewOfferSnapshot.disabled = false;
+    els.offerSnapshotFile.disabled = false;
+   }
+  });
+
+function resetScannerConfirmation() {
+ scannerConfirmCode = "";
+ scannerConfirmCount = 0;
+ scannerConfirmAt = 0;
+}
+
+function normalizeBarcodeValue(value) {
+ return String(value || "").replace(/\D/g, "");
+}
+
+function isSupportedProductBarcode(value) {
+ return /^(?:\d{6}|\d{8}|\d{12}|\d{13})$/.test(value);
+}
+
+function resetScannerCameraControls() {
+ scannerTrack = null;
+ scannerCapabilities = null;
+ scannerZoom = null;
+ scannerTorchOn = false;
+ els.scannerZoomOut.hidden = true;
+ els.scannerZoomIn.hidden = true;
+ els.scannerTorch.hidden = true;
+ els.scannerTorch.classList.remove("active");
+ els.scannerTorch.setAttribute("aria-label", "Ligar lanterna");
+}
+
+function showVideoScannerView(show) {
+ els.scannerView.classList.remove("hidden");
+ els.scannerVideo.classList.toggle("hidden", !show);
+ els.scannerReader.classList.toggle("hidden", show);
+ els.scannerGuide.classList.toggle("hidden", !show);
+}
+
+function showFallbackScannerView() {
+ els.scannerView.classList.remove("hidden");
+ els.scannerVideo.classList.add("hidden");
+ els.scannerReader.classList.remove("hidden");
+ els.scannerGuide.classList.remove("hidden");
+}
+
+function getScannerVideoConstraints() {
+ return {
+  facingMode: { ideal: "environment" },
+  width: { ideal: 1280 },
+  height: { ideal: 720 },
+  frameRate: { ideal: 24, max: 30 }
+ };
+}
+
+async function applyScannerConstraints(track, constraints) {
+ if (!track || typeof track.applyConstraints !== "function") return false;
+ try {
+  await track.applyConstraints(constraints);
+  return true;
+ } catch (error) {
+  return false;
+ }
+}
+
+function getCapabilityRange(name) {
+ const range = scannerCapabilities ? scannerCapabilities[name] : null;
+ if (!range || typeof range.min !== "number" || typeof range.max !== "number") return null;
+ return range;
+}
+
+async function setScannerZoom(value) {
+ const range = getCapabilityRange("zoom");
+ if (!range) return;
+ const step = typeof range.step === "number" && range.step > 0 ? range.step : 0.1;
+ const clamped = Math.min(range.max, Math.max(range.min, value));
+ const rounded = Math.round(clamped / step) * step;
+ if (await applyScannerConstraints(scannerTrack, { advanced: [{ zoom: rounded }] })) {
+  scannerZoom = rounded;
+  els.scannerZoomOut.disabled = scannerZoom <= range.min;
+  els.scannerZoomIn.disabled = scannerZoom >= range.max;
+ }
+}
+
+async function toggleScannerTorch() {
+ if (!scannerCapabilities || !scannerCapabilities.torch) return;
+ scannerTorchOn = !scannerTorchOn;
+ const applied = await applyScannerConstraints(scannerTrack, { advanced: [{ torch: scannerTorchOn }] });
+ if (!applied) {
+  scannerTorchOn = !scannerTorchOn;
+ }
+ els.scannerTorch.classList.toggle("active", scannerTorchOn);
+ els.scannerTorch.setAttribute("aria-label", scannerTorchOn ? "Desligar lanterna" : "Ligar lanterna");
+}
+
+async function setupScannerTrack(stream) {
+ resetScannerCameraControls();
+ scannerTrack = stream ? stream.getVideoTracks()[0] : null;
+ if (!scannerTrack) return;
+ if (typeof scannerTrack.getCapabilities === "function") {
+  try {
+   scannerCapabilities = scannerTrack.getCapabilities();
+  } catch (error) {
+   scannerCapabilities = null;
+  }
+ }
+ if (scannerCapabilities && Array.isArray(scannerCapabilities.focusMode) && scannerCapabilities.focusMode.includes("continuous")) {
+  await applyScannerConstraints(scannerTrack, { advanced: [{ focusMode: "continuous" }] });
+ }
+ const zoomRange = getCapabilityRange("zoom");
+ if (zoomRange) {
+  els.scannerZoomOut.hidden = false;
+  els.scannerZoomIn.hidden = false;
+  const initialZoom = Math.min(zoomRange.max, Math.max(zoomRange.min, 1.7));
+  await setScannerZoom(initialZoom);
+ }
+ if (scannerCapabilities && scannerCapabilities.torch) {
+  els.scannerTorch.hidden = false;
+ }
+}
+
+function getScannerCrop(video) {
+ const width = video.videoWidth || 0;
+ const height = video.videoHeight || 0;
+ if (!width || !height) return null;
+ const cropWidth = Math.round(width * 0.86);
+ const cropHeight = Math.round(height * 0.34);
+ return {
+  sx: Math.max(0, Math.round((width - cropWidth) / 2)),
+  sy: Math.max(0, Math.round((height - cropHeight) / 2)),
+  sw: cropWidth,
+  sh: cropHeight
+ };
+}
+
+function getScannerCropCanvas(video) {
+ const crop = getScannerCrop(video);
+ if (!crop) return video;
+ if (!scannerCanvas) {
+  scannerCanvas = document.createElement("canvas");
+  scannerCanvasContext = scannerCanvas.getContext("2d", { willReadFrequently: true });
+ }
+ if (!scannerCanvasContext) return video;
+ scannerCanvas.width = crop.sw;
+ scannerCanvas.height = crop.sh;
+ scannerCanvasContext.drawImage(video, crop.sx, crop.sy, crop.sw, crop.sh, 0, 0, crop.sw, crop.sh);
+ return scannerCanvas;
+}
+
+async function stopScanner() {
+ scannerIsActive = false;
+ scannerDetecting = false;
+ resetScannerConfirmation();
+ if (scannerSuccessTimer) {
+  clearTimeout(scannerSuccessTimer);
+  scannerSuccessTimer = null;
+ }
+ if (scannerTimer) {
+  clearInterval(scannerTimer);
+  scannerTimer = null;
+ }
+
+ if (scannerMode === "html5" && html5Scanner) {
+  try {
+   await html5Scanner.stop();
+  } catch (error) {
+  }
+  try {
+   await html5Scanner.clear();
+  } catch (error) {
+  }
+  html5Scanner = null;
+ }
+
+ if (scannerMode === "zxing") {
+  try {
+   if (zxingControls && typeof zxingControls.stop === "function") {
+    zxingControls.stop();
+   }
+  } catch (error) {
+  }
+  try {
+   if (zxingReader && typeof zxingReader.reset === "function") {
+    zxingReader.reset();
+   }
+  } catch (error) {
+  }
+  zxingControls = null;
+  zxingReader = null;
+ }
+
+ if (scannerMode === "quagga" && window.Quagga) {
+  try {
+   if (quaggaDetectedHandler) {
+    Quagga.offDetected(quaggaDetectedHandler);
+    quaggaDetectedHandler = null;
+   }
+   Quagga.stop();
+  } catch (error) {
+  }
+ }
+
+ if (scannerStream) {
+  scannerStream.getTracks().forEach((track) => track.stop());
+  scannerStream = null;
+ }
+ resetScannerCameraControls();
+ scannerMode = null;
+ els.scannerVideo.srcObject = null;
+ showVideoScannerView(true);
+ els.scannerReader.classList.add("hidden");
+ els.scannerReader.innerHTML = "";
+ els.scannerSuccess.classList.remove("show");
+ els.scannerStatus.textContent = "Centralize o código de barras dentro do retângulo.";
+ els.scannerModal.classList.remove("show");
+ els.scannerModal.setAttribute("aria-hidden", "true");
+}
+
+function onBarcodeDetected(value) {
+ const codigo = normalizeBarcodeValue(value);
+ if (!codigo || !scannerIsActive) return;
+ if (!isSupportedProductBarcode(codigo)) return;
+
+ const now = Date.now();
+ if (scannerConfirmCode === codigo && now - scannerConfirmAt < 1800) {
+  scannerConfirmCount += 1;
+ } else {
+  scannerConfirmCode = codigo;
+  scannerConfirmCount = 1;
+ }
+ scannerConfirmAt = now;
+ if (scannerConfirmCount < 2) {
+  els.scannerStatus.textContent = "Confirmando leitura... mantenha o código no retângulo.";
+  return;
+ }
+
+ scannerIsActive = false;
+ els.scannerStatus.textContent = `Lido: ${codigo}`;
+ els.scannerSuccess.classList.add("show");
+ els.barcode.value = codigo;
+ if (navigator.vibrate) navigator.vibrate(80);
+ void buscarProdutoPorCodigo(codigo);
+ void stopScanner();
+}
+
+async function startNativeScanner() {
+ scannerMode = "native";
+ scannerIsActive = true;
+ resetScannerConfirmation();
+ els.scannerStatus.textContent = "Abrindo câmera...";
+ els.scannerReader.classList.add("hidden");
+ showVideoScannerView(true);
+ els.scannerModal.classList.add("show");
+ els.scannerModal.setAttribute("aria-hidden", "false");
+ try {
+  scannerStream = await navigator.mediaDevices.getUserMedia({
+   video: getScannerVideoConstraints(),
+   audio: false
+  });
+
+  els.scannerVideo.srcObject = scannerStream;
+  await els.scannerVideo.play();
+  await setupScannerTrack(scannerStream);
+  els.scannerStatus.textContent = "Centralize o código de barras dentro do retângulo.";
+
+  scannerTimer = setInterval(async () => {
+   if (!scannerIsActive || scannerDetecting) return;
+   scannerDetecting = true;
+   try {
+    const detected = await barcodeReader.detect(getScannerCropCanvas(els.scannerVideo));
+    if (!detected || detected.length === 0) return;
+    const value = (detected[0].rawValue || "").trim();
+    if (!value) return;
+    onBarcodeDetected(value);
+   } catch (error) {
+    els.scannerStatus.textContent = "Tentando ler... mantenha o código no retângulo.";
+   } finally {
+    scannerDetecting = false;
+   }
+  }, 180);
+  return true;
+ } catch (error) {
+  await stopScanner();
+  if (error && error.name === "NotAllowedError") {
+   alert("Permissão da câmera negada. Autorize a câmera no navegador.");
+   return null;
+  }
+  console.warn("Falha no BarcodeDetector; tentando leitor alternativo.", error);
+  return false;
+ }
+}
+
+  async function startQuaggaScanner() {
+   scannerMode = "quagga";
+   scannerIsActive = true;
+   resetScannerConfirmation();
+   els.scannerStatus.textContent = "Abrindo câmera...";
+   showFallbackScannerView();
+   els.scannerReader.innerHTML = "";
+   els.scannerModal.classList.add("show");
+   els.scannerModal.setAttribute("aria-hidden", "false");
+
+   if (!window.Quagga) {
+    await stopScanner();
+    alert("QuaggaJS não carregou no navegador.");
+    return;
+   }
+
+   const config = {
+    inputStream: {
+     type: "LiveStream",
+     target: els.scannerReader,
+     constraints: {
+      facingMode: "environment",
+      width: { ideal: 1280 },
+      height: { ideal: 720 },
+      frameRate: { ideal: 24, max: 30 }
+     },
+     area: {
+      top: "22%",
+      right: "5%",
+      left: "5%",
+      bottom: "22%"
+     }
+    },
+    locator: {
+     patchSize: "medium",
+     halfSample: true
+    },
+    numOfWorkers: 2,
+    frequency: 10,
+    decoder: {
+     readers: [
+     "ean_reader",
+     "ean_8_reader",
+     "upc_reader",
+     "upc_e_reader"
+     ]
+    },
+    locate: true
+   };
+
+   await new Promise((resolve, reject) => {
+    Quagga.init(config, (err) => {
+     if (err) {
+      reject(err);
+      return;
+     }
+     resolve();
+    });
+   }).catch(async (error) => {
+    await stopScanner();
+    if (error && error.name === "NotAllowedError") {
+     alert("Permissão da câmera negada. Autorize a câmera no navegador.");
+     return;
+    }
+    alert("Não foi possível iniciar leitura ao vivo com QuaggaJS.");
+   });
+
+   if (!scannerIsActive) return;
+
+   quaggaDetectedHandler = (result) => {
+    if (!scannerIsActive || !result || !result.codeResult) return;
+    const value = (result.codeResult.code || "").trim();
+    if (!value) return;
+    onBarcodeDetected(value);
+   };
+
+   Quagga.onDetected(quaggaDetectedHandler);
+   Quagga.start();
+   els.scannerStatus.textContent = "Aponte para o código de barras.";
+  }
+
+async function startZxingScanner() {
+ scannerMode = "zxing";
+ scannerIsActive = true;
+ resetScannerConfirmation();
+ els.scannerStatus.textContent = "Abrindo câmera...";
+ els.scannerReader.classList.add("hidden");
+ showVideoScannerView(true);
+ els.scannerModal.classList.add("show");
+ els.scannerModal.setAttribute("aria-hidden", "false");
+
+ const zxingApi = window.ZXingBrowser;
+ const ZxingReader = zxingApi ? zxingApi.BrowserMultiFormatOneDReader || zxingApi.BrowserMultiFormatReader : null;
+ if (!ZxingReader) {
+  await stopScanner();
+  alert("ZXing-JS não carregou no navegador.");
+  return;
+ }
+
+ try {
+  const hints = new Map();
+  const formats = getZxingFormats(zxingApi);
+  if (zxingApi.DecodeHintType && formats.length > 0) {
+   hints.set(zxingApi.DecodeHintType.POSSIBLE_FORMATS, formats);
+  }
+
+  zxingReader = new ZxingReader(hints, 150);
+
+  zxingControls = await zxingReader.decodeFromConstraints(
+   {
+    video: getScannerVideoConstraints()
+   },
+   els.scannerVideo,
+   (result) => {
+    if (!scannerIsActive || !result) return;
+    const value = typeof result.getText === "function" ? result.getText() : "";
+    if (!value) return;
+    onBarcodeDetected(value);
+   }
+  );
+
+  if (els.scannerVideo.srcObject) await setupScannerTrack(els.scannerVideo.srcObject);
+  els.scannerStatus.textContent = "Centralize o código de barras dentro do retângulo.";
+ } catch (error) {
+  await stopScanner();
+  if (error && error.name === "NotAllowedError") {
+   alert("Permissão da câmera negada. Autorize a câmera no navegador.");
+   return;
+  }
+  alert("Não foi possível iniciar leitura ao vivo com ZXing-JS.");
+ }
+}
+
+async function startHtml5Scanner() {
+ scannerMode = "html5";
+ scannerIsActive = true;
+ resetScannerConfirmation();
+ els.scannerStatus.textContent = "Abrindo câmera...";
+ showFallbackScannerView();
+ els.scannerModal.classList.add("show");
+ els.scannerModal.setAttribute("aria-hidden", "false");
+
+ try {
+  const html5Formats = getHtml5BarcodeFormats();
+  html5Scanner = new Html5Qrcode("scannerReader", {
+   formatsToSupport: html5Formats,
+   verbose: false
+  });
+  const scannerConfig = {
+   fps: 12,
+   aspectRatio: 1.7778,
+   qrbox: (viewfinderWidth, viewfinderHeight) => ({
+    width: Math.max(1, Math.min(430, Math.floor(viewfinderWidth * 0.86))),
+    height: Math.max(1, Math.min(150, Math.floor(viewfinderHeight * 0.34)))
+   }),
+   disableFlip: false
+  };
+
+  const onSuccess = (decodedText) => {
+   onBarcodeDetected(decodedText);
+  };
+  const onError = () => {
+   if (scannerIsActive) {
+    els.scannerStatus.textContent = "Tentando ler... mantenha o código centralizado.";
+   }
+  };
+
+  await html5Scanner.start(
+   { facingMode: "environment" },
+   scannerConfig,
+   onSuccess,
+   onError
+  );
+  els.scannerStatus.textContent = "Centralize o código de barras dentro do retângulo.";
+  return true;
+ } catch (error) {
+  await stopScanner();
+  if (error && error.name === "NotAllowedError") {
+   alert("Permissão da câmera negada. Autorize a câmera no navegador.");
+   return null;
+  }
+  console.warn("Falha no leitor principal; tentando leitor nativo.", error);
+  return false;
+ }
+}
+
+async function startScanner() {
+ if (scannerIsActive) return;
+
+ if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+  alert("Este dispositivo não permite acesso à câmera ao vivo.");
+  return;
+ }
+
+ const isLocalHost = location.hostname === "localhost" || location.hostname === "127.0.0.1";
+ if (!window.isSecureContext && !isLocalHost) {
+  alert("No iPhone, leitura ao vivo exige HTTPS. Abra por link seguro (https).");
+  return;
+ }
+
+ if (barcodeReader) {
+  const iniciou = await startNativeScanner();
+  if (iniciou !== false) return;
+ }
+
+ if (window.ZXingBrowser) {
+  await startZxingScanner();
+  return;
+ }
+
+ if (window.Html5Qrcode) {
+  const iniciou = await startHtml5Scanner();
+  if (iniciou !== false) return;
+ }
+
+ if (window.Quagga) {
+  await startQuaggaScanner();
+  return;
+ }
+
+  alert("Leitura por câmera não suportada neste navegador. Use busca manual por enquanto.");
+}
+
+async function scanFromPhoto(file) {
+ if (!file) return;
+ if (!window.Html5Qrcode) {
+  alert("Leitura por foto não está disponível neste navegador.");
+  return;
+ }
+
+ try {
+  const photoScanner = new Html5Qrcode("scannerReader");
+  const decodedText = await photoScanner.scanFile(file, true);
+  await photoScanner.clear();
+  const value = (decodedText || "").trim();
+  if (!value) {
+   alert("Não foi possível identificar o código na imagem.");
+   return;
+  }
+  els.barcode.value = value;
+  void buscarProdutoPorCodigo(value);
+ } catch (error) {
+  alert("Não foi possível ler o código pela foto. Tente uma imagem mais nítida.");
+ }
+}
+
+els.find.addEventListener("click", () => {
+ const codigo = els.barcode.value.trim();
+ void buscarProdutoPorCodigo(codigo);
+});
+els.found.addEventListener("click", (event) => {
+ if (event.target.closest("#scanPhotoFromManual")) {
+  els.barcodePhoto.click();
+  return;
+ }
+ const manualButton = event.target.closest("#useManualProduct");
+ if (manualButton) {
+  const codigo = manualButton.dataset.barcode || els.barcode.value.trim();
+  selecionarProdutoManual(codigo);
+  return;
+ }
+ const button = event.target.closest("#manualCatalogProduct");
+ if (!button) return;
+ const codigo = button.dataset.barcode || els.barcode.value.trim();
+ if (els.adminCentralButton?.hidden || els.settingsRegistriesTab.hidden || typeof window.skaleeOpenCatalogProductForm !== "function") {
+  els.found.innerHTML += `<br><span style="color:#b91c1c">Seu usuário não tem acesso ao cadastro manual de produtos.</span>`;
+  return;
+ }
+ openAdminCentral("registries");
+ window.skaleeOpenCatalogProductForm({ barcode: codigo });
+});
+els.scanCamera.addEventListener("click", () => { void startScanner(); });
+els.scannerClose.addEventListener("click", () => { void stopScanner(); });
+els.scannerZoomOut.addEventListener("click", () => {
+ const range = getCapabilityRange("zoom");
+ if (!range || scannerZoom === null) return;
+ void setScannerZoom(scannerZoom - (range.step || 0.2));
+});
+els.scannerZoomIn.addEventListener("click", () => {
+ const range = getCapabilityRange("zoom");
+ if (!range || scannerZoom === null) return;
+ void setScannerZoom(scannerZoom + (range.step || 0.2));
+});
+els.scannerTorch.addEventListener("click", () => { void toggleScannerTorch(); });
+els.barcodePhoto.addEventListener("change", (event) => {
+ const file = event.target.files && event.target.files[0] ? event.target.files[0] : null;
+ void scanFromPhoto(file);
+ event.target.value = "";
+});
+els.barcode.addEventListener("keydown", (event) => {
+ if (event.key === "Enter") {
+  const codigo = els.barcode.value.trim();
+  void buscarProdutoPorCodigo(codigo);
+ }
+});
+
+document.addEventListener("keydown", (event) => {
+ if (event.key === "Escape" && scannerIsActive) {
+  void stopScanner();
+ }
+});
+window.addEventListener('skalee:native-background', () => { if (scannerIsActive) void stopScanner(); });
+
+function canvasToBlob(canvas, type, quality) {
+ return new Promise((resolve) => canvas.toBlob(resolve, type, quality));
+}
+
+const PHOTO_MAX_SOURCE_BYTES = 18 * 1024 * 1024;
+const PHOTO_MAX_DIMENSION = 1024;
+const PHOTO_MAX_UPLOAD_BYTES = 180 * 1024;
+
+function logPhotoDiagnosticError(error) {
+ console.error("[PHOTO] ERRO COMPLETO", error);
+ console.error("[PHOTO] message", error?.message);
+ console.error("[PHOTO] name", error?.name);
+ console.error("[PHOTO] stack", error?.stack);
+}
+
+function validarFotoProcessada(processedPhoto) {
+ const validExtensions = new Set(["webp", "jpg"]);
+ const validTypes = new Set(["image/webp", "image/jpeg"]);
+ if (
+  !processedPhoto?.blob ||
+  processedPhoto.blob.size <= 0 ||
+  !validExtensions.has(processedPhoto.extension) ||
+  !validTypes.has(processedPhoto.contentType)
+ ) {
+  throw new Error("Foto processada inválida");
+ }
+ return processedPhoto;
+}
+
+function criarFotoProcessada(blob, extension, contentType, width, height) {
+ return validarFotoProcessada({
+  uploadId: crypto.randomUUID(),
+  blob,
+  extension,
+  contentType,
+  width,
+  height,
+  previewUrl: URL.createObjectURL(blob)
+ });
+}
+
+async function carregarImagemArquivo(file) {
+ console.log("[PHOTO] carregando imagem", {
+  type: file?.type,
+  size: file?.size,
+  name: file?.name
+ });
+ if (file.size > PHOTO_MAX_SOURCE_BYTES) {
+  throw new Error("A foto ficou muito grande para este celular processar. Reduza a resolução da câmera ou selecione uma imagem menor.");
+ }
+ if ("createImageBitmap" in window) {
+  try {
+   const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+   console.log("[PHOTO] imagem decodificada via createImageBitmap", {
+    width: bitmap.width,
+    height: bitmap.height
+   });
+   return bitmap;
+  } catch (error) {
+   console.warn("Não foi possível aplicar orientação EXIF automaticamente.", error);
+   logPhotoDiagnosticError(error);
+  }
+ }
+ return new Promise((resolve, reject) => {
+  const url = URL.createObjectURL(file);
+  const image = new Image();
+  image.onerror = () => {
+   URL.revokeObjectURL(url);
+   reject(new Error("O arquivo selecionado não é uma imagem válida."));
+  };
+  image.onload = () => {
+   URL.revokeObjectURL(url);
+   console.log("[PHOTO] imagem decodificada via Image", {
+    width: image.width,
+    height: image.height
+   });
+   resolve(image);
+  };
+  image.src = url;
+ });
+}
+
+async function otimizarImagem(image, options) {
+ const { contentType, extension, qualities } = options;
+ const maxBytes = PHOTO_MAX_UPLOAD_BYTES;
+ let limite = PHOTO_MAX_DIMENSION;
+ let bestBlob = null;
+
+ for (let tentativa = 0; tentativa < 10; tentativa += 1) {
+  const escala = Math.min(1, limite / Math.max(image.width, image.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(image.width * escala));
+  canvas.height = Math.max(1, Math.round(image.height * escala));
+  canvas.getContext("2d").drawImage(image, 0, 0, canvas.width, canvas.height);
+
+  for (const quality of qualities) {
+   const blob = await canvasToBlob(canvas, contentType, quality);
+   console.log("[PHOTO] tentativa conversão", {
+    contentType,
+    extension,
+    quality,
+    width: canvas.width,
+    height: canvas.height,
+    blobType: blob?.type,
+    blobSize: blob?.size
+   });
+   if (!blob || blob.size <= 0) continue;
+   bestBlob = blob;
+   if (blob.size <= maxBytes) {
+    return criarFotoProcessada(blob, extension, contentType, canvas.width, canvas.height);
+   }
+  }
+  limite = Math.round(limite * 0.78);
+ }
+
+ if (!bestBlob) return null;
+ throw new Error("Não foi possível reduzir a foto para o limite de envio. Tente outra imagem.");
+}
+
+async function processPhoto(file) {
+ if (!file) throw new Error("Foto processada inválida");
+ console.log("[PHOTO] iniciando compressão");
+ const image = await carregarImagemArquivo(file);
+ try {
+  try {
+   const webp = await otimizarImagem(image, {
+    contentType: "image/webp",
+    extension: "webp",
+    qualities: [0.76, 0.68, 0.6, 0.52, 0.44]
+   });
+   if (webp?.blob?.size > 0) {
+    console.log("[PHOTO] resultado compressão", webp);
+    console.log("[PHOTO] tipo comprimido", webp.contentType);
+    console.log("[PHOTO] tamanho comprimido", webp.blob?.size);
+    return validarFotoProcessada(webp);
+   }
+  } catch (error) {
+   console.debug("[PHOTO] WebP indisponível, usando JPEG.", error);
+   logPhotoDiagnosticError(error);
+  }
+  const jpeg = await otimizarImagem(image, {
+   contentType: "image/jpeg",
+   extension: "jpg",
+   qualities: [0.78, 0.72, 0.66, 0.6, 0.54]
+  });
+  if (jpeg?.blob?.size > 0) {
+   console.log("[PHOTO] resultado compressão", jpeg);
+   console.log("[PHOTO] tipo comprimido", jpeg.contentType);
+   console.log("[PHOTO] tamanho comprimido", jpeg.blob?.size);
+   return validarFotoProcessada(jpeg);
+  }
+  throw new Error("Falha ao converter imagem.");
+ } finally {
+  if (typeof image.close === "function") image.close();
+ }
+}
+
+let currentKnownImage = null;
+let selectedImageState = null;
+let activeImageMode = "camera";
+
+function showImagePanel(mode) {
+ activeImageMode = mode;
+ els.tabPhoto.classList.toggle("active", mode === "camera");
+ els.tabLink.classList.toggle("active", mode === "link");
+ els.photoUploadPanel.hidden = (mode !== "camera");
+ els.linkImportPanel.hidden = (mode !== "link");
+}
+
+function setReferenceImageStatus(message, tone = "info") {
+ if (!els.knownImageStatus) return;
+ els.knownImageStatus.textContent = message || "";
+ els.knownImageStatus.dataset.tone = tone;
+}
+
+function resetImageSection() {
+ currentKnownImage = null;
+ selectedImageState = null;
+ photoFile = null;
+ photoData = null;
+ if (photoPreviewUrl) URL.revokeObjectURL(photoPreviewUrl);
+ photoPreviewUrl = "";
+ els.photo.value = "";
+ els.preview.textContent = "Sem foto";
+ els.knownImageCard.hidden = true;
+ els.knownImageThumb.innerHTML = "";
+ if (els.knownImageOriginTag) els.knownImageOriginTag.textContent = "";
+ if (els.noImageStatus) els.noImageStatus.hidden = true;
+ setReferenceImageStatus("Imagem já cadastrada para este produto.", "info");
+ els.imageUrlInput.value = "";
+ els.linkPreviewStatus.textContent = "";
+ els.linkPreviewStatus.hidden = true;
+ els.linkPreviewContainer.hidden = true;
+ els.linkPreviewImg.src = "";
+ els.btnConfirmUrlPhoto.hidden = true;
+ showImagePanel("camera");
+}
+
+async function verificarImagemConhecida(product) {
+ if (!product) {
+  resetImageSection();
+  return;
+ }
+
+ resetImageSection();
+ setReferenceImageStatus("Buscando imagem de referência...", "info");
+
+ try {
+  // 1. Busca imagem existente no Skalee (Storage / photo_path ou imagem de referência do catálogo)
+  const known = await window.skaleeDb?.findKnownProductImage?.({
+   barcode: product.barcode,
+   code: product.code,
+   catalogProductId: product.catalogProductId
+  });
+
+  if (known?.photoUrl) {
+   currentKnownImage = known;
+   selectedImageState = {
+    type: "reused",
+    photoPath: known.photoPath || null,
+    photoUrl: known.photoUrl,
+    source: known.source || "reused",
+    imageOrigin: known.imageOrigin || "internal",
+    imageProvider: known.imageProvider || null
+   };
+   photoData = null;
+   els.knownImageThumb.innerHTML = `<img src="${escapeHtml(known.photoUrl)}" alt="Imagem do produto">`;
+   if (els.knownImageOriginTag) {
+    let tagText = "Imagem de referência";
+    if (known.imageOrigin === "upload" || (known.photoPath && known.imageOrigin !== "external")) {
+     tagText = "Foto enviada pelo usuário";
+    } else if (known.imageOrigin === "external" || known.imageProvider) {
+     tagText = "Imagem de referência externa";
+    } else if (known.photoPath) {
+     tagText = "Imagem do Skalee";
+    }
+    els.knownImageOriginTag.textContent = tagText;
+   }
+   setReferenceImageStatus("Imagem de referência encontrada no sistema", "success");
+   els.knownImageCard.hidden = false;
+   els.photoUploadPanel.hidden = true;
+   els.linkImportPanel.hidden = true;
+   if (els.noImageStatus) els.noImageStatus.hidden = true;
+   return;
+  }
+
+  // 2. Se não tem imagem no sistema, busca na internet por código de barras via productImageService
+  const validBarcode = String(product.barcode || "").trim();
+  if (validBarcode && /^[0-9]{8,14}$/.test(validBarcode) && window.productImageService) {
+   setReferenceImageStatus("Buscando imagem de referência na internet...", "info");
+   const external = await window.productImageService.findProductImageByBarcode(validBarcode);
+   if (external?.imageUrl) {
+    // Salva a referência no catálogo para futuros usos sem bloquear
+    void window.skaleeDb?.saveCatalogReferenceImage?.({
+     catalogProductId: product.catalogProductId || null,
+     barcode: validBarcode,
+     code: product.code || "",
+     imageUrl: external.imageUrl,
+     provider: external.provider,
+     imageOrigin: "external"
+    });
+
+    currentKnownImage = {
+     photoUrl: external.imageUrl,
+     photoPath: null,
+     source: "external_reference",
+     imageOrigin: "external",
+     imageProvider: external.provider
+    };
+    selectedImageState = {
+     type: "reused",
+     photoPath: null,
+     photoUrl: external.imageUrl,
+     source: "external_reference",
+     imageOrigin: "external",
+     imageProvider: external.provider
+    };
+    photoData = null;
+    els.knownImageThumb.innerHTML = `<img src="${escapeHtml(external.imageUrl)}" alt="Imagem externa">`;
+    if (els.knownImageOriginTag) {
+     els.knownImageOriginTag.textContent = "Imagem de referência externa";
+    }
+    const providerLabel = external.provider === "open_food_facts" ? "Open Food Facts" : "UPCItemDB";
+    setReferenceImageStatus(`Imagem encontrada via ${providerLabel}`, "success");
+    els.knownImageCard.hidden = false;
+    els.photoUploadPanel.hidden = true;
+    els.linkImportPanel.hidden = true;
+    if (els.noImageStatus) els.noImageStatus.hidden = true;
+    return;
+   }
+  }
+
+  // 3. Nenhuma imagem encontrada: ativa aviso e modo de foto manual
+  currentKnownImage = null;
+  selectedImageState = null;
+  els.knownImageThumb.innerHTML = "";
+  els.knownImageCard.hidden = true;
+  if (els.noImageStatus) els.noImageStatus.hidden = false;
+  showImagePanel("camera");
+ } catch (err) {
+  console.warn("[PHOTO] Falha ao consultar imagem do produto:", err);
+  currentKnownImage = null;
+  selectedImageState = null;
+  els.knownImageThumb.innerHTML = "";
+  els.knownImageCard.hidden = true;
+  if (els.noImageStatus) els.noImageStatus.hidden = false;
+  showImagePanel("camera");
+ }
+}
+
+function isDisallowedHostnameOrIp(hostname) {
+ if (!hostname) return true;
+ const host = hostname.trim().toLowerCase();
+ if (
+  host === "localhost" ||
+  host.endsWith(".localhost") ||
+  host.endsWith(".local") ||
+  host.endsWith(".internal") ||
+  host.endsWith(".onion") ||
+  host === "0.0.0.0" ||
+  host === "127.0.0.1" ||
+  host === "::1" ||
+  host === "[::1]"
+ ) {
+  return true;
+ }
+ if (/^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(host)) return true;
+ if (/^127\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(host)) return true;
+ if (/^169\.254\.\d{1,3}\.\d{1,3}$/.test(host)) return true;
+ if (/^172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}$/.test(host)) return true;
+ if (/^192\.168\.\d{1,3}\.\d{1,3}$/.test(host)) return true;
+ if (/^0\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(host)) return true;
+ return false;
+}
+
+function validateImageUrlSecurity(rawUrl) {
+ const trimmed = String(rawUrl || "").trim();
+ if (!trimmed) throw new Error("Informe a URL da imagem.");
+ if (!/^https?:\/\//i.test(trimmed)) {
+  throw new Error("A URL precisa começar com http:// ou https://");
+ }
+ let parsed;
+ try {
+  parsed = new URL(trimmed);
+ } catch (err) {
+  throw new Error("URL inválida.");
+ }
+ if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+  throw new Error("Apenas protocolos HTTP e HTTPS são permitidos.");
+ }
+ if (isDisallowedHostnameOrIp(parsed.hostname)) {
+  throw new Error("Endereço IP ou hostname privado não permitido.");
+ }
+ if (parsed.port && parsed.port !== "80" && parsed.port !== "443") {
+  throw new Error("Portas personalizadas não são permitidas.");
+ }
+ return parsed.href;
+}
+
+function carregarBlobViaImageTag(url) {
+ return new Promise((resolve, reject) => {
+  const img = new Image();
+  img.crossOrigin = "anonymous";
+  const timer = setTimeout(() => {
+   img.src = "";
+   reject(new Error("Tempo limite ao carregar imagem externa."));
+  }, 12000);
+
+  img.onload = async () => {
+   clearTimeout(timer);
+   try {
+    const canvas = document.createElement("canvas");
+    canvas.width = img.naturalWidth || img.width;
+    canvas.height = img.naturalHeight || img.height;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+    const blob = await canvasToBlob(canvas, "image/jpeg", 0.9);
+    if (!blob || blob.size <= 0) throw new Error("Falha ao ler dados da imagem.");
+    resolve(blob);
+   } catch (canvasErr) {
+    reject(new Error("Não foi possível processar a imagem deste site devido a restrições de segurança do servidor de origem (CORS). Dica: salve a imagem no celular e use 'Tirar/Enviar foto'."));
+   }
+  };
+
+  img.onerror = () => {
+   clearTimeout(timer);
+   reject(new Error("Não foi possível carregar a imagem deste endereço. Verifique se o link está acessível."));
+  };
+
+  img.src = url;
+ });
+}
+
+async function processExternalImageUrl(rawUrl) {
+ const safeUrl = validateImageUrlSecurity(rawUrl);
+ const controller = new AbortController();
+ const timeout = setTimeout(() => controller.abort(), 12000);
+
+ let blob;
+ try {
+  const res = await fetch(safeUrl, {
+   signal: controller.signal,
+   mode: "cors"
+  });
+  if (!res.ok) throw new Error(`Falha ao baixar imagem (HTTP ${res.status}).`);
+  const contentType = res.headers.get("content-type") || "";
+  if (contentType && !contentType.startsWith("image/")) {
+   throw new Error("O link informado não é um formato de imagem válido.");
+  }
+  blob = await res.blob();
+ } catch (fetchErr) {
+  if (fetchErr.name === "AbortError") {
+   throw new Error("Tempo limite esgotado ao tentar baixar a imagem (12s).");
+  }
+  console.warn("[PHOTO] Fetch direto falhou, tentando fallback Image:", fetchErr);
+  blob = await carregarBlobViaImageTag(safeUrl);
+ } finally {
+  clearTimeout(timeout);
+ }
+
+ if (!blob || blob.size <= 0) {
+  throw new Error("Não foi possível obter os dados da imagem.");
+ }
+ if (blob.size > PHOTO_MAX_SOURCE_BYTES) {
+  throw new Error("A imagem é muito grande (limite de 18 MB). Escolha outra imagem.");
+ }
+
+ const processed = await processPhoto(blob);
+ return processed;
+}
+
+els.tabPhoto.addEventListener("click", () => {
+ els.knownImageCard.hidden = true;
+ if (els.noImageStatus) els.noImageStatus.hidden = true;
+ showImagePanel("camera");
+});
+
+els.tabLink.addEventListener("click", () => {
+ els.knownImageCard.hidden = true;
+ if (els.noImageStatus) els.noImageStatus.hidden = true;
+ showImagePanel("link");
+});
+
+if (els.btnChangeToPhoto) {
+ els.btnChangeToPhoto.addEventListener("click", () => {
+  els.knownImageCard.hidden = true;
+  if (els.noImageStatus) els.noImageStatus.hidden = true;
+  showImagePanel("camera");
+  if (els.photo) els.photo.click();
+ });
+}
+
+if (els.btnChangeToLink) {
+ els.btnChangeToLink.addEventListener("click", () => {
+  els.knownImageCard.hidden = true;
+  if (els.noImageStatus) els.noImageStatus.hidden = true;
+  showImagePanel("link");
+  if (els.imageUrlInput) els.imageUrlInput.focus();
+ });
+}
+
+if (els.btnRemoveKnownImage) {
+ els.btnRemoveKnownImage.addEventListener("click", () => {
+  currentKnownImage = null;
+  selectedImageState = { type: "none" };
+  photoFile = null;
+  photoData = null;
+  if (photoPreviewUrl) URL.revokeObjectURL(photoPreviewUrl);
+  photoPreviewUrl = "";
+  if (els.photo) els.photo.value = "";
+  els.preview.textContent = "Sem foto";
+  els.knownImageCard.hidden = true;
+  if (els.noImageStatus) els.noImageStatus.hidden = false;
+  showImagePanel("camera");
+  showToast("Imagem removida deste cadastro", "info");
+ });
+}
+
+let linkProcessedPhoto = null;
+
+els.btnPreviewUrl.addEventListener("click", async () => {
+ const url = els.imageUrlInput.value.trim();
+ if (!url) {
+  els.linkPreviewStatus.textContent = "Informe a URL da imagem.";
+  els.linkPreviewStatus.className = "link-status error";
+  els.linkPreviewStatus.hidden = false;
+  return;
+ }
+ els.linkPreviewStatus.textContent = "Carregando imagem...";
+ els.linkPreviewStatus.className = "link-status";
+ els.linkPreviewStatus.hidden = false;
+ els.btnPreviewUrl.disabled = true;
+ els.btnConfirmUrlPhoto.hidden = true;
+ els.linkPreviewContainer.hidden = true;
+
+ try {
+  linkProcessedPhoto = await processExternalImageUrl(url);
+  els.linkPreviewImg.src = linkProcessedPhoto.previewUrl;
+  els.linkPreviewContainer.hidden = false;
+  els.linkPreviewStatus.textContent = `Imagem carregada (${(linkProcessedPhoto.blob.size / 1024).toFixed(0)} KB - ${linkProcessedPhoto.width}x${linkProcessedPhoto.height})`;
+  els.linkPreviewStatus.className = "link-status success";
+  els.btnConfirmUrlPhoto.hidden = false;
+ } catch (err) {
+  console.error("Erro ao carregar URL:", err);
+  linkProcessedPhoto = null;
+  els.linkPreviewContainer.hidden = true;
+  els.linkPreviewStatus.textContent = err.message || "Não foi possível carregar esta imagem.";
+  els.linkPreviewStatus.className = "link-status error";
+ } finally {
+  els.btnPreviewUrl.disabled = false;
+ }
+});
+
+els.imageUrlInput.addEventListener("keydown", (event) => {
+ if (event.key === "Enter") {
+  event.preventDefault();
+  els.btnPreviewUrl.click();
+ }
+});
+
+els.btnConfirmUrlPhoto.addEventListener("click", () => {
+ if (!linkProcessedPhoto) return;
+ photoData = linkProcessedPhoto;
+ selectedImageState = {
+  type: "processed",
+  photoData: linkProcessedPhoto,
+  source: "external_import"
+ };
+ if (photoPreviewUrl) URL.revokeObjectURL(photoPreviewUrl);
+ photoPreviewUrl = linkProcessedPhoto.previewUrl;
+ els.preview.innerHTML = `<img src="${photoPreviewUrl}" alt="">`;
+ showImagePanel("camera");
+ showToast("Imagem da internet vinculada!", "success", "✓");
+});
+
+els.photo.addEventListener("change", async (event) => {
+ const file = event.target.files[0];
+ if (!file) return;
+ photoFile = file;
+ const captureToken = window.skaleeRegistrationDraft?.token();
+ console.log("[PHOTO] arquivo selecionado", photoFile);
+ console.log("[PHOTO] tipo original", photoFile?.type);
+ console.log("[PHOTO] tamanho original", photoFile?.size);
+ els.preview.textContent = "Preparando foto...";
+ try {
+  const processed = await processPhoto(photoFile);
+  if (captureToken !== window.skaleeRegistrationDraft?.token()) { URL.revokeObjectURL(processed.previewUrl); return; }
+  photoData = processed;
+  selectedImageState = {
+   type: "processed",
+   photoData,
+   source: "upload"
+  };
+  if (photoPreviewUrl) URL.revokeObjectURL(photoPreviewUrl);
+  photoPreviewUrl = photoData.previewUrl;
+  els.preview.innerHTML = `<img src="${photoPreviewUrl}" alt="">`;
+ } catch (error) {
+  if (captureToken !== window.skaleeRegistrationDraft?.token()) return;
+  console.error("Não foi possível preparar a foto.", error);
+  logPhotoDiagnosticError(error);
+  photoFile = null;
+  photoData = null;
+  selectedImageState = null;
+  if (photoPreviewUrl) URL.revokeObjectURL(photoPreviewUrl);
+  photoPreviewUrl = "";
+  els.photo.value = "";
+  els.preview.textContent = "Sem foto";
+  alert(error.message);
+ }
+});
+
+let saveToastTimer = null;
+
+function showToast(message, type = "success", icon = "✓") {
+ if (saveToastTimer) clearTimeout(saveToastTimer);
+ els.saveToast.classList.remove("show", "info", "error", "mission");
+ if (type && type !== "success") els.saveToast.classList.add(type);
+ els.saveToast.querySelector(".save-toast-icon").textContent = icon;
+ els.saveToastText.textContent = message;
+ void els.saveToast.offsetWidth;
+ els.saveToast.classList.add("show");
+ saveToastTimer = setTimeout(() => els.saveToast.classList.remove("show"), 2600);
+}
+
+let isConfettiActive = false;
+
+function lancarConfetes({ quantidade = 54, alcanceX = 760, alcanceY = 600, subida = 230, duracao = 2100 } = {}) {
+ if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+ const isPerfMode = document.documentElement.classList.contains("performance-mode") || /Android|Mobile/i.test(navigator.userAgent);
+ if (isPerfMode) {
+  quantidade = Math.min(quantidade, 16);
+  alcanceX = Math.min(alcanceX, 380);
+  alcanceY = Math.min(alcanceY, 320);
+  duracao = Math.min(duracao, 1200);
+ }
+ if (isConfettiActive) return;
+ isConfettiActive = true;
+ const cores = ["#2563eb", "#16a34a", "#facc15", "#f97316", "#ec4899", "#8b5cf6"];
+ const fragmento = document.createDocumentFragment();
+ for (let indice = 0; indice < quantidade; indice += 1) {
+  const confete = document.createElement("span");
+  confete.className = "confetti-piece";
+  confete.style.setProperty("--confetti-color", cores[indice % cores.length]);
+  confete.style.setProperty("--confetti-x", `${Math.round((Math.random() - 0.5) * alcanceX)}px`);
+  confete.style.setProperty("--confetti-y", `${Math.round(Math.random() * alcanceY - subida)}px`);
+  confete.style.setProperty("--confetti-rotation", `${Math.round(Math.random() * 1080 - 540)}deg`);
+  confete.style.setProperty("--confetti-delay", `${(Math.random() * 0.18).toFixed(2)}s`);
+  fragmento.appendChild(confete);
+ }
+ els.confettiLayer.replaceChildren(fragmento);
+ setTimeout(() => {
+  els.confettiLayer.replaceChildren();
+  isConfettiActive = false;
+ }, duracao);
+}
+
+function lancarFogosLaterais({ faiscas = 24, duracao = 2400 } = {}) {
+ if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+ const isPerfMode = document.documentElement.classList.contains("performance-mode") || /Android|Mobile/i.test(navigator.userAgent);
+ if (isPerfMode) {
+  faiscas = Math.min(faiscas, 8);
+  duracao = Math.min(duracao, 1200);
+ }
+ const cores = ["#facc15", "#38bdf8", "#f97316", "#22c55e", "#ec4899"];
+ const fragmento = document.createDocumentFragment();
+ const centros = isPerfMode ? [
+  { left: "15%", top: "34%" },
+  { left: "84%", top: "38%" }
+ ] : [
+  { left: "15%", top: "34%" },
+  { left: "84%", top: "38%" },
+  { left: "22%", top: "48%" },
+  { left: "78%", top: "29%" },
+  { left: "12%", top: "57%" },
+  { left: "88%", top: "51%" }
+ ];
+ centros.forEach((centro, centroIndice) => {
+  for (let indice = 0; indice < faiscas; indice += 1) {
+   const angulo = (Math.PI * 2 * indice) / faiscas;
+   const distancia = (isPerfMode ? 50 : 98) + Math.random() * 38;
+   const faisca = document.createElement("span");
+   faisca.className = "firework-spark";
+   faisca.style.setProperty("--firework-left", centro.left);
+   faisca.style.setProperty("--firework-top", centro.top);
+   faisca.style.setProperty("--firework-color", cores[(indice + centroIndice) % cores.length]);
+   faisca.style.setProperty("--firework-x", `${Math.round(Math.cos(angulo) * distancia)}px`);
+   faisca.style.setProperty("--firework-y", `${Math.round(Math.sin(angulo) * distancia)}px`);
+   faisca.style.setProperty("--firework-delay", `${(Math.floor(centroIndice / 2) * 0.38 + Math.random() * 0.07).toFixed(2)}s`);
+   fragmento.appendChild(faisca);
+  }
+ });
+ els.confettiLayer.appendChild(fragmento);
+ setTimeout(() => els.confettiLayer.querySelectorAll(".firework-spark").forEach((item) => item.remove()), duracao);
+}
+
+function celebrarProdutoSalvo() {
+ showToast("Produto salvo com sucesso!", "success", "✓");
+ lancarConfetes();
+}
+
+function celebrarMissaoCumprida() {
+ showToast("Missão cumprida! Produto concluído.", "mission", "✓");
+ lancarConfetes({ quantidade: 30, alcanceX: 560, alcanceY: 430, subida: 170, duracao: 1800 });
+ lancarFogosLaterais();
+}
+
+function setSavingProduct(saving) {
+ els.save.disabled = saving;
+ els.savingOverlay.classList.toggle("show", saving);
+ els.savingOverlay.setAttribute("aria-hidden", String(!saving));
+ document.body.setAttribute("aria-busy", String(saving));
+}
+
+function mensagemErroCadastroProduto(error) {
+ const message = String(error?.message || "").trim();
+ const details = [error?.details, error?.hint, error?.code].map((value) => String(value || "").trim()).filter(Boolean);
+ if (message) return [message, ...details].join("\n");
+ return "O produto não foi salvo. Verifique sua conexão e tente novamente.";
+}
+
+let pendingDuplicateSave = null;
+
+function closeDuplicateModal() {
+ if (els.duplicateModal) {
+  els.duplicateModal.classList.remove("show");
+  els.duplicateModal.hidden = true;
+ }
+ pendingDuplicateSave = null;
+}
+
+function showDuplicateModal(duplicate, saveAction) {
+ pendingDuplicateSave = saveAction;
+ if (!els.duplicateModal) return;
+
+ if (els.duplicateProductName) {
+  els.duplicateProductName.textContent = duplicate.name || duplicate.productName || selected?.name || "-";
+ }
+ if (els.duplicateStoreName) {
+  els.duplicateStoreName.textContent = duplicate.store || "-";
+ }
+ if (els.duplicateQty) {
+  els.duplicateQty.textContent = String(duplicate.qty || "-");
+ }
+ if (els.duplicateExpiry) {
+  els.duplicateExpiry.textContent = duplicate.expiry ? new Date(duplicate.expiry + "T00:00:00").toLocaleDateString("pt-BR") : "-";
+ }
+
+ const createdBy = duplicate.userName || duplicate.userEmail || duplicate.user_name || duplicate.created_by || "";
+ if (els.duplicateUser && els.duplicateUserRow) {
+  if (createdBy) {
+   els.duplicateUser.textContent = createdBy;
+   els.duplicateUserRow.hidden = false;
+  } else {
+   els.duplicateUserRow.hidden = true;
+  }
+ }
+
+ if (els.duplicateCreatedAt && els.duplicateDateRow) {
+  if (duplicate.createdAt) {
+   els.duplicateCreatedAt.textContent = new Date(duplicate.createdAt).toLocaleString("pt-BR");
+   els.duplicateDateRow.hidden = false;
+  } else {
+   els.duplicateDateRow.hidden = true;
+  }
+ }
+
+ els.duplicateModal.hidden = false;
+ els.duplicateModal.classList.add("show");
+}
+
+if (els.btnViewExistingDuplicate) {
+ els.btnViewExistingDuplicate.addEventListener("click", () => {
+  const dup = pendingDuplicateSave?.duplicate;
+  closeDuplicateModal();
+  if (dup) {
+   openUpdateModalForProduct(dup);
+  }
+ });
+}
+
+if (els.btnConfirmDuplicateSave) {
+ els.btnConfirmDuplicateSave.addEventListener("click", async () => {
+  const action = pendingDuplicateSave?.execute;
+  closeDuplicateModal();
+  if (typeof action === "function") {
+   await action();
+  }
+ });
+}
+
+if (els.btnCancelDuplicate) {
+ els.btnCancelDuplicate.addEventListener("click", closeDuplicateModal);
+}
+
+async function executarSalvarProduto(novoProduto) {
+ setSavingProduct(true);
+ let draftToken;
+ let completed = false;
+ try {
+  const recovery = await window.skaleeRegistrationDraft?.begin();
+  draftToken = window.skaleeRegistrationDraft?.token();
+  const scope = window.skaleeRegistrationDraft?.scope();
+  const produtoSalvo = recovery?.retryId
+   ? await window.skaleeDb.updateProduct(recovery.retryId, { processedPhoto: novoProduto.processedPhoto, imageSource: novoProduto.imageSource }, { skipOfflineQueue: true })
+   : await window.skaleeDb.saveProduct({ ...novoProduto, draftUserId: scope?.userId, draftStoreId: scope?.storeId }, {
+      onCreated: id => window.skaleeRegistrationDraft?.created(id, recovery.context),
+      onQueued: id => window.skaleeRegistrationDraft?.created(id, recovery.context, 'queued')
+     });
+  completed = await window.skaleeRegistrationDraft?.finish(produtoSalvo, recovery.context) ?? true;
+  if (draftToken !== window.skaleeRegistrationDraft?.token()) return;
+  applyDashboardStatsDelta(null, produtoSalvo);
+  mergeReportProduct(produtoSalvo);
+  locallyCountedRealtimeIds.add(String(produtoSalvo.id));
+  setTimeout(() => locallyCountedRealtimeIds.delete(String(produtoSalvo.id)), 8000);
+  if (products.some((product) => String(product.id) === String(produtoSalvo.id))) {
+   products = products.map((product) => String(product.id) === String(produtoSalvo.id) ? {
+    ...produtoSalvo,
+    photo: produtoSalvo.photo || product.photo || "",
+    photoLoaded: produtoSalvo.photoLoaded || product.photoLoaded
+   } : product);
+  } else if (productMatchesCurrentCriteria(produtoSalvo)) {
+   products = sortProductsForCurrentCriteria([produtoSalvo, ...products]);
+  }
+  if (window.skaleeLocalStore?.invalidateFeedCache) {
+   void window.skaleeLocalStore.invalidateFeedCache();
+  }
+  if (produtoSalvo.photoUploadError) {
+   alert(produtoSalvo.photoUploadError);
+  }
+ } catch (error) {
+  console.error("Falha ao salvar produto online.", error);
+  logPhotoDiagnosticError(error);
+  setSavingProduct(false);
+  alert(mensagemErroCadastroProduto(error));
+  return;
+ } finally {
+  setSavingProduct(false);
+ }
+ if (completed) resetForm();
+ render();
+ if (!completed) return;
+ if (els.barcode) els.barcode.focus();
+ celebrarProdutoSalvo();
+}
+
+els.save.addEventListener("click", async () => {
+ if (photoFile && !photoData) return alert("Aguarde a preparação da foto antes de salvar.");
+ if (!selected) return alert("Primeiro localize o produto pelo código de barras.");
+ if (!els.qty.value || !els.expiry.value) return alert("Informe quantidade e data de vencimento.");
+ if (!els.store.value) return alert("Selecione o local ou loja.");
+ if (Number(els.qty.value) < 1) return alert("A quantidade precisa ser maior que zero.");
+
+ const selectedLocation = els.store.selectedOptions[0];
+
+ let photoPayload = null;
+ let photoPathPayload = null;
+ let imageSourcePayload = null;
+
+ if (selectedImageState?.type === "processed" && selectedImageState.photoData) {
+  photoPayload = selectedImageState.photoData;
+  imageSourcePayload = selectedImageState.source || "upload";
+ } else if (selectedImageState?.type === "reused" && selectedImageState.photoPath) {
+  photoPathPayload = selectedImageState.photoPath;
+  imageSourcePayload = "reused";
+ } else if (photoData) {
+  photoPayload = photoData;
+  imageSourcePayload = "upload";
+ }
+
+ const novoProduto = {
+  barcode: selected.barcode,
+  code: selected.code,
+  name: selected.name,
+  store: selectedLocation?.dataset.name || selectedLocation?.textContent || "",
+  qty: Number(els.qty.value),
+  expiry: els.expiry.value,
+  offer: false,
+  supplierCode: els.supplierCode.value.trim() || selected.supplierCode || "",
+  supplierName: els.supplierName.value.trim() || selected.supplierName || "",
+  processedPhoto: photoPayload,
+  photoPath: photoPathPayload,
+  imageSource: imageSourcePayload,
+  catalogProductId: selected.catalogProductId || null,
+  brandId: selected.brandId || null,
+  retailLocationId: els.store.value
+ };
+ console.log("[PHOTO] produto preparado para salvar", {
+  hasPhotoFile: Boolean(photoFile),
+  hasProcessedPhoto: Boolean(photoPayload),
+  hasPhotoPath: Boolean(photoPathPayload),
+  imageSource: imageSourcePayload,
+  extension: photoPayload?.extension,
+  contentType: photoPayload?.contentType,
+  size: photoPayload?.blob?.size
+ });
+
+ // Checagem de duplicidade ativa antes de salvar
+ const checkCriteria = {
+  catalogProductId: selected.catalogProductId || null,
+  barcode: selected.barcode || "",
+  code: selected.code || "",
+  store: selectedLocation?.dataset.name || selectedLocation?.textContent || "",
+  retailLocationId: els.store.value,
+  expiry: els.expiry.value
+ };
+
+ const duplicateResult = window.skaleeRegistrationDraft?.pending()
+  ? null : await window.skaleeDb?.findActiveDuplicateValidityProduct?.(checkCriteria);
+ if (duplicateResult?.isDuplicate && duplicateResult.product) {
+  showDuplicateModal(duplicateResult.product, {
+   duplicate: duplicateResult.product,
+   execute: async () => {
+    await executarSalvarProduto(novoProduto);
+   }
+  });
+  return;
+ }
+
+ await executarSalvarProduto(novoProduto);
+});
+
+function resetForm() {
+ selected = null;
+ resetImageSection();
+ els.barcode.value = "";
+ els.supplierCode.value = "";
+ els.supplierName.value = "";
+ els.qty.value = "";
+ els.expiry.value = "";
+ els.found.classList.remove("show");
+ els.found.innerHTML = "";
+ void updateRegisterStockInfo();
+}
+
+els.clear.addEventListener("click", resetForm);
+els.store.addEventListener("change", () => {
+ if (els.store.value) {
+  try { localStorage.setItem("skalee_last_selected_store_id", els.store.value); } catch (_) {}
+ }
+ void updateRegisterStockInfo();
+});
+els.qty.addEventListener("input", renderRegisterStockFeedback);
+els.qty.addEventListener("change", renderRegisterStockFeedback);
+els.updateQty.addEventListener("input", renderEditStockFeedback);
+els.updateQty.addEventListener("change", renderEditStockFeedback);
+
+render();
+</script>
+<script src="registration-draft-ui.js"></script>
+<script src="native-camera.js"></script>
+<script src="local-query.js"></script>
+<script src="audit-report-generator.js?v=4.2.0"></script>
+<script src="audit-access.js?v=4.2.1"></script>
+<script src="android-ui.js"></script>
+<script type="module" src="auth.js"></script>
+<script type="module" src="components/tour/SkalitoTour.js"></script>
+<script src="admin-cadastros.js" defer></script>
+</body>
+</html>
