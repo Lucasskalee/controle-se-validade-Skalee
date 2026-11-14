@@ -302,7 +302,7 @@ html[data-theme="industrial"] .gallery-status,
    DESKTOP 3-COLUMN PRODUCT DETAIL MODAL (Layout Horizontal Executivo)
    Exibe as 3 seções (Visão Geral, Estoque SG, Estatísticas) lado a lado em 3 colunas.
    ========================================================================== */
-@media (min-width: 1024px) {
+@media (min-width: 901px) {
   html:not(.android-app):not(.capacitor-android) .product-detail-panel {
     width: min(1280px, 94vw) !important;
     max-width: 1320px !important;

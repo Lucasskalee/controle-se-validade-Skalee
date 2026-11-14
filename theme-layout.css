@@ -489,6 +489,59 @@ header {
   transform: translateY(-1px);
 }
 
+.header-checklist-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 8px 14px;
+  border: 1px solid var(--sk-border-subtle, rgba(0, 217, 255, 0.35));
+  border-radius: 10px;
+  background: var(--sk-bg-surface, rgba(0, 217, 255, 0.08));
+  color: var(--sk-text-primary, #ffffff);
+  font-weight: 750;
+  font-size: 13px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.18s ease;
+}
+.header-checklist-button:hover {
+  background: var(--sk-bg-surface-hover, rgba(0, 217, 255, 0.16));
+  border-color: var(--sk-accent-cyan, #00d9ff);
+  transform: translateY(-1px);
+}
+.header-checklist-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--sk-status-warning, #f59e0b);
+  color: #0b1322;
+  font-size: 10px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.sidebar-checklist-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--sk-status-warning, #f59e0b);
+  color: #0b1322;
+  font-size: 10px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  margin-left: auto;
+}
+
 /* 2. Dashboard & KPIs */
 .stats {
   display: grid;
@@ -666,7 +719,7 @@ html[data-theme="light"] nav.main-nav {
 }
 
 /* Ícones e ações flutuantes do cabeçalho — somente web; a navegação permanece intacta. */
-html:not(.android-app) :is(.header-profile-button, .header-admin-button) {
+html:not(.android-app) :is(.header-profile-button, .header-admin-button, .header-checklist-button) {
   background: var(--sk-frosted-glass-bg, rgba(21, 39, 71, 0.3));
   border-color: var(--sk-frosted-glass-border, rgba(255, 255, 255, 0.18));
   backdrop-filter: blur(var(--sk-frosted-glass-blur, 20px)) saturate(160%);
@@ -674,9 +727,9 @@ html:not(.android-app) :is(.header-profile-button, .header-admin-button) {
   box-shadow: inset 0 1px 1px rgba(255,255,255,.24), 0 8px 20px rgba(0,0,0,.16);
 }
 html:not(.android-app) .header-profile-button { width: 44px; height: 44px; }
-html:not(.android-app) .header-admin-button { min-height: 44px; }
+html:not(.android-app) :is(.header-admin-button, .header-checklist-button) { min-height: 44px; }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  html:not(.android-app) :is(.header-profile-button, .header-admin-button) { background: var(--sk-bg-surface-elevated, rgba(16,24,39,.94)); backdrop-filter: none; -webkit-backdrop-filter: none; }
+  html:not(.android-app) :is(.header-profile-button, .header-admin-button, .header-checklist-button) { background: var(--sk-bg-surface-elevated, rgba(16,24,39,.94)); backdrop-filter: none; -webkit-backdrop-filter: none; }
 }
 
 /* Frosted Glass 20px aplicado somente aos cards de produtos web.
@@ -2405,7 +2458,8 @@ html[data-theme="light"] .visual-themes-modal .update-panel {
   }
 
   html:not([data-sidebar-pinned="true"]):not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav:hover,
-  html:not([data-sidebar-pinned="true"]):not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav:focus-within {
+  html:not([data-sidebar-pinned="true"]):not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav:focus-within,
+  html[data-has-selected-product="true"]:not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav {
     width: 240px !important;
     z-index: 200 !important;
     box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55), 0 0 0 1px var(--sk-border-medium, rgba(148, 163, 184, 0.22)) !important;
@@ -2428,7 +2482,8 @@ html[data-theme="light"] .visual-themes-modal .update-panel {
 
   html:not([data-sidebar-pinned="true"]):not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav:hover .sidebar-top-bar,
   html:not([data-sidebar-pinned="true"]):not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav:focus-within .sidebar-top-bar,
-  html[data-sidebar-pinned="true"]:not(.android-app):not(.capacitor-android) .sidebar-top-bar {
+  html[data-sidebar-pinned="true"]:not(.android-app):not(.capacitor-android) .sidebar-top-bar,
+  html[data-has-selected-product="true"]:not(.android-app):not(.capacitor-android) .sidebar-top-bar {
     justify-content: space-between !important;
     padding: 2px 6px 8px !important;
   }
@@ -2444,7 +2499,8 @@ html[data-theme="light"] .visual-themes-modal .update-panel {
 
   html:not([data-sidebar-pinned="true"]):not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav:hover .sidebar-section-title,
   html:not([data-sidebar-pinned="true"]):not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav:focus-within .sidebar-section-title,
-  html[data-sidebar-pinned="true"]:not(.android-app):not(.capacitor-android) .sidebar-section-title {
+  html[data-sidebar-pinned="true"]:not(.android-app):not(.capacitor-android) .sidebar-section-title,
+  html[data-has-selected-product="true"]:not(.android-app):not(.capacitor-android) .sidebar-section-title {
     display: inline-block !important;
   }
 
@@ -2497,7 +2553,8 @@ html[data-theme="light"] .visual-themes-modal .update-panel {
 
   html:not([data-sidebar-pinned="true"]):not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav:hover .tab,
   html:not([data-sidebar-pinned="true"]):not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav:focus-within .tab,
-  html[data-sidebar-pinned="true"]:not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav .tab {
+  html[data-sidebar-pinned="true"]:not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav .tab,
+  html[data-has-selected-product="true"]:not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav .tab {
     justify-content: flex-start !important;
     padding: 10px 12px !important;
     gap: 12px !important;
@@ -2505,6 +2562,16 @@ html[data-theme="light"] .visual-themes-modal .update-panel {
 
   html:not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav .tab:hover {
     transform: translateX(2px) !important;
+  }
+
+  html:not([data-sidebar-pinned="true"]):not([data-has-selected-product="true"]):not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav:not(:hover):not(:focus-within) .sidebar-checklist-badge {
+    position: absolute !important;
+    top: 6px !important;
+    right: 14px !important;
+    min-width: 14px !important;
+    height: 14px !important;
+    padding: 0 3px !important;
+    font-size: 8.5px !important;
   }
 
   html:not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav .tab[hidden],
@@ -2535,7 +2602,8 @@ html[data-theme="light"] .visual-themes-modal .update-panel {
 
   html:not([data-sidebar-pinned="true"]):not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav:hover .tab-label,
   html:not([data-sidebar-pinned="true"]):not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav:focus-within .tab-label,
-  html[data-sidebar-pinned="true"]:not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav .tab-label {
+  html[data-sidebar-pinned="true"]:not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav .tab-label,
+  html[data-has-selected-product="true"]:not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav .tab-label {
     display: inline-flex !important;
     opacity: 1 !important;
     width: auto !important;
@@ -2558,7 +2626,8 @@ html[data-theme="light"] .visual-themes-modal .update-panel {
 
   html:not([data-sidebar-pinned="true"]):not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav:hover .desktop-quick-inspector:not([hidden]),
   html:not([data-sidebar-pinned="true"]):not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav:focus-within .desktop-quick-inspector:not([hidden]),
-  html[data-sidebar-pinned="true"]:not(.android-app):not(.capacitor-android) .desktop-quick-inspector:not([hidden]) {
+  html[data-sidebar-pinned="true"]:not(.android-app):not(.capacitor-android) .desktop-quick-inspector:not([hidden]),
+  html[data-has-selected-product="true"]:not(.android-app):not(.capacitor-android) .desktop-quick-inspector:not([hidden]) {
     display: flex !important;
     flex-direction: column !important;
     margin-top: auto !important;
