@@ -977,14 +977,14 @@
     });
 
     profileSection.querySelector('#androidGlassWallpaperChooseBtn')?.addEventListener('click', () => {
-      profileSection.querySelector('#androidGlassWallpaperInput')?.click();
+      document.getElementById('androidGlassWallpaperInput')?.click();
     });
 
     profileSection.querySelectorAll('[data-glass-background]').forEach((btn) => {
       btn.addEventListener('click', () => {
         const choice = btn.dataset.glassBackground;
         if (choice === 'image') {
-          profileSection.querySelector('#androidGlassWallpaperInput')?.click();
+          document.getElementById('androidGlassWallpaperInput')?.click();
         } else {
           applySkaleeWallpaperPreset('default');
         }
@@ -993,11 +993,26 @@
 
     profileSection.querySelector('#androidGlassWallpaperInput')?.addEventListener('change', (event) => {
       const file = event.target.files?.[0];
-      if (file) void prepareGlassWallpaper(file);
+      if (file) {
+        if (typeof root.prepareCustomWallpaper === 'function') {
+          void root.prepareCustomWallpaper(file);
+        } else {
+          void prepareGlassWallpaper(file);
+        }
+      }
     });
-    profileSection.querySelector('#androidGlassWallpaperApplyBtn')?.addEventListener('click', () => void applyPendingGlassWallpaper());
-    profileSection.querySelector('#androidGlassWallpaperCancelBtn')?.addEventListener('click', cancelPendingGlassWallpaper);
-    profileSection.querySelector('#androidGlassWallpaperRemoveBtn')?.addEventListener('click', () => void removeGlassWallpaper());
+    profileSection.querySelector('#androidGlassWallpaperApplyBtn')?.addEventListener('click', () => {
+      if (typeof root.applyPendingCustomWallpaper === 'function') void root.applyPendingCustomWallpaper();
+      else void applyPendingGlassWallpaper();
+    });
+    profileSection.querySelector('#androidGlassWallpaperCancelBtn')?.addEventListener('click', () => {
+      if (typeof root.cancelPendingCustomWallpaper === 'function') root.cancelPendingCustomWallpaper();
+      else cancelPendingGlassWallpaper();
+    });
+    profileSection.querySelector('#androidGlassWallpaperRemoveBtn')?.addEventListener('click', () => {
+      if (typeof root.removeCustomWallpaper === 'function') void root.removeCustomWallpaper();
+      else void removeGlassWallpaper();
+    });
 
     profileSection.querySelector('#androidDiagSimulateLossBtn')?.addEventListener('click', simulateWebGLLoss);
     profileSection.querySelector('#androidDiagRestoreBtn')?.addEventListener('click', restoreWebGL);

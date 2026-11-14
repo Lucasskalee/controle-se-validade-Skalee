@@ -96,16 +96,16 @@ html.android-app[data-theme="skalee-i"] body {
   background-repeat: no-repeat !important;
 }
 
-html.android-app[data-theme="skalee-i"][data-glass-wallpaper="image"]:not([data-skalee-wallpaper-preset="white"]) body {
+html:is([data-theme="skalee-i"], .android-app[data-theme="skalee-i"])[data-glass-wallpaper="image"]:not([data-skalee-wallpaper-preset="white"]) body {
   background-color: #050811 !important;
   background-image:
-    linear-gradient(rgba(5, 8, 17, 0.40), rgba(5, 8, 17, 0.60)),
+    linear-gradient(rgba(5, 8, 17, var(--sk-glass-wallpaper-dim, 0.50)), rgba(5, 8, 17, var(--sk-glass-wallpaper-dim, 0.65))),
     var(--sk-glass-wallpaper, url("assets/wallpaper-skalee-dark.jpg")),
     radial-gradient(circle at 18% 12%, rgba(0, 217, 255, 0.16) 0%, transparent 40%),
     radial-gradient(circle at 82% 35%, rgba(0, 119, 255, 0.14) 0%, transparent 45%),
     linear-gradient(160deg, #050811 0%, #0a0f1d 55%, #0e172a 100%) !important;
   background-attachment: fixed !important;
-  background-size: cover !important;
+  background-size: var(--sk-glass-wallpaper-fit, cover) !important;
   background-position: center !important;
   background-repeat: no-repeat !important;
 }
@@ -139,13 +139,13 @@ html.android-app[data-theme="skalee-i"][data-skalee-bg="oled"] body {
 }
 
 /* Preset SKALEE White (Fundo Claro com Logo 3D) */
-html.android-app[data-theme="skalee-i"][data-skalee-wallpaper-preset="white"] body {
+html:is([data-theme="skalee-i"], .android-app[data-theme="skalee-i"])[data-skalee-wallpaper-preset="white"] body {
   background-color: #ffffff !important;
   background-image:
     linear-gradient(rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.25)),
     var(--sk-glass-wallpaper, url("assets/wallpaper-skalee-white.jpg")) !important;
   background-attachment: fixed !important;
-  background-size: cover !important;
+  background-size: var(--sk-glass-wallpaper-fit, cover) !important;
   background-position: center !important;
   background-repeat: no-repeat !important;
   color: var(--sk-text-primary) !important;

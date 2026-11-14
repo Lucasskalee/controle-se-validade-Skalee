@@ -1,4 +1,4 @@
-const CACHE_VERSION = "skalee-v5.0.1-checklist-callout-live";
+const CACHE_VERSION = "skalee-v5.1.0-routine-checklist-and-theme-wallpaper";
 const CACHE_NAME = CACHE_VERSION;
 
 const APP_SHELL = [
