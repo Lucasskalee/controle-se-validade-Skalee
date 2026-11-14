@@ -297,3 +297,63 @@ html[data-theme="industrial"] .gallery-status,
 .product-gallery[data-theme="industrial"] .gallery-status { color: #94a3b8 !important; }
 
 @media(max-height:450px){.gallery-header{padding:8px 12px}.gallery-controls{padding-top:5px}.gallery-status{padding:6px;font-size:10px}.gallery-product-name{margin-top:0}}
+
+/* ==========================================================================
+   DESKTOP 3-COLUMN PRODUCT DETAIL MODAL (Layout Horizontal Executivo)
+   Exibe as 3 seções (Visão Geral, Estoque SG, Estatísticas) lado a lado em 3 colunas.
+   ========================================================================== */
+@media (min-width: 1024px) {
+  html:not(.android-app):not(.capacitor-android) .product-detail-panel {
+    width: min(1280px, 94vw) !important;
+    max-width: 1320px !important;
+    height: auto !important;
+    max-height: 90vh !important;
+    border-radius: 20px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.55) !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .detail-header {
+    padding: 16px 20px 10px !important;
+    border-bottom: 1px solid var(--sk-border-subtle, rgba(255, 255, 255, 0.08)) !important;
+    flex-shrink: 0 !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .detail-carousel {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 16px !important;
+    overflow: visible !important;
+    padding: 12px 20px !important;
+    cursor: default !important;
+    scroll-snap-type: none !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .detail-slide {
+    flex: none !important;
+    width: 100% !important;
+    min-height: 420px !important;
+    max-height: 58vh !important;
+    overflow-y: auto !important;
+    margin-right: 0 !important;
+    border-radius: 14px !important;
+    box-sizing: border-box !important;
+    border: 1px solid var(--sk-border-subtle, var(--line)) !important;
+    background: var(--sk-bg-surface, var(--card)) !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .detail-slide h3 small {
+    display: none !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .detail-pagination {
+    display: none !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .detail-footer {
+    padding: 8px 20px 16px !important;
+    border-top: 1px solid var(--sk-border-subtle, rgba(255, 255, 255, 0.08)) !important;
+  }
+}
+

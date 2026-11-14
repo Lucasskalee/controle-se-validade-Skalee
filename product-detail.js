@@ -70,7 +70,7 @@
    e.preventDefault(); go(e.key === 'Home' ? 0 : e.key === 'End' ? 2 : active + (e.key === 'ArrowRight' ? 1 : -1));
   });
   track.addEventListener('pointerdown', e => {
-   if (e.pointerType !== 'mouse' || e.button !== 0 || e.target.closest('button,a,input')) return;
+   if (e.pointerType !== 'mouse' || e.button !== 0 || e.target.closest('button,a,input') || (typeof matchMedia === 'function' && matchMedia('(min-width: 1024px)').matches && !document.documentElement.classList.contains('android-app'))) return;
    drag = { x: e.clientX, left: track.scrollLeft };
    track.setPointerCapture(e.pointerId); track.classList.add('dragging');
   });

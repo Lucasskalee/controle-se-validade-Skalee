@@ -1,4 +1,4 @@
-const CACHE_VERSION = "skalee-v4.8.1-desktop-fullwidth-fluid";
+const CACHE_VERSION = "skalee-v4.8.2-desktop-detail-3col-list";
 const CACHE_NAME = CACHE_VERSION;
 
 const APP_SHELL = [
