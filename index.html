@@ -795,6 +795,15 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
 </header>
 
 <nav class="main-nav" aria-label="Navegação principal">
+ <div class="sidebar-top-bar" aria-label="Controle da barra lateral">
+  <span class="sidebar-section-title">Navegação</span>
+  <button id="sidebarPinToggle" class="sidebar-pin-btn" type="button" aria-label="Fixar menu lateral" title="Fixar barra lateral aberta">
+   <svg class="sidebar-pin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+    <line x1="12" y1="17" x2="12" y2="22"/>
+    <path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a1 1 0 0 0 1-1V3H7v2a1 1 0 0 0 1 1h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/>
+   </svg>
+  </button>
+ </div>
  <button class="tab" data-page="local-query" type="button"><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="10" cy="10" r="6"/><path d="m15 15 6 6"/></svg></span><span class="tab-label"><span class="label-desktop">Consulta local</span><span class="label-mobile">Consulta</span></span></button>
  <button class="tab active" data-page="products" aria-current="page"><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span><span class="tab-label"><span class="label-desktop">Produtos</span><span class="label-mobile">Produtos</span></span></button>
  <button class="tab" data-page="register"><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 5v14"/><path d="M5 12h14"/><path d="M4 4h16v16H4z"/></svg></span><span class="tab-label"><span class="label-desktop">Registrar produto</span><span class="label-mobile">Registrar</span></span></button>
@@ -802,6 +811,53 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
  <button id="auditTab" class="tab" data-page="audit" type="button" hidden><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="m9 14 2 2 4-4"/></svg></span><span class="tab-label"><span class="label-desktop">Auditoria</span><span class="label-mobile">Auditoria</span></span></button>
  <a id="posterTab" class="tab" href="poster.html" hidden><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8"/><path d="M8 12h8"/><path d="M8 16h5"/></svg></span><span class="tab-label"><span class="label-desktop">Cartaz</span><span class="label-mobile">Cartaz</span></span></a>
  <button id="personalSettingsButton" class="tab" type="button" aria-haspopup="dialog" aria-controls="personalPanel" aria-expanded="false"><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.6-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.6V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9v.1a1.7 1.7 0 0 0 1.6 1h.1a2 2 0 0 1 0 4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg></span><span class="tab-label"><span class="label-desktop">Configurações</span><span class="label-mobile">Config</span></span></button>
+ <aside id="desktopQuickInspector" class="desktop-quick-inspector" aria-label="Inspetor rápido de produto" hidden>
+  <div class="inspector-header">
+   <div class="inspector-badge-row">
+    <span class="inspector-title-tag">INSPETOR</span>
+    <span id="inspectorStatusBadge" class="badge">Válido</span>
+   </div>
+   <button id="closeQuickInspector" class="inspector-close-btn" type="button" aria-label="Fechar inspetor" title="Fechar inspetor">×</button>
+  </div>
+  <div class="inspector-preview-card">
+   <div class="inspector-media-row">
+    <div id="inspectorPhoto" class="inspector-photo" aria-hidden="true">
+     <span class="inspector-no-photo">Sem foto</span>
+    </div>
+    <div class="inspector-main-meta">
+     <h4 id="inspectorProductName" class="inspector-product-name" title="">Selecione um produto</h4>
+     <div class="inspector-store-row">Loja: <strong id="inspectorStore">--</strong></div>
+    </div>
+   </div>
+   <div class="inspector-codes-row">
+    <span class="inspector-code-pill">F7: <strong id="inspectorF7Code">--</strong></span>
+    <span class="inspector-code-pill">Barras: <strong id="inspectorBarcode">--</strong></span>
+   </div>
+   <div class="inspector-stats-grid">
+    <div class="inspector-stat-item">
+     <span class="inspector-stat-lbl">Quantidade</span>
+     <strong id="inspectorQty" class="tabular-nums">--</strong>
+    </div>
+    <div class="inspector-stat-item">
+     <span class="inspector-stat-lbl">Validade</span>
+     <strong id="inspectorExpiry" class="tabular-nums">--</strong>
+    </div>
+    <div class="inspector-stat-item inspector-stat-wide">
+     <span class="inspector-stat-lbl">Situação do Prazo</span>
+     <strong id="inspectorDaysRemaining">--</strong>
+    </div>
+   </div>
+   <div class="inspector-actions">
+    <button id="inspectorEditBtn" class="btn2 inspector-btn-edit" type="button" title="Editar quantidade e validade (Atalho: E)">
+     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+     <span>Editar / Atualizar</span>
+    </button>
+    <button id="inspectorDetailBtn" class="btn inspector-btn-detail" type="button" title="Ver detalhes completos (Atalho: Enter)">
+     <span>Ver detalhes</span>
+    </button>
+   </div>
+  </div>
+ </aside>
 </nav>
 
 <div id="personalOverlay" class="personal-overlay" hidden></div>
@@ -830,9 +886,10 @@ html[data-theme="dark"] .detail-actions{border-color:var(--line)}
    <label>Loja<select id="notificationCenterStore"><option value="">Todas as lojas</option></select></label>
    <label>Período<select id="notificationCenterDays"><option value="3">Até 3 dias</option><option value="7">Até 7 dias</option><option value="15">Até 15 dias</option></select></label>
   </div>
-  <div class="notification-view-toggle" role="group" aria-label="Exibir notificações">
+  <div class="notification-view-toggle" role="group" aria-label="Exibir opções do checklist">
+   <button id="notificationAllView" type="button" aria-pressed="false">Todos <span id="notificationAllViewCount">0</span></button>
    <button id="notificationPendingView" class="active" type="button" aria-pressed="true">Pendentes <span id="notificationPendingViewCount">0</span></button>
-   <button id="notificationVerifiedView" type="button" aria-pressed="false">Verificadas <span id="notificationVerifiedViewCount">0</span></button>
+   <button id="notificationVerifiedView" type="button" aria-pressed="false">Concluídos <span id="notificationVerifiedViewCount">0</span></button>
   </div>
   <div id="notificationCelebration" class="notification-celebration" role="status" hidden>
    <div><strong>🎉 Parabéns! Missão cumprida!</strong><p>Você concluiu todas as verificações de validade curta. Sua atenção faz a diferença!</p><span id="notificationCelebrationCount"></span></div>
@@ -1826,6 +1883,20 @@ const els = {
  clearSupplierFilter: document.getElementById('clearSupplierFilter'),
  sort: document.getElementById('sort'),
  desktopProductsViewToggle: document.getElementById('desktopProductsViewToggle'),
+ sidebarPinToggle: document.getElementById('sidebarPinToggle'),
+ desktopQuickInspector: document.getElementById('desktopQuickInspector'),
+ closeQuickInspector: document.getElementById('closeQuickInspector'),
+ inspectorPhoto: document.getElementById('inspectorPhoto'),
+ inspectorStatusBadge: document.getElementById('inspectorStatusBadge'),
+ inspectorProductName: document.getElementById('inspectorProductName'),
+ inspectorF7Code: document.getElementById('inspectorF7Code'),
+ inspectorBarcode: document.getElementById('inspectorBarcode'),
+ inspectorStore: document.getElementById('inspectorStore'),
+ inspectorQty: document.getElementById('inspectorQty'),
+ inspectorExpiry: document.getElementById('inspectorExpiry'),
+ inspectorDaysRemaining: document.getElementById('inspectorDaysRemaining'),
+ inspectorEditBtn: document.getElementById('inspectorEditBtn'),
+ inspectorDetailBtn: document.getElementById('inspectorDetailBtn'),
  grid: document.getElementById('grid'),
  result: document.getElementById('result'),
  chips: document.querySelectorAll('.chip'),
@@ -2002,8 +2073,10 @@ const els = {
  notificationProgressBar: document.getElementById('notificationProgressBar'),
  notificationCenterStore: document.getElementById('notificationCenterStore'),
  notificationCenterDays: document.getElementById('notificationCenterDays'),
+ notificationAllView: document.getElementById('notificationAllView'),
  notificationPendingView: document.getElementById('notificationPendingView'),
  notificationVerifiedView: document.getElementById('notificationVerifiedView'),
+ notificationAllViewCount: document.getElementById('notificationAllViewCount'),
  notificationPendingViewCount: document.getElementById('notificationPendingViewCount'),
  notificationVerifiedViewCount: document.getElementById('notificationVerifiedViewCount'),
  notificationCenterStatus: document.getElementById('notificationCenterStatus'),
@@ -2572,6 +2645,10 @@ els.notificationCenterStore.addEventListener("change", () => {
  writeNotificationSettings({ ...current, store: els.notificationCenterStore.value });
  scheduleNotificationCenterReload(0);
 });
+els.notificationAllView?.addEventListener("click", () => {
+ notificationCenterView = "all";
+ renderNotificationCenter();
+});
 els.notificationPendingView.addEventListener("click", () => {
  notificationCenterView = "pending";
  renderNotificationCenter();
@@ -2590,6 +2667,16 @@ els.notificationCenterList.addEventListener("change", (event) => {
  const verifiedCount = eligible.filter(isNotificationProductChecked).length;
  renderNotificationCenter();
  if (checkbox.checked) maybeCelebrateNotificationCompletion(eligible, verifiedCount);
+});
+els.notificationCenterList.addEventListener("click", (event) => {
+ if (event.target.closest(".notification-check")) return;
+ const itemEl = event.target.closest(".notification-item");
+ if (!itemEl) return;
+ const productId = itemEl.dataset.notificationProductId;
+ const product = notificationProducts.find((item) => String(item.id) === String(productId));
+ if (product) {
+  openProductDetailModal(product);
+ }
 });
 window.addEventListener("storage", (event) => {
  if (event.key?.startsWith(NOTIFICATION_CHECKLIST_PREFIX)) renderNotificationCenter();
@@ -5115,12 +5202,17 @@ function renderNotificationCenter() {
  const verified = eligible.filter((product) => checkedById.get(notificationProductRecordId(product)));
  const pending = eligible.filter((product) => !checkedById.get(notificationProductRecordId(product)));
  const progress = eligible.length ? Math.round((verified.length / eligible.length) * 100) : 0;
+ if (els.notificationAllViewCount) els.notificationAllViewCount.textContent = String(eligible.length);
  els.notificationPendingTotal.textContent = String(pending.length);
  els.notificationVerifiedTotal.textContent = String(verified.length);
  els.notificationProgressValue.textContent = `${progress}%`;
  els.notificationProgressBar.style.width = `${progress}%`;
  els.notificationPendingViewCount.textContent = String(pending.length);
  els.notificationVerifiedViewCount.textContent = String(verified.length);
+ if (els.notificationAllView) {
+  els.notificationAllView.classList.toggle("active", notificationCenterView === "all");
+  els.notificationAllView.setAttribute("aria-pressed", String(notificationCenterView === "all"));
+ }
  els.notificationPendingView.classList.toggle("active", notificationCenterView === "pending");
  els.notificationVerifiedView.classList.toggle("active", notificationCenterView === "verified");
  els.notificationPendingView.setAttribute("aria-pressed", String(notificationCenterView === "pending"));
@@ -5130,7 +5222,7 @@ function renderNotificationCenter() {
  els.notificationPendingBadge.setAttribute("aria-label", `${pending.length} notificação${pending.length === 1 ? "" : "ões"} pendente${pending.length === 1 ? "" : "s"}`);
  const complete = eligible.length > 0 && verified.length === eligible.length;
  els.notificationCelebration.hidden = !complete;
- els.notificationCelebrationCount.textContent = complete ? `${verified.length} verificação${verified.length === 1 ? "" : "ões"} realizada${verified.length === 1 ? "" : "s"} · 100% concluído` : "";
+ els.notificationCelebrationCount.textContent = complete ? `${verified.length} conferência${verified.length === 1 ? "" : "s"} realizada${verified.length === 1 ? "" : "s"} · 100% concluído` : "";
 
  if (notificationCenterLoading) {
   els.notificationCenterStatus.textContent = "Atualizando produtos próximos do vencimento...";
@@ -5140,9 +5232,9 @@ function renderNotificationCenter() {
   els.notificationCenterStatus.textContent = `${store || "Todas as lojas"} · vencem de hoje até ${days} dias${suggestedCount ? ` · Sugestão: verificar ${suggestedCount} pendente${suggestedCount === 1 ? "" : "s"} que vence${suggestedCount === 1 ? "" : "m"} em até 3 dias.` : ""}`;
  }
 
- const visible = notificationCenterView === "verified" ? verified : pending;
+ const visible = notificationCenterView === "all" ? eligible : notificationCenterView === "verified" ? verified : pending;
  if (!eligible.length && notificationCenterLoading) {
-  els.notificationCenterList.innerHTML = '<div class="notification-empty"><strong>Carregando notificações...</strong><p>Consultando os produtos elegíveis deste período.</p></div>';
+  els.notificationCenterList.innerHTML = '<div class="notification-empty"><strong>Carregando conferência...</strong><p>Consultando os produtos elegíveis deste período.</p></div>';
   return;
  }
  if (!eligible.length && !notificationCenterLoading) {
@@ -5150,8 +5242,19 @@ function renderNotificationCenter() {
   return;
  }
  if (!visible.length) {
-  const text = notificationCenterView === "verified" ? "Nenhuma notificação foi verificada ainda." : "Todas as notificações deste período foram verificadas.";
-  els.notificationCenterList.innerHTML = `<div class="notification-empty"><strong>${notificationCenterView === "pending" ? "Checklist concluído" : "Sem verificações"}</strong><p>${text}</p></div>`;
+  let emptyTitle = "Sem produtos";
+  let emptyText = "Nenhum produto encontrado nesta situação.";
+  if (notificationCenterView === "pending") {
+   emptyTitle = "Checklist concluído! 🎉";
+   emptyText = "Todas as conferências deste período foram finalizadas.";
+  } else if (notificationCenterView === "verified") {
+   emptyTitle = "Nenhum conferido ainda";
+   emptyText = "Os produtos marcados como conferidos aparecerão nesta lista.";
+  } else {
+   emptyTitle = "Tudo em dia! 💙";
+   emptyText = "Nenhum produto próximo do vencimento encontrado.";
+  }
+  els.notificationCenterList.innerHTML = `<div class="notification-empty"><strong>${emptyTitle}</strong><p>${emptyText}</p></div>`;
   return;
  }
 
@@ -5167,15 +5270,21 @@ function renderNotificationCenter() {
   const photoAttrs = !photo && !photoLoaded ? ` data-photo-id="${escapeHtml(id)}"` : "";
   const code = extractFirstInternalCode(product.code) || "Não informado";
   const expiryText = new Date(`${product.expiry}T00:00:00`).toLocaleDateString("pt-BR");
-  return `<article class="notification-item ${priority.className}${checked ? " is-verified" : ""}" data-notification-product-id="${escapeHtml(id)}">
+  const conferidoTag = checked
+   ? `<span class="notification-conferido-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="10" height="10" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Conferido</span>`
+   : "";
+  return `<article class="notification-item ${priority.className}${checked ? " is-verified" : ""}" data-notification-product-id="${escapeHtml(id)}" role="button" tabindex="0" title="Clique no produto para ver detalhes ou no check para alterar status">
    <div class="notification-product-photo"${photoAttrs}>${photoMarkup}</div>
    <div class="notification-item-copy">
-    <h3 class="notification-item-title">${escapeHtml(product.name || "Produto")}</h3>
+    <div class="notification-item-header">
+     <h3 class="notification-item-title">${escapeHtml(product.name || "Produto")}</h3>
+     ${conferidoTag}
+    </div>
     ${!checked && remaining(product.expiry) <= 3 ? '<p class="notification-suggestion">Sugestão · verificar em prioridade</p>' : ""}
     <div class="notification-item-meta"><span>Cód. ${escapeHtml(code)}</span><span>${escapeHtml(product.store || "Loja não informada")}</span><span>${Number(product.qty || 0).toLocaleString("pt-BR")} un.</span></div>
     <div class="notification-item-expiry"><span>Validade <strong>${escapeHtml(expiryText)}</strong></span><span class="notification-priority">${escapeHtml(priority.label)}</span></div>
    </div>
-   <label class="notification-check" title="${checked ? "Restaurar como pendente" : "Marcar como verificado"}"><input type="checkbox" data-notification-check="${escapeHtml(id)}"${checked ? " checked" : ""} aria-label="${checked ? "Desmarcar" : "Verificar"} ${escapeHtml(product.name || "produto")}"><span aria-hidden="true">✓</span></label>
+   <label class="notification-check" title="${checked ? "Retornar para pendente" : "Marcar como conferido"}"><input type="checkbox" data-notification-check="${escapeHtml(id)}"${checked ? " checked" : ""} aria-label="${checked ? "Desmarcar" : "Verificar"} ${escapeHtml(product.name || "produto")}"><span aria-hidden="true">✓</span></label>
   </article>`;
  }).join("");
  applyNotificationStacking();
@@ -6769,6 +6878,7 @@ function render() {
  els.result.textContent = `${items.length} produto(s) encontrado(s)${supplierFilterText}`;
 
   reconcileProductGrid(items, productHasMorePages);
+ syncSelectedProductInGrid(items);
  agendarCargaFotosVisiveis();
  agendarCargaMaisProdutos();
  if (!els.personalPanel.hidden && els.personalPanel.classList.contains("show")) {
@@ -7876,6 +7986,164 @@ window.addEventListener('scroll', () => {
  }
 }, { passive: true });
 
+// =============================================================================
+// DESKTOP QUICK INSPECTOR & SIDEBAR PIN CONTROLS
+// =============================================================================
+let currentSelectedProductId = null;
+let currentSelectedProduct = null;
+let currentSelectedCard = null;
+
+function deselectQuickInspectorProduct() {
+ if (currentSelectedCard) {
+  currentSelectedCard.classList.remove('is-selected');
+ }
+ currentSelectedProductId = null;
+ currentSelectedProduct = null;
+ currentSelectedCard = null;
+ if (els.desktopQuickInspector) {
+  els.desktopQuickInspector.hidden = true;
+ }
+}
+
+function selectProductForInspector(product, card, shouldFocus = false) {
+ if (!product) return;
+ if (currentSelectedCard && currentSelectedCard !== card) {
+  currentSelectedCard.classList.remove('is-selected');
+ }
+ currentSelectedProductId = String(product.id);
+ currentSelectedProduct = product;
+ currentSelectedCard = card || els.grid.querySelector(`.card[data-product-id="${product.id}"]`);
+ if (currentSelectedCard) {
+  currentSelectedCard.classList.add('is-selected');
+  if (shouldFocus) {
+   currentSelectedCard.focus?.();
+   currentSelectedCard.scrollIntoView?.({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+  }
+ }
+ if (!els.desktopQuickInspector) return;
+
+ const hasExpiry = Boolean(product.expiry && !isNaN(new Date(product.expiry + "T00:00:00").getTime()));
+ const days = hasExpiry ? remaining(product.expiry) : null;
+ const [label, tone] = days !== null ? status(days) : ["Sem validade", "gray"];
+ const expiryFormatted = hasExpiry ? new Date(product.expiry + "T00:00:00").toLocaleDateString("pt-BR") : "Não informada";
+ const f7Code = extractFirstInternalCode(product.code) || "Sem código";
+ const barcode = extractFirstBarcode(product.barcode) || "Sem barras";
+ const storeName = (product.store && String(product.store).trim()) || "Sem loja";
+
+ if (els.inspectorProductName) {
+  els.inspectorProductName.textContent = product.name || "Sem nome";
+  els.inspectorProductName.title = product.name || "";
+ }
+ if (els.inspectorStore) els.inspectorStore.textContent = storeName;
+ if (els.inspectorF7Code) els.inspectorF7Code.textContent = f7Code;
+ if (els.inspectorBarcode) els.inspectorBarcode.textContent = barcode;
+ if (els.inspectorQty) els.inspectorQty.textContent = `${product.qty ?? 0} un.`;
+ if (els.inspectorExpiry) els.inspectorExpiry.textContent = expiryFormatted;
+ 
+ if (els.inspectorDaysRemaining) {
+  if (days === null) {
+   els.inspectorDaysRemaining.textContent = "Data não definida";
+   els.inspectorDaysRemaining.className = "inspector-days-val gray";
+  } else if (days < 0) {
+   els.inspectorDaysRemaining.textContent = `Vencido há ${Math.abs(days)} dia(s)`;
+   els.inspectorDaysRemaining.className = `inspector-days-val ${tone}`;
+  } else if (days === 0) {
+   els.inspectorDaysRemaining.textContent = "Vence hoje";
+   els.inspectorDaysRemaining.className = `inspector-days-val ${tone}`;
+  } else {
+   els.inspectorDaysRemaining.textContent = `${days} dia${days === 1 ? '' : 's'} restantes`;
+   els.inspectorDaysRemaining.className = `inspector-days-val ${tone}`;
+  }
+ }
+
+ if (els.inspectorStatusBadge) {
+  els.inspectorStatusBadge.textContent = days === 0 ? "Vence hoje" : label;
+  els.inspectorStatusBadge.className = `badge ${tone}`;
+ }
+
+ if (els.inspectorPhoto) {
+  const normId = String(product.id || "");
+  const registered = resolvedProductPhotoState.get(normId);
+  const samePath = registered && String(registered.photoPath || "").trim() === String(product.photoPath || "").trim();
+  let effectivePhoto = samePath ? (registered.photo || product.photo || "") : (product.photo || "");
+  if (effectivePhoto && typeof window.skaleeIsSignedPhotoUrlExpired === "function" && window.skaleeIsSignedPhotoUrlExpired(effectivePhoto)) {
+   effectivePhoto = "";
+   resolvedProductPhotoState.delete(normId);
+  }
+  if (effectivePhoto) {
+   els.inspectorPhoto.innerHTML = `<img src="${effectivePhoto}" alt="${escapeHtml(product.name)}" onerror="window.skaleeHandleProductImageError?.(this, '${escapeHtml(product.id)}', '${escapeHtml(product.photoPath || '')}')">`;
+  } else {
+   els.inspectorPhoto.innerHTML = `<span class="inspector-no-photo">Sem foto</span>`;
+  }
+ }
+
+ els.desktopQuickInspector.hidden = false;
+}
+
+function syncSelectedProductInGrid(currentItems) {
+ if (!currentSelectedProductId) return;
+ const matchingCard = els.grid.querySelector(`.card[data-product-id="${currentSelectedProductId}"]`);
+ const freshProduct = (currentItems || products).find((p) => String(p.id) === currentSelectedProductId);
+ if (matchingCard && freshProduct) {
+  matchingCard.classList.add('is-selected');
+  currentSelectedCard = matchingCard;
+  currentSelectedProduct = freshProduct;
+  selectProductForInspector(freshProduct, matchingCard, false);
+ } else if (!freshProduct) {
+  deselectQuickInspectorProduct();
+ }
+}
+
+function isDesktopLayoutActive() {
+ return window.matchMedia('(min-width: 1024px)').matches &&
+  !document.documentElement.classList.contains('android-app') &&
+  !document.documentElement.classList.contains('capacitor-android');
+}
+
+// Sidebar pin state
+function initSidebarPinControls() {
+ const pinBtn = els.sidebarPinToggle;
+ const updateSidebarPinState = (isPinned) => {
+  document.documentElement.dataset.sidebarPinned = isPinned ? "true" : "false";
+  if (pinBtn) {
+   pinBtn.classList.toggle("is-pinned", isPinned);
+   pinBtn.setAttribute("aria-pressed", isPinned ? "true" : "false");
+   pinBtn.title = isPinned ? "Recolher barra lateral (modo compacto)" : "Fixar barra lateral aberta";
+   pinBtn.setAttribute("aria-label", pinBtn.title);
+  }
+ };
+
+ const storedPin = localStorage.getItem("skalee.sidebarPinned");
+ updateSidebarPinState(storedPin === "true");
+
+ pinBtn?.addEventListener("click", () => {
+  const currentPinned = document.documentElement.dataset.sidebarPinned === "true";
+  const newPinned = !currentPinned;
+  updateSidebarPinState(newPinned);
+  try {
+   localStorage.setItem("skalee.sidebarPinned", newPinned ? "true" : "false");
+  } catch (_) {}
+ });
+}
+initSidebarPinControls();
+
+// Quick Inspector Action Buttons
+els.inspectorEditBtn?.addEventListener('click', () => {
+ if (currentSelectedProduct) {
+  openUpdateModalForProduct(currentSelectedProduct);
+ }
+});
+
+els.inspectorDetailBtn?.addEventListener('click', () => {
+ if (currentSelectedProduct) {
+  openProductDetailModal(currentSelectedProduct, currentSelectedCard);
+ }
+});
+
+els.closeQuickInspector?.addEventListener('click', () => {
+ deselectQuickInspectorProduct();
+});
+
 els.grid.addEventListener('click', (event) => {
  if (longPressTriggered) {
   event.preventDefault();
@@ -7890,6 +8158,11 @@ els.grid.addEventListener('click', (event) => {
  const product = products.find((item) => String(item.id) === productId);
  if (!product) return;
 
+ if (isDesktopLayoutActive()) {
+  selectProductForInspector(product, card);
+  return;
+ }
+
  card.classList.remove('card-pressed');
  void card.offsetWidth;
  card.classList.add('card-pressed');
@@ -7900,6 +8173,16 @@ els.grid.addEventListener('click', (event) => {
  }, 130);
 });
 
+els.grid.addEventListener('dblclick', (event) => {
+ const card = event.target.closest('.card');
+ if (!card) return;
+ const productId = card.dataset.productId;
+ const product = products.find((item) => String(item.id) === productId);
+ if (product) {
+  openProductDetailModal(product, card);
+ }
+});
+
 els.grid.addEventListener('keydown', (event) => {
  if (event.key === 'Enter' || event.key === ' ') {
   const card = event.target.closest('.card');
@@ -7908,6 +8191,9 @@ els.grid.addEventListener('keydown', (event) => {
    const productId = card.dataset.productId;
    const product = products.find((item) => String(item.id) === productId);
    if (product) {
+    if (isDesktopLayoutActive()) {
+     selectProductForInspector(product, card);
+    }
     card.classList.remove('card-pressed');
     void card.offsetWidth;
     card.classList.add('card-pressed');
@@ -7918,6 +8204,78 @@ els.grid.addEventListener('keydown', (event) => {
     }, 130);
    }
   }
+ }
+});
+
+// Operational arrow navigation on desktop
+window.addEventListener('keydown', (event) => {
+ const isGalleryOpen = Boolean(document.querySelector('.product-gallery[open]'));
+ const isDetailModalOpen = Boolean(els.productDetailModal?.classList.contains('show'));
+ const isUpdateModalOpen = Boolean(els.updateModal?.classList.contains('show'));
+ const isPersonalOpen = Boolean(!els.personalPanel?.hidden && els.personalPanel?.classList.contains('show'));
+ const isAnyModalOpen = isGalleryOpen || isDetailModalOpen || isUpdateModalOpen || isPersonalOpen;
+
+ const activeTag = document.activeElement?.tagName?.toLowerCase();
+ const isInputActive = activeTag === 'input' || activeTag === 'textarea' || activeTag === 'select' || document.activeElement?.isContentEditable;
+
+ if (isAnyModalOpen || isInputActive) return;
+
+ const isProductsPage = document.getElementById('products')?.classList.contains('active');
+ if (!isProductsPage) return;
+ if (!isDesktopLayoutActive()) return;
+
+ // Preserve normal browser page scrolling: only intercept arrow keys if a product is already selected or if focus is inside grid
+ const isCatalogActive = Boolean(currentSelectedCard || (els.grid && els.grid.contains(document.activeElement)));
+
+ if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
+  if (!isCatalogActive) return; // Permite rolagem normal da página pelo navegador
+  const cards = Array.from(els.grid.querySelectorAll('.card:not([hidden])'));
+  if (!cards.length) return;
+  event.preventDefault();
+  let nextIdx = 0;
+  if (currentSelectedCard) {
+   const currentIdx = cards.indexOf(currentSelectedCard);
+   nextIdx = currentIdx >= 0 ? Math.min(currentIdx + 1, cards.length - 1) : 0;
+  }
+  const targetCard = cards[nextIdx];
+  const targetProduct = products.find((p) => String(p.id) === targetCard?.dataset?.productId);
+  if (targetProduct) {
+   selectProductForInspector(targetProduct, targetCard, true);
+  }
+  return;
+ }
+
+ if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
+  if (!isCatalogActive) return; // Permite rolagem normal da página pelo navegador
+  const cards = Array.from(els.grid.querySelectorAll('.card:not([hidden])'));
+  if (!cards.length) return;
+  event.preventDefault();
+  let prevIdx = 0;
+  if (currentSelectedCard) {
+   const currentIdx = cards.indexOf(currentSelectedCard);
+   prevIdx = currentIdx >= 0 ? Math.max(currentIdx - 1, 0) : 0;
+  }
+  const targetCard = cards[prevIdx];
+  const targetProduct = products.find((p) => String(p.id) === targetCard?.dataset?.productId);
+  if (targetProduct) {
+   selectProductForInspector(targetProduct, targetCard, true);
+  }
+  return;
+ }
+
+ if ((event.key === 'e' || event.key === 'E') && !event.ctrlKey && !event.altKey && !event.metaKey) {
+  if (currentSelectedProduct) {
+   event.preventDefault();
+   openUpdateModalForProduct(currentSelectedProduct);
+  }
+  return;
+ }
+
+ if (event.key === 'Escape') {
+  if (currentSelectedProduct) {
+   deselectQuickInspectorProduct();
+  }
+  return;
  }
 });
 

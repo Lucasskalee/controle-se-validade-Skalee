@@ -2313,6 +2313,11 @@ html[data-theme="light"] .visual-themes-modal .update-panel {
   display: none !important;
 }
 
+.sidebar-top-bar,
+.desktop-quick-inspector {
+  display: none !important;
+}
+
 /* ==========================================================================
    ETAPA 1: DESKTOP EXECUTIVE WORKSPACE (Full-Width Edge-to-Edge)
    Ocupa 100% da largura em telas >= 1024px, eliminando qualquer vazio lateral.
@@ -2333,7 +2338,7 @@ html[data-theme="light"] .visual-themes-modal .update-panel {
   html:not(.android-app):not(.capacitor-android) .app,
   html:not(.android-app):not(.capacitor-android) #protectedApp {
     display: grid !important;
-    grid-template-columns: 248px minmax(0, 1fr) !important;
+    grid-template-columns: 72px minmax(0, 1fr) !important;
     grid-template-rows: auto 1fr !important;
     max-width: 100% !important;
     width: 100% !important;
@@ -2342,6 +2347,12 @@ html[data-theme="light"] .visual-themes-modal .update-panel {
     column-gap: 18px !important;
     row-gap: 10px !important;
     box-sizing: border-box !important;
+    transition: grid-template-columns 180ms ease !important;
+  }
+
+  html[data-sidebar-pinned="true"]:not(.android-app):not(.capacitor-android) .app,
+  html[data-sidebar-pinned="true"]:not(.android-app):not(.capacitor-android) #protectedApp {
+    grid-template-columns: 240px minmax(0, 1fr) !important;
   }
 
   html:not(.android-app):not(.capacitor-android) #protectedApp > header {
@@ -2365,56 +2376,131 @@ html[data-theme="light"] .visual-themes-modal .update-panel {
     position: sticky !important;
     top: 8px !important;
     align-self: start !important;
-    width: 248px !important;
+    width: 72px !important;
+    max-height: calc(100vh - 16px) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
     box-sizing: border-box !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: stretch !important;
-    gap: 8px !important;
-    padding: 14px 12px !important;
+    gap: 6px !important;
+    padding: 10px 8px !important;
     border-radius: 16px !important;
     margin-bottom: 0 !important;
     background: var(--sk-bg-surface, var(--card)) !important;
     border: 1px solid var(--sk-border-subtle, var(--line)) !important;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.16) !important;
     z-index: 100 !important;
+    transition: width 180ms ease, box-shadow 180ms ease, background 180ms ease !important;
   }
 
   html[data-theme="dark"]:not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav,
   html[data-theme="skalee-i"]:not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav {
-    background: rgba(11, 19, 34, 0.82) !important;
+    background: rgba(11, 19, 34, 0.90) !important;
     backdrop-filter: blur(18px) !important;
     -webkit-backdrop-filter: blur(18px) !important;
     border-color: rgba(255, 255, 255, 0.10) !important;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35) !important;
   }
 
-  html:not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav::before {
-    content: "NAVEGAÇÃO";
-    display: block;
-    padding: 2px 10px 10px;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    color: var(--sk-text-muted, var(--muted));
-    text-transform: uppercase;
-    border-bottom: 1px solid var(--sk-border-subtle, var(--line));
-    margin-bottom: 4px;
+  html:not([data-sidebar-pinned="true"]):not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav:hover,
+  html:not([data-sidebar-pinned="true"]):not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav:focus-within {
+    width: 240px !important;
+    z-index: 200 !important;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55), 0 0 0 1px var(--sk-border-medium, rgba(148, 163, 184, 0.22)) !important;
+  }
+
+  html[data-sidebar-pinned="true"]:not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav {
+    width: 240px !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .sidebar-top-bar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 2px 2px 8px !important;
+    border-bottom: 1px solid var(--sk-border-subtle, var(--line)) !important;
+    margin-bottom: 4px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  html:not([data-sidebar-pinned="true"]):not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav:hover .sidebar-top-bar,
+  html:not([data-sidebar-pinned="true"]):not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav:focus-within .sidebar-top-bar,
+  html[data-sidebar-pinned="true"]:not(.android-app):not(.capacitor-android) .sidebar-top-bar {
+    justify-content: space-between !important;
+    padding: 2px 6px 8px !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .sidebar-section-title {
+    display: none !important;
+    font-size: 10.5px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.08em !important;
+    color: var(--sk-text-muted, var(--muted)) !important;
+    text-transform: uppercase !important;
+  }
+
+  html:not([data-sidebar-pinned="true"]):not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav:hover .sidebar-section-title,
+  html:not([data-sidebar-pinned="true"]):not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav:focus-within .sidebar-section-title,
+  html[data-sidebar-pinned="true"]:not(.android-app):not(.capacitor-android) .sidebar-section-title {
+    display: inline-block !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .sidebar-pin-btn {
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 8px !important;
+    background: transparent !important;
+    border: 1px solid var(--sk-border-subtle, rgba(148, 163, 184, 0.12)) !important;
+    color: var(--sk-text-muted, var(--muted)) !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    flex-shrink: 0 !important;
+    transition: background 150ms ease, color 150ms ease, border-color 150ms ease !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .sidebar-pin-btn:hover {
+    background: var(--sk-bg-surface-hover, rgba(255, 255, 255, 0.08)) !important;
+    color: var(--sk-text-primary, #ffffff) !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .sidebar-pin-btn.is-pinned {
+    background: rgba(0, 119, 255, 0.16) !important;
+    color: var(--sk-accent-cyan, #00d9ff) !important;
+    border-color: rgba(0, 217, 255, 0.35) !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .sidebar-pin-icon {
+    width: 17px !important;
+    height: 17px !important;
   }
 
   html:not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav .tab {
     display: flex !important;
     align-items: center !important;
-    justify-content: flex-start !important;
+    justify-content: center !important;
     width: 100% !important;
     min-height: 44px !important;
-    padding: 10px 14px !important;
+    padding: 10px 0 !important;
     border-radius: 10px !important;
-    gap: 12px !important;
+    gap: 0 !important;
     font-size: 13.5px !important;
     text-align: left !important;
     box-sizing: border-box !important;
     transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.10s ease !important;
+  }
+
+  html:not([data-sidebar-pinned="true"]):not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav:hover .tab,
+  html:not([data-sidebar-pinned="true"]):not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav:focus-within .tab,
+  html[data-sidebar-pinned="true"]:not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav .tab {
+    justify-content: flex-start !important;
+    padding: 10px 12px !important;
+    gap: 12px !important;
   }
 
   html:not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav .tab:hover {
@@ -2426,9 +2512,35 @@ html[data-theme="light"] .visual-themes-modal .update-panel {
     display: none !important;
   }
 
+  html:not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav .tab-icon {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 22px !important;
+    height: 22px !important;
+    flex-shrink: 0 !important;
+  }
+
   html:not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav .tab-label {
+    display: none !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    pointer-events: none !important;
     flex: 1 !important;
     text-align: left !important;
+    transition: opacity 180ms ease !important;
+  }
+
+  html:not([data-sidebar-pinned="true"]):not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav:hover .tab-label,
+  html:not([data-sidebar-pinned="true"]):not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav:focus-within .tab-label,
+  html[data-sidebar-pinned="true"]:not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav .tab-label {
+    display: inline-flex !important;
+    opacity: 1 !important;
+    width: auto !important;
+    overflow: visible !important;
+    pointer-events: auto !important;
   }
 
   html:not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav .label-desktop {
@@ -2437,6 +2549,256 @@ html[data-theme="light"] .visual-themes-modal .update-panel {
 
   html:not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav .label-mobile {
     display: none !important;
+  }
+
+  /* Quick Inspector Desktop */
+  html:not(.android-app):not(.capacitor-android) .desktop-quick-inspector {
+    display: none !important;
+  }
+
+  html:not([data-sidebar-pinned="true"]):not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav:hover .desktop-quick-inspector:not([hidden]),
+  html:not([data-sidebar-pinned="true"]):not(.android-app):not(.capacitor-android) #protectedApp > nav.main-nav:focus-within .desktop-quick-inspector:not([hidden]),
+  html[data-sidebar-pinned="true"]:not(.android-app):not(.capacitor-android) .desktop-quick-inspector:not([hidden]) {
+    display: flex !important;
+    flex-direction: column !important;
+    margin-top: auto !important;
+    padding-top: 10px !important;
+    border-top: 1px solid var(--sk-border-subtle, var(--line)) !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .inspector-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-bottom: 6px !important;
+    width: 100% !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .inspector-badge-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .inspector-title-tag {
+    font-size: 9.5px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    color: var(--sk-text-muted, var(--muted)) !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .inspector-close-btn {
+    width: 22px !important;
+    height: 22px !important;
+    border-radius: 6px !important;
+    background: transparent !important;
+    border: 1px solid var(--sk-border-subtle, var(--line)) !important;
+    color: var(--sk-text-muted, var(--muted)) !important;
+    font-size: 15px !important;
+    line-height: 1 !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .inspector-close-btn:hover {
+    background: var(--sk-bg-surface-hover, rgba(255, 255, 255, 0.08)) !important;
+    color: var(--sk-text-primary, #ffffff) !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .inspector-preview-card {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+    background: var(--sk-bg-surface-elevated, rgba(16, 24, 39, 0.95)) !important;
+    border: 1px solid var(--sk-border-subtle, rgba(148, 163, 184, 0.14)) !important;
+    border-radius: 12px !important;
+    padding: 10px !important;
+    box-sizing: border-box !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .inspector-media-row {
+    display: flex !important;
+    gap: 10px !important;
+    align-items: center !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .inspector-photo {
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    border: 1px solid var(--sk-border-subtle, rgba(148, 163, 184, 0.14)) !important;
+    background: var(--sk-bg-surface, rgba(11, 18, 32, 0.85)) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .inspector-photo img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .inspector-no-photo {
+    font-size: 9px !important;
+    color: var(--sk-text-muted, var(--muted)) !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .inspector-main-meta {
+    flex: 1 !important;
+    min-width: 0 !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .inspector-product-name {
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    line-height: 1.25 !important;
+    margin: 0 0 3px !important;
+    color: var(--sk-text-primary, #f8fafc) !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    word-break: break-word !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .inspector-store-row {
+    font-size: 10.5px !important;
+    color: var(--sk-text-secondary, #cbd5e1) !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .inspector-codes-row {
+    display: flex !important;
+    gap: 6px !important;
+    width: 100% !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .inspector-code-pill {
+    flex: 1 !important;
+    min-width: 0 !important;
+    padding: 3px 5px !important;
+    border-radius: 6px !important;
+    background: var(--sk-bg-surface, rgba(11, 18, 32, 0.6)) !important;
+    border: 1px solid var(--sk-border-subtle, rgba(148, 163, 184, 0.12)) !important;
+    font-size: 9.5px !important;
+    color: var(--sk-text-muted, var(--muted)) !important;
+    font-variant-numeric: tabular-nums !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    text-align: center !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .inspector-code-pill strong {
+    color: var(--sk-text-primary, #f8fafc) !important;
+    font-variant-numeric: tabular-nums !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .inspector-stats-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 5px !important;
+    width: 100% !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .inspector-stat-item {
+    padding: 5px 6px !important;
+    border-radius: 6px !important;
+    background: var(--sk-bg-surface, rgba(11, 18, 32, 0.6)) !important;
+    border: 1px solid var(--sk-border-subtle, rgba(148, 163, 184, 0.12)) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .inspector-stat-lbl {
+    font-size: 9px !important;
+    color: var(--sk-text-muted, var(--muted)) !important;
+    margin-bottom: 2px !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .inspector-stat-item strong {
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    color: var(--sk-text-primary, #f8fafc) !important;
+    font-variant-numeric: tabular-nums !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .inspector-stat-wide {
+    grid-column: 1 / -1 !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .inspector-actions {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+    width: 100% !important;
+    margin-top: 2px !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .inspector-btn-edit {
+    width: 100% !important;
+    min-height: 36px !important;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    background: var(--sk-accent-blue, #0077ff) !important;
+    color: #ffffff !important;
+    border: 0 !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    transition: background 150ms ease !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .inspector-btn-edit:hover {
+    background: var(--sk-accent-blue-hover, #1d4ed8) !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .inspector-btn-detail {
+    width: 100% !important;
+    min-height: 30px !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    background: transparent !important;
+    border: 1px solid var(--sk-border-subtle, rgba(148, 163, 184, 0.18)) !important;
+    color: var(--sk-text-secondary, #cbd5e1) !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: background 150ms ease, color 150ms ease !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) .inspector-btn-detail:hover {
+    background: var(--sk-bg-surface-hover, rgba(255, 255, 255, 0.08)) !important;
+    color: var(--sk-text-primary, #ffffff) !important;
+  }
+
+  /* Destaque do Card Selecionado */
+  html:not(.android-app):not(.capacitor-android) .card.is-selected {
+    border-color: var(--sk-accent-cyan, #00d9ff) !important;
+    box-shadow: 0 0 0 1px var(--sk-accent-cyan, #00d9ff), 0 8px 24px rgba(0, 0, 0, 0.35) !important;
+    transform: translateY(-2px) !important;
+  }
+
+  html[data-theme="light"]:not(.android-app):not(.capacitor-android) .card.is-selected {
+    border-color: var(--sk-accent-blue, #0077ff) !important;
+    box-shadow: 0 0 0 1px var(--sk-accent-blue, #0077ff), 0 8px 20px rgba(0, 119, 255, 0.18) !important;
   }
 
   html:not(.android-app):not(.capacitor-android) #protectedApp > .page {
