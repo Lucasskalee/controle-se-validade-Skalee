@@ -2314,8 +2314,8 @@ html[data-theme="light"] .visual-themes-modal .update-panel {
 }
 
 /* ==========================================================================
-   ETAPA 1: DESKTOP EXECUTIVE WORKSPACE (Sidebar Fixa + Grid Expandido)
-   Ativo estritamente em telas >= 1024px e fora do shell mobile/Capacitor.
+   ETAPA 1: DESKTOP EXECUTIVE WORKSPACE (Full-Width Edge-to-Edge)
+   Ocupa 100% da largura em telas >= 1024px, eliminando qualquer vazio lateral.
    Preserva intacto o comportamento mobile (< 768px) e tablet portrait (768-1023px).
    ========================================================================== */
 @media (min-width: 1024px) {
@@ -2328,24 +2328,27 @@ html[data-theme="light"] .visual-themes-modal .update-panel {
     display: grid !important;
     grid-template-columns: 248px minmax(0, 1fr) !important;
     grid-template-rows: auto 1fr !important;
-    max-width: 1680px !important;
+    max-width: 100% !important;
     width: 100% !important;
-    margin: 0 auto !important;
-    padding: 18px 32px 40px !important;
-    column-gap: 28px !important;
-    row-gap: 20px !important;
+    margin: 0 !important;
+    padding: 14px 20px 36px !important;
+    column-gap: 20px !important;
+    row-gap: 16px !important;
     box-sizing: border-box !important;
   }
 
   html:not(.android-app):not(.capacitor-android) #protectedApp > header {
     grid-column: 1 / -1 !important;
     grid-row: 1 !important;
+    width: 100% !important;
+    max-width: 100% !important;
     margin-bottom: 0 !important;
-    padding: 10px 0 16px !important;
+    padding: 8px 0 14px !important;
     border-bottom: 1px solid var(--sk-border-subtle, var(--line)) !important;
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
+    box-sizing: border-box !important;
     min-width: 0 !important;
   }
 
@@ -2353,8 +2356,10 @@ html[data-theme="light"] .visual-themes-modal .update-panel {
     grid-column: 1 !important;
     grid-row: 2 !important;
     position: sticky !important;
-    top: 20px !important;
+    top: 14px !important;
     align-self: start !important;
+    width: 248px !important;
+    box-sizing: border-box !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: stretch !important;
@@ -2432,6 +2437,21 @@ html[data-theme="light"] .visual-themes-modal .update-panel {
     grid-row: 2 !important;
     min-width: 0 !important;
     width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Expansão das páginas de cadastro e relatórios para preencher o espaço desktop */
+  html:not(.android-app):not(.capacitor-android) #register .form {
+    max-width: 100% !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #report .report {
+    max-width: 100% !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   /* =======================================================================
@@ -2442,6 +2462,8 @@ html[data-theme="light"] .visual-themes-modal .update-panel {
     grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
     gap: 12px !important;
     margin-bottom: 16px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   html:not(.android-app):not(.capacitor-android) #products .stat {
@@ -2480,10 +2502,12 @@ html[data-theme="light"] .visual-themes-modal .update-panel {
 
   html:not(.android-app):not(.capacitor-android) #products .searchrow.with-layout {
     display: grid !important;
-    grid-template-columns: minmax(280px, 1.8fr) minmax(180px, 1fr) minmax(180px, 1fr) auto !important;
+    grid-template-columns: minmax(320px, 3fr) minmax(200px, 1.4fr) minmax(200px, 1.4fr) auto !important;
     gap: 12px !important;
     align-items: center !important;
     margin-bottom: 10px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   html:not(.android-app):not(.capacitor-android) #products .searchrow.with-layout input,
@@ -2499,6 +2523,8 @@ html[data-theme="light"] .visual-themes-modal .update-panel {
   html:not(.android-app):not(.capacitor-android) #products .filters-container {
     margin-bottom: 12px !important;
     gap: 6px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   html:not(.android-app):not(.capacitor-android) #products .filters {
@@ -2507,6 +2533,8 @@ html[data-theme="light"] .visual-themes-modal .update-panel {
     gap: 8px !important;
     overflow-x: visible !important;
     padding: 2px 0 6px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   html:not(.android-app):not(.capacitor-android) #products .chip {
@@ -2524,6 +2552,8 @@ html[data-theme="light"] .visual-themes-modal .update-panel {
     align-items: center !important;
     gap: 16px !important;
     margin-bottom: 14px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   html:not(.android-app):not(.capacitor-android) #products .searchrow:not(.with-layout) .resultline {
@@ -2544,24 +2574,42 @@ html[data-theme="light"] .visual-themes-modal .update-panel {
   }
 
   /* =======================================================================
-     ETAPA 3: ALTERNÂNCIA FUNCIONAL GRADE VS TABELA DE ALTA DENSIDADE
+     ETAPA 3: ALTERNÂNCIA FUNCIONAL GRADE VS TABELA DE ALTA DENSIDADE (FULL-WIDTH)
      ======================================================================= */
-  /* Modo Grade Desktop (3 a 4 colunas proporcionais) */
+  /* Modo Grade Desktop (Auto-fill dinâmico de ponta a ponta sem vazios) */
   html:not(.android-app):not(.capacitor-android) #products #grid:not([data-view="list"]) {
     display: grid !important;
-    grid-template-columns: repeat(var(--product-columns, 4), minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(auto-fill, minmax(285px, 1fr)) !important;
     gap: 16px !important;
     align-items: stretch !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
-  /* Modo Tabela Desktop (Linhas horizontais de conferência rápida) */
+  html:not(.android-app):not(.capacitor-android) #products #grid[data-columns="4"]:not([data-view="list"]) {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products #grid[data-columns="3"]:not([data-view="list"]) {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products #grid[data-columns="2"]:not([data-view="list"]) {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  html:not(.android-app):not(.capacitor-android) #products #grid[data-columns="1"]:not([data-view="list"]) {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Modo Tabela Desktop (Linhas horizontais de conferência rápida que ocupam 100% da largura) */
   html:not(.android-app):not(.capacitor-android) .desktop-table-header {
     display: none !important;
   }
 
   html:not(.android-app):not(.capacitor-android) #products[data-view="list"] .desktop-table-header {
     display: grid !important;
-    grid-template-columns: 48px minmax(220px, 2.2fr) minmax(180px, 1.4fr) 110px 120px 140px !important;
+    grid-template-columns: 48px minmax(260px, 3.5fr) minmax(180px, 2fr) 120px 140px 160px !important;
     align-items: center !important;
     gap: 16px !important;
     padding: 10px 18px !important;
@@ -2574,6 +2622,8 @@ html[data-theme="light"] .visual-themes-modal .update-panel {
     letter-spacing: 0.05em !important;
     color: var(--sk-text-muted, var(--muted)) !important;
     text-transform: uppercase !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   html:not(.android-app):not(.capacitor-android) #products[data-view="list"] .desktop-table-header .col-status {
@@ -2584,11 +2634,14 @@ html[data-theme="light"] .visual-themes-modal .update-panel {
     display: flex !important;
     flex-direction: column !important;
     gap: 6px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   html:not(.android-app):not(.capacitor-android) #products #grid[data-view="list"] .product-card-slot {
     min-height: 0 !important;
     height: auto !important;
+    width: 100% !important;
   }
 
   html:not(.android-app):not(.capacitor-android) #products #grid[data-view="list"] .product-card-glow {
@@ -2597,6 +2650,8 @@ html[data-theme="light"] .visual-themes-modal .update-panel {
     padding: 1px !important;
     box-shadow: none !important;
     background: transparent !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   html:not(.android-app):not(.capacitor-android) #products #grid[data-view="list"] .product-card-glow:hover {
@@ -2606,16 +2661,17 @@ html[data-theme="light"] .visual-themes-modal .update-panel {
 
   html:not(.android-app):not(.capacitor-android) #products #grid[data-view="list"] .card {
     display: grid !important;
-    grid-template-columns: 48px minmax(220px, 2.2fr) minmax(180px, 1.4fr) 110px 120px 140px !important;
+    grid-template-columns: 48px minmax(260px, 3.5fr) minmax(180px, 2fr) 120px 140px 160px !important;
     align-items: center !important;
     gap: 16px !important;
-    padding: 8px 16px !important;
+    padding: 8px 18px !important;
     min-height: 56px !important;
     height: auto !important;
     border-radius: 10px !important;
     border: 1px solid var(--sk-border-subtle, var(--line)) !important;
     background: var(--sk-bg-surface, var(--card)) !important;
     box-sizing: border-box !important;
+    width: 100% !important;
   }
 
   html:not(.android-app):not(.capacitor-android) #products #grid[data-view="list"] .card:hover {
